@@ -699,17 +699,17 @@ defined('REAPER_RESEED_REWARD_FACTOR') or define('REAPER_RESEED_REWARD_FACTOR', 
 
 // Source flag for torrent files. Should be unique across the wider tracker
 // space to enable easy cross-seeding.
-defined('SOURCE') or define('SOURCE', 'OPS');
+defined('SOURCE_FLAG') or define('SOURCE_FLAG', 'OPS');
 
 // Acceptable source flag from a prior site.
-defined('GRANDFATHER_SOURCE') or define('GRANDFATHER_SOURCE', '');
+defined('SOURCE_PREV_FLAG') or define('SOURCE_PREV_FLAG', '');
 
 // Epoch time of cut-off for accepting grandfathered source flags.
-defined('GRANDFATHER_OLD_SOURCE') or define('GRANDFATHER_OLD_SOURCE', 0);
+defined('SOURCE_FLAG_PREV_EPOCH') or define('SOURCE_FLAG_PREV_EPOCH', 0);
 
 // Epoch time of cut-off for accepting torrents with no source flags (useful if you
 // introduce source flags after launch).
-defined('GRANDFATHER_NO_SOURCE') or define('GRANDFATHER_NO_SOURCE', 0);
+defined('SOURCE_FLAG_NONE_EPOCH') or define('SOURCE_FLAG_NONE_EPOCH', 0);
 
 // ------------------------------------------------------------------------
 // Bonus point settings

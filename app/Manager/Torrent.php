@@ -225,19 +225,28 @@ class Torrent extends \Gazelle\BaseManager {
     }
 
     public function setSourceFlag(\OrpheusNET\BencodeTorrent\BencodeTorrent $torrent): bool {
-        $torrentSource = $torrent->getSource();
-        if ($torrentSource === SOURCE) {
+        $sourceFlag = $torrent->getSource();
+        if ($sourceFlag === SOURCE_FLAG) {
+            // appropriate source flag for the era, no change
             return false;
         }
-        $creationDate = $torrent->getCreationDate();
-        if (!is_null($creationDate)) {
-            if (is_null($torrentSource) && $creationDate <= GRANDFATHER_OLD_SOURCE) {
+        $createdEpoch = $torrent->getCreationDate();
+        if (!is_null($createdEpoch)) {
+            if (is_null($sourceFlag) && $createdEpoch <= SOURCE_FLAG_NONE_EPOCH) {
+                // no source flag but prior to the introduction of source flags, no change
                 return false;
-            } elseif (!is_null($torrentSource) && $torrentSource === GRANDFATHER_SOURCE && $creationDate <= GRANDFATHER_OLD_SOURCE) {
+            } elseif (
+                // A prior source flag is present and corresponds to the name in use
+                // at the time, no change
+                !is_null($sourceFlag)
+                && $sourceFlag === SOURCE_PREV_FLAG
+                && $createdEpoch <= SOURCE_FLAG_PREV_EPOCH
+            ) {
                 return false;
             }
         }
-        return $torrent->setSource(SOURCE);
+        // capture the flag
+        return $torrent->setSource(SOURCE_FLAG);
     }
 
     /**

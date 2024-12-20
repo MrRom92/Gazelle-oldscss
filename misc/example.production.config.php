@@ -7,7 +7,7 @@ define('SITE_NAME', 'Gazelle');
 define('SITE_HOST', 'localhost');
 define('SITE_LAUNCH_YEAR', 2018);
 
-define('SOURCE', 'GZL');
+define('SOURCE_FLAG', 'GZL');
 
 define('TMPDIR', '/tmp');
 
