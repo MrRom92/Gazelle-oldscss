@@ -4,6 +4,7 @@ namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Group;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\DownloadStatus;
 use Gazelle\Enum\LeechType;
 
@@ -13,7 +14,7 @@ class TrackerTest extends TestCase {
 
     public function tearDown(): void {
         if (isset($this->torrent)) {
-            \GazelleUnitTest\Helper::removeTGroup($this->torrent->group(), $this->user);
+            Helper::removeTGroup($this->torrent->group(), $this->user);
         }
         if (isset($this->user)) {
             $this->user->remove();
@@ -35,9 +36,9 @@ class TrackerTest extends TestCase {
 
     #[Group('no-ci')]
     public function testTrackerToken(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('trkfl.' . randomString(10), 'tracker');
-        $this->torrent = \GazelleUnitTest\Helper::makeTorrentMusic(
-            \GazelleUnitTest\Helper::makeTGroupMusic(
+        $this->user = Helper::makeUser('trkfl.' . randomString(10), 'tracker');
+        $this->torrent = Helper::makeTorrentMusic(
+            Helper::makeTGroupMusic(
                 name:       'tracker ' . randomString(10),
                 artistName: [[ARTIST_MAIN], ['Tracker Girl ' . randomString(12)]],
                 tagName:    ['trap'],
@@ -60,9 +61,9 @@ class TrackerTest extends TestCase {
 
     #[Group('no-ci')]
     public function testTrackerTorrent(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('trk.' . randomString(10), 'tracker');
-        $this->torrent = \GazelleUnitTest\Helper::makeTorrentMusic(
-            \GazelleUnitTest\Helper::makeTGroupMusic(
+        $this->user = Helper::makeUser('trk.' . randomString(10), 'tracker');
+        $this->torrent = Helper::makeTorrentMusic(
+            Helper::makeTGroupMusic(
                 name:       'tracker ' . randomString(10),
                 artistName: [[ARTIST_MAIN], ['Tracker Girl ' . randomString(12)]],
                 tagName:    ['trap'],
@@ -82,7 +83,7 @@ class TrackerTest extends TestCase {
         $info = $tracker->info();
         $this->assertFalse($tracker->lastError(), 'tracker-init');
 
-        $this->user = \GazelleUnitTest\Helper::makeUser('trk.' . randomString(10), 'tracker');
+        $this->user = Helper::makeUser('trk.' . randomString(10), 'tracker');
         $this->assertEquals(
             [
                 'id'        => $this->user->id(),
@@ -154,9 +155,10 @@ class TrackerTest extends TestCase {
 
     public function testTrackerExpireFreeleech(): void {
         $tracker = new Tracker();
-        $this->user = \GazelleUnitTest\Helper::makeUser('trkfree.' . randomString(10), 'tracker');
-        $this->torrent = \GazelleUnitTest\Helper::makeTorrentMusic(
-            \GazelleUnitTest\Helper::makeTGroupMusic(
+        $this->user = Helper::makeUser('trkfree.' . randomString(10), 'tracker');
+        $this->user->requestContext()->setViewer($this->user);
+        $this->torrent = Helper::makeTorrentMusic(
+            Helper::makeTGroupMusic(
                 name:       'tracker ' . randomString(10),
                 artistName: [[ARTIST_MAIN], ['Tracker Girl ' . randomString(12)]],
                 tagName:    ['trap'],
@@ -167,7 +169,7 @@ class TrackerTest extends TestCase {
         );
         $tracker->addTorrent($this->torrent);
 
-        $downloader = \GazelleUnitTest\Helper::makeUser('trkdown.' . randomString(10), 'tracker');
+        $downloader = Helper::makeUser('trkdown.' . randomString(10), 'tracker');
         $downloader->updateTokens(10);
         $download = new Download($this->torrent, new User\UserclassRateLimit($downloader), true);
         $this->assertEquals(DownloadStatus::ok, $download->status(), 'tracker-downloader-enough-tokens');

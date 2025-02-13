@@ -3,18 +3,20 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\CollageType;
 
 class ArtistTest extends TestCase {
     protected Artist  $artist;
     protected Collage $collage;
-    protected array            $tgroupList;
+    protected array   $tgroupList;
     protected User    $user;
     protected User    $extra;
-    protected array            $artistIdList = [];
+    protected array   $artistIdList = [];
 
     public function setUp(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('arty.' . randomString(10), 'artist');
+        $this->user = Helper::makeUser('arty.' . randomString(10), 'artist');
+        $this->user->requestContext()->setViewer($this->user);
     }
 
     public function tearDown(): void {
@@ -23,7 +25,7 @@ class ArtistTest extends TestCase {
             $artist = $manager->findById($artistId);
             if ($artist) {
                 $artist->toggleAttr('locked', false);
-                $artist->remove($this->user);
+                $artist->remove();
             }
         }
         if (isset($this->extra)) {
@@ -34,7 +36,7 @@ class ArtistTest extends TestCase {
         }
         if (isset($this->tgroupList)) {
             foreach ($this->tgroupList as $tgroup) {
-                \GazelleUnitTest\Helper::removeTGroup($tgroup, $this->user);
+                Helper::removeTGroup($tgroup, $this->user);
             }
         }
         $this->user->remove();
@@ -142,7 +144,7 @@ class ArtistTest extends TestCase {
         $this->assertEquals($artist->id(), $artist->id(), 'artist-fetch-artist-id');
         $this->assertEquals($newId, $artist->aliasId(), 'artist-fetch-alias-id');
 
-        $this->assertEquals(1, $artist->removeAlias($newId, $this->user), 'artist-remove-alias');
+        $this->assertEquals(1, $artist->removeAlias($newId), 'artist-remove-alias');
     }
 
     public function testArtistNonRedirAlias(): void {
@@ -175,7 +177,7 @@ class ArtistTest extends TestCase {
             $commentMan->create($this->user, 'artist', $new->id(), 'phpunit merge ' . randomString(6)),
         ];
 
-        $this->extra = \GazelleUnitTest\Helper::makeUser('merge.' . randomString(10), 'merge');
+        $this->extra = Helper::makeUser('merge.' . randomString(10), 'merge');
         $extraBk = new User\Bookmark($this->extra);
         $extraBk->create('artist', $old->id());
         $extraBk->create('artist', $new->id());
@@ -191,13 +193,13 @@ class ArtistTest extends TestCase {
         $this->collage->addEntry($old, $this->user);
 
         $this->tgroupList = [
-            \GazelleUnitTest\Helper::makeTGroupMusic(
+            Helper::makeTGroupMusic(
                 $this->user,
                 'phpunit artist merge1 ' . randomString(10),
                 [[ARTIST_MAIN], [$oldName]],
                 ['hip.hop'],
             ),
-            \GazelleUnitTest\Helper::makeTGroupMusic(
+            Helper::makeTGroupMusic(
                 $this->user,
                 'phpunit artist merge2 ' . randomString(10),
                 [[ARTIST_MAIN], [$oldName, $newName]],
@@ -325,7 +327,7 @@ class ArtistTest extends TestCase {
         );
 
         $this->tgroupList = [
-            \GazelleUnitTest\Helper::makeTGroupMusic(
+            Helper::makeTGroupMusic(
                 $this->user,
                 'phpunit artist smart rename ' . randomString(10),
                 [[ARTIST_MAIN], [$artist->name()]],
@@ -429,7 +431,7 @@ class ArtistTest extends TestCase {
         $manager = new Manager\Artist();
         $artist = $manager->create('phpunit.artsim.' . randomString(12));
         $this->artistIdList[] = $artist->id();
-        $this->extra = \GazelleUnitTest\Helper::makeUser('art2.' . randomString(10), 'artist');
+        $this->extra = Helper::makeUser('art2.' . randomString(10), 'artist');
 
         $other1 = $manager->create('phpunit.other1.' . randomString(12));
         $other2 = $manager->create('phpunit.other2.' . randomString(12));
@@ -518,17 +520,17 @@ class ArtistTest extends TestCase {
             }
             $artist = $manager->create($name);
             $this->artistIdList[] = $artist->id();
-            $tgroup = \GazelleUnitTest\Helper::makeTGroupMusic(
+            $tgroup = Helper::makeTGroupMusic(
                 $this->user,
                 'phpunit artist autocomp ' . randomString(10),
                 [[ARTIST_MAIN], [$name]],
                 ['punk'],
             );
-            \GazelleUnitTest\Helper::makeTorrentMusic($tgroup, $this->user);
+            Helper::makeTorrentMusic($tgroup, $this->user);
             $this->tgroupList[] = $tgroup;
         }
         $this->tgroupList[0]
-            ->addArtists([ARTIST_COMPOSER], [$composer], $this->user, $manager, new Log());
+            ->addArtists([ARTIST_COMPOSER], [$composer], $manager);
         global $Cache;
         $Cache->delete_multi([
             $manager->autocompleteKey("%"),

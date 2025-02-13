@@ -32,7 +32,7 @@ foreach ($imageList as $n => $image) {
     if ($banned) {
         error("Please rehost images from $banned elsewhere.");
     }
-    $tgroup->addCoverArt($image, trim($summaryList[$n]), $Viewer);
+    $tgroup->addCoverArt($image, trim($summaryList[$n]));
 }
 
 header('Location: ' . redirectUrl($tgroup->location()));

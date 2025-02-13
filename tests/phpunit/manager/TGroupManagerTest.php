@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class TGroupManagerTest extends TestCase {
     protected array         $tgroupList = [];
@@ -10,9 +11,10 @@ class TGroupManagerTest extends TestCase {
     protected User $user;
 
     public function setUp(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('tgman.' . randomString(10), 'tgman');
+        $this->user = Helper::makeUser('tgman.' . randomString(10), 'tgman');
+        $this->user->requestContext()->setViewer($this->user);
         $this->tgroupList = [
-            \GazelleUnitTest\Helper::makeTGroupMusic(
+            Helper::makeTGroupMusic(
                 name:       'phpunit tgman ' . randomString(6),
                 artistName: [[ARTIST_MAIN], ['phpunit tgman ' . randomString(12)]],
                 tagName:    ['folk'],
@@ -20,7 +22,7 @@ class TGroupManagerTest extends TestCase {
             ),
         ];
         $this->torrentList = [
-            \GazelleUnitTest\Helper::makeTorrentMusic(
+            Helper::makeTorrentMusic(
                 tgroup: $this->tgroupList[0],
                 user:  $this->user,
                 title: randomString(10),
@@ -30,7 +32,7 @@ class TGroupManagerTest extends TestCase {
 
     public function tearDown(): void {
         foreach ($this->torrentList as $torrent) {
-            \GazelleUnitTest\Helper::removeTGroup($torrent->group(), $this->user);
+            Helper::removeTGroup($torrent->group(), $this->user);
         }
         $this->user->remove();
     }

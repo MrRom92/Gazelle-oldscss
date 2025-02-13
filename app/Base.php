@@ -49,7 +49,13 @@ abstract class Base {
         return $default ? (string)$default : null;
     }
 
+    // *** functions delegated to the request context
+
     public function logger(): Log {
         return $this->requestContext()->logger();
+    }
+
+    public function viewer(): User {
+        return $this->requestContext()->viewer();
     }
 }

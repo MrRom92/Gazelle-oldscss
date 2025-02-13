@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\LeechType;
 use Gazelle\Enum\LeechReason;
 
@@ -10,15 +11,16 @@ class TorrentFreeleechTest extends TestCase {
     protected array $torrentList;
 
     public function setUp(): void {
-        $user = \GazelleUnitTest\Helper::makeUser('torman.' . randomString(10), 'torrent.manager');
-        $tgroup = \GazelleUnitTest\Helper::makeTGroupMusic(
+        $user = Helper::makeUser('torman.' . randomString(10), 'torrent.manager');
+        $user->requestContext()->setViewer($user);
+        $tgroup = Helper::makeTGroupMusic(
             name:       'phpunit torman ' . randomString(6),
             artistName: [[ARTIST_MAIN], ['DJ Torman ' . randomString(12)]],
             tagName:    ['hip.hop'],
             user:       $user,
         );
         $this->torrentList = array_map(fn($info) =>
-            \GazelleUnitTest\Helper::makeTorrentMusic(
+            Helper::makeTorrentMusic(
                 tgroup: $tgroup,
                 format: $info['format'],
                 size:   $info['size'],

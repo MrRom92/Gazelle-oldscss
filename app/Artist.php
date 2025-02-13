@@ -396,7 +396,7 @@ class Artist extends BaseObject implements CollageEntry {
         return empty($alias) ? null : current($alias);  // @phpstan-ignore-line ?phpstan bug should return int|null but returns int|string|null.
     }
 
-    public function removeAlias(int $aliasId, User $user): int {
+    public function removeAlias(int $aliasId): int {
         if ($this->aliasId === $aliasId) {
             $this->aliasId = $this->primaryAliasId();
         }
@@ -409,7 +409,7 @@ class Artist extends BaseObject implements CollageEntry {
         if ($affected) {
             $this->flush();
             $this->logger()->general(
-                "The alias $aliasId ({$alias['name']}) for the artist {$this->label()}  was removed by user {$user->label()}"
+                "The alias $aliasId ({$alias['name']}) for the artist {$this->label()}  was removed by user {$this->viewer()->label()}"
             );
         }
         return $affected;
@@ -887,7 +887,7 @@ class Artist extends BaseObject implements CollageEntry {
      * Deletes an artist and their wiki and tags.
      * Does NOT delete their requests or torrents.
      */
-    public function remove(User $user): int {
+    public function remove(): int {
         $qid  = self::$db->get_query_id();
         $id   = $this->id;
         $name = $this->name();
@@ -905,7 +905,7 @@ class Artist extends BaseObject implements CollageEntry {
 
         (new Manager\Comment())->remove('artist', $id);
         $this->logger()->general(
-            "Artist $id ($name) was deleted by {$user->username()}"
+            "Artist $id ($name) was deleted by {$this->viewer()->username()}"
         );
         self::$db->commit();
 

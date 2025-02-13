@@ -7,6 +7,7 @@ class BaseRequestContext {
     protected bool   $isValid;
     protected array  $ua;
     protected Log    $logger;
+    protected User   $viewer;
 
     public function __construct(
         protected readonly string $scriptName,
@@ -65,6 +66,10 @@ class BaseRequestContext {
         return $this->useragent;
     }
 
+    public function viewer(): User {
+        return $this->viewer;
+    }
+
     /**
      * Because we <3 our staff
      */
@@ -86,6 +91,11 @@ class BaseRequestContext {
      */
     public function setModule(string $module): static {
         $this->module = $module;
+        return $this;
+    }
+
+    public function setViewer(User $viewer): static {
+        $this->viewer = $viewer;
         return $this;
     }
 }

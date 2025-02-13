@@ -32,7 +32,7 @@ if (count($tgroupList) + count($requestList) > 0) {
 }
 
 $name = $artist->name();
-$artist->remove($Viewer);
+$artist->remove();
 
 echo $Twig->render('artist/remove-success.twig', [
     'name' => $name,

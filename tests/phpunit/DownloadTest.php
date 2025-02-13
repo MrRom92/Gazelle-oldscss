@@ -14,6 +14,7 @@ class DownloadTest extends TestCase {
             'up'   => \GazelleUnitTest\Helper::makeUser('upload.' . randomString(6), 'download'),
             'down' => \GazelleUnitTest\Helper::makeUser('download.' . randomString(6), 'download'),
         ];
+        $this->userList['up']->requestContext()->setViewer($this->userList['up']);
         $this->torrent = \GazelleUnitTest\Helper::makeTorrentMusic(
             tgroup: \GazelleUnitTest\Helper::makeTGroupMusic(
                 name:       'phpunit download ' . randomString(6),

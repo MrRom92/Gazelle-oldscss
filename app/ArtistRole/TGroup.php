@@ -203,7 +203,7 @@ class TGroup extends \Gazelle\ArtistRole {
         }
         foreach ($changed as $artist) {
             if (!$artist->usageTotal()) {
-                $artist->remove($user);
+                $artist->remove();
             }
         }
         return count($changed);

@@ -54,7 +54,7 @@ class TGroup extends \Gazelle\BaseManager {
         );
         $newId = self::$db->inserted_id();
         $new = $this->findById($newId);
-        $new->addArtists([ARTIST_MAIN], [$artistName], $user, $artistMan);
+        $new->addArtists([ARTIST_MAIN], [$artistName], $artistMan);
 
         self::$db->prepared_query('
             UPDATE torrents SET
@@ -74,7 +74,7 @@ class TGroup extends \Gazelle\BaseManager {
             $commentMan->merge('torrents', $oldId, $newId);
             $voteMan->merge($old, $new, new \Gazelle\Manager\User());
             $this->logger()->merge($old, $new);
-            $old->remove($user);
+            $old->remove();
         }
 
         $this->logger()->group($new, $user, "split from group $oldId")
@@ -245,7 +245,7 @@ class TGroup extends \Gazelle\BaseManager {
 
         $oldId    = $old->id();
         $oldLabel = $old->label();
-        $old->remove($user);
+        $old->remove();
         $this->logger()
             ->group(
                 $new,
@@ -393,7 +393,7 @@ class TGroup extends \Gazelle\BaseManager {
             catalogueNumber: null,
         );
         if ($new->hasArtistRole()) {
-            $new->addArtists([ARTIST_MAIN], [$artistName], $user, $artistMan);
+            $new->addArtists([ARTIST_MAIN], [$artistName], $artistMan);
         }
         $torrent->setField('GroupID', $new->id())->modify();
 
@@ -405,7 +405,7 @@ class TGroup extends \Gazelle\BaseManager {
             (new \Gazelle\Manager\Comment())->merge('torrents', $old->id(), $new->id());
             (new \Gazelle\Manager\Vote())->merge($old, $new, new \Gazelle\Manager\User());
             $this->logger()->merge($old, $new);
-            $old->remove($user);
+            $old->remove();
         }
         $new->refresh();
 

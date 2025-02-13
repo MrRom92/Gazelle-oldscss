@@ -140,6 +140,7 @@ if ($Viewer) {
     // for a user who may lack the privileges to see it in the first place.
     \Text::setViewer($Viewer);
     \Gazelle\Util\Twig::setViewer($Viewer);
+    $context->setViewer($Viewer);
 }
 unset($forceLogout);
 

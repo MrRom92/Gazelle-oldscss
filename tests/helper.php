@@ -97,7 +97,7 @@ class Helper {
             recordLabel:     'Unitest Artists Corporation',
             catalogueNumber: 'UA-' . random_int(10000, 99999),
         );
-        $tgroup->addArtists($artistName[0], $artistName[1], $user, new \Gazelle\Manager\Artist());
+        $tgroup->addArtists($artistName[0], $artistName[1], new \Gazelle\Manager\Artist());
         $tagMan = new \Gazelle\Manager\Tag();
         foreach ($tagName as $name) {
             $tag = $tagMan->softCreate($name, $user);
@@ -242,7 +242,7 @@ class Helper {
         foreach ($tgroup->torrentIdList() as $torrentId) {
             $torMan->findById($torrentId)?->remove($user, 'phpunit teardown');
         }
-        $tgroup->remove($user);
+        $tgroup->remove();
     }
 
     /**

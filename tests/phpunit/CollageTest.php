@@ -27,6 +27,7 @@ class CollageTest extends TestCase {
             'u2'  => \GazelleUnitTest\Helper::makeUser('u2.' . randomString(6), 'collage', clearInbox: true),
             'u3'  => \GazelleUnitTest\Helper::makeUser('u3.' . randomString(6), 'collage', clearInbox: true),
         ];
+        $this->userList['u1']->requestContext()->setViewer($this->userList['u1']);
         $this->artistName = [
             'The phpunit ' . randomString(8) . ' Band',
             'The phpunit ' . randomString(8) . ' Sisters',

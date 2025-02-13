@@ -22,10 +22,10 @@ class LogTest extends TestCase {
             ", '^' . self::PREFIX
         );
         if (isset($this->tgroup)) {
-            $this->tgroup->remove($this->user);
+            $this->tgroup->remove();
         }
         if (isset($this->tgroupNew)) {
-            $this->tgroupNew->remove($this->user);
+            $this->tgroupNew->remove();
         }
         if (isset($this->user)) {
             $this->user->remove();
@@ -53,6 +53,7 @@ class LogTest extends TestCase {
 
     public function testGroupLog(): void {
         $this->user = \GazelleUnitTest\Helper::makeUser('sitelog.' . randomString(6), 'sitelog');
+        $this->user->requestContext()->setViewer($this->user);
         $logger = $this->user->logger();
         $this->tgroup = \GazelleUnitTest\Helper::makeTGroupMusic(
             $this->user,
@@ -99,6 +100,7 @@ class LogTest extends TestCase {
 
     public function testTorrentlLog(): void {
         $this->user = \GazelleUnitTest\Helper::makeUser('sitelog.' . randomString(6), 'sitelog');
+        $this->user->requestContext()->setViewer($this->user);
         $logger = $this->user->logger();
         $this->tgroup = \GazelleUnitTest\Helper::makeTGroupMusic(
             $this->user,

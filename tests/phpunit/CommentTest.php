@@ -13,11 +13,12 @@ class CommentTest extends TestCase {
 
     public function setUp(): void {
         $this->user = \GazelleUnitTest\Helper::makeUser('comment.' . randomString(10), 'comment');
+        $this->user->requestContext()->setViewer($this->user);
     }
 
     public function tearDown(): void {
         if (isset($this->artist)) {
-            $this->artist->remove($this->user);
+            $this->artist->remove();
         }
         if (isset($this->collage)) {
             $this->collage->hardRemove();
@@ -165,6 +166,6 @@ class CommentTest extends TestCase {
         $manager->merge('artist', $artistExtra->id(), $this->artist->id());
         $this->assertInstanceOf(Comment\Artist::class, $comment->load(), 'comment-merge-load');
         $this->assertCount(2, $comment->thread(), 'comment-artist-merged-thread');
-        $artistExtra->remove($this->user);
+        $artistExtra->remove();
     }
 }

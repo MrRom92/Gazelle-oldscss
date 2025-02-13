@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class TagTest extends TestCase {
     protected const PREFIX = 'phpunit.';
@@ -17,7 +18,7 @@ class TagTest extends TestCase {
         }
         if (isset($this->user)) {
             if (isset($this->tgroup)) {
-                \GazelleUnitTest\Helper::removeTGroup($this->tgroup, $this->user);
+                Helper::removeTGroup($this->tgroup, $this->user);
             }
             $this->user->remove();
         }
@@ -56,7 +57,8 @@ class TagTest extends TestCase {
         $name    = self::PREFIX . randomString(5);
         $this->assertNull($manager->findByName($name), 'tag-lookup-fail');
 
-        $this->user = \GazelleUnitTest\Helper::makeUser('tag.' . randomString(6), 'tag');
+        $this->user = Helper::makeUser('tag.' . randomString(6), 'tag');
+        $this->user->requestContext()->setViewer($this->user);
         $tag = $manager->create($name, $this->user);
         $this->assertInstanceOf(Tag::class, $tag, 'tag-find-by-id');
         $this->assertEquals($tag->id(), $manager->findByName($tag->name())->id(), 'tag-method-lookup');
@@ -67,7 +69,7 @@ class TagTest extends TestCase {
         $this->assertEquals($tag->id(), $find->id(), 'tag-find-by-id');
 
         $this->user->addBounty(500 * 1024 ** 3);
-        $this->request = \GazelleUnitTest\Helper::makeRequestMusic($this->user, 'phpunit tag create request');
+        $this->request = Helper::makeRequestMusic($this->user, 'phpunit tag create request');
         $tag->addRequest($this->request);
 
         // rename to a new tag
@@ -96,7 +98,7 @@ class TagTest extends TestCase {
 
     public function testSoftCreate(): void {
         $manager    = new Manager\Tag();
-        $this->user = \GazelleUnitTest\Helper::makeUser('tag.' . randomString(6), 'tag');
+        $this->user = Helper::makeUser('tag.' . randomString(6), 'tag');
         $valid      = 'phpunit.soft.' . randomString(6);
 
         $this->assertTrue($manager->validName($valid), 'tag-valid-name');
@@ -107,7 +109,7 @@ class TagTest extends TestCase {
 
     public function testAlias(): void {
         $manager    = new Manager\Tag();
-        $this->user = \GazelleUnitTest\Helper::makeUser('tag.' . randomString(6), 'tag');
+        $this->user = Helper::makeUser('tag.' . randomString(6), 'tag');
 
         $bad  = $manager->create(self::PREFIX . randomString(10), $this->user);
         $good = $manager->create(self::PREFIX . randomString(10), $this->user);
@@ -182,7 +184,7 @@ class TagTest extends TestCase {
 
     public function testOfficial(): void {
         $manager    = new Manager\Tag();
-        $this->user = \GazelleUnitTest\Helper::makeUser('tag.' . randomString(6), 'tag');
+        $this->user = Helper::makeUser('tag.' . randomString(6), 'tag');
         $tag        = $manager->create(self::PREFIX . randomString(10), $this->user);
         $this->assertEquals($tag->id(), $manager->officialize($tag->name(), $this->user)->id(), 'tag-officalize-existing');
         $list = array_filter($manager->genreList(), fn($t) => $t == $tag->name());
@@ -205,7 +207,8 @@ class TagTest extends TestCase {
     }
 
     public function testTGroup(): void {
-        $this->user   = \GazelleUnitTest\Helper::makeUser('tag.' . randomString(8), 'tag.tgroup');
+        $this->user = Helper::makeUser('tag.' . randomString(8), 'tag.tgroup');
+        $this->user->requestContext()->setViewer($this->user);
         $this->tgroup = \GazelleUnitTest\Helper::makeTGroupMusic(
             name:       'phpunit tag ' . randomString(6),
             artistName: [[ARTIST_MAIN], ['Tag Girl ' . randomString(12)]],
@@ -244,7 +247,8 @@ class TagTest extends TestCase {
     }
 
     public function testReAdd(): void {
-        $this->user   = \GazelleUnitTest\Helper::makeUser('tag.' . randomString(8), 'tag.readd');
+        $this->user = \GazelleUnitTest\Helper::makeUser('tag.' . randomString(8), 'tag.readd');
+        $this->user->requestContext()->setViewer($this->user);
         $manager      = new Manager\Tag();
         $name         = self::PREFIX . randomString(10);
         $tag          = $manager->create($name, $this->user);
@@ -259,6 +263,7 @@ class TagTest extends TestCase {
 
     public function testSplitNew(): void {
         $this->user = \GazelleUnitTest\Helper::makeUser('tag.' . randomString(8), 'tag.split');
+        $this->user->requestContext()->setViewer($this->user);
         $manager = new Manager\Tag();
         $name    = self::PREFIX . randomString(10);
         $tag     = $manager->create($name, $this->user);
@@ -309,6 +314,7 @@ class TagTest extends TestCase {
 
     public function testSplitExisting(): void {
         $this->user = \GazelleUnitTest\Helper::makeUser('tag.' . randomString(8), 'tag.split');
+        $this->user->requestContext()->setViewer($this->user);
         $manager = new Manager\Tag();
         $name    = self::PREFIX . randomString(10);
         $tag     = $manager->create($name, $this->user);

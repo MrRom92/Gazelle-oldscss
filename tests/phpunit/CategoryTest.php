@@ -24,6 +24,7 @@ class CategoryTest extends TestCase {
         $tgMan  = new Manager\TGroup();
         $torMan = new Manager\Torrent();
         $user   = \GazelleUnitTest\Helper::makeUser('tgcat.' . randomString(10), 'tgroup-cat');
+        $user->requestContext()->setViewer($user);
         $tgroup = \GazelleUnitTest\Helper::makeTGroupEBook(
             name: 'phpunit category change ' . randomString(6),
         );
@@ -111,7 +112,7 @@ class CategoryTest extends TestCase {
         foreach ($torrentList as $torrent) {
             $torrent->remove($user, 'phpunit');
         }
-        $tgroup->remove($user);
+        $tgroup->remove();
         $this->assertEquals(0, (int)DB::DB()->scalar("
             SELECT count(*) FROM torrents_artists WHERE GroupID = ?
             ", $tgroupId),

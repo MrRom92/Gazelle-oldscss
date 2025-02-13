@@ -36,6 +36,6 @@ if ($tgroupList) {
     exit;
 }
 
-$artist->removeAlias($aliasId, $Viewer);
+$artist->removeAlias($aliasId);
 
 header("Location: " . redirectUrl("artist.php?action=edit&artistid={$artist->id()}"));

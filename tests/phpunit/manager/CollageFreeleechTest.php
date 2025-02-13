@@ -3,24 +3,26 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\LeechType;
 use Gazelle\Enum\LeechReason;
 
 class CollageFreeleechTest extends TestCase {
     protected Collage $collage;
     protected User    $user;
-    protected array            $tgroupList;
+    protected array   $tgroupList;
 
     public function setUp(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('collfree.' . randomString(10), 'collage.manager');
+        $this->user = Helper::makeUser('collfree.' . randomString(10), 'collage.manager');
+        $this->user->requestContext()->setViewer($this->user);
         $this->tgroupList = [
-            \GazelleUnitTest\Helper::makeTGroupMusic(
+            Helper::makeTGroupMusic(
                 name:       'phpunit collfree ' . randomString(6),
                 artistName: [[ARTIST_MAIN], ['Dr Collfree ' . randomString(12)]],
                 tagName:    ['hip.hop'],
                 user:       $this->user,
             ),
-            \GazelleUnitTest\Helper::makeTGroupMusic(
+            Helper::makeTGroupMusic(
                 name:       'phpunit collfree ' . randomString(6),
                 artistName: [[ARTIST_MAIN], ['Dr Collfree ' . randomString(12)]],
                 tagName:    ['hip.hop'],
@@ -42,7 +44,7 @@ class CollageFreeleechTest extends TestCase {
                     ['format' => 'MP3',  'size' =>  2_000_000],
                 ] as $info
             ) {
-                $torrent = \GazelleUnitTest\Helper::makeTorrentMusic(
+                $torrent = Helper::makeTorrentMusic(
                     tgroup: $tgroup,
                     format: $info['format'],
                     size:   $info['size'],

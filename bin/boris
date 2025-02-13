@@ -34,9 +34,29 @@ $b->setInspector(new Boris\ExportInspector);
 
 $torMan  = new Gazelle\Manager\Torrent;
 $userMan = new Gazelle\Manager\User;
+$db      = Gazelle\DB::DB();
+
+$sysop = $userMan->findById(
+    $db->scalar('
+        SELECT um.id
+        FROM users_main um
+        INNER JOIN permissions p on (p.ID = um.PermissionID)
+        ORDER BY p.level DESC
+        LIMIT 1
+    ')
+);
+if (!$sysop instanceof \Gazelle\User) {
+    echo "**** NOTE! no viewer context is set\n";
+} else {
+    $sysop->requestContext()->setViewer($sysop);
+    \Text::setViewer($sysop);
+    \Gazelle\Util\Twig::setViewer($sysop);
+    echo "** viewer context is @{$sysop->username()}\n";
+}
+
 $preload = [
     'cache'       => $Cache,
-    'db'          => Gazelle\DB::DB(),
+    'db'          => $db,
     'debug'       => $Debug,
     'Twig'        => $Twig,
     'artMan'      => new Gazelle\Manager\Artist,

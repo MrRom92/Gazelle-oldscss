@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class UserSeedboxTest extends TestCase {
     protected User $user;
@@ -10,11 +11,12 @@ class UserSeedboxTest extends TestCase {
     protected array $torrentList = [];
 
     public function setUp(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('sbox.' . randomString(10), 'seedbox');
+        $this->user = Helper::makeUser('sbox.' . randomString(10), 'seedbox');
+        $this->user->requestContext()->setViewer($this->user);
         $this->user->toggleAttr('feature-seedbox', true);
 
         $this->tgroupName = 'phpunit seedbox ' . randomString(6);
-        $tgroup = \GazelleUnitTest\Helper::makeTGroupMusic(
+        $tgroup = Helper::makeTGroupMusic(
             name:       $this->tgroupName,
             artistName: [[ARTIST_MAIN], ['Seed Box ' . randomString(12)]],
             tagName:    ['metal'],
@@ -22,7 +24,7 @@ class UserSeedboxTest extends TestCase {
         );
 
         $this->torrentList = array_map(fn($info) =>
-            \GazelleUnitTest\Helper::makeTorrentMusic(
+            Helper::makeTorrentMusic(
                 tgroup: $tgroup,
                 user:   $this->user,
                 title:  $info['title'],
@@ -36,7 +38,7 @@ class UserSeedboxTest extends TestCase {
     }
 
     public function tearDown(): void {
-        \GazelleUnitTest\Helper::removeTGroup($this->torrentList[0]->group(), $this->user);
+        Helper::removeTGroup($this->torrentList[0]->group(), $this->user);
         DB::DB()->prepared_query("
             DELETE us, xfu
             FROM user_seedbox us
@@ -128,7 +130,7 @@ class UserSeedboxTest extends TestCase {
 
     public function testUserSeederList(): void {
         $torrent = $this->torrentList[0];
-        \GazelleUnitTest\Helper::generateTorrentSeed($torrent, $this->user);
+        Helper::generateTorrentSeed($torrent, $this->user);
         $seederList = $torrent->seederList($this->user, 1, 0);
         $this->assertCount(1, $seederList, 'seedbox-user-seederlist');
     }

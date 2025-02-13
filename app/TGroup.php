@@ -508,18 +508,18 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
                 );
     }
 
-    public function addCoverArt(string $image, string $summary, User $user): int {
+    public function addCoverArt(string $image, string $summary): int {
         self::$db->prepared_query("
             INSERT IGNORE INTO cover_art
                    (GroupID, Image, Summary, UserID)
             VALUES (?,       ?,     ?,       ?)
-            ", $this->id, $image, $summary, $user->id()
+            ", $this->id, $image, $summary, $this->viewer()->id()
         );
         $id = self::$db->inserted_id();
         if ($id) {
             $this->logger()->group(
                 $this,
-                $user,
+                $this->viewer(),
                 "Additional cover \"$summary - $image\" added to group"
             );
             self::$cache->delete_value(sprintf(self::CACHE_COVERART_KEY, $this->id));
@@ -527,7 +527,7 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
         return $id;
     }
 
-    public function removeCoverArt(int $coverId, User $user): int {
+    public function removeCoverArt(int $coverId): int {
         [$image, $summary] = self::$db->row("
             SELECT Image, Summary FROM cover_art WHERE ID = ?
             ", $coverId
@@ -543,7 +543,7 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
         if ($affected) {
             $this->logger()->group(
                 $this,
-                $user,
+                $this->viewer(),
                 "Additional cover \"$summary - $image\" removed from group"
             );
             self::$cache->delete_value(sprintf(self::CACHE_COVERART_KEY, $this->id));
@@ -605,8 +605,7 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
      * Add artists to a group. The role and name arrays must be the same length, and
      * are walked down in step, to match the artist with their role in the group
      */
-    public function addArtists(array $roles, array $names, User $user, Manager\Artist $artistMan): int {
-        $userId = $user->id();
+    public function addArtists(array $roles, array $names, Manager\Artist $artistMan): int {
         $add = [];
         $args = [];
         $seen = [];
@@ -627,7 +626,14 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
             $artist = $artistMan->findByName($name) ?? $artistMan->create($name);
             if (!isset($seen["$role:{$artist->aliasId()}"])) {
                 $seen["$role:{$artist->aliasId()}"] = true;
-                array_push($args, $this->id, $userId, $artist->aliasId(), $role, (string)$role);
+                array_push(
+                    $args,
+                    $this->id,
+                    $this->viewer()->id(),
+                    $artist->aliasId(),
+                    $role,
+                    (string)$role,
+                );
                 $add[] = "{$artist->label()} as " . ARTIST_TYPE[$role];
             }
         }
@@ -645,11 +651,11 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
             $this->logger()
                 ->group(
                     $this,
-                    $user,
+                    $this->viewer(),
                     "Added artist $artistLabel"
                 )
                 ->general(
-                    "Artist $artistLabel was added to the group {$this->label()} by user {$user->label()}"
+                    "Artist $artistLabel was added to the group {$this->label()} by user {$this->viewer()->label()}"
                 );
         }
         self::$cache->increment_value('stats_album_count', count($names));
@@ -657,7 +663,7 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
         return count($add);
     }
 
-    public function removeArtist(Artist $artist, int $role, User $user): bool {
+    public function removeArtist(Artist $artist, int $role): bool {
         self::$db->prepared_query('
             DELETE FROM torrents_artists
             WHERE GroupID = ?
@@ -669,7 +675,7 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
             return false;
         }
         if ($artist->usageTotal() === 0) {
-            $artist->remove($user);
+            $artist->remove();
         }
         $this->flush();
         return true;
@@ -766,12 +772,16 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
      *
      * return int revision id
      */
-    public function createRevision(string $description, ?string $image, string $summary, User $user): int {
+    public function createRevision(string $description, ?string $image, string $summary): int {
         self::$db->prepared_query("
             INSERT INTO wiki_torrents
                    (PageID, Body, Image, UserID, Summary)
             VALUES (?,      ?,    ?,     ?,      ?)
-            ", $this->id, $description, $image, $user->id(), mb_substr(trim($summary), 0, 100)
+            ", $this->id,
+            $description,
+            $image,
+            $this->viewer()->id(),
+            mb_substr(trim($summary), 0, 100),
         );
         $revisionId = self::$db->inserted_id();
         self::$db->prepared_query("
@@ -836,7 +846,7 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
         return count($regular) + count($large);
     }
 
-    public function absorb(Torrent $torrent, User $user): int {
+    public function absorb(Torrent $torrent): int {
         self::$db->begin_transaction();
         self::$db->prepared_query("
             UPDATE torrents SET
@@ -857,16 +867,16 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
             (new Manager\Comment())->merge('torrents', $oldId, $this->id);
             (new Manager\Vote())->merge($old, $this, new Manager\User());
             $this->logger()->merge($old, $this);
-            $old->remove($user);
+            $old->remove();
         }
         $this->logger()
             ->group(
                 $this,
-                $user,
+                $this->viewer(),
                 "merged group $oldId"
             )
             ->general(
-                "Torrent {$torrent->id()} was edited by {$user->label()}"
+                "Torrent {$torrent->id()} was edited by {$this->viewer()->label()}"
             );
         self::$db->commit();
 
@@ -876,7 +886,7 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
         return $affected;
     }
 
-    public function remove(User $user): bool {
+    public function remove(): bool {
         $isMusic = ($this->categoryName() === 'Music');
 
         // Artists
@@ -895,7 +905,7 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
             $artist = $artistMan->findByAliasId($artistId);
             if ($artist) {
                 if ($artist->usageTotal() === 0) {
-                    $artist->remove($user);
+                    $artist->remove();
                 } else {
                     $this->flush();
                 }
@@ -988,17 +998,17 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
         return true;
     }
 
-    public function rename(string $name, User $user): bool {
+    public function rename(string $name): bool {
         $oldName = $this->name();
         $success = $this->setField('Name', $name)->modify();
         if ($success) {
             $this->refresh();
             $this->logger()
                 ->group(
-                    $this, $user, "renamed to \"$name\" from \"$oldName\""
+                    $this, $this->viewer(), "renamed to \"$name\" from \"$oldName\""
                 )
                 ->general(
-                    "Torrent Group {$this->id} was renamed to \"$name\" from \"$oldName\" by {$user->username()}"
+                    "Torrent Group {$this->id} was renamed to \"$name\" from \"$oldName\" by {$this->viewer()->username()}"
                 );
         }
         return $success;

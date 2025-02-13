@@ -42,6 +42,6 @@ if (empty($_POST['confirm'])) {
 
 authorize();
 
-$new->absorb($torrent, $Viewer);
+$new->absorb($torrent);
 
 header('Location: ' . $new->location());

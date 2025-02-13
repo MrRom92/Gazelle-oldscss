@@ -36,6 +36,7 @@ class ReaperTest extends TestCase {
             \GazelleUnitTest\Helper::makeUser('reaper.' . randomString(10), 'reaper', enable: true, clearInbox: true),
             \GazelleUnitTest\Helper::makeUser('reaper.' . randomString(10), 'reaper', enable: true, clearInbox: true),
         ];
+        $this->userList[0]->requestContext()->setViewer($this->userList[0]);
 
         // create a torrent group
         $this->tgroupName = 'phpunit reaper ' . randomString(6);

@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\TorrentFlag;
 
 class TorrentReportManagerTest extends TestCase {
@@ -11,19 +12,20 @@ class TorrentReportManagerTest extends TestCase {
 
     public function setUp(): void {
         $this->userList = [
-            \GazelleUnitTest\Helper::makeUser('reportg.' . randomString(10), 'reportg'),
-            \GazelleUnitTest\Helper::makeUser('reportg.' . randomString(10), 'reportg'),
+            Helper::makeUser('reportg.' . randomString(10), 'reportg'),
+            Helper::makeUser('reportg.' . randomString(10), 'reportg'),
         ];
+        $this->userList[0]->requestContext()->setViewer($this->userList[0]);
 
         // create a torrent group
-        $this->tgroup = \GazelleUnitTest\Helper::makeTGroupMusic(
+        $this->tgroup = Helper::makeTGroupMusic(
             name:       'phpunit torrent report ' . randomString(6),
             artistName: [[ARTIST_MAIN], ['Report Dog ' . randomString(12)]],
             tagName:    ['electronic'],
             user:       $this->userList[0],
         );
 
-        \GazelleUnitTest\Helper::makeTorrentMusic(
+        Helper::makeTorrentMusic(
             tgroup: $this->tgroup,
             user:   $this->userList[0],
             title:  'torrent report',
@@ -31,7 +33,7 @@ class TorrentReportManagerTest extends TestCase {
     }
 
     public function tearDown(): void {
-        \GazelleUnitTest\Helper::removeTGroup($this->tgroup, $this->userList[0]);
+        Helper::removeTGroup($this->tgroup, $this->userList[0]);
         foreach ($this->userList as $user) {
             $user->remove();
         }
@@ -45,12 +47,12 @@ class TorrentReportManagerTest extends TestCase {
             'torrent extra 2 ' . randomString(10),
         ];
         $extra = [
-            \GazelleUnitTest\Helper::makeTorrentMusic(
+            Helper::makeTorrentMusic(
                 tgroup: $this->tgroup,
                 user:   $this->userList[0],
                 title:  $title[0],
             ),
-            \GazelleUnitTest\Helper::makeTorrentMusic(
+            Helper::makeTorrentMusic(
                 tgroup: $this->tgroup,
                 user:   $this->userList[0],
                 title:  $title[1],
@@ -67,7 +69,7 @@ class TorrentReportManagerTest extends TestCase {
             irc:         new Util\Irc(),
         );
 
-        $this->assertTrue(\GazelleUnitTest\Helper::recentDate($report->created()), 'torrent-report-created');
+        $this->assertTrue(Helper::recentDate($report->created()), 'torrent-report-created');
         $this->assertCount(0, $report->externalLink(), 'torrent-report-external-link');
         $this->assertCount(0, $report->trackList(), 'torrent-report-track-list');
         $this->assertStringEndsWith("id={$report->id()}", $report->location(), 'torrent-report-location');

@@ -14,6 +14,7 @@ class TGroupVoteTest extends TestCase {
             \GazelleUnitTest\Helper::makeUser('tgvote.' . randomString(10), 'vote'),
             \GazelleUnitTest\Helper::makeUser('tgvote.' . randomString(10), 'vote'),
         ];
+        $this->userList[0]->requestContext()->setViewer($this->userList[0]);
         $this->tgroupList = [
             \GazelleUnitTest\Helper::makeTGroupMusic(
                 name:       'phpunit tgvote ' . randomString(6),

@@ -28,11 +28,13 @@ if (is_null($artist)) {
 $artistId = $artist->id();
 $artistName = $artist->name();
 
-if ($tgroup->removeArtist($artist, $role, $Viewer)) {
+if ($tgroup->removeArtist($artist, $role)) {
     $tgroup->refresh();
     $label = "$artistId ($artistName) [" . ARTIST_TYPE[$role] . "]";
     $tgroup->logger()->group($tgroup, $Viewer, "removed artist $label")
-        ->general("Artist $label removed from group " . $tgroup->label() . " by user " . $Viewer->label());
+        ->general(
+            "Artist $label removed from group {$tgroup->label()} by user {$Viewer->label()}"
+        );
 }
 
 header('Location: ' . redirectUrl($tgroup->location()));

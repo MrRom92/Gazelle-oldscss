@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use OrpheusNET\Logchecker\Logchecker;
 use OrpheusNET\Logchecker\Check\Checksum;
 
@@ -12,7 +13,7 @@ class LogcheckerTest extends TestCase {
 
     public function tearDown(): void {
         if (isset($this->tgroup)) {
-            \GazelleUnitTest\Helper::removeTGroup($this->tgroup, $this->user);
+            Helper::removeTGroup($this->tgroup, $this->user);
         }
         if (isset($this->user)) {
             $this->user->remove();
@@ -20,8 +21,9 @@ class LogcheckerTest extends TestCase {
     }
 
     public function testLogchecker(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('logchecker.' . randomString(6), 'logcheck');
-        $this->tgroup = \GazelleUnitTest\Helper::makeTGroupMusic(
+        $this->user = Helper::makeUser('logchecker.' . randomString(6), 'logcheck');
+        $this->user->requestContext()->setViewer($this->user);
+        $this->tgroup = Helper::makeTGroupMusic(
             $this->user,
             'phpunit logchecker ' . randomString(6),
             [[ARTIST_MAIN], ['phpunit logchecker artist ' . randomString(6)]],
@@ -64,14 +66,15 @@ class LogcheckerTest extends TestCase {
     }
 
     public function testLogcheckerSummary(): void {
-        $this->user   = \GazelleUnitTest\Helper::makeUser('logchecker.' . randomString(6), 'logcheck-summary');
-        $this->tgroup = \GazelleUnitTest\Helper::makeTGroupMusic(
+        $this->user   = Helper::makeUser('logchecker.' . randomString(6), 'logcheck-summary');
+        $this->user->requestContext()->setViewer($this->user);
+        $this->tgroup = Helper::makeTGroupMusic(
             $this->user,
             'phpunit logchecker ' . randomString(6),
             [[ARTIST_MAIN], ['phpunit logchecker artist ' . randomString(6)]],
             ['czech']
         );
-        $torrent = \GazelleUnitTest\Helper::makeTorrentMusic(
+        $torrent = Helper::makeTorrentMusic(
             tgroup: $this->tgroup,
             user:  $this->user,
             title: randomString(10),

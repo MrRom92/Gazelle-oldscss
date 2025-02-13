@@ -514,7 +514,7 @@ if ($tgroup) {
     }
 
     if ($isMusicUpload) {
-        $tgroup->addArtists($ArtistRoleList, $ArtistNameList, $Viewer, new Manager\Artist());
+        $tgroup->addArtists($ArtistRoleList, $ArtistNameList, new Manager\Artist());
         $Cache->increment_value('stats_album_count', count($ArtistNameList));
     }
     $Viewer->stats()->increment('unique_group_total');
@@ -524,7 +524,11 @@ $logName = $tgroup->text();
 
 // Description
 if ($NoRevision) {
-    $tgroup->createRevision($Properties['GroupDescription'], $Properties['Image'], 'Uploaded new torrent', $Viewer);
+    $tgroup->createRevision(
+        $Properties['GroupDescription'],
+        $Properties['Image'],
+        'Uploaded new torrent'
+    );
 }
 
 // Torrent

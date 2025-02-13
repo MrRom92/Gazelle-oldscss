@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\FeaturedAlbumType;
 use Gazelle\Enum\LeechType;
 use Gazelle\Enum\LeechReason;
@@ -12,8 +13,9 @@ class FeaturedAlbumTest extends TestCase {
     protected User        $user;
 
     public function setUp(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('feat.' . randomString(10), 'featured');
-        $this->tgroup = \GazelleUnitTest\Helper::makeTGroupMusic(
+        $this->user = Helper::makeUser('feat.' . randomString(10), 'featured');
+        $this->user->requestContext()->setViewer($this->user);
+        $this->tgroup = Helper::makeTGroupMusic(
             name:       'phpunit feat ' . randomString(6),
             artistName: [[ARTIST_MAIN], ['DJ Feature ' . randomString(12)]],
             tagName:    ['opera'],
@@ -30,7 +32,7 @@ class FeaturedAlbumTest extends TestCase {
             )
         );
         (new Manager\FeaturedAlbum())->findById($this->tgroup->id())?->remove();
-        $this->tgroup->remove($this->user);
+        $this->tgroup->remove();
         $this->user->remove();
     }
 

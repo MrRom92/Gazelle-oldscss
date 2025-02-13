@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\DownloadStatus;
 use Gazelle\Enum\TorrentFlag;
 use Gazelle\Enum\UserTorrentSearch;
@@ -13,9 +14,10 @@ class TorrentTest extends TestCase {
     protected array   $userList;
 
     public function setUp(): void {
-        $this->user    = \GazelleUnitTest\Helper::makeUser('torrent.' . randomString(10), 'rent', clearInbox: true);
-        $this->torrent = \GazelleUnitTest\Helper::makeTorrentMusic(
-            tgroup: \GazelleUnitTest\Helper::makeTGroupMusic(
+        $this->user    = Helper::makeUser('torrent.' . randomString(10), 'rent', clearInbox: true);
+        $this->user->requestContext()->setViewer($this->user);
+        $this->torrent = Helper::makeTorrentMusic(
+            tgroup: Helper::makeTGroupMusic(
                 name:       'phpunit torrent ' . randomString(6),
                 artistName: [[ARTIST_MAIN], ['phpunit torrent ' . randomString(12)]],
                 tagName:    ['jazz'],
@@ -27,7 +29,7 @@ class TorrentTest extends TestCase {
     }
 
     public function tearDown(): void {
-        \GazelleUnitTest\Helper::removeTGroup($this->torrent->group(), $this->user);
+        Helper::removeTGroup($this->torrent->group(), $this->user);
         $this->user->remove();
         if (isset($this->userList)) {
             foreach ($this->userList as $user) {
@@ -107,24 +109,24 @@ class TorrentTest extends TestCase {
     }
 
     public function testRemovalPm(): void {
-        $torrent = \GazelleUnitTest\Helper::makeTorrentMusic(
+        $torrent = Helper::makeTorrentMusic(
             tgroup: $this->torrent->group(),
             user:   $this->user,
             title:  randomString(10),
         );
 
         // a downloader
-        $this->userList['downloader'] = \GazelleUnitTest\Helper::makeUser('torrent.' . randomString(10), 'rent', clearInbox: true);
+        $this->userList['downloader'] = Helper::makeUser('torrent.' . randomString(10), 'rent', clearInbox: true);
         $status = new Download($torrent, new User\UserclassRateLimit($this->userList['downloader']), false);
         $this->assertEquals(DownloadStatus::ok, $status->status(), 'torrent-removal-download');
 
         // a snatcher
-        $this->userList['snatcher'] = \GazelleUnitTest\Helper::makeUser('torrent.' . randomString(10), 'rent', clearInbox: true);
-        \GazelleUnitTest\Helper::generateTorrentSnatch($torrent, $this->userList['snatcher']);
+        $this->userList['snatcher'] = Helper::makeUser('torrent.' . randomString(10), 'rent', clearInbox: true);
+        Helper::generateTorrentSnatch($torrent, $this->userList['snatcher']);
 
         // a seeder
-        $this->userList['seeder'] = \GazelleUnitTest\Helper::makeUser('torrent.' . randomString(10), 'rent', clearInbox: true);
-        \GazelleUnitTest\Helper::generateTorrentSeed($torrent, $this->userList['seeder']);
+        $this->userList['seeder'] = Helper::makeUser('torrent.' . randomString(10), 'rent', clearInbox: true);
+        Helper::generateTorrentSeed($torrent, $this->userList['seeder']);
 
         $name = $torrent->fullName();
         $path = $torrent->path();

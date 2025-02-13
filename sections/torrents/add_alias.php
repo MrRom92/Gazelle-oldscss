@@ -16,7 +16,6 @@ if (is_null($tgroup)) {
 $count = $tgroup->addArtists(
     $_POST['importance'],
     $_POST['aliasname'],
-    $Viewer,
     new Manager\Artist(),
 );
 

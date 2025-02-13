@@ -14,6 +14,7 @@ class NotificationUploadTest extends TestCase {
 
     public function setUp(): void {
         $user = \GazelleUnitTest\Helper::makeUser('uploader.' . randomString(10), 'notification-ticket');
+        $user->requestContext()->setViewer($user);
         $tgroup = (new Manager\TGroup())->create(
             categoryId:      1,
             releaseType:     (new ReleaseType())->findIdByName('Compilation'),
@@ -25,7 +26,7 @@ class NotificationUploadTest extends TestCase {
             catalogueNumber: 'UA-246',
             showcase:        false,
         );
-        $tgroup->addArtists([ARTIST_MAIN], ['Notify Man ' . randomString(12)], $user, new Manager\Artist());
+        $tgroup->addArtists([ARTIST_MAIN], ['Notify Man ' . randomString(12)], new Manager\Artist());
 
         $tagMan = new Manager\Tag();
         foreach (['electronic', 'funk', 'jazz'] as $name) {

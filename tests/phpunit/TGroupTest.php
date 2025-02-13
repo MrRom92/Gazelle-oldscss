@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class TGroupTest extends TestCase {
     protected TGroup $tgroup;
@@ -16,10 +17,11 @@ class TGroupTest extends TestCase {
 
     public function setUp(): void {
         $this->userList = [
-            'admin' => \GazelleUnitTest\Helper::makeUser('tgroup.a.' . randomString(6), 'tgroup'),
-            'user'  => \GazelleUnitTest\Helper::makeUser('tgroup.u.' . randomString(6), 'tgroup'),
-            'nope'  => \GazelleUnitTest\Helper::makeUser('tgroup.n.' . randomString(6), 'tgroup'),
+            'admin' => Helper::makeUser('tgroup.a.' . randomString(6), 'tgroup'),
+            'user'  => Helper::makeUser('tgroup.u.' . randomString(6), 'tgroup'),
+            'nope'  => Helper::makeUser('tgroup.n.' . randomString(6), 'tgroup'),
         ];
+        $this->userList['admin']->requestContext()->setViewer($this->userList['admin']);
         $this->userList['admin']->setField('PermissionID', MOD)->modify();
 
         $this->name            = 'phpunit live in ' . randomString(6);
@@ -40,19 +42,19 @@ class TGroupTest extends TestCase {
         );
 
         // and add some torrents to the group
-        \GazelleUnitTest\Helper::makeTorrentMusic(
+        Helper::makeTorrentMusic(
             tgroup:          $this->tgroup,
             user:            $this->userList['user'],
             catalogueNumber: 'UA-TG-1',
         );
-        \GazelleUnitTest\Helper::makeTorrentMusic(
+        Helper::makeTorrentMusic(
             tgroup:          $this->tgroup,
             user:            $this->userList['admin'],
             catalogueNumber: 'UA-TG-1',
             format:          'MP3',
             encoding:        'V0',
         );
-        \GazelleUnitTest\Helper::makeTorrentMusic(
+        Helper::makeTorrentMusic(
             tgroup:          $this->tgroup,
             user:            $this->userList['user'],
             catalogueNumber: 'UA-TG-2',
@@ -62,9 +64,9 @@ class TGroupTest extends TestCase {
 
     public function tearDown(): void {
         if (isset($this->tgroupExtra)) {
-            \GazelleUnitTest\Helper::removeTGroup($this->tgroupExtra, $this->userList['admin']);
+            Helper::removeTGroup($this->tgroupExtra, $this->userList['admin']);
         }
-        \GazelleUnitTest\Helper::removeTGroup($this->tgroup, $this->userList['admin']);
+        Helper::removeTGroup($this->tgroup, $this->userList['admin']);
         foreach ($this->userList as $user) {
             $user->remove();
         }
@@ -119,8 +121,16 @@ class TGroupTest extends TestCase {
         $artMan = new Manager\Artist();
         $user   = $this->userList['admin'];
         $artistName = 'phpunit ' . randomString(6) . ' band';
-        $this->assertEquals(1, $this->tgroup->addArtists([ARTIST_MAIN], [$artistName], $user, $artMan), 'tgroup-artist-add');
-        $this->assertEquals("$artistName – {$this->tgroup->name()} [{$this->tgroup->year()} Live album]", $this->tgroup->text(), 'tgroup-artist-text');
+        $this->assertEquals(
+            1,
+            $this->tgroup->addArtists([ARTIST_MAIN], [$artistName], $artMan),
+            'tgroup-artist-add'
+        );
+        $this->assertEquals(
+            "$artistName – {$this->tgroup->name()} [{$this->tgroup->year()} Live album]",
+            $this->tgroup->text(),
+            'tgroup-artist-text'
+        );
 
         $this->assertNotNull($this->tgroup->primaryArtist(), 'tgroup-artist-primary');
 
@@ -149,7 +159,6 @@ class TGroupTest extends TestCase {
             $this->tgroup->addArtists(
                 [ARTIST_MAIN,     ARTIST_GUEST],
                 ["$artistName-2", "$artistName-guest"],
-                $user,
                 $artMan,
             ),
             'tgroup-artist-add-2'
@@ -188,10 +197,21 @@ class TGroupTest extends TestCase {
     }
 
     public function testTGroupCoverArt(): void {
-        $coverId = $this->tgroup->addCoverArt('https://www.example.com/cover.jpg', 'cover art summary', $this->userList['user']);
+        $coverId = $this->tgroup->addCoverArt(
+            'https://www.example.com/cover.jpg',
+            'cover art summary',
+        );
         $this->assertGreaterThan(0, $coverId, 'tgroup-cover-art-add');
-        $this->assertEquals(1, $this->tgroup->removeCoverArt($coverId, $this->userList['user']), 'tgroup-cover-art-del-ok');
-        $this->assertEquals(0, $this->tgroup->removeCoverArt(9999999, $this->userList['user']), 'tgroup-cover-art-del-nok');
+        $this->assertEquals(
+            1,
+            $this->tgroup->removeCoverArt($coverId),
+            'tgroup-cover-art-del-ok'
+        );
+        $this->assertEquals(
+            0,
+            $this->tgroup->removeCoverArt(9999999),
+            'tgroup-cover-art-del-nok'
+        );
     }
 
     public function testTGroupRevision(): void {
@@ -199,7 +219,6 @@ class TGroupTest extends TestCase {
             $this->tgroup->description() . "\nmore text",
             'https://www.example.com/image.jpg',
             'phpunit testTGroup summary',
-            $this->userList['admin'],
         );
         $this->assertGreaterThan(0, $revisionId, 'tgroup-revision-add');
     }
@@ -314,7 +333,7 @@ class TGroupTest extends TestCase {
             releaseType:     (new ReleaseType())->findIdByName('Live album'),
             showcase:        false,
         );
-        \GazelleUnitTest\Helper::makeTorrentMusic(
+        Helper::makeTorrentMusic(
             tgroup:          $this->tgroupExtra,
             user:            $user,
             catalogueNumber: 'UA-MG-1',

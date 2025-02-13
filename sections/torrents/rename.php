@@ -22,5 +22,5 @@ if (is_null($tgroup)) {
     error(404);
 }
 
-$tgroup->rename($name, $Viewer);
+$tgroup->rename($name);
 header("Location: {$tgroup->location()}");

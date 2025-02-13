@@ -81,7 +81,7 @@ if (($_GET['action'] ?? '') == 'revert') {
     if ($_POST['summary']) {
         $logInfo[] = "summary: " . trim($_POST['summary']);
     }
-    $revisionId = $tgroup->createRevision($Body, $Image, $_POST['summary'], $Viewer);
+    $revisionId = $tgroup->createRevision($Body, $Image, $_POST['summary']);
 }
 
 $imageFlush = ($Image != $tgroup->showFallbackImage(false)->image());

@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\LeechType;
 use Gazelle\Enum\LeechReason;
 
@@ -12,11 +13,12 @@ class TorrentManagerTest extends TestCase {
     protected User $user;
 
     public function setUp(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('torman.' . randomString(10), 'torman');
+        $this->user = Helper::makeUser('torman.' . randomString(10), 'torman');
+        $this->user->requestContext()->setViewer($this->user);
         $this->user->setField('Enabled', '1')->modify();
         $this->torrentList = [
-            \GazelleUnitTest\Helper::makeTorrentMusic(
-                tgroup: \GazelleUnitTest\Helper::makeTGroupMusic(
+            Helper::makeTorrentMusic(
+                tgroup: Helper::makeTGroupMusic(
                     name:       'phpunit torman ' . randomString(6),
                     artistName: [[ARTIST_MAIN], ['phpunit torman ' . randomString(12)]],
                     tagName:    ['folk'],
@@ -25,8 +27,8 @@ class TorrentManagerTest extends TestCase {
                 user:  $this->user,
                 title: randomString(10),
             ),
-            \GazelleUnitTest\Helper::makeTorrentMusic(
-                tgroup: \GazelleUnitTest\Helper::makeTGroupMusic(
+            Helper::makeTorrentMusic(
+                tgroup: Helper::makeTGroupMusic(
                     name:       'phpunit torman ' . randomString(6),
                     artistName: [[ARTIST_MAIN], ['phpunit torman ' . randomString(12)]],
                     tagName:    ['funk'],
@@ -61,7 +63,7 @@ class TorrentManagerTest extends TestCase {
             );
         }
         foreach ($this->torrentList as $torrent) {
-            \GazelleUnitTest\Helper::removeTGroup($torrent->group(), $this->user);
+            Helper::removeTGroup($torrent->group(), $this->user);
         }
         $this->user->remove();
     }
@@ -72,7 +74,7 @@ class TorrentManagerTest extends TestCase {
         $latestTotal = count($list);
         $this->assertGreaterThanOrEqual(2, $latestTotal, 'latest-uploads-two-plus');
         $remove = array_shift($this->torrentList);
-        \GazelleUnitTest\Helper::removeTGroup($remove->group(), $this->user);
+        Helper::removeTGroup($remove->group(), $this->user);
         $this->assertEquals(
             $latestTotal - 1,
             count($manager->latestUploads(5)),
@@ -85,8 +87,8 @@ class TorrentManagerTest extends TestCase {
             // here we need them to be created today
             $torrent->setFieldNow('created')->modify();
         }
-        \GazelleUnitTest\Helper::addTorrentTraffic($this->torrentList[0], 1, 2, 2);
-        \GazelleUnitTest\Helper::addTorrentTraffic($this->torrentList[1], 0, 3, 3);
+        Helper::addTorrentTraffic($this->torrentList[0], 1, 2, 2);
+        Helper::addTorrentTraffic($this->torrentList[1], 0, 3, 3);
         $manager = new Manager\Torrent();
         $this->topTenList[] = $manager->storeTop10('Daily', 1);
         $this->topTenList[] = $manager->storeTop10('Weekly', 7);
