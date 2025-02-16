@@ -10,10 +10,8 @@ class FeaturedAlbum extends BaseObject {
 
     public function __construct(
         protected FeaturedAlbumType $type,
-        protected int               $id,
-    ) {
-        parent::__construct($id);
-    }
+        public readonly int $id,
+    ) {}
 
     public function flush(): static {
         unset($this->info);

@@ -31,10 +31,8 @@ abstract class AbstractComment extends \Gazelle\BaseObject {
     public function __construct(
         protected int $pageId,
         protected int $pageNum,
-        protected int $id,
-    ) {
-        parent::__construct($id);
-    }
+        public readonly int $id,
+    ) {}
 
     public function body(): string {
         return (string)self::$db->scalar("

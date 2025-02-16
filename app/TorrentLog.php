@@ -7,10 +7,8 @@ class TorrentLog extends BaseObject {
 
     public function __construct(
         protected Torrent $torrent,
-        protected int $id,
-    ) {
-        parent::__construct($id);
-    }
+        public readonly int $id,
+    ) {}
 
     public function flush(): static {
         $this->torrent->flush();

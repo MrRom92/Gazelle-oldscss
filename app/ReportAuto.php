@@ -8,11 +8,9 @@ class ReportAuto extends BasePgObject {
     protected array $comments;
 
     public function __construct(
-        protected int $id,
+        public readonly int $id,
         protected $typeMan = new Manager\ReportAutoType(),
-    ) {
-        parent::__construct($id);
-    }
+    ) {}
 
     public function flush(): static {
         unset($this->info);

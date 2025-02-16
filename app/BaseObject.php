@@ -12,9 +12,8 @@ abstract class BaseObject extends Base {
 
     protected array $info;
 
-    // FIXME: StaffPM breaks readonly-ness due to inheritance
     public function __construct(
-        protected int $id,
+        public readonly int $id,
     ) {}
 
     abstract public function flush(): static;

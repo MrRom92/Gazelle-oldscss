@@ -26,7 +26,7 @@ class Artist extends BaseObject implements CollageEntry {
     protected Artist\Similar $similar;
 
     public function __construct(
-        protected int $id,
+        public readonly int $id,
         protected ?int $aliasId = null,
         protected int $revisionId = 0
     ) {}

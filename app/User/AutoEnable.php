@@ -21,7 +21,10 @@ class AutoEnable extends \Gazelle\BaseUser {
      * via the Gazelle\Manager\AutoEnable::find*() methods will take
      * care of this for you.
      */
-    public function __construct(protected int $id, \Gazelle\User $user) {
+    public function __construct(
+        public readonly int $id,
+        \Gazelle\User $user
+    ) {
         parent::__construct($user);
     }
 
