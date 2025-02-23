@@ -1,9 +1,13 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
-$search = new Gazelle\Search\Request(new Gazelle\Manager\Request());
+declare(strict_types=1);
 
-$userMan = new Gazelle\Manager\User();
+namespace Gazelle;
+
+$search = new Search\Request(new Manager\Request());
+
+$userMan = new Manager\User();
 if (!isset($_GET['userid'])) {
     $user = null;
 } else {
@@ -99,7 +103,7 @@ if (isset($_GET['requestor'])) {
     }
 }
 
-$paginator = new Gazelle\Util\Paginator(REQUESTS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(REQUESTS_PER_PAGE, (int)($_GET['page'] ?? 1));
 if ($type === 'random') {
     $search->limit(0, REQUESTS_PER_PAGE, REQUESTS_PER_PAGE);
 } else {
@@ -121,6 +125,6 @@ $search->execute(
 );
 $paginator->setTotal($search->total());
 
-echo (new Gazelle\Json\Requests($search, $paginator->page(), $userMan))
+echo (new Json\Requests($search, $paginator->page(), $userMan))
     ->setVersion(2)
     ->response();

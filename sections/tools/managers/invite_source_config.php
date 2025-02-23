@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_manage_invite_source')) {
     error(403);
 }
 
-$manager = new Gazelle\Manager\InviteSource();
+$manager = new Manager\InviteSource();
 if (!empty($_POST['name'])) {
     authorize();
     $manager->create(trim($_POST['name']));

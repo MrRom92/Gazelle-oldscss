@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('users_mod')) {
     error(403);
 }
 
-$config = (new Gazelle\Manager\Torrent\ReportType())->findById((int)($_GET['id'] ?? 0));
+$config = (new Manager\Torrent\ReportType())->findById((int)($_GET['id'] ?? 0));
 if (is_null($config)) {
     error(404);
 }
@@ -63,9 +67,9 @@ if (isset($_POST['submit'])) {
 }
 
 echo $Twig->render('admin/torrent-report-edit.twig', [
-    'category'    => (new Gazelle\Manager\Category())->categoryList(),
+    'category'    => (new Manager\Category())->categoryList(),
     'config'      => $config,
-    'pm'          => new Gazelle\Util\Textarea('pm_body', $config->pmBody() ?? ''),
-    'explanation' => new Gazelle\Util\Textarea('explanation', $config->explanation()),
+    'pm'          => new Util\Textarea('pm_body', $config->pmBody() ?? ''),
+    'explanation' => new Util\Textarea('explanation', $config->explanation()),
     'viewer'      => $Viewer,
 ]);

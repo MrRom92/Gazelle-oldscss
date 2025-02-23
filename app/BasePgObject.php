@@ -3,7 +3,7 @@
 namespace Gazelle;
 
 abstract class BasePgObject extends BaseObject {
-    use \Gazelle\Pg;
+    use Pg;
 
     public function modify(): bool {
         if (!$this->dirty()) {

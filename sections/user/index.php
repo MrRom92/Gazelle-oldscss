@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 switch ($_REQUEST['action'] ?? '') {
     case '2fa':
         include_once '2fa/index.php';
@@ -84,7 +88,7 @@ switch ($_REQUEST['action'] ?? '') {
         if (!$Viewer->permittedAny('admin_clear_cache', 'users_override_paranoia')) {
             error(403);
         }
-        (new Gazelle\Manager\User())->findById((int)$_REQUEST['id'])?->flush();
+        (new Manager\User())->findById((int)$_REQUEST['id'])?->flush();
         include_once 'user.php';
         break;
 

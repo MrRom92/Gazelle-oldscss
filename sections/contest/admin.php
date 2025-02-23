@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_manage_contest')) {
     error(403);
 }
 
-$contestMan = new Gazelle\Manager\Contest();
+$contestMan = new Manager\Contest();
 $create     = isset($_GET['action']) && $_GET['action'] === 'create';
 $saved      = false;
 
@@ -52,7 +56,7 @@ if (isset($_POST['cid'])) {
 echo $Twig->render('contest/admin.twig', [
     'contest'    => $contest,
     'create'     => $create,
-    'intro'      => new Gazelle\Util\Textarea('description', $contest?->description() ?? '', 60, 8),
+    'intro'      => new Util\Textarea('description', $contest?->description() ?? '', 60, 8),
     'list'       => $contestMan->contestList(),
     'saved'      => $saved,
     'type'       => $contestMan->contestTypes(),

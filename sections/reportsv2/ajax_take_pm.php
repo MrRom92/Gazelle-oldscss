@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 /*
  * This is the AJAX backend for the SendNow() function.
  */
@@ -11,7 +15,7 @@ if (!$Viewer->permitted('admin_reports')) {
     die();
 }
 
-$torrent = (new Gazelle\Manager\Torrent())->findById((int)($_POST['torrentid'] ?? 0));
+$torrent = (new Manager\Torrent())->findById((int)($_POST['torrentid'] ?? 0));
 if (is_null($torrent)) {
     json_error("bad parameters");
 }
@@ -29,7 +33,7 @@ if (!isset($_POST['from_delete'])) {
     json_error("bad parameters from_delete");
 }
 
-$reportType = (new Gazelle\Manager\Torrent\ReportType())->findByType($_POST['resolve_type'] ?? '');
+$reportType = (new Manager\Torrent\ReportType())->findByType($_POST['resolve_type'] ?? '');
 
 switch ($_POST['pm_type']) {
     case 'Uploader':
@@ -50,7 +54,7 @@ switch ($_POST['pm_type']) {
         json_error("no recipient target");
 }
 
-$recipient = (new Gazelle\Manager\User())->findById($ToID);
+$recipient = (new Manager\User())->findById($ToID);
 if (is_null($recipient)) {
     json_error("bad recipient id");
 } elseif ($ToID == $Viewer->id()) {

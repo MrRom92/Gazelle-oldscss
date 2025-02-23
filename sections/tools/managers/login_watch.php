@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permittedAny('admin_login_watch', 'admin_manage_ipbans')) {
     error(403);
 }
@@ -20,20 +24,20 @@ if ($_POST) {
     }
 }
 
-$watch = new Gazelle\LoginWatch('0.0.0.0');
+$watch = new LoginWatch('0.0.0.0');
 if (isset($ban)) {
     $nrBan = $watch->setBan(
         $Viewer,
         $_REQUEST['reason'] ?? "Banned by " . $Viewer->username() . " from login watch.",
         $ban,
-        new Gazelle\Manager\IPv4(),
+        new Manager\IPv4(),
     );
 }
 if (isset($clear)) {
     $nrClear = $watch->setClear($clear);
 }
 
-$headerInfo = new Gazelle\Util\SortableTableHeader('last_attempt', [
+$headerInfo = new Util\SortableTableHeader('last_attempt', [
     'ipaddr'       => ['dbColumn' => 'inet_aton(w.IP)', 'defaultSort' => 'asc',  'text' => 'IP'],
     'user'         => ['dbColumn' => 'coalesce(um.username, w.capture)', 'defaultSort' => 'asc', 'text' => 'User'],
     'attempts'     => ['dbColumn' => 'w.Attempts',      'defaultSort' => 'desc', 'text' => 'Attempts'],
@@ -47,7 +51,7 @@ foreach ($headerInfo->getAllSortKeys() as $column) {
     $header[$column] = $headerInfo->emit($column);
 }
 
-$paginator = new Gazelle\Util\Paginator(IPS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(IPS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($watch->activeTotal());
 
 $list = $watch->activeList($headerInfo->getOrderBy(), $headerInfo->getOrderDir(), $paginator->limit(), $paginator->offset());

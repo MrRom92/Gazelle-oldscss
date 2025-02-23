@@ -1,12 +1,16 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
-$json = new Gazelle\Json\Inbox(
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$json = new Json\Inbox(
     $Viewer,
     $_GET['type'] ?? 'inbox',
     (int)($_GET['page'] ?? 1),
     ($_GET['sort'] ?? 'unread') === 'unread',
-    new Gazelle\Manager\User(),
+    new Manager\User(),
 );
 
 if (!empty($_GET['search'])) {

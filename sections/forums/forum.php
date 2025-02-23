@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 /**********|| Page to show individual forums || ********************************\
 
 Things to expect in $_GET:
@@ -11,7 +15,7 @@ Things to expect in $_GET:
 
 ********************************************************************************/
 
-$forum = (new Gazelle\Manager\Forum())->findById((int)$_GET['forumid']);
+$forum = (new Manager\Forum())->findById((int)$_GET['forumid']);
 if (!$forum) {
     error(404);
 }
@@ -20,7 +24,7 @@ if (!$Viewer->readAccess($forum)) {
     error(403);
 }
 
-$paginator = new Gazelle\Util\Paginator(TOPICS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(TOPICS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($forum->threadCount());
 
 $userLastRead = $forum->userLastRead($Viewer);

@@ -221,12 +221,7 @@ parameters:
 			path: ../classes/sphinxqlresult.class.php
 
 		-
-			message: "#^Function payload\\(\\) has parameter \\$details with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: ../sections/ajax/top10/torrents.php
-
-		-
-			message: "#^Function payload\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: "#^Function \\w+\\\\payload\\(\\) has parameter \\$details with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: ../sections/ajax/top10/torrents.php
 
@@ -241,37 +236,37 @@ parameters:
 			path: ../sections/better/better.php
 
 		-
-			message: "#^Function notify invoked with 2 parameters, 3 required\\.$#"
+			message: "#^Function Gazelle\\\\notify invoked with 2 parameters, 3 required\\.$#"
 			count: 1
 			path: ../sections/error/404.php
 
 		-
-			message: "#^Function notify invoked with 2 parameters, 3 required\\.$#"
+			message: "#^Function Gazelle\\\\notify invoked with 2 parameters, 3 required\\.$#"
 			count: 1
 			path: ../sections/error/413.php
 
 		-
-			message: "#^Function notify invoked with 2 parameters, 3 required\\.$#"
+			message: "#^Function Gazelle\\\\notify invoked with 2 parameters, 3 required\\.$#"
 			count: 1
 			path: ../sections/error/504.php
 
 		-
-			message: "#^Function notify\\(\\) has no return type specified\\.$#"
+			message: "#^Function Gazelle\\\\notify\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: ../sections/error/index.php
 
 		-
-			message: "#^Function notify\\(\\) has parameter \\$Channel with no type specified\\.$#"
+			message: "#^Function Gazelle\\\\notify\\(\\) has parameter \\$Channel with no type specified\\.$#"
 			count: 1
 			path: ../sections/error/index.php
 
 		-
-			message: "#^Function notify\\(\\) has parameter \\$Message with no type specified\\.$#"
+			message: "#^Function Gazelle\\\\notify\\(\\) has parameter \\$Message with no type specified\\.$#"
 			count: 1
 			path: ../sections/error/index.php
 
 		-
-			message: "#^Function notify\\(\\) has parameter \\$Viewer with no type specified\\.$#"
+			message: "#^Function Gazelle\\\\notify\\(\\) has parameter \\$Viewer with no type specified\\.$#"
 			count: 1
 			path: ../sections/error/index.php
 
@@ -291,7 +286,7 @@ parameters:
 			path: ../sections/recovery/save.php
 
 		-
-			message: "#^Function print_or_return\\(\\) has no return type specified\\.$#"
+			message: "#^Function Gazelle\\\\print_or_return\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: ../sections/requests/fill_handle.php
 
@@ -299,11 +294,6 @@ parameters:
 			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
 			count: 1
 			path: ../sections/tools/managers/ajax_take_enable_request.php
-
-		-
-			message: "#^Function type_list\\(\\) has parameter \\$Types with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: ../sections/tools/managers/referral_accounts.php
 
 		-
 			message: "#^Parameter \\#1 \\(array\\<int, string\\>\\|string\\) of echo cannot be converted to string\\.$#"
@@ -319,8 +309,3 @@ parameters:
 			message: "#^Variable \\$url might not be defined\\.$#"
 			count: 2
 			path: ../sections/tools/development/referral_sandbox.php
-
-		-
-			message: "#^Function diff\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: ../sections/wiki/compare.php

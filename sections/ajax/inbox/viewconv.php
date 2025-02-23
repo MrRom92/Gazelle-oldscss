@@ -1,10 +1,14 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
-$pm = (new Gazelle\Manager\PM($Viewer))->findById((int)($_GET['id'] ?? 0));
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$pm = (new Manager\PM($Viewer))->findById((int)($_GET['id'] ?? 0));
 if (is_null($pm)) {
     json_die('failure');
 }
 $pm->markRead();
 
-echo (new Gazelle\Json\PM($pm, new Gazelle\Manager\User()))->response();
+echo (new Json\PM($pm, new Manager\User()))->response();

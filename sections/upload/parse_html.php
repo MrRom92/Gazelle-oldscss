@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Gazelle;
 
 if (!$_POST['html'] || empty($_POST['html'])) {

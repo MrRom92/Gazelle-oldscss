@@ -1,7 +1,11 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 echo (
-\Gazelle\Util\PasswordCheck::checkPasswordStrength($_REQUEST['password'] ?? '', $Viewer, false) ?
+Util\PasswordCheck::checkPasswordStrength($_REQUEST['password'] ?? '', $Viewer, false) ?
     'true' : 'false'
 );

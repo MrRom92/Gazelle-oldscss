@@ -1,13 +1,17 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_vote')) {
     error(403);
 }
 
 authorize();
 
-$request = (new Gazelle\Manager\Request())->findById((int)($_GET['id'] ?? 0));
+$request = (new Manager\Request())->findById((int)($_GET['id'] ?? 0));
 if (is_null($request)) {
     $result = ['status' => 'missing', 'get' => $_GET];
 } elseif ($request->isFilled()) {

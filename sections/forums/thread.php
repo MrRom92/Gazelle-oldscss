@@ -5,11 +5,15 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Enum\CacheBucket;
 
-$forumMan = new Gazelle\Manager\Forum();
+$forumMan = new Manager\Forum();
 if (isset($_GET['postid'])) {
-    $post = (new Gazelle\Manager\ForumPost())->findById((int)$_GET['postid']);
+    $post = (new Manager\ForumPost())->findById((int)$_GET['postid']);
     if (is_null($post)) {
         error(404);
     }
@@ -20,7 +24,7 @@ if (isset($_GET['postid'])) {
     $thread = $post->thread();
 } elseif (isset($_GET['threadid'])) {
     $post = null;
-    $thread = (new Gazelle\Manager\ForumThread())->findById((int)$_GET['threadid']);
+    $thread = (new Manager\ForumThread())->findById((int)$_GET['threadid']);
     if (is_null($thread)) {
         error(404);
     }
@@ -51,7 +55,7 @@ if (($Page - 1) * $PerPage > $thread->postTotal()) {
     $Page = (int)ceil($thread->postTotal() / $PerPage);
 }
 $slice = $thread->slice(perPage: $PerPage, page: $Page);
-$paginator = new Gazelle\Util\Paginator($PerPage, $Page);
+$paginator = new Util\Paginator($PerPage, $Page);
 $paginator->setTotal($thread->postTotal());
 
 $firstOnPage = current($slice)['ID'] ?? 0;
@@ -60,7 +64,7 @@ if ($lastOnPage <= $thread->pinnedPostId() && $thread->postTotal() <= $PerPage *
     $lastOnPage = $thread->pinnedPostId();
 }
 
-$quote = new Gazelle\User\Quote($Viewer);
+$quote = new User\Quote($Viewer);
 if ($quote->unreadTotal()) {
     $quote->clearThread($threadId, $firstOnPage, $lastOnPage);
 }
@@ -70,19 +74,19 @@ if ($lastRead < $lastOnPage) {
     $thread->catchup($Viewer, $lastOnPage);
 }
 
-$isSubscribed = (new Gazelle\User\Subscription($Viewer))->isSubscribed($threadId);
+$isSubscribed = (new User\Subscription($Viewer))->isSubscribed($threadId);
 if ($isSubscribed) {
     $Cache->delete_value('subscriptions_user_new_' . $Viewer->id());
 }
 
-$userMan = new Gazelle\Manager\User();
-$avatarFilter = Gazelle\Util\Twig::factory($userMan)->createTemplate('{{ user|avatar(viewer)|raw }}');
+$userMan = new Manager\User();
+$avatarFilter = Util\Twig::factory($userMan)->createTemplate('{{ user|avatar(viewer)|raw }}');
 
-$transitions = (new Gazelle\Manager\ForumTransition())->threadTransitionList($Viewer, $thread);
+$transitions = (new Manager\ForumTransition())->threadTransitionList($Viewer, $thread);
 $department = $forum->departmentList($Viewer);
 $auth = $Viewer->auth();
 
-View::show_header("Forums › $ForumName › {$thread->title()}",
+\View::show_header("Forums › $ForumName › {$thread->title()}",
      ['js' => 'comments,subscriptions,bbcode' . ($IsDonorForum ? ',donor_titles' : '')]
 );
 echo $Twig->render('forum/thread-header.twig', [
@@ -94,7 +98,7 @@ echo $Twig->render('forum/thread-header.twig', [
 ]);
 
 echo $Twig->render('forum/poll.twig', [
-    'poll'     => $thread->hasPoll() ? new Gazelle\ForumPoll($threadId) : false,
+    'poll'     => $thread->hasPoll() ? new ForumPoll($threadId) : false,
     'user_man' => $userMan,
     'viewer'   => $Viewer,
 ]);
@@ -114,11 +118,11 @@ if ($thread->pinnedPostId()) {
 }
 
 // Enable TOC
-Text::$TOC = true;
+\Text::$TOC = true;
 
 foreach ($slice as $Key => $Post) {
     [$PostID, $AuthorID, $AddedTime, $Body, $EditedUserID, $EditedTime] = array_values($Post);
-    $author = new Gazelle\User($AuthorID);
+    $author = new User($AuthorID);
     $tableClass = ['forum_post', 'wrap_overflow', 'box vertical_margin'];
     if (
         (!$thread->isLocked() || $thread->isPinned())
@@ -187,7 +191,7 @@ if (!empty($userTitle)) {
             <span id="bar<?=$PostID?>" style="float: right">
                 <a href="reports.php?action=report&amp;type=post&amp;id=<?=$PostID?>" class="brackets">Report</a>
 <?php
-    $author = new Gazelle\User($AuthorID);
+    $author = new User($AuthorID);
     if ($Viewer->permitted('users_warn') && $Viewer->id() != $AuthorID && $Viewer->classLevel() >= $author->classLevel()) {
 ?>
                 <form class="manage_form hidden" name="user" id="warn<?=$PostID?>" action="" method="post">
@@ -213,7 +217,7 @@ if (!empty($userTitle)) {
         <td class="body" valign="top"<?php if (!$Viewer->showAvatars()) {
 echo ' colspan="2"'; } ?>>
             <div id="content<?=$PostID?>">
-                <?= Text::full_format($Body, cache: IMAGE_CACHE_ENABLED, bucket: CacheBucket::forum) ?>
+                <?= \Text::full_format($Body, cache: IMAGE_CACHE_ENABLED, bucket: CacheBucket::forum) ?>
 <?php   if ($EditedUserID) { ?>
                 <br />
                 <br />
@@ -242,7 +246,7 @@ if ($Viewer->permitted('site_moderate_forums') || ($Viewer->writeAccess($forum) 
         'object'   => $thread,
         'merge'    => strtotime($lastPost['AddedTime']) > time() - 3600 && $lastPost['AuthorID'] == $Viewer->id(),
         'subbed'   => $isSubscribed,
-        'textarea' => (new Gazelle\Util\Textarea('quickpost', '', 90, 8))->setPreviewManual(true),
+        'textarea' => (new Util\Textarea('quickpost', '', 90, 8))->setPreviewManual(true),
         'viewer'   => $Viewer,
     ]);
 }

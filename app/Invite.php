@@ -2,7 +2,7 @@
 
 namespace Gazelle;
 
-class Invite extends \Gazelle\Base {
+class Invite extends Base {
     protected array $info;
 
     public function __construct(

@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_collages_recover')) {
     error(403);
 }
@@ -11,7 +15,7 @@ $_POST['name'] = trim($_POST['name'] ?? '');
 
 if (!empty($_POST['id']) || $_POST['name'] !== '') {
     authorize();
-    $collageMan = new Gazelle\Manager\Collage();
+    $collageMan = new Manager\Collage();
     $collage = null;
 
     if (!empty($_POST['id'])) {

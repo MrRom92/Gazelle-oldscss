@@ -2,22 +2,26 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (empty($_GET['userid'])) {
     $user = $Viewer;
 } else {
     if (!$Viewer->permitted('users_override_paranoia')) {
         error(403);
     }
-    $user = (new Gazelle\Manager\User())->findById((int)($_GET['userid'] ?? 0));
+    $user = (new Manager\User())->findById((int)($_GET['userid'] ?? 0));
     if (is_null($user)) {
         error(404);
     }
 }
 
-$tgMan = new Gazelle\Manager\TGroup();
+$tgMan = new Manager\TGroup();
 
 $list = [];
-foreach ((new Gazelle\User\Bookmark($user))->tgroupBookmarkList() as $info) {
+foreach ((new User\Bookmark($user))->tgroupBookmarkList() as $info) {
     $tgroup = $tgMan->findById($info['tgroup_id']);
     if (is_null($tgroup)) {
         continue;

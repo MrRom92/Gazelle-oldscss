@@ -9,5 +9,5 @@ abstract class BaseManager extends Base {
      * Gazelle objects. Handy if you want to pass arbitrary
      * managers around.
      */
-    abstract public function findById(int $id): ?\Gazelle\Base;
+    abstract public function findById(int $id): ?Base;
 }

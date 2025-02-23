@@ -1,7 +1,15 @@
 <?php
 // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 //Diff function by Leto of StC.
+
+/**
+ * @return array<string>
+ */
 function diff(string $OldText, string $NewText): array {
     $LineArrayOld = explode("\n", $OldText);
     $LineArrayNew = explode("\n", $NewText);
@@ -63,7 +71,7 @@ if ($old >= $new) {
     error("Selected older revision is more recent than selected newer revision.");
 }
 
-$wikiMan = new Gazelle\Manager\Wiki();
+$wikiMan = new Manager\Wiki();
 $article = $wikiMan->findById((int)$_GET['id']);
 if (is_null($article)) {
     error(404);
@@ -72,14 +80,14 @@ if (!$article->readable($Viewer)) {
     error(403);
 }
 
-View::show_header("Compare Article Revisions $old versus $new");
+\View::show_header("Compare Article Revisions $old versus $new");
 echo $Twig->render('wiki/compare.twig', [
     'article' => $article,
     'diff'    => diff($article->revisionBody($old), $article->revisionBody($new)),
     'new'     => $new,
     'old'     => $old,
 ]);
-View::show_footer();
+\View::show_footer();
 
 $Diff2 = $article->revisionBody($new);
 $Diff1 = $article->revisionBody($old);

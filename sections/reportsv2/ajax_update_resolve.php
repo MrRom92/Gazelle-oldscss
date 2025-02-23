@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 // perform the back end of updating a resolve type
 
 if (!$Viewer->permitted('admin_reports')) {
@@ -9,12 +13,12 @@ if (!$Viewer->permitted('admin_reports')) {
 
 authorize();
 
-$reportType = (new Gazelle\Manager\Torrent\ReportType())->findByType($_GET['newresolve'] ?? '');
+$reportType = (new Manager\Torrent\ReportType())->findByType($_GET['newresolve'] ?? '');
 if (is_null($reportType)) {
     json_error("bad newresolve");
 }
 
-$report = (new Gazelle\Manager\Torrent\Report(new Gazelle\Manager\Torrent()))->findById((int)($_GET['reportid'] ?? 0));
+$report = (new Manager\Torrent\Report(new Manager\Torrent()))->findById((int)($_GET['reportid'] ?? 0));
 if (is_null($report)) {
     json_error("bad reportid");
 }

@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 $messageIds = array_filter(array_map('intval', $_POST['messages'] ?? []), fn($id) => $id > 0);
 
 if (empty($messageIds)) {

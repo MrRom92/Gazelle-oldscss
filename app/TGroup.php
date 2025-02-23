@@ -403,7 +403,7 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
     public function releaseTypeName(): ?string {
         static $releaseTypes;
         if (is_null($releaseTypes)) {
-            $releaseTypes = (new \Gazelle\ReleaseType())->list();
+            $releaseTypes = (new ReleaseType())->list();
         }
         return $this->info()['ReleaseType'] == 0 ? null : $releaseTypes[$this->releaseType()];
     }
@@ -440,7 +440,7 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
     /**
      * Delegate stats methods to the Stats\TGroup class
      */
-    public function stats(): \Gazelle\Stats\TGroup {
+    public function stats(): Stats\TGroup {
         if (!isset($this->stats)) {
             $this->stats = new Stats\TGroup($this->id);
         }
@@ -620,7 +620,7 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
         $n = count($names);
         for ($i = 0; $i < $n; $i++) {
             $role = $roles[$i];
-            $name = \Gazelle\Artist::sanitize($names[$i]);
+            $name = Artist::sanitize($names[$i]);
             if (!$name || !in_array($role, array_keys(ARTIST_TYPE))) {
                 continue;
             }
@@ -807,9 +807,9 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
     }
 
     public function setFreeleech(
-        \Gazelle\Manager\Torrent $torMan,
-        \Gazelle\Tracker         $tracker,
-        \Gazelle\User            $user,
+        Manager\Torrent $torMan,
+        Tracker         $tracker,
+        User            $user,
         LeechType                $leechType,
         LeechReason              $reason,
         int                      $threshold = 0,
@@ -853,11 +853,10 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
             $old->flush();
             $old->refresh();
         } else {
-            (new \Gazelle\Manager\Bookmark())->merge($old, $this);
-            (new \Gazelle\Manager\Comment())->merge('torrents', $oldId, $this->id);
-            (new \Gazelle\Manager\Vote())->merge($old, $this, new Manager\User());
+            (new Manager\Bookmark())->merge($old, $this);
+            (new Manager\Comment())->merge('torrents', $oldId, $this->id);
+            (new Manager\Vote())->merge($old, $this, new Manager\User());
             $this->logger()->merge($old, $this);
-
             $old->remove($user);
         }
         $this->logger()
@@ -927,12 +926,12 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
                 ", $this->id
             );
             foreach ($CollageIDs as $CollageID) {
-                self::$cache->delete_value(sprintf(\Gazelle\Collage::CACHE_KEY, $CollageID));
+                self::$cache->delete_value(sprintf(Collage::CACHE_KEY, $CollageID));
             }
             self::$cache->delete_value("torrent_collages_" . $this->id);
         }
 
-        (new \Gazelle\Manager\Comment())->remove('torrents', $this->id);
+        (new Manager\Comment())->remove('torrents', $this->id);
 
         // Requests
         self::$db->prepared_query("
@@ -967,7 +966,7 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
             ", $this->id
         );
 
-        $manager = new \Gazelle\DB();
+        $manager = new DB();
         [$ok, $message] = $manager->softDelete(MYSQL_DB, 'torrents_group', [['ID', $this->id]]);
         if (!$ok) {
             return false;
@@ -983,8 +982,8 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
             "torrent_group_{$this->id}",
             sprintf(self::CACHE_KEY, $this->id),
             sprintf(self::CACHE_TLIST_KEY, $this->id),
-            sprintf(\Gazelle\Manager\TGroup::ID_KEY, $this->id),
-            sprintf(\Gazelle\Manager\Torrent::CACHE_KEY_LATEST_UPLOADS, 5),
+            sprintf(Manager\TGroup::ID_KEY, $this->id),
+            sprintf(Manager\Torrent::CACHE_KEY_LATEST_UPLOADS, 5),
         ]);
         return true;
     }

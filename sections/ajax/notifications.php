@@ -1,14 +1,18 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_torrents_notify')) {
     json_die("failure");
 }
 
-echo (new Gazelle\Json\Notification\Torrent(
-    new Gazelle\User\Notification\Torrent($Viewer),
-    new Gazelle\Util\Paginator(TORRENTS_PER_PAGE, (int)($_GET['page'] ?? 1)),
-    new Gazelle\Manager\Torrent(),
+echo (new Json\Notification\Torrent(
+    new User\Notification\Torrent($Viewer),
+    new Util\Paginator(TORRENTS_PER_PAGE, (int)($_GET['page'] ?? 1)),
+    new Manager\Torrent(),
 ))
     ->setVersion(2)
     ->response();

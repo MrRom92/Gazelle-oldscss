@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permittedAny('users_view_invites', 'users_disable_users', 'users_edit_invites', 'users_disable_any')) {
     error(403);
 }
@@ -9,7 +13,7 @@ if (!$Viewer->permittedAny('users_view_invites', 'users_disable_users', 'users_e
 $doComment = false;
 $doDisable = false;
 $doInvites = false;
-$message = null;
+$message   = null;
 
 if (isset($_POST['id'])) {
     authorize();
@@ -23,7 +27,7 @@ if (isset($_POST['id'])) {
     if (!$_POST['comment']) {
         error('Please enter a comment to add to the users affected.');
     }
-    $userMan = new Gazelle\Manager\User();
+    $userMan = new Manager\User();
     $id      = trim($_POST['id']);
     $user    = $userMan->find($id);
     if (is_null($user)) {
@@ -33,18 +37,18 @@ if (isset($_POST['id'])) {
         );
     }
 
-    $message = (new Gazelle\User\InviteTree($user))
+    $message = (new User\InviteTree($user))
         ->manipulate(
             $comment,
             $doDisable,
             $doInvites,
-            new \Gazelle\Tracker(),
+            new Tracker(),
             $Viewer,
             $userMan,
         );
 }
 
 echo $Twig->render('user/invite-tree-bulkedit.twig', [
-    'viewer'  => $Viewer,
     'message' => $message,
+    'viewer'  => $Viewer,
 ]);

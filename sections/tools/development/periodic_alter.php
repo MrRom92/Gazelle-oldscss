@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_periodic_task_manage')) {
     error(403);
 }
@@ -8,7 +12,7 @@ if (!$Viewer->permitted('admin_periodic_task_manage')) {
 authorize();
 
 $p = $_POST;
-$scheduler = new Gazelle\TaskScheduler();
+$scheduler = new TaskScheduler();
 
 if ($p['submit'] == 'Delete') {
     if (!is_number($p['id']) || $p['id'] == '') {
@@ -17,7 +21,7 @@ if ($p['submit'] == 'Delete') {
 
     $scheduler->deleteTask($p['id']);
 } else {
-    $Val = new Gazelle\Util\Validator();
+    $Val = new Util\Validator();
     $Val->setFields([
         ['name', true, 'string', 'The name must be set, and has a max length of 64 characters', ['maxlength' => 64]],
         ['classname', true, 'string', 'The class name must be set, and has a max length of 32 characters', ['maxlength' => 32]],

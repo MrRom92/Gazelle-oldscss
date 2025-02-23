@@ -1,10 +1,14 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
 $inviteKey = trim($_GET['invite'] ?? '');
-$user = (new Gazelle\Manager\Invite())->findUserByKey($inviteKey, new Gazelle\Manager\User());
+$user = (new Manager\Invite())->findUserByKey($inviteKey, new Manager\User());
 if (is_null($user)) {
     error(404);
 }

@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 $id = (int)$_GET['id'];
 if (!$id) {
     error(404);
@@ -16,68 +20,68 @@ $reportType = $Types[$type];
 
 switch ($type) {
     case 'user':
-        $user = (new Gazelle\Manager\User())->findById($id);
+        $user = (new Manager\User())->findById($id);
         if (is_null($user)) {
             error(404);
         }
-        $report = new Gazelle\Report\User($id, $user);
+        $report = new Report\User($id, $user);
         break;
 
     case 'request':
-        $request = (new Gazelle\Manager\Request())->findById($id);
+        $request = (new Manager\Request())->findById($id);
         if (is_null($request)) {
             error(404);
         }
-        $report = new Gazelle\Report\Request($id, $request);
+        $report = new Report\Request($id, $request);
         break;
 
     case 'request_update':
-        $request = (new Gazelle\Manager\Request())->findById($id);
+        $request = (new Manager\Request())->findById($id);
         if (is_null($request)) {
             error(404);
         }
         if ($request->isFilled() || $request->categoryName() != 'Music' || $request->year() != 0) {
             error(403);
         }
-        $report = (new Gazelle\Report\Request($id, $request))->isUpdate(true);
+        $report = (new Report\Request($id, $request))->isUpdate(true);
         break;
 
     case 'collage':
-        $collage = (new Gazelle\Manager\Collage())->findById($id);
+        $collage = (new Manager\Collage())->findById($id);
         if (is_null($collage)) {
             error(404);
         }
-        $report = new Gazelle\Report\Collage($id, $collage);
+        $report = new Report\Collage($id, $collage);
         break;
 
     case 'thread':
-        $thread = (new Gazelle\Manager\ForumThread())->findById($id);
+        $thread = (new Manager\ForumThread())->findById($id);
         if (is_null($thread)) {
             error(404);
         }
         if (!$Viewer->readAccess($thread->forum())) {
             error(403);
         }
-        $report = new Gazelle\Report\ForumThread($id, $thread);
+        $report = new Report\ForumThread($id, $thread);
         break;
 
     case 'post':
-        $post = (new Gazelle\Manager\ForumPost())->findById($id);
+        $post = (new Manager\ForumPost())->findById($id);
         if (is_null($post)) {
             error(404);
         }
         if (!$Viewer->readAccess($post->thread()->forum())) {
             error(403);
         }
-        $report = new Gazelle\Report\ForumPost($id, $post);
+        $report = new Report\ForumPost($id, $post);
         break;
 
     case 'comment':
-        $comment = (new Gazelle\Manager\Comment())->findById($id);
+        $comment = (new Manager\Comment())->findById($id);
         if (is_null($comment)) {
             error(404);
         }
-        $report = (new Gazelle\Report\Comment($id, $comment))->setContext($reportType['title']);
+        $report = (new Report\Comment($id, $comment))->setContext($reportType['title']);
         break;
     default:
         error('Unknown report target');
@@ -85,7 +89,7 @@ switch ($type) {
 
 echo $Twig->render('report/create.twig', [
     'id'          => $id,
-    'release'     => (new Gazelle\ReleaseType())->list(),
+    'release'     => (new ReleaseType())->list(),
     'report'      => $report,
     'report_type' => $reportType,
     'type'        => $type,

@@ -1,14 +1,18 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_moderate_forums') && empty($_POST['transition'])) {
     error(403);
 }
 authorize();
 
-$forumMan = new Gazelle\Manager\Forum();
+$forumMan = new Manager\Forum();
 
-$thread = (new Gazelle\Manager\ForumThread())->findById((int)($_POST['threadid'] ?? 0));
+$thread = (new Manager\ForumThread())->findById((int)($_POST['threadid'] ?? 0));
 if (is_null($thread)) {
     error(404);
 }
@@ -57,7 +61,7 @@ if (isset($_POST['transition'])) {
     if ($transId < 1) {
         error('No forum transition ID specified');
     }
-    $transitions = (new Gazelle\Manager\ForumTransition())->threadTransitionList($Viewer, $thread);
+    $transitions = (new Manager\ForumTransition())->threadTransitionList($Viewer, $thread);
     if (!isset($transitions[$transId])) {
         error('Forum transition not found');
     }

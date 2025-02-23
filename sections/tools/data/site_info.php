@@ -3,6 +3,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_site_debug')) {
     error(403);
 }
@@ -18,7 +22,7 @@ function gid(int $id): string {
 }
 
 if (isset($_GET['mode']) && $_GET['mode'] === 'userrank') {
-    $config = new Gazelle\UserRank\Configuration(RANKING_WEIGHT);
+    $config = new UserRank\Configuration(RANKING_WEIGHT);
     $names = array_keys(RANKING_WEIGHT);
     $rankTable = [];
     foreach ($names as $name) {
@@ -34,8 +38,8 @@ if (isset($_GET['mode']) && $_GET['mode'] === 'userrank') {
     ]);
 } else {
     $random = openssl_random_pseudo_bytes(8, $strong);
-    $db = new Gazelle\DB();
-    $pg = new Gazelle\DB\Pg(PG_RO_DSN);
+    $db = new DB();
+    $pg = new DB\Pg(PG_RO_DSN);
     echo $Twig->render('admin/site-info.twig', [
         'uid'              => uid(posix_getuid()),
         'gid'              => gid(posix_getgid()),
@@ -46,7 +50,7 @@ if (isset($_GET['mode']) && $_GET['mode'] === 'userrank') {
         'pg_checkpoint'    => $pg->checkpointInfo(),
         'pg_version'       => $pg->version(),
         'php_version'      => phpversion(),
-        'site_info'        => new Gazelle\SiteInfo(),
+        'site_info'        => new SiteInfo(),
         'timestamp_php'    => date('Y-m-d H:i:s'),
         'timestamp_db'     => $db->now(),
     ]);

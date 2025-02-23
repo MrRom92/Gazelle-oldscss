@@ -2,15 +2,19 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$tgroup = (new Gazelle\Manager\TGroup())->findById((int)($_GET['id'] ?? 0));
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$tgroup = (new Manager\TGroup())->findById((int)($_GET['id'] ?? 0));
 if (is_null($tgroup)) {
     error(404);
 }
-$torMan = new Gazelle\Manager\Torrent();
+$torMan = new Manager\Torrent();
 
 echo $Twig->render('tgroup/edit.twig', [
-    'body'         => new Gazelle\Util\Textarea('body', $tgroup->description(), 80, 20),
-    'release_type' => (new Gazelle\ReleaseType())->list(),
+    'body'         => new Util\Textarea('body', $tgroup->description(), 80, 20),
+    'release_type' => (new ReleaseType())->list(),
     'tgroup'       => $tgroup->showFallbackImage(false),
     'viewer'       => $Viewer,
     'leech_type'   => $torMan->leechTypeList(),

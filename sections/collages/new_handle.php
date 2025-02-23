@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Enum\CollageType;
 
 if (!$Viewer->permitted('site_collages_create') && !$Viewer->canCreatePersonalCollage()) {
@@ -13,9 +17,9 @@ if (!isset($_POST['category'])) {
     error(403);
 }
 $categoryId = (int)$_POST['category'];
-$collageMan = new Gazelle\Manager\Collage();
+$collageMan = new Manager\Collage();
 
-$Val = new Gazelle\Util\Validator();
+$Val = new Util\Validator();
 if ($categoryId != CollageType::personal->value || $Viewer->permitted('site_collages_renamepersonal')) {
     $Val->setField('name', true, 'string', 'The name must be between 3 and 100 characters', ['range' => [3, 100]]);
     $name = trim($_POST['name']);
@@ -63,12 +67,12 @@ $collage = $collageMan->create(
     $categoryId,
     $name,
     $_POST['description'],
-    (new Gazelle\Manager\Tag())->normalize(str_replace(',', ' ', (string)$_POST['tags'])),
+    (new Manager\Tag())->normalize(str_replace(',', ' ', (string)$_POST['tags'])),
 );
 
 if ($Viewer->option('AutoSubscribe')) {
     $collage->toggleSubscription($Viewer);
-    (new Gazelle\User\Subscription($Viewer))->subscribeComments('collages', $collage->id());
+    (new User\Subscription($Viewer))->subscribeComments('collages', $collage->id());
 }
 
 header('Location: ' . $collage->location());

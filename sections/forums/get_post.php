@@ -1,7 +1,11 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
-$post = (new Gazelle\Manager\ForumPost())->findById((int)($_GET['post'] ?? 0));
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$post = (new Manager\ForumPost())->findById((int)($_GET['post'] ?? 0));
 if (is_null($post)) {
     error(404);
 }

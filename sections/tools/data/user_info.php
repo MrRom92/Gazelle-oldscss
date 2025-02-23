@@ -4,12 +4,14 @@
 
 declare(strict_types=1);
 
+namespace Gazelle;
+
 if (!$Viewer->permitted('users_view_ips')) {
     error(403);
 }
 
 
-$userMan = new Gazelle\Manager\User();
+$userMan = new Manager\User();
 $user = $userMan->findById((int)($_GET['userid'] ?? 0));
 if (is_null($user)) {
     error(404);
@@ -20,11 +22,11 @@ $direction = $_GET['dir'] ?? 'up';
 
 echo $Twig->render('admin/user-info.twig', [
     'ancestry'      => $userMan->ancestry($user),
-    'asn'           => new Gazelle\Search\ASN(),
+    'asn'           => new Search\ASN(),
     'column'        => $column,
     'direction'     => $direction,
-    'invite_source' => new Gazelle\Manager\InviteSource(),
-    'hist'          => new Gazelle\User\History($user, $column, $direction),
+    'invite_source' => new Manager\InviteSource(),
+    'hist'          => new User\History($user, $column, $direction),
     'now'           => date('Y-m-d H:i:s'),
     'user'          => $user,
 ]);

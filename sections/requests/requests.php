@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$userMan = new Gazelle\Manager\User();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$userMan = new Manager\User();
 if (!isset($_GET['userid'])) {
     $user = $Viewer;
 } else {
@@ -12,7 +16,7 @@ if (!isset($_GET['userid'])) {
     }
 }
 
-$search = new Gazelle\Search\Request(new Gazelle\Manager\Request());
+$search = new Search\Request(new Manager\Request());
 $initial = !isset($_GET['submit']);
 $bookmarkView = false;
 
@@ -93,7 +97,7 @@ if (isset($_GET['year'])) {
     $search->setYear((int)$_GET['year']);
 }
 
-$header = new Gazelle\Util\SortableTableHeader('created', [
+$header = new Util\SortableTableHeader('created', [
     'year'     => ['dbColumn' => 'year',       'defaultSort' => 'desc', 'text' => 'Year'],
     'votes'    => ['dbColumn' => 'votes',      'defaultSort' => 'desc', 'text' => 'Votes'],
     'bounty'   => ['dbColumn' => 'bounty',     'defaultSort' => 'desc', 'text' => 'Bounty'],
@@ -103,7 +107,7 @@ $header = new Gazelle\Util\SortableTableHeader('created', [
     'random'   => ['dbColumn' => 'RAND()',     'defaultSort' => ''],
 ]);
 
-$paginator = new Gazelle\Util\Paginator(REQUESTS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(REQUESTS_PER_PAGE, (int)($_GET['page'] ?? 1));
 if ($header->getOrderBy() === 'random') {
     $search->limit(0, REQUESTS_PER_PAGE, REQUESTS_PER_PAGE);
 } else {
@@ -130,8 +134,8 @@ echo $Twig->render('request/index.twig', [
     'requestor'       => $requestor ?? null,
     'tag_mode'        => $_GET['tag_mode'] ?? 'all',
     'filtering'       => true, // false on artist page
-    'show_filled'     => $_GET['show_filled'] ?? null,
-    'show_old'        => $_GET['showall'] ?? null,
+    'show_filled'     => isset($_GET['show_filled']),
+    'show_old'        => isset($_GET['showall']),
     'type'            => $_GET['type'] ?? null,
     'user'            => $user,
     'viewer'          => $Viewer,

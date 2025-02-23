@@ -2,18 +2,22 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 /* Move a torrent from one group to another */
 
 if (!$Viewer->permitted('torrents_edit')) {
     error(403);
 }
 
-$torrent = (new Gazelle\Manager\Torrent())->findById((int)($_POST['torrentid'] ?? 0));
+$torrent = (new Manager\Torrent())->findById((int)($_POST['torrentid'] ?? 0));
 if (is_null($torrent)) {
     error('Torrent does not exist!');
 }
 
-$tgMan = new Gazelle\Manager\TGroup();
+$tgMan = new Manager\TGroup();
 $new = $tgMan->findById((int)($_POST['groupid'] ?? 0));
 if (is_null($new)) {
     error('The destination torrent group does not exist!');

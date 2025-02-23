@@ -4,6 +4,10 @@
 /** @phpstan-var \Gazelle\Cache $Cache */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Enum\UserAuditEvent;
 use Gazelle\Enum\UserStatus;
 use Gazelle\Util\Mail;
@@ -27,7 +31,7 @@ if (!$Viewer->permitted('users_mod')) {
     error(403);
 }
 
-$userMan = new Gazelle\Manager\User();
+$userMan = new Manager\User();
 $user = $userMan->findById((int)$_POST['userid']);
 if (is_null($user)) {
     header("Location: log.php?search=User+" . (int)$_POST['userid']);
@@ -45,7 +49,9 @@ $unlimitedDownload = isset($_POST['unlimitedDownload']);
 $invites           = (int)$_POST['Invites'];
 $slogan            = trim($_POST['slogan']);
 $changePassword    = !empty($_POST['ChangePassword']);
-$uploaded          = $downloaded = $bonusPoints = null;
+$uploaded          = 0;
+$downloaded        = 0;
+$bonusPoints       = null;
 
 if (isset($_POST['Uploaded']) && isset($_POST['Downloaded'])) {
     $uploaded   = max(0, byte_arithmetic($_POST['Uploaded']));
@@ -97,7 +103,7 @@ if ($mergeStatsFrom && ($downloaded != $user->downloadedSize() || $uploaded != $
     error("Do not transfer buffer and edit upload/download in the same operation.");
 }
 
-$tracker = new Gazelle\Tracker();
+$tracker = new Tracker();
 $needTrackerAdd     = false;
 $needTrackerRefresh = false;
 
@@ -131,32 +137,32 @@ if ($user->lockType() != $lockType) {
 }
 
 if (isset($_POST['ResetRatioWatch']) && $Viewer->permitted('users_edit_reset_keys')) {
-    (new Gazelle\User\History($user))->resetRatioWatch();
+    (new User\History($user))->resetRatioWatch();
     $editSummary[] = 'RatioWatch history reset';
 }
 
 if ($resetIPHistory && $Viewer->permitted('users_edit_reset_keys')) {
-    (new Gazelle\User\History($user))->resetIp();
+    (new User\History($user))->resetIp();
     $editSummary[] = 'IP history cleared';
 }
 
 if (isset($_POST['ResetEmailHistory']) && $Viewer->permitted('users_edit_reset_keys')) {
-    (new Gazelle\User\History($user))->resetEmail($user->username() . '@' . SITE_HOST, $resetIPHistory ? '127.0.0.1' : $user->ipaddr());
+    (new User\History($user))->resetEmail($user->username() . '@' . SITE_HOST, $resetIPHistory ? '127.0.0.1' : $user->ipaddr());
     $editSummary[] = 'email history cleared';
 }
 
 if (isset($_POST['ResetSnatchList']) && $Viewer->permitted('users_edit_reset_keys')) {
-    (new Gazelle\User\History($user))->resetSnatched();
+    (new User\History($user))->resetSnatched();
     $editSummary[] = 'snatch list cleared';
 }
 
 if (isset($_POST['ResetDownloadList']) && $Viewer->permitted('users_edit_reset_keys')) {
-    (new Gazelle\User\History($user))->resetDownloaded();
+    (new User\History($user))->resetDownloaded();
     $editSummary[] = 'download list cleared';
 }
 
 if ($logoutSession && $Viewer->permitted('users_logout')) {
-    $editSummary[] = "logged out of all sessions (n=" . (new Gazelle\User\Session($user))->dropAll() . ")";
+    $editSummary[] = "logged out of all sessions (n=" . (new User\Session($user))->dropAll() . ")";
 }
 
 if ($visible != $user->isVisible() && $Viewer->permitted('users_make_invisible')) {
@@ -272,7 +278,7 @@ if ($Viewer->permitted('users_warn')) {
     $weeks   = (int)($_POST['WarnLength'] ?? 0);
     $extend  = (int)($_POST['ExtendWarning'] ?? 0);
     $reduce  = (int)($_POST['ReduceWarning'] ?? 0);
-    $warning = new Gazelle\User\Warning($user);
+    $warning = new User\Warning($user);
     if (!isset($_POST['Warned'])) {
         if ($user->isWarned()) {
             $warning->clear();
@@ -307,12 +313,12 @@ $secondaryClasses = array_filter(
 );
 
 if ($Viewer->permitted('users_give_donor')) {
-    $donor = new Gazelle\User\Donor($user);
+    $donor = new User\Donor($user);
     $value = (float)trim($_POST['donation_value']);
     if ($value > 0.0) {
         $donor->donate(
             amount:   $value,
-            xbtRate:  (new Gazelle\Manager\XBT())->latestRate('EUR'),
+            xbtRate:  (new Manager\XBT())->latestRate('EUR'),
             currency: $_POST['donation_currency'],
             reason:   trim($_POST['donation_reason']),
             source:   'Add Points',
@@ -356,7 +362,7 @@ if ($Viewer->permittedAny('users_promote_below', 'users_promote_to')) {
     }
 }
 
-$forumMan = new Gazelle\Manager\Forum();
+$forumMan = new Manager\Forum();
 $restricted = array_map('intval', array_unique(explode(',', trim($_POST['RestrictedForums']))));
 sort($restricted);
 $restrictedIds = [];
@@ -498,7 +504,7 @@ if ($userStatus != $user->userStatus() && $Viewer->permitted('users_disable_user
             [$userId],
             UserAuditEvent::activity,
             "Disabled via moderation",
-            Gazelle\Manager\User::DISABLE_MANUAL,
+            Manager\User::DISABLE_MANUAL,
         );
         $needTrackerRefresh = false;
     } elseif ($userStatus == UserStatus::enabled) {
@@ -547,7 +553,7 @@ if ($sendHackedMail && $Viewer->permitted('users_disable_any')) {
         [$userId],
         UserAuditEvent::activity,
         "Disabled via hacked email",
-        Gazelle\Manager\User::DISABLE_MANUAL,
+        Manager\User::DISABLE_MANUAL,
     );
     $editSummary[] = "hacked account email sent to $hackedEmail";
 }
@@ -555,7 +561,7 @@ if ($sendHackedMail && $Viewer->permitted('users_disable_any')) {
 if ($mergeStatsFrom && $Viewer->permitted('users_edit_ratio')) {
     $stats = $user->mergeLeechStats($mergeStatsFrom, $Viewer->username());
     if ($stats) {
-        $merge = new Gazelle\User($stats['userId']);
+        $merge = new User($stats['userId']);
         $merge->flush();
         $user->setField('leech_uploaded', $user->uploadedSize() + $stats['up'])
             ->setField('leech_downloaded', $user->downloadedSize() + $stats['down']);
@@ -607,7 +613,7 @@ if ($changePassword && $Viewer->permitted('users_edit_password')) {
 }
 
 if ($newBonusPoints !== false) {
-    (new Gazelle\User\Bonus($user))->setPoints($newBonusPoints);
+    (new User\Bonus($user))->setPoints($newBonusPoints);
 }
 
 if ($flTokens != $user->tokenCount()) {
@@ -628,7 +634,7 @@ if ($Viewer->permitted('admin_tracker')) {
 if (isset($_POST['invite_source_update'])) {
     $idList = array_key_extract_suffix('source-', $_POST);
     if ($idList) {
-        (new Gazelle\Manager\InviteSource())->modifyInviterConfiguration($user, $idList);
+        (new Manager\InviteSource())->modifyInviterConfiguration($user, $idList);
         header("Location: tools.php?action=invite_source");
         exit;
     }

@@ -3,6 +3,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Util\Irc;
 
 function notify($Viewer, $Channel, $Message) {

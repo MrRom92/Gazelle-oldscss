@@ -1,7 +1,11 @@
 <?php
 /** @phpstan-var \Twig\Environment $Twig */
 
-$top10 = new Gazelle\Top10\User();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$top10 = new Top10\User();
 
 echo $Twig->render('top10/user.twig', [
     'detail' => $_GET['details'] ?? 'all',

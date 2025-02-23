@@ -4,13 +4,17 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
-$torMan    = (new Gazelle\Manager\Torrent())->setViewer($Viewer);
-$reportMan = new Gazelle\Manager\Torrent\Report($torMan);
-$bookmark  = new Gazelle\User\Bookmark($Viewer);
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$torMan    = (new Manager\Torrent())->setViewer($Viewer);
+$reportMan = new Manager\Torrent\Report($torMan);
+$bookmark  = new User\Bookmark($Viewer);
 $snatcher  = $Viewer->snatch();
-$imgProxy  = new Gazelle\Util\ImageProxy($Viewer);
-$top10     = new Gazelle\Top10\Torrent(FORMAT, $Viewer);
-$urlStem   = (new Gazelle\User\Stylesheet($Viewer))->imagePath();
+$imgProxy  = new Util\ImageProxy($Viewer);
+$top10     = new Top10\Torrent(FORMAT, $Viewer);
+$urlStem   = (new User\Stylesheet($Viewer))->imagePath();
 
 if (!empty($_GET['advanced']) && $Viewer->permitted('site_advanced_top10')) {
     $details = 'all';
@@ -97,7 +101,7 @@ if (in_array($details, ['all', 'snatched'])) {
     ];
 }
 
-View::show_header(TOP_TEN_HEADING . " – Torrents");
+\View::show_header(TOP_TEN_HEADING . " – Torrents");
 ?>
 <div class="thin">
     <div class="header">
@@ -206,15 +210,14 @@ foreach ($context as $c) {
         continue;
     }
 
-    $groupIds = array_column($details, 1);
+    $groupIds = array_column($details, 'tgroup_id');
     foreach ($details as $index => $detail) {
-        [$torrentId, $groupId, $data] = $detail;
-        $torrent = $torMan->findById($torrentId);
+        $torrent = $torMan->findById($detail['torrent_id']);
         if (is_null($torrent)) {
             continue;
         }
         $tgroup       = $torrent->group();
-        $isBookmarked = $bookmark->isTorrentBookmarked($groupId);
+        $isBookmarked = $bookmark->isTorrentBookmarked($tgroup->id());
 ?>
     <tr class="torrent row<?=$index % 2 ? 'a' : 'b'?> <?=($isBookmarked ? ' bookmarked' : '')
         . ($snatcher->showSnatch($torrent) ? ' snatched_torrent' : '')?>">
@@ -239,18 +242,18 @@ foreach ($context as $c) {
 <?php   } ?>
                 <?= $Twig->render('bookmark/action.twig', [
                     'class'         => 'torrent',
-                    'id'            => $groupId,
+                    'id'            => $tgroup->id(),
                     'is_bookmarked' => $isBookmarked,
                 ]); ?>
                 <div class="tags"><?= implode(', ', $tgroup->tagNameList()) ?></div>
             </div>
         </td>
         <?= $Twig->render('torrent/stats.twig', ['torrent' => $torrent, 'viewer' => $Viewer]) ?>
-        <td class="td_data number_column nobr"><?= byte_format($data) ?></td>
+        <td class="td_data number_column nobr"><?= byte_format($detail['score']) ?></td>
     </tr>
 <?php } ?>
     </table><br />
 <?php } ?>
 </div>
 <?php
-View::show_footer();
+\View::show_footer();

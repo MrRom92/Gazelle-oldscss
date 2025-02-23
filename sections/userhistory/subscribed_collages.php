@@ -4,25 +4,29 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_collages_subscribe')) {
     error(403);
 }
 
 $viewAll = (bool)($_GET['showall'] ?? 0);
-$collMan = new Gazelle\Manager\Collage();
+$collMan = new Manager\Collage();
 $groupSubs = $collMan->subscribedTGroupCollageList(
     $Viewer,
-    (new Gazelle\Manager\TGroup())->setViewer($Viewer),
+    (new Manager\TGroup())->setViewer($Viewer),
     $viewAll,
 );
 
-$torMan    = (new Gazelle\Manager\Torrent())->setViewer($Viewer);
-$imgProxy  = new Gazelle\Util\ImageProxy($Viewer);
-$reportMan = new Gazelle\Manager\Report(new Gazelle\Manager\User());
+$torMan    = (new Manager\Torrent())->setViewer($Viewer);
+$imgProxy  = new Util\ImageProxy($Viewer);
+$reportMan = new Manager\Report(new Manager\User());
 $snatcher  = $Viewer->snatch();
-$urlStem   = (new Gazelle\User\Stylesheet($Viewer))->imagePath();
+$urlStem   = (new User\Stylesheet($Viewer))->imagePath();
 
-View::show_header('Subscribed collages', ['js' => 'browse,collage']);
+\View::show_header('Subscribed collages', ['js' => 'browse,collage']);
 ?>
 <div class="thin">
     <div class="header">
@@ -168,7 +172,7 @@ View::show_header('Subscribed collages', ['js' => 'browse,collage']);
 echo $Twig->render('user/subscribed-collage-artist.twig', [
     'artist_list' => $collMan->subscribedArtistCollageList(
         $Viewer,
-        new Gazelle\Manager\Artist(),
+        new Manager\Artist(),
         $viewAll
     ),
     'view_all' => $viewAll,

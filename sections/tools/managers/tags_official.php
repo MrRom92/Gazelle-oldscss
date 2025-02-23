@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('users_mod')) {
     error(403);
 }
 
-$tagMan = new Gazelle\Manager\Tag();
+$tagMan = new Manager\Tag();
 
 $unofficialName = [];
 if ($_POST['oldtags'] ?? null) {

@@ -2,12 +2,16 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 $userMan = new \Gazelle\Manager\User();
 $classList = $userMan->classList();
 
 echo $Twig->render('staff/index.twig', [
     'hidden' => true,
-    'reply' => new Gazelle\Util\Textarea('quickpost', ''),
+    'reply' => new Util\Textarea('quickpost', ''),
     'fls'   => $userMan->flsList(),
     'staff' => $userMan->staffListGrouped(),
     'user'  => $Viewer,

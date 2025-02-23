@@ -2,18 +2,22 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Gazelle\Cache $Cache */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_torrents_notify')) {
     error(403);
 }
 authorize();
 
-$releaseTypes = (new Gazelle\ReleaseType())->list();
+$releaseTypes = (new ReleaseType())->list();
 
 $formId = (int)$_POST['formid'];
 
-$filter = (new Gazelle\Notification\Filter())
+$filter = (new Notification\Filter())
     ->setYears((int)$_POST['fromyear' . $formId], (int)$_POST['toyear' . $formId])
-    ->setUsers(new Gazelle\Manager\User(), $_POST['users' . $formId])
+    ->setUsers(new Manager\User(), $_POST['users' . $formId])
     ->setBoolean('exclude_va', isset($_POST['excludeva' . $formId]))
     ->setBoolean('new_groups_only', isset($_POST['newgroupsonly' . $formId]))
     ->setMultiLine('artist', $_POST['artists' . $formId])

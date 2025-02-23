@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$classList = (new Gazelle\Manager\User())->classList();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$classList = (new Manager\User())->classList();
 
 echo $Twig->render('staffpm/user-inbox.twig', [
     'level' => [
@@ -10,8 +14,8 @@ echo $Twig->render('staffpm/user-inbox.twig', [
         'mod'   => $classList[MOD]['Level'],
         'sysop' => $classList[SYSOP]['Level'],
     ],
-    'list'   => (new Gazelle\Manager\StaffPM())->findAllByUser($Viewer),
+    'list'   => (new Manager\StaffPM())->findAllByUser($Viewer),
     'max'    => 'Sysop',
-    'reply'  => new Gazelle\Util\Textarea('quickpost', ''),
+    'reply'  => new Util\Textarea('quickpost', ''),
     'viewer' => $Viewer,
 ]);

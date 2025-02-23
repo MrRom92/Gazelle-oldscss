@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 /* This page is called only by Ocelot */
 
 if (
@@ -13,4 +17,4 @@ if (
     error(403);
 }
 
-(new Gazelle\Tracker())->expireFreeleechTokens($_GET['tokens']);
+(new Tracker())->expireFreeleechTokens($_GET['tokens']);

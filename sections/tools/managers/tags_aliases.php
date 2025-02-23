@@ -2,12 +2,16 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!($Viewer->permittedAny('users_mod', 'site_tag_aliases_read'))) {
     error(403);
 }
 
 $isAdmin = $Viewer->permitted('users_mod');
-$tagMan  = new Gazelle\Manager\Tag();
+$tagMan  = new Manager\Tag();
 $action  = null;
 $result  = null;
 

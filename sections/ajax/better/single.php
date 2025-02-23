@@ -1,9 +1,13 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
-echo (new Gazelle\Json\Better\SingleSeeded(
+declare(strict_types=1);
+
+namespace Gazelle;
+
+echo (new Json\Better\SingleSeeded(
     $Viewer,
-    new Gazelle\Better\SingleSeeded($Viewer, 'all', new Gazelle\Manager\Torrent())
+    new Better\SingleSeeded($Viewer, 'all', new Manager\Torrent())
 ))
     ->setVersion(2)
     ->response();

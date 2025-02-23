@@ -2,10 +2,14 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if ($Viewer->disableForums()) {
     error(403);
 }
-$userQuote = new Gazelle\User\Quote($Viewer);
+$userQuote = new User\Quote($Viewer);
 
 if ($_GET['catchup'] ?? 0) {
     $userQuote->clearAll();
@@ -15,7 +19,7 @@ if ($_GET['catchup'] ?? 0) {
 
 $userQuote->setShowAll(($_GET['showall'] ?? 0) == 1);
 
-$paginator = new Gazelle\Util\Paginator($Viewer->postsPerPage(), (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator($Viewer->postsPerPage(), (int)($_GET['page'] ?? 1));
 $paginator->setTotal($userQuote->total());
 
 echo $Twig->render('user/quote-notification.twig', [

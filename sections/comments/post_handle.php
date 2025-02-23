@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if ($Viewer->disablePosting()) {
     error('Your posting privileges have been removed.');
 }
@@ -16,7 +20,7 @@ if (!$pageId) {
     error(404);
 }
 
-$commentMan = new Gazelle\Manager\Comment();
+$commentMan = new Manager\Comment();
 $comment = $commentMan->create($Viewer, $page, $pageId, $_POST['quickpost']);
 
 $subscription = new \Gazelle\User\Subscription($Viewer);

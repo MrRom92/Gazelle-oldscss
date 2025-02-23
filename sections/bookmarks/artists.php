@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$userMan = new Gazelle\Manager\User();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$userMan = new Manager\User();
 if (!isset($_GET['userid'])) {
     $user = $Viewer;
 } else {
@@ -16,7 +20,7 @@ if (!isset($_GET['userid'])) {
 }
 
 echo $Twig->render('bookmark/artist.twig', [
-    'list'   => (new Gazelle\User\Bookmark($user))->artistList(),
+    'list'   => (new User\Bookmark($user))->artistList(),
     'user'   => $user,
     'viewer' => $Viewer,
 ]);

@@ -2,13 +2,17 @@
 // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 $details = isset($_GET['details']) && in_array($_GET['details'], ['day', 'week', 'overall', 'snatched', 'data', 'seeded', 'month', 'year']) ? $_GET['details'] : 'all';
 
 $limit = (int)($_GET['limit'] ?? 10);
 $limit = in_array($limit, [10, 100, 250]) && $details !== 'all' ? $limit : 10;
 
-$top10  = new Gazelle\Top10\Torrent(FORMAT, $Viewer);
-$torMan = new Gazelle\Manager\Torrent();
+$top10  = new Top10\Torrent(FORMAT, $Viewer);
+$torMan = new Manager\Torrent();
 $result = [];
 
 // Filter out common parameters that are not needed in getTopTorrents to get more cache hits
@@ -91,7 +95,10 @@ print json_encode([
     'response' => $result
 ]);
 
-function payload(Gazelle\Manager\Torrent $torMan, array $details): array {
+/**
+ * @return array<array<mixed>>
+ */
+function payload(Manager\Torrent $torMan, array $details): array {
     $results = [];
     foreach ($details as $detail) {
         $torrent = $torMan->findById($detail[0]);

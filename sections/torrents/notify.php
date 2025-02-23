@@ -4,6 +4,10 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Util\SortableTableHeader;
 
 if (!$Viewer->permitted('site_torrents_notify')) {
@@ -11,7 +15,7 @@ if (!$Viewer->permitted('site_torrents_notify')) {
 }
 
 if ($Viewer->permitted('users_mod') && (int)($_GET['userid'] ?? 0)) {
-    $user = (new Gazelle\Manager\User())->findById((int)$_GET['userid']);
+    $user = (new Manager\User())->findById((int)$_GET['userid']);
     if (is_null($user)) {
         error(404);
     }
@@ -21,7 +25,7 @@ if ($Viewer->permitted('users_mod') && (int)($_GET['userid'] ?? 0)) {
 $UserID = $user->id();
 $ownProfile = $UserID === $Viewer->id();
 
-$imgTag = '<img loading="lazy" src="' . (new Gazelle\User\Stylesheet($Viewer))->imagePath()
+$imgTag = '<img loading="lazy" src="' . (new User\Stylesheet($Viewer))->imagePath()
     . '%s.png" class="tooltip" alt="%s" title="%s"/>';
 $headerMap = [
     'year'     => ['dbColumn' => 'tg.Year',       'defaultSort' => 'desc', 'text' => 'Year'],
@@ -34,9 +38,9 @@ $headerMap = [
 $header = new SortableTableHeader('time', $headerMap);
 $headerIcons = new SortableTableHeader('time', $headerMap, ['asc' => '', 'desc' => '']);
 
-$notifier = new Gazelle\User\NotificationSearch(
+$notifier = new User\NotificationSearch(
     $user,
-    (new Gazelle\Manager\Torrent())->setViewer($Viewer),
+    (new Manager\Torrent())->setViewer($Viewer),
     $header->getOrderBy(),
     $header->getOrderDir(),
 );
@@ -44,15 +48,15 @@ if (isset($_GET['filterid'])) {
     $notifier->setFilter((int)$_GET['filterid']);
 }
 
-$paginator = new Gazelle\Util\Paginator(ITEMS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(ITEMS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($notifier->total());
 $page = $notifier->page($paginator->limit(), $paginator->offset());
 
-$bookmark = new Gazelle\User\Bookmark($Viewer);
-$imgProxy = new Gazelle\Util\ImageProxy($Viewer);
+$bookmark = new User\Bookmark($Viewer);
+$imgProxy = new Util\ImageProxy($Viewer);
 $snatcher = $Viewer->snatch();
 
-View::show_header(($ownProfile ? 'My' : $user->username() . "'s") . ' notifications', ['js' => 'notifications']);
+\View::show_header(($ownProfile ? 'My' : $user->username() . "'s") . ' notifications', ['js' => 'notifications']);
 ?>
 <div class="thin widethin">
 <div class="header">
@@ -170,4 +174,4 @@ View::show_header(($ownProfile ? 'My' : $user->username() . "'s") . ' notificati
     }
     echo $paginator->linkbox();
 }
-View::show_footer();
+\View::show_footer();

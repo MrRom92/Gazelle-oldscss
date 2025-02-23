@@ -3,7 +3,11 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
-$poll = (new Gazelle\Manager\ForumPoll())->findById((int)($_POST['threadid'] ?? 0));
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$poll = (new Manager\ForumPoll())->findById((int)($_POST['threadid'] ?? 0));
 if (is_null($poll)) {
     error(404);
 }
@@ -42,7 +46,7 @@ if (!isset($_POST['vote']) || !is_number($_POST['vote'])) {
         <ul class="poll nobullet">
 <?php
         if ($poll->hasRevealVotes()) {
-            $staffVote = $poll->staffVote(new Gazelle\Manager\User());
+            $staffVote = $poll->staffVote(new Manager\User());
             foreach ($staffVote as $response => $info) {
                 if ($response !== 'missing') {
 ?>

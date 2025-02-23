@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!empty($_REQUEST['action'])) {
     switch ($_REQUEST['action']) {
         case 'edit':
@@ -138,7 +142,7 @@ if (!empty($_REQUEST['action'])) {
             if (!empty($_GET['id'])) {
                 include_once 'details.php';
             } elseif (isset($_GET['torrentid'])) {
-                $torrent = (new Gazelle\Manager\Torrent())->findById((int)$_GET['torrentid']);
+                $torrent = (new Manager\Torrent())->findById((int)$_GET['torrentid']);
                 if ($torrent) {
                     header('Location: ' . $torrent->location());
                 } else {
@@ -164,7 +168,7 @@ if (!empty($_REQUEST['action'])) {
     } elseif (!empty($_GET['type'])) {
         include_once 'user.php';
     } elseif (!empty($_GET['groupname'])) {
-        $db = Gazelle\DB::DB();
+        $db = DB::DB();
         $db->prepared_query("
             SELECT ID FROM torrents_group WHERE Name = ? LIMIT 2
             ", trim($_GET['groupname'])

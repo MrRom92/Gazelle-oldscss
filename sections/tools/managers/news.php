@@ -2,13 +2,18 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Manager\Notification;
+use Gazelle\Enum\NotificationType;
 
 if (!$Viewer->permitted('admin_manage_news')) {
     error(403);
 }
 
-$newsMan = new Gazelle\Manager\News();
+$newsMan = new Manager\News();
 $create  = false;
 $title   = '';
 $body    = '';
@@ -21,12 +26,12 @@ switch ($_REQUEST['action']) {
             $_POST['title'],
             $_POST['body'],
             trim($_POST['pitch'] ?? '') ?: 'Discuss this post',
-            (new Gazelle\Manager\Forum())->findById(ANNOUNCEMENT_FORUM_ID),
-            new Gazelle\Manager\ForumThread(),
+            (new Manager\Forum())->findById(ANNOUNCEMENT_FORUM_ID),
+            new Manager\ForumThread(),
 
         );
         $notification = new Notification();
-        $notification->push($notification->pushableTokens(Gazelle\Enum\NotificationType::NEWS), $_POST['title'], $_POST['body'], SITE_URL . '/index.php');
+        $notification->push($notification->pushableTokens(NotificationType::NEWS), $_POST['title'], $_POST['body'], SITE_URL . '/index.php');
         header('Location: index.php');
         exit;
 
@@ -65,10 +70,10 @@ switch ($_REQUEST['action']) {
         error('Unknown news action');
 }
 echo $Twig->render('admin/news.twig', [
-    'body'    => new Gazelle\Util\Textarea('body', $body),
-    'create'  => $create,
-    'id'      => $id,
-    'title'   => $title,
-    'list'    => $newsMan->headlines(),
-    'viewer'  => $Viewer,
+    'body'   => new Util\Textarea('body', $body),
+    'create' => $create,
+    'id'     => $id,
+    'title'  => $title,
+    'list'   => $newsMan->headlines(),
+    'viewer' => $Viewer,
 ]);

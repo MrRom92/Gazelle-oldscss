@@ -5,6 +5,10 @@
 /** @phpstan-var \Twig\Environment $Twig */
 /** @phpstan-var \Gazelle\Debug $Debug */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use OrpheusNET\Logchecker\Logchecker;
 
 ini_set('max_file_uploads', 100);
@@ -61,7 +65,7 @@ $Properties['Year'] = isset($_POST['year']) ? (int)$_POST['year'] : null;
 $_POST['year'] = $Properties['Year'];
 $Properties['RecordLabel'] = trim($_POST['record_label'] ?? '');
 $Properties['CatalogueNumber'] = trim($_POST['catalogue_number'] ?? '');
-$Properties['ReleaseType'] = $_POST['releasetype'] ?? null;
+$Properties['ReleaseType'] = (int)($_POST['releasetype'] ?? 0);
 $Properties['Scene'] = isset($_POST['scene']);
 $Properties['Format'] = isset($_POST['format']) ? trim($_POST['format']) : null;
 $Properties['Media'] = trim($_POST['media'] ?? '');
@@ -80,7 +84,7 @@ if (isset($_POST['album_desc'])) {
 } elseif (isset($_POST['desc'])) {
     $Properties['GroupDescription'] = trim($_POST['desc'] ?? '');
 }
-$Properties['GroupID'] = $_POST['groupid'] ?? null;
+$Properties['GroupID'] = (int)($_POST['groupid'] ?? 0);
 
 if (empty($_POST['artists'])) {
     $Artists = [];
@@ -91,7 +95,7 @@ if (empty($_POST['artists'])) {
 }
 
 if (!empty($_POST['requestid'])) {
-    $RequestID = $_POST['requestid'];
+    $RequestID = (int)$_POST['requestid'];
     $Properties['RequestID'] = $RequestID;
 }
 
@@ -117,7 +121,7 @@ if (!isset($_POST['workaround_broken_html_entities']) || $_POST['workaround_brok
 //--------------- Validate data in upload form ---------------------------------//
 
 // common to all types
-$Validate = new Gazelle\Util\Validator();
+$Validate = new Util\Validator();
 $Validate->setFields([
     ['type', true, 'inarray', 'Please select a valid category.', ['inarray' => array_keys(CATEGORY)]],
     ['release_desc', false, 'string','The release description you entered is too long.', ['maxlength' => 1_000_000]],
@@ -152,7 +156,7 @@ if (in_array($categoryName, ['Music', 'Audiobooks', 'Comedy'])) {
     }
 }
 
-$releaseTypes = (new Gazelle\ReleaseType())->list();
+$releaseTypes = (new ReleaseType())->list();
 switch ($categoryName) {
     case 'Audiobooks':
         $Validate->setField('year', true, 'number', 'The year of the release must be entered.');
@@ -196,7 +200,7 @@ switch ($categoryName) {
         break;
 }
 
-if ($isMusicUpload && empty($Properties['GroupID'])) {
+if ($isMusicUpload && !$Properties['GroupID']) {
     if (count($Artists) !== count($Importance)) {
         reportError("There is an error with how artists are specified.");
     }
@@ -222,7 +226,7 @@ if ($isMusicUpload && empty($Properties['GroupID'])) {
         ARTIST_ARRANGER  => [],
     ];
     for ($i = 0, $end = count($Artists); $i < $end; $i++) {
-        $name = Gazelle\Artist::sanitize($Artists[$i]);
+        $name = Artist::sanitize($Artists[$i]);
         if ($name === '') {
             continue;
         }
@@ -252,7 +256,7 @@ if ($Properties['Image']) {
     if (!preg_match(IMAGE_REGEXP, $Properties['Image'])) {
         reportError(display_str($Properties['Image']) . " does not look like a valid image url");
     }
-    $banned = (new Gazelle\Util\ImageProxy($Viewer))->badHost($Properties['Image']);
+    $banned = (new Util\ImageProxy($Viewer))->badHost($Properties['Image']);
     if ($banned) {
         reportError("Please rehost images from $banned elsewhere.");
     }
@@ -268,8 +272,8 @@ if (!is_uploaded_file($TorrentName) || !filesize($TorrentName)) {
     reportError('No torrent file uploaded, or file is empty.');
 }
 
-$torMan   = new Gazelle\Manager\Torrent();
-$bencoder = new OrpheusNET\BencodeTorrent\BencodeTorrent();
+$torMan   = new Manager\Torrent();
+$bencoder = new \OrpheusNET\BencodeTorrent\BencodeTorrent();
 try {
     $bencoder->decodeFile($TorrentName);
 } catch (\RuntimeException $e) {
@@ -288,7 +292,7 @@ if (isset($TorData['info']['meta version'])) {
     reportError('This torrent is not a V1 torrent. V2 and Hybrid torrents are not supported here.');
 }
 
-$checker     = new Gazelle\Util\FileChecker();
+$checker     = new Util\FileChecker();
 $DirName     = (isset($TorData['info']['files']) ? make_utf8($bencoder->getName()) : '');
 $checkName   = $checker->checkName($DirName); // check the folder name against the blacklist
 if ($checkName) {
@@ -300,7 +304,7 @@ $upload = [
     'new'   => [], // list of newly created Torrent objects
 ];
 
-$torrentFiler = new Gazelle\File\Torrent();
+$torrentFiler = new File\Torrent();
 $torrent      = $torMan->findByInfohash(bin2hex($bencoder->getHexInfoHash()));
 if ($torrent) {
     if ($torrentFiler->exists($torrent->id())) {
@@ -340,7 +344,7 @@ if ($isMusicUpload) {
                 reportError('Missing encoding/bitrate for extra torrent.');
             }
 
-            $xbencoder = new OrpheusNET\BencodeTorrent\BencodeTorrent();
+            $xbencoder = new \OrpheusNET\BencodeTorrent\BencodeTorrent();
             try {
                 $xbencoder->decodeFile($fileTmpName);
             } catch (\RuntimeException $e) {
@@ -440,7 +444,7 @@ if (count($TooLongPaths) > 0) {
 }
 $Debug->mark('upload: torrent decoded');
 
-$tgMan      = new Gazelle\Manager\TGroup();
+$tgMan      = new Manager\TGroup();
 $tgroup     = null;
 $NoRevision = false;
 
@@ -477,7 +481,7 @@ if ($isMusicUpload) {
 $IsNewGroup = is_null($tgroup);
 
 $logfileSummary = ($hasLog && isset($_FILES['logfiles']))
-    ? new Gazelle\LogfileSummary($_FILES['logfiles'])
+    ? new LogfileSummary($_FILES['logfiles'])
     : null;
 $hasLogInDB = $logfileSummary?->total() > 0;
 
@@ -485,7 +489,7 @@ $hasLogInDB = $logfileSummary?->total() > 0;
 //--------------- Start database stuff -----------------------------------------//
 
 $Debug->mark('upload: database begin transaction');
-$db = Gazelle\DB::DB();
+$db = DB::DB();
 $db->begin_transaction();
 
 if ($tgroup) {
@@ -504,13 +508,13 @@ if ($tgroup) {
     );
 
     // Tags
-    $tagMan = new Gazelle\Manager\Tag();
+    $tagMan = new Manager\Tag();
     foreach ($Properties['TagList'] as $name) {
         $tagMan->softCreate($name, $Viewer)?->addTGroup($tgroup, $Viewer, 10);
     }
 
     if ($isMusicUpload) {
-        $tgroup->addArtists($ArtistRoleList, $ArtistNameList, $Viewer, new Gazelle\Manager\Artist());
+        $tgroup->addArtists($ArtistRoleList, $ArtistNameList, $Viewer, new Manager\Artist());
         $Cache->increment_value('stats_album_count', count($ArtistNameList));
     }
     $Viewer->stats()->increment('unique_group_total');
@@ -584,7 +588,7 @@ foreach ($upload['extra'] as $info) {
 //--------------- Write Files To Disk ------------------------------------------//
 
 if ($logfileSummary?->total()) {
-    $torrentLogManager = new Gazelle\Manager\TorrentLog(new Gazelle\File\RipLog(), new Gazelle\File\RipLogHTML());
+    $torrentLogManager = new Manager\TorrentLog(new File\RipLog(), new File\RipLogHTML());
     $checkerVersion = Logchecker::getLogcheckerVersion();
     foreach ($logfileSummary->all() as $logfile) {
         $torrentLogManager->create($torrent, $logfile, $checkerVersion);
@@ -605,8 +609,8 @@ $Debug->mark('upload: database committed');
 //--------------- Finalize -----------------------------------------------------//
 
 $bonusTotal  = 0;
-$bonus       = new Gazelle\User\Bonus($Viewer);
-$tracker     = new Gazelle\Tracker();
+$bonus       = new User\Bonus($Viewer);
+$tracker     = new Tracker();
 $folderCheck = [];
 foreach ($upload['new'] as $t) {
     $t->flush()->unlockUpload();
@@ -614,7 +618,7 @@ foreach ($upload['new'] as $t) {
     $tracker->addTorrent($t);
     $folderCheck[] = $t->path();
 }
-(new Gazelle\Manager\NotificationTicket())->create($torrent);
+(new Manager\NotificationTicket())->create($torrent);
 
 if (!$Viewer->disableBonusPoints()) {
     $bonus->addPoints($bonusTotal);
@@ -623,7 +627,7 @@ if (!$Viewer->disableBonusPoints()) {
 $tgroup->refresh();
 
 if ($Viewer->option('AutoSubscribe')) {
-    (new Gazelle\User\Subscription($Viewer))->subscribeComments('torrents', $GroupID);
+    (new User\Subscription($Viewer))->subscribeComments('torrents', $GroupID);
 }
 
 $totalNew = count($upload['new']);

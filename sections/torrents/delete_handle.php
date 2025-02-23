@@ -2,9 +2,13 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
-$torrent = (new Gazelle\Manager\Torrent())->setViewer($Viewer)->findById((int)$_POST['torrentid']);
+$torrent = (new Manager\Torrent())->setViewer($Viewer)->findById((int)$_POST['torrentid']);
 if (is_null($torrent)) {
     error(404);
 }
@@ -33,7 +37,7 @@ if (!$success) {
     error($message);
 }
 
-(new Gazelle\Manager\User())->sendRemovalPm(
+(new Manager\User())->sendRemovalPm(
     $uploader, $torrentId, $fullName, $path,
     "Torrent $torrentId $fullName (" . number_format($size / (1024 * 1024), 2) . ' MiB '
         . strtoupper($infohash) . ") was deleted by " . $Viewer->username() . ": $reason",

@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->hasAttr('feature-seedbox') && !$Viewer->permitted('users_view_ips')) {
     error(403);
 }
@@ -12,7 +16,7 @@ if (!isset($_POST['action'])) {
     authorize();
     $userId = (int)$_POST['userid'];
 }
-$user = (new Gazelle\Manager\User())->findById($userId);
+$user = (new Manager\User())->findById($userId);
 if (!$user) {
     error(404);
 }
@@ -24,7 +28,7 @@ $union = trim($_REQUEST['view'] ?? 'union') === 'union';
 $source = ($_REQUEST['source'] ?? null);
 $target = ($_REQUEST['target'] ?? null);
 
-$seedbox = new Gazelle\User\Seedbox($user);
+$seedbox = new User\Seedbox($user);
 if (isset($_POST['action']) || isset($_REQUEST['viewby'])) {
     if (is_null($source) || is_null($target) || $source === $target) {
         error("Invalid comparison between two seedbox instances");
@@ -32,7 +36,7 @@ if (isset($_POST['action']) || isset($_REQUEST['viewby'])) {
     $seedbox->setSource($source)
         ->setTarget($target)
         ->setUnion($union);
-    if (isset($_REQUEST['viewby']) && $_REQUEST['viewby'] == Gazelle\User\Seedbox::VIEW_BY_PATH) {
+    if (isset($_REQUEST['viewby']) && $_REQUEST['viewby'] == User\Seedbox::VIEW_BY_PATH) {
         $seedbox->setViewByPath();
     } else {
         $seedbox->setViewByName();
@@ -43,10 +47,10 @@ if (isset($_POST['action']) || isset($_REQUEST['viewby'])) {
     }
 }
 
-$paginator = new Gazelle\Util\Paginator(TORRENTS_PER_PAGE, (int)($_REQUEST['page'] ?? 1));
+$paginator = new Util\Paginator(TORRENTS_PER_PAGE, (int)($_REQUEST['page'] ?? 1));
 $paginator->setTotal($seedbox->total());
 
-View::show_header($user->username() . ' › Seedboxes › View');
+\View::show_header($user->username() . ' › Seedboxes › View');
 ?>
 <div class="thin">
     <div class="header">
@@ -61,7 +65,7 @@ View::show_header($user->username() . ' › Seedboxes › View');
 if ($source && $target) {
     echo $Twig->render('seedbox/report.twig', [
         'list' => $seedbox->torrentList(
-            new Gazelle\Manager\Torrent(),
+            new Manager\Torrent(),
             $paginator->limit(),
             $paginator->offset()
         ),

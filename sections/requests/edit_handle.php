@@ -1,9 +1,13 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
-$requestMan = new Gazelle\Manager\Request();
+$requestMan = new Manager\Request();
 $request = $requestMan->findById((int)($_POST['requestid'] ?? 0));
 if (is_null($request)) {
     error(404);
@@ -35,7 +39,7 @@ $format     = null;
 $media      = null;
 
 while (true) {
-    $validator = new Gazelle\Util\Validator();
+    $validator = new Util\Validator();
     if (isset($_POST['description'])) {
         $validator->setField('description', true, 'string', 'You forgot to enter a description.', ['maxlength' => 32000]);
     }
@@ -90,7 +94,7 @@ while (true) {
 
     if (isset($_POST['releasetype'])) {
         $releaseType = (int)$_POST['releasetype'];
-        if (!(new Gazelle\ReleaseType())->findNameById($releaseType)) {
+        if (!(new ReleaseType())->findNameById($releaseType)) {
             $error = 'Please pick a release type';
             break;
         }
@@ -100,7 +104,7 @@ while (true) {
     }
 
     if (isset($_POST['formats']) && $Viewer->permitted('site_moderate_requests')) {
-        $format = new Gazelle\Request\Format(isset($_POST['all_formats']), $_POST['formats'] ?? []);
+        $format = new Request\Format(isset($_POST['all_formats']), $_POST['formats'] ?? []);
         if (!$format->isValid()) {
             $error = 'You must require at least one valid format';
             break;
@@ -113,7 +117,7 @@ while (true) {
     if (!isset($_POST['bitrates'])) {
         $encoding = null;
     } else {
-        $encoding = new Gazelle\Request\Encoding(isset($_POST['all_bitrates']), $_POST['bitrates'] ?? []);
+        $encoding = new Request\Encoding(isset($_POST['all_bitrates']), $_POST['bitrates'] ?? []);
         if (!$encoding->isValid()) {
             $error = 'You must require at least one valid encoding';
             break;
@@ -124,7 +128,7 @@ while (true) {
     }
 
     if (isset($_POST['media']) && $Viewer->permitted('site_moderate_requests')) {
-        $media = new Gazelle\Request\Media(isset($_POST['all_media']), $_POST['media'] ?? []);
+        $media = new Request\Media(isset($_POST['all_media']), $_POST['media'] ?? []);
         if (!$media->isValid()) {
             $error = 'You must require at least one valid media';
             break;
@@ -139,7 +143,7 @@ while (true) {
             $request->setField('Checksum', 0);
             $request->setField('LogCue', '');
         } else {
-            $logCue = new Gazelle\Request\LogCue(
+            $logCue = new Request\LogCue(
                 needCue:         isset($_POST['needcue']),
                 needLog:         isset($_POST['needlog']),
                 needLogChecksum: isset($_POST['needcksum']),
@@ -164,7 +168,7 @@ while (true) {
             ? (int)$match['id']
             : (int)$_POST['groupid'];
         if ($tgroupId > 0) {
-            $tgroup = (new Gazelle\Manager\TGroup())->findById($tgroupId);
+            $tgroup = (new Manager\TGroup())->findById($tgroupId);
             if (is_null($tgroup)) {
                 $error = 'The torrent group, if entered, must correspond to a music torrent group on the site.';
                 break;
@@ -235,10 +239,10 @@ if (isset($_POST['oclc'])) {
 
 $request->modify();
 if ($categoryName === 'Music' && $Viewer->permittedAny('site_edit_requests', 'site_moderate_requests')) {
-    $request->artistRole()->set($artistRole, $Viewer, new Gazelle\Manager\Artist());
+    $request->artistRole()->set($artistRole, $Viewer, new Manager\Artist());
 }
 if (isset($_POST['tags'])) {
-    (new Gazelle\Manager\Tag())->replaceTagList(
+    (new Manager\Tag())->replaceTagList(
         $request,
         array_unique(array_map('trim', explode(',', trim($_POST['tags'])))),
         $Viewer,

@@ -1,15 +1,19 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (isset($_GET['postid'])) {
-    $post = (new Gazelle\Manager\ForumPost())->findById((int)$_GET['postid']);
+    $post = (new Manager\ForumPost())->findById((int)$_GET['postid']);
     if (is_null($post)) {
         json_error('bad post id');
     }
     $thread = $post->thread();
 } elseif (isset($_GET['threadid']) || isset($_GET['topicid'])) {
     $post = false;
-    $thread = (new Gazelle\Manager\ForumThread())
+    $thread = (new Manager\ForumThread())
         ->findById((int)($_GET['threadid'] ?? $_GET['topicid'] ?? 0));
     if (is_null($thread)) {
         json_error('bad thread id');
@@ -31,15 +35,15 @@ $postNum = match (true) {
     default                     => 1,
 };
 $perPage = (int)($_GET['pp'] ?? $Viewer->postsPerPage());
-$paginator = new Gazelle\Util\Paginator(
+$paginator = new Util\Paginator(
     $perPage,
     (int)($_GET['page'] ?? ceil($postNum / $perPage)),
 );
 
-echo (new Gazelle\Json\ForumThread(
+echo (new Json\ForumThread(
     $thread,
     $Viewer,
     $paginator,
     isset($_GET['updatelastread']),
-    new Gazelle\Manager\User(),
+    new Manager\User(),
 ))->response();

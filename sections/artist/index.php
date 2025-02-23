@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!empty($_POST['action'])) {
     match ($_POST['action']) {
         'add_similar'     => include_once 'add_similar.php',
@@ -34,7 +38,7 @@ if (!empty($_POST['action'])) {
     } elseif (empty($_GET['artistname'])) {
         header('Location: torrents.php');
     } else {
-        $db = Gazelle\DB::DB();
+        $db = DB::DB();
         $NameSearch = str_replace('\\', '\\\\', trim($_GET['artistname']));
         $db->prepared_query("
             SELECT ArtistID, Name

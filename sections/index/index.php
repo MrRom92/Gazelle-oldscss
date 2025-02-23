@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var ?\Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!isset($Viewer)) {
     include 'public.php';
 } else {

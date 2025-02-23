@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 switch ($_GET['action'] ?? '') {
     case 'passkeys':
         include_once 'announce_key_history.php';
@@ -34,7 +38,7 @@ switch ($_GET['action'] ?? '') {
         break;
     case 'catchup':
         authorize();
-        (new Gazelle\User\Subscription($Viewer))->catchupSubscriptions();
+        (new User\Subscription($Viewer))->catchupSubscriptions();
         header('Location: userhistory.php?action=subscriptions');
         break;
     case 'collage_subscribe':

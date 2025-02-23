@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_analysis')) {
     error(403);
 }
 
-$errMan = new Gazelle\Manager\ErrorLog();
+$errMan = new Manager\ErrorLog();
 $remove = array_key_extract_suffix('clear-', $_POST);
 if ($remove) {
     $removed = $errMan->remove($remove);
@@ -20,10 +24,10 @@ if (isset($_REQUEST['filter']) && isset($_REQUEST['search'])) {
     $errMan->setFilter(trim($_REQUEST['search']));
 }
 
-$paginator = new Gazelle\Util\Paginator(ITEMS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(ITEMS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($errMan->total());
 
-$heading = new Gazelle\Util\SortableTableHeader('updated', [
+$heading = new Util\SortableTableHeader('updated', [
     // see Gazelle\ErrorLog for these table aliases
     'id'       => ['dbColumn' => 'error_log_id', 'defaultSort' => 'desc', 'text' => 'Case'],
     'duration' => ['dbColumn' => 'duration',     'defaultSort' => 'desc', 'text' => 'Duration'],

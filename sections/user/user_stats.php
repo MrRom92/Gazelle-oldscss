@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$userMan = new Gazelle\Manager\User();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$userMan = new Manager\User();
 if (!isset($_GET['userid'])) {
     if (!$Viewer->permitted('site_user_stats')) {
         error(403);

@@ -2,10 +2,14 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_manage_permissions')) {
     error(403);
 }
 
 echo $Twig->render('admin/user-custom-permission.twig', [
-    'list' => (new Gazelle\Manager\User())->findAllByCustomPermission()
+    'list' => (new Manager\User())->findAllByCustomPermission()
 ]);

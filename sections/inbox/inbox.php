@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 $inbox = $Viewer->inbox();
 $inbox->setFolder($_GET['section'] ?? $_GET['action'] ?? 'inbox');
 if (isset($_GET['searchtype'])) {
@@ -18,7 +22,7 @@ if ($filter) {
     $inbox->setFilter($filter);
 }
 
-$paginator = new Gazelle\Util\Paginator(MESSAGES_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(MESSAGES_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($inbox->messageTotal());
 
 echo $Twig->render('inbox/inbox.twig', [

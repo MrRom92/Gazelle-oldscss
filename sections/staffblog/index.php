@@ -2,13 +2,17 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Util\Irc;
 
 if (!$Viewer->permitted('users_mod')) {
     error(403);
 }
 
-$blogMan = new Gazelle\Manager\StaffBlog();
+$blogMan = new Manager\StaffBlog();
 $blogMan->catchup($Viewer);
 
 if ($Viewer->permitted('admin_manage_blog')) {
@@ -52,7 +56,7 @@ if ($Viewer->permitted('admin_manage_blog')) {
     }
 }
 
-View::show_header('Staff Blog', ['js' => 'bbcode']);
+\View::show_header('Staff Blog', ['js' => 'bbcode']);
 
 if (in_array($_REQUEST['action'] ?? '', ['', 'editblog'])) {
     echo $Twig->render('staffblog/edit.twig', [

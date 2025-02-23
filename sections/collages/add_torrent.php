@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
 if (!in_array($_REQUEST['action'], ['add_torrent', 'add_torrent_batch'])) {
@@ -10,7 +14,7 @@ if (!$Viewer->permitted('site_collages_manage') && !$Viewer->activePersonalColla
     error(403);
 }
 
-$collageMan = new Gazelle\Manager\Collage();
+$collageMan = new Manager\Collage();
 if (isset($_POST['collage_combo']) && (int)$_POST['collage_combo']) {
     $collage = $collageMan->findById((int)$_POST['collage_combo']); // From release page
 } elseif (isset($_POST['collage_ref'])) {
@@ -60,7 +64,7 @@ if ($_REQUEST['action'] == 'add_torrent') {
 }
 
 /* check that they correspond to torrent pages */
-$tgroupMan = new Gazelle\Manager\TGroup();
+$tgroupMan = new Manager\TGroup();
 $list = [];
 foreach ($URL as $u) {
     preg_match(TGROUP_REGEXP, $u, $match);

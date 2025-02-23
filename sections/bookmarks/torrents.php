@@ -4,12 +4,16 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 ini_set('max_execution_time', 600);
 set_time_limit(0);
 
 //~~~~~~~~~~~ Main bookmarks page ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-$userMan = new Gazelle\Manager\User();
+$userMan = new Manager\User();
 if (empty($_GET['userid'])) {
     $user = $Viewer;
     $ownProfile = true;
@@ -24,23 +28,23 @@ if (empty($_GET['userid'])) {
     $ownProfile = ($user->id() === $Viewer->id());
 }
 
-$bookmark  = new Gazelle\User\Bookmark($user);
+$bookmark  = new User\Bookmark($user);
 $snatcher  = $Viewer->snatch();
-$reportMan = new Gazelle\Manager\Report($userMan);
-$tgMan     = (new Gazelle\Manager\TGroup())->setViewer($Viewer);
-$torMan    = (new Gazelle\Manager\Torrent())->setViewer($Viewer);
-$collMan   = (new Gazelle\Manager\Collage())->setImageProxy(new Gazelle\Util\ImageProxy($Viewer));
+$reportMan = new Manager\Report($userMan);
+$tgMan     = (new Manager\TGroup())->setViewer($Viewer);
+$torMan    = (new Manager\Torrent())->setViewer($Viewer);
+$collMan   = (new Manager\Collage())->setImageProxy(new Util\ImageProxy($Viewer));
 
-$paginator = new Gazelle\Util\Paginator(200, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(200, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($bookmark->torrentTotal());
 
 $bookmarkList      = $bookmark->torrentList($paginator->limit(), $paginator->offset());
 $NumGroups         = count($bookmarkList);
-$artistLeaderboard = $bookmark->torrentArtistLeaderboard(new Gazelle\Manager\Artist());
+$artistLeaderboard = $bookmark->torrentArtistLeaderboard(new Manager\Artist());
 $tagLeaderboard    = $bookmark->torrentTagLeaderboard();
 $CollageCovers     = (int)($Viewer->option('CollageCovers') ?? 25);
 
-View::show_header($user->username() . " › Bookmarked torrent groups", ['js' => 'browse,collage']);
+\View::show_header($user->username() . " › Bookmarked torrent groups", ['js' => 'browse,collage']);
 ?>
 <div class="thin">
     <div class="header">
@@ -78,7 +82,7 @@ if (count($bookmarkList) === 0) { ?>
     </div>
 </div>
 <?php
-    View::show_footer();
+    \View::show_footer();
     die();
 } ?>
     <div class="sidebar">
@@ -188,7 +192,7 @@ if ($CollageCovers !== 0) { ?>
         unset($CollagePages);
     }
 }
-$urlStem = (new Gazelle\User\Stylesheet($Viewer))->imagePath();
+$urlStem = (new User\Stylesheet($Viewer))->imagePath();
 ?>
         <?= $paginator->linkbox() ?>
         <table class="torrent_table grouping cats m_table" id="torrent_table">
@@ -294,4 +298,4 @@ foreach ($bookmarkList as $bm) {
 </div>
 
 <?php
-View::show_footer();
+\View::show_footer();

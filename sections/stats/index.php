@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 switch ($_REQUEST['action'] ?? null) {
     case 'users':
         include_once 'users.php';

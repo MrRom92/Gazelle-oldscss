@@ -1,11 +1,15 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
-$userMan = new Gazelle\Manager\User();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$userMan = new Manager\User();
 $user = [$Viewer->id() => $Viewer];
 
 $category = [];
-foreach ((new Gazelle\Manager\Forum())->forumList() as $forum) {
+foreach ((new Manager\Forum())->forumList() as $forum) {
     if (!$Viewer->readAccess($forum)) {
         continue;
     }

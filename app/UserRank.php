@@ -11,7 +11,7 @@ namespace Gazelle;
  *
  * It begins with a RANKING_WEIGHT table in the configuration, which
  * specifies the weight a dimension has towards the overall score, and
- * a class name X that points to \Gazelle\UserRank\X.
+ * a class name X that points to UserRank\X.
  *
  * To explore and test in Boris:
  * Consider that there are two users, one who has up/down votes a
@@ -41,7 +41,7 @@ namespace Gazelle;
  * This then has to hooked up to sections/user/user.php and
  * sections/ajax/user.php
  *
- * Future directions: pass a \Gazelle\User object to the UserRank
+ * Future directions: pass a User object to the UserRank
  * object, and define the appropriate ethod names in the ranking
  * table so that the dimension classes can obtain the metrics
  * directly and not need to have them passed in.
@@ -53,7 +53,7 @@ class UserRank extends Base {
 
     final public const PREFIX = 'percentiles_'; // Prefix for memcache keys, to make life easier
 
-    public function __construct(protected \Gazelle\UserRank\Configuration $config, protected array $dimension) {
+    public function __construct(protected UserRank\Configuration $config, protected array $dimension) {
         $definition = $this->config->definition();
         foreach ($definition as $d) {
             $this->rank[$d] = $this->config->instance($d)->rank(

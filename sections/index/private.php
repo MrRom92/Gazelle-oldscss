@@ -2,16 +2,20 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Enum\FeaturedAlbumType;
 
-Text::$TOC = true;
+\Text::$TOC = true;
 
-$featured   = new Gazelle\Manager\FeaturedAlbum();
-$contestMan = new Gazelle\Manager\Contest();
-$newsMan    = new Gazelle\Manager\News();
-$newsReader = new Gazelle\WitnessTable\UserReadNews();
-$tgMan      = new Gazelle\Manager\TGroup();
-$torMan     = new Gazelle\Manager\Torrent();
+$featured   = new Manager\FeaturedAlbum();
+$contestMan = new Manager\Contest();
+$newsMan    = new Manager\News();
+$newsReader = new WitnessTable\UserReadNews();
+$tgMan      = new Manager\TGroup();
+$torMan     = new Manager\Torrent();
 
 if ($newsMan->latestId() != -1 && $newsReader->lastRead($Viewer) < $newsMan->latestId()) {
     $newsReader->witness($Viewer);
@@ -29,7 +33,7 @@ if (!$contest) {
             $leaderboard = [];
         } else {
             $leaderboard = array_slice($leaderboard, 0, 3);
-            $userMan = new Gazelle\Manager\User();
+            $userMan = new Manager\User();
             foreach ($leaderboard as &$entry) {
                 $entry['username'] = $userMan->findById($entry['user_id'])->username();
             }
@@ -40,17 +44,17 @@ if (!$contest) {
 }
 
 echo $Twig->render('index/private-sidebar.twig', [
-    'blog'          => new Gazelle\Manager\Blog(),
-    'collage_count' => (new Gazelle\Stats\Collage())->collageTotal(),
+    'blog'          => new Manager\Blog(),
+    'collage_count' => (new Stats\Collage())->collageTotal(),
     'contest_rank'  => $contestRank,
     'leaderboard'   => $leaderboard,
     'aotm'          => $featured->findByType(FeaturedAlbumType::AlbumOfTheMonth),
     'showcase'      => $featured->findByType(FeaturedAlbumType::Showcase),
-    'staff_blog'    => new Gazelle\Manager\StaffBlog(),
-    'poll'          => (new Gazelle\Manager\ForumPoll())->findByFeaturedPoll(),
-    'request_stats' => new Gazelle\Stats\Request(),
-    'torrent_stats' => new Gazelle\Stats\Torrent(),
-    'user_stats'    => new Gazelle\Stats\Users(),
+    'staff_blog'    => new Manager\StaffBlog(),
+    'poll'          => (new Manager\ForumPoll())->findByFeaturedPoll(),
+    'request_stats' => new Stats\Request(),
+    'torrent_stats' => new Stats\Torrent(),
+    'user_stats'    => new Stats\Users(),
     'viewer'        => $Viewer,
 ]);
 

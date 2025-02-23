@@ -1,13 +1,17 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_manage_forums')) {
     error(403);
 }
 
 authorize();
 
-$forumMan = new Gazelle\Manager\Forum();
+$forumMan = new Manager\Forum();
 $forum = $forumMan->findById((int)($_POST['id'] ?? 0));
 if (is_null($forum) && in_array($_POST['submit'], ['Edit', 'Delete'])) {
     error('Unknown forum alter action');
@@ -22,7 +26,7 @@ if ($_POST['submit'] == 'Delete') {
         error(403);
     }
 
-    $validator = new Gazelle\Util\Validator();
+    $validator = new Util\Validator();
     $validator->setFields([
         ['name', true, 'string', 'The name must be set, and has a max length of 40 characters', ['maxlength' => 40]],
         ['description', false, 'string', 'The description has a max length of 255 characters', ['maxlength' => 255]],

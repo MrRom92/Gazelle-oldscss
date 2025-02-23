@@ -1,16 +1,20 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 if (!$Viewer->permitted('site_album_votes')) {
     json_error('forbidden');
 }
 
-$tgroup = (new Gazelle\Manager\TGroup())->findById((int)$_REQUEST['groupid']);
+$tgroup = (new Manager\TGroup())->findById((int)$_REQUEST['groupid']);
 if (is_null($tgroup)) {
     json_error('no such group');
 }
-$vote = new Gazelle\User\Vote($Viewer);
+$vote = new User\Vote($Viewer);
 
 if ($_REQUEST['do'] != 'vote') {
     json_error('bad args');

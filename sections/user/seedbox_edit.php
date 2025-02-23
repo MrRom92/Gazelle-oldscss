@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->hasAttr('feature-seedbox') && !$Viewer->permitted('users_view_ips')) {
     error(403);
 }
@@ -12,7 +16,7 @@ if (!isset($_POST['action'])) {
     authorize();
     $userId = (int)$_POST['userid'];
 }
-$user = (new Gazelle\Manager\User())->findById($userId);
+$user = (new Manager\User())->findById($userId);
 if (!$user) {
     error(404);
 }
@@ -20,7 +24,7 @@ if ($Viewer->id() != $userId && !$Viewer->permitted('users_view_ips')) {
     error(403);
 }
 
-$seedbox = new Gazelle\User\Seedbox($user);
+$seedbox = new User\Seedbox($user);
 
 if (isset($_POST['mode'])) {
     switch ($_POST['mode']) {

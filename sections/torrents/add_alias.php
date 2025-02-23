@@ -1,9 +1,13 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
-$tgMan = new Gazelle\Manager\TGroup();
+$tgMan = new Manager\TGroup();
 $tgroup = $tgMan->findById((int)$_POST['groupid']);
 if (is_null($tgroup)) {
     error(404);
@@ -13,7 +17,7 @@ $count = $tgroup->addArtists(
     $_POST['importance'],
     $_POST['aliasname'],
     $Viewer,
-    new Gazelle\Manager\Artist()
+    new Manager\Artist(),
 );
 
 if ($count < 1) {

@@ -2,18 +2,22 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('users_mod')) {
     error(403);
 }
 
-$tracker      = new Gazelle\Tracker();
+$tracker      = new Tracker();
 $stats        = false;
 $torrentStats = null;
 $user         = null;
 $info         = $tracker->info();
 
 if (isset($_GET['userid'])) {
-    $user = (new Gazelle\Manager\User())->find($_GET['userid']);
+    $user = (new Manager\User())->find($_GET['userid']);
     if ($user) {
         $stats = $tracker->userReport($user);
         $_GET['userid'] = $user->id(); // change @user to id
@@ -21,7 +25,7 @@ if (isset($_GET['userid'])) {
 }
 
 if (isset($_GET['torrentid'])) {
-    $torrent = (new Gazelle\Manager\Torrent())->findById((int)$_GET['torrentid']);
+    $torrent = (new Manager\Torrent())->findById((int)$_GET['torrentid']);
     if ($torrent) {
         $torrentStats = [
             'info'    => $tracker->torrentReport($torrent),
@@ -37,7 +41,7 @@ if (isset($_GET['torrentid'])) {
 $reannounceTotal = 0;
 $reannounced = 0;
 if (isset($_POST['tlist'])) {
-    $torMan = new Gazelle\Manager\Torrent();
+    $torMan = new Manager\Torrent();
     foreach (extract_torrent_id($_POST['tlist']) as $id) {
         $reannounceTotal++;
         $torrent = $torMan->findById($id);

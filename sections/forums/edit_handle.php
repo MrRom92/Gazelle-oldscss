@@ -1,12 +1,16 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if ($Viewer->disablePosting()) {
     error("Your posting privileges have been removed.");
 }
 authorize();
 
-$post = (new Gazelle\Manager\ForumPost())->findById((int)($_POST['post'] ?? 0));
+$post = (new Manager\ForumPost())->findById((int)($_POST['post'] ?? 0));
 if (!$post) {
     error(display_str("No forum post #{$_POST['post']} found"));
 }
@@ -23,7 +27,7 @@ if ($Viewer->id() != $post->userId()) {
         error("You cannot edit someone else's post");
     }
     if ($_POST['pm'] ?? 0) {
-        $user = (new Gazelle\Manager\User())->findById($post->userId());
+        $user = (new Manager\User())->findById($post->userId());
         if (is_null($user)) {
             error('Author of post not found');
         }
@@ -37,6 +41,6 @@ if ($Viewer->id() != $post->userId()) {
 $post->edit($Viewer, trim($_POST['body']));
 
 // This gets sent to the browser, which echoes it in place of the old body
-echo Text::full_format($post->body());
+echo \Text::full_format($post->body());
 ?>
 <br /><br /><span class="last_edited">Last edited by <?= $Viewer->link() ?> Just now</span>

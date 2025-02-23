@@ -90,7 +90,7 @@ class User extends BaseObject {
         return $this->snatch ??= new User\Snatch($this);
     }
 
-    public function stats(): \Gazelle\Stats\User {
+    public function stats(): Stats\User {
         return $this->stats ??= new Stats\User($this->id);
     }
 
@@ -918,9 +918,9 @@ class User extends BaseObject {
     /**
      * Warn a user. Returns expiry date.
      */
-    public function warn(int $duration, string $reason, \Gazelle\User $staff, string $userMessage): string {
+    public function warn(int $duration, string $reason, User $staff, string $userMessage): string {
         $warnTime = Time::offset($duration * 7 * 86_400);
-        $warning  = new \Gazelle\User\Warning($this);
+        $warning  = new User\Warning($this);
         $expiry   = $warning->warningExpiry();
         if ($expiry) {
             $subject = 'You have received a new warning';
@@ -943,7 +943,7 @@ class User extends BaseObject {
     public function warnPost(
         BaseObject $post,
         int $weekDuration,
-        \Gazelle\User $staffer,
+        User $staffer,
         string $staffReason,
         string $userMessage
     ): void {
@@ -1310,7 +1310,7 @@ class User extends BaseObject {
         return stripos($info['Artists'], "|$name|") !== false;
     }
 
-    public function addArtistNotification(\Gazelle\Artist $artist): int {
+    public function addArtistNotification(Artist $artist): int {
         $info = $this->loadArtistNotifications();
         $alias = implode('|', $artist->aliasNameList());
         if (!$alias) {
@@ -1353,7 +1353,7 @@ class User extends BaseObject {
         return !$this->hasAttr('no-pm-delete-download');
     }
 
-    public function removeArtistNotification(\Gazelle\Artist $artist): int {
+    public function removeArtistNotification(Artist $artist): int {
         $info = $this->loadArtistNotifications();
         $aliasList = $artist->aliasNameList();
         foreach ($aliasList as $alias) {
@@ -1939,7 +1939,7 @@ class User extends BaseObject {
                     ", $this->id, $name, $token
                 );
                 return $token;
-            } catch (\Gazelle\DB\MysqlDuplicateKeyException) {
+            } catch (DB\MysqlDuplicateKeyException) {
                 ;
             }
         }

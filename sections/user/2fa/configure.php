@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
@@ -13,7 +17,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $valid = true;
-$auth = new RobThree\Auth\TwoFactorAuth();
+$auth = new \RobThree\Auth\TwoFactorAuth();
 if (!empty($_SESSION['private_key'])) {
     $secret = $_SESSION['private_key'];
     if (isset($_POST['2fa'])) {

@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 $page   = max(1, (int)($_GET['page'] ?? 1));
 $limit  = TORRENTS_PER_PAGE;
 $offset = TORRENTS_PER_PAGE * ($page - 1);
@@ -18,7 +22,7 @@ $heading = new \Gazelle\Util\SortableTableHeader('hourlypoints', [
     'pointspergb'   => ['dbColumn' => 'points_per_gb',  'defaultSort' => 'desc', 'text' => 'BP/GB/year'],
 ]);
 
-$userMan = new Gazelle\Manager\User();
+$userMan = new Manager\User();
 if (empty($_GET['userid'])) {
     $user = $Viewer;
     $ownProfile = true;
@@ -33,9 +37,9 @@ if (empty($_GET['userid'])) {
     $ownProfile = false;
 }
 
-$bonus = new Gazelle\User\Bonus($user);
+$bonus = new User\Bonus($user);
 $total = $bonus->userTotals();
-$paginator = new Gazelle\Util\Paginator(TORRENTS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(TORRENTS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($total['total_torrents']);
 
 echo $Twig->render('user/bonus.twig', [

@@ -1,10 +1,14 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
 $label = $_REQUEST['label'];
-$bonus = new Gazelle\User\Bonus($Viewer);
+$bonus = new User\Bonus($Viewer);
 
 if ($label === 'collage-1') {
     if (!$bonus->purchaseCollage($label)) {

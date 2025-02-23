@@ -317,7 +317,7 @@ class Artist extends BaseObject implements CollageEntry {
      * Revert to a prior revision of the artist metadata
      * (Which also creates a new revision).
      */
-    public function revertRevision(int $revisionId, \Gazelle\User $user): int {
+    public function revertRevision(int $revisionId, User $user): int {
         self::$db->prepared_query("
             INSERT INTO wiki_artists
                   (Body, Image, PageID, UserID, Summary)
@@ -726,7 +726,7 @@ class Artist extends BaseObject implements CollageEntry {
 
         // Cache clearing
         self::$cache->delete_multi([array_map(fn ($id) => "notify_artists_$id", $bookmarkList)]);
-        self::$cache->delete_multi([array_map(fn ($id) => sprintf(\Gazelle\Collage::CACHE_KEY, $id), $collageList)]);
+        self::$cache->delete_multi([array_map(fn ($id) => sprintf(Collage::CACHE_KEY, $id), $collageList)]);
         foreach ($artistCollageList as $collageId) {
             $collMan->findById($collageId)?->flush();
         }
@@ -892,7 +892,7 @@ class Artist extends BaseObject implements CollageEntry {
         $id   = $this->id;
         $name = $this->name();
         $this->flush();
-        $db = new \Gazelle\DB();
+        $db = new DB();
 
         self::$db->begin_transaction();
         $db->relaxConstraints(true);
@@ -903,7 +903,7 @@ class Artist extends BaseObject implements CollageEntry {
         self::$db->prepared_query("DELETE FROM wiki_artists WHERE PageID = ?", $id);
         $db->relaxConstraints(false);
 
-        (new \Gazelle\Manager\Comment())->remove('artist', $id);
+        (new Manager\Comment())->remove('artist', $id);
         $this->logger()->general(
             "Artist $id ($name) was deleted by {$user->username()}"
         );

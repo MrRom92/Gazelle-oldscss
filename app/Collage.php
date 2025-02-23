@@ -380,13 +380,13 @@ class Collage extends BaseObject {
     }
 
     public function setFreeleech(
-        \Gazelle\Manager\Torrent $torMan,
-        \Gazelle\Tracker         $tracker,
-        \Gazelle\User            $user,
-        LeechType                $leechType,
-        LeechReason              $reason,
-        int                      $threshold = 0,
-        bool                     $all       = false,
+        Manager\Torrent $torMan,
+        Tracker         $tracker,
+        User            $user,
+        LeechType       $leechType,
+        LeechReason     $reason,
+        int             $threshold = 0,
+        bool            $all       = false,
     ): int {
         $regular = [];
         $large   = [];

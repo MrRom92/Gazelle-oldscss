@@ -915,7 +915,7 @@ class Request extends BaseObject implements CategoryHasArtist {
             REPLACE INTO sphinx_requests_delta (ID) VALUES (?)
             ", $this->id
         );
-        (new \Gazelle\Manager\Comment())->remove('requests', $this->id);
+        (new Manager\Comment())->remove('requests', $this->id);
         self::$db->commit();
 
         foreach ($artisIds as $artistId) {

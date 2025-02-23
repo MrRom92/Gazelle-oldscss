@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permittedAny('users_view_ips', 'users_view_email')) {
     error(403);
 }
 
-$registration = new Gazelle\Manager\Registration(new Gazelle\Manager\User());
+$registration = new Manager\Registration(new Manager\User());
 
 if (isset($_REQUEST['before_date'])) {
     if (!str_contains($_SERVER['REQUEST_URI'], '&before_date=')) {
@@ -21,13 +25,13 @@ if (isset($_REQUEST['after_date'])) {
     $registration->setAfterDate($_REQUEST['after_date']);
 }
 
-$paginator = new Gazelle\Util\Paginator(USERS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(USERS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($registration->total());
 
 echo $Twig->render('admin/registration.twig', [
     'after'     => $_REQUEST['after_date'] ?? null,
     'before'    => $_REQUEST['before_date'] ?? null,
-    'ipv4'      => new Gazelle\Manager\IPv4(),
+    'ipv4'      => new Manager\IPv4(),
     'list'      => $registration->page($paginator->limit(), $paginator->offset()),
     'paginator' => $paginator,
 ]);

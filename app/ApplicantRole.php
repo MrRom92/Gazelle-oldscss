@@ -99,7 +99,7 @@ class ApplicantRole extends BaseObject {
         );
         (new Manager\Applicant())->flush();
         (new Manager\ApplicantRole())->flush();
-        return new \Gazelle\Applicant(self::$db->inserted_id());
+        return new Applicant(self::$db->inserted_id());
     }
 
     public function modify(): bool {

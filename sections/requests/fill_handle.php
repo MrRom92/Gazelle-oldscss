@@ -1,6 +1,10 @@
 <?php
 // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 function print_or_return(string $message, int|null $error = null) {
     // this function is a crime against humanity
     if (defined('NO_AJAX_ERROR')) {
@@ -16,14 +20,14 @@ if (!defined('AJAX')) {
     authorize();
 }
 
-$request = (new Gazelle\Manager\Request())->findById((int)$_REQUEST['requestid']);
+$request = (new Manager\Request())->findById((int)$_REQUEST['requestid']);
 if (is_null($request)) {
     error(404);
 }
 
 $error   = [];
 $torrent = null;
-$tgMan   = new Gazelle\Manager\Torrent();
+$tgMan   = new Manager\Torrent();
 $isAdmin = $Viewer->permitted('site_moderate_requests');
 if (!empty($_REQUEST['torrentid'])) {
     $torrent = $tgMan->findById((int)$_REQUEST['torrentid']);
@@ -43,7 +47,7 @@ if (is_null($torrent)) {
 }
 
 if (!empty($_REQUEST['user']) && $isAdmin) {
-    $filler = (new Gazelle\Manager\User())->findByUsername($_REQUEST['user']);
+    $filler = (new Manager\User())->findByUsername($_REQUEST['user']);
     if (is_null($filler)) {
         $error[] = 'No such user to fill for!';
     }

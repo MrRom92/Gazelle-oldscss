@@ -1,8 +1,12 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
-$notifier = new Gazelle\Notification\Torrent($Viewer->id());
+$notifier = new Notification\Torrent($Viewer->id());
 
 switch ($_GET['action']) {
     case 'notify_catchup':

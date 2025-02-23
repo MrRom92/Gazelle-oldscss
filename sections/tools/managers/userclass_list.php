@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_manage_permissions')) {
     error(403);
 }
@@ -12,6 +16,6 @@ if (isset($_REQUEST['id']) && $_REQUEST['id'] === 'new') {
 }
 
 echo $Twig->render('admin/privilege-usage.twig', [
-    'list'   => (new Gazelle\Manager\Privilege())->usageList(),
+    'list'   => (new Manager\Privilege())->usageList(),
     'viewer' => $Viewer,
 ]);

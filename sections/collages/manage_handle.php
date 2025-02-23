@@ -1,13 +1,17 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_collages_manage')) {
     error(403);
 }
 
 authorize();
 
-$collage = (new Gazelle\Manager\Collage())->findById((int)($_POST['collageid']));
+$collage = (new Manager\Collage())->findById((int)($_POST['collageid']));
 if (is_null($collage)) {
     error("Cannot find the requested collage");
 }
@@ -18,7 +22,7 @@ if ($collage->isPersonal() && !$collage->isOwner($Viewer) && !$Viewer->permitted
 if (isset($_POST['drag_drop_collage_sort_order'])) {
     $collage->updateSequence($_POST['drag_drop_collage_sort_order']);
 } elseif (isset($_POST['groupid'])) {
-    $tgroup = (new Gazelle\Manager\TGroup())->findById((int)($_POST['groupid'] ?? 0));
+    $tgroup = (new Manager\TGroup())->findById((int)($_POST['groupid'] ?? 0));
     if (is_null($tgroup)) {
         error("Cannot find torrent group");
     }

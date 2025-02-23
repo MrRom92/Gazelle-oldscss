@@ -4,8 +4,12 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 $revisionId = (int)($_GET['revisionid'] ?? 0);
-$artistMan = new Gazelle\Manager\Artist();
+$artistMan = new Manager\Artist();
 $artist = $revisionId
     ? $artistMan->findByIdAndRevision((int)($_GET['id'] ?? 0), $revisionId)
     : $artistMan->findById((int)($_GET['id'] ?? 0));
@@ -15,21 +19,22 @@ if (is_null($artist)) {
 $artist->loadArtistRole();
 $artistId = $artist->id();
 
-$bookmark   = new Gazelle\User\Bookmark($Viewer);
-$collageMan = new Gazelle\Manager\Collage();
-$tgMan      = (new Gazelle\Manager\TGroup())->setViewer($Viewer);
-$torMan     = (new Gazelle\Manager\Torrent())->setViewer($Viewer);
-$stats      = new Gazelle\Stats\Artist($artistId);
-$userMan    = new Gazelle\Manager\User();
-$reportMan  = new Gazelle\Manager\Report($userMan);
-$vote       = new Gazelle\User\Vote($Viewer);
-$imgProxy   = new Gazelle\Util\ImageProxy($Viewer);
+$bookmark   = new User\Bookmark($Viewer);
+$collageMan = new Manager\Collage();
+$tgMan      = (new Manager\TGroup())->setViewer($Viewer);
+$torMan     = (new Manager\Torrent())->setViewer($Viewer);
+$stats      = new Stats\Artist($artistId);
+$userMan    = new Manager\User();
+$reportMan  = new Manager\Report($userMan);
+$vote       = new User\Vote($Viewer);
+$imgProxy   = new Util\ImageProxy($Viewer);
 
-$isSubscribed = (new Gazelle\User\Subscription($Viewer))->isSubscribedComments('artist', $artistId);
-$requestList  = $Viewer->disableRequests() ? [] : (new Gazelle\Manager\Request())->findByArtist($artist);
+$isSubscribed = (new User\Subscription($Viewer))->isSubscribedComments('artist', $artistId);
+$requestList  = $Viewer->disableRequests() ? [] : (new Manager\Request())->findByArtist($artist);
+
 if (count($artist->groupIds()) > 1000) {
     // prevent OOMs
-    Gazelle\DB::DB()->disableQueryLog();
+    DB::DB()->disableQueryLog();
 }
 
 echo $Twig->render('artist/header.twig', [
@@ -39,9 +44,7 @@ echo $Twig->render('artist/header.twig', [
     'revision_id'   => $revisionId,
     'viewer'        => $Viewer,
 ]);
-?>
 
-<?php
 $artistReleaseType = [];
 $sections = $artist->sections();
 foreach ($sections as $sectionId => $groupList) {
@@ -198,7 +201,7 @@ if ($sections = $artist->sections()) {
     </div>
     <table class="torrent_table grouped release_table m_table">
 <?php
-    $urlStem = (new Gazelle\User\Stylesheet($Viewer))->imagePath();
+    $urlStem = (new User\Stylesheet($Viewer))->imagePath();
     $groupsClosed = (bool)$Viewer->option('TorrentGrouping');
     $snatcher = $Viewer->snatch();
 
@@ -301,14 +304,14 @@ echo $Twig->render('artist/similar-graph.twig', [
             <strong>Artist Information</strong>
             <a href="#" class="brackets" onclick="$('#body').gtoggle(); return false;">Toggle</a>
         </div>
-        <div id="body" class="body"><?=Text::full_format($artist->body())?></div>
+        <div id="body" class="body"><?=\Text::full_format($artist->body())?></div>
     </div>
     <div id="artistcomments">
 <?php
-$commentPage = new Gazelle\Comment\Artist($artistId, (int)($_GET['page'] ?? 0), (int)($_GET['postid'] ?? 0));
+$commentPage = new Comment\Artist($artistId, (int)($_GET['page'] ?? 0), (int)($_GET['postid'] ?? 0));
 $commentPage->load()->handleSubscription($Viewer);
 
-$paginator = new Gazelle\Util\Paginator(TORRENT_COMMENTS_PER_PAGE, $commentPage->pageNum());
+$paginator = new Util\Paginator(TORRENT_COMMENTS_PER_PAGE, $commentPage->pageNum());
 $paginator->setAnchor('comments')->setTotal($commentPage->total())->removeParam('postid');
 
 echo $Twig->render('comment/thread.twig', [
@@ -318,7 +321,7 @@ echo $Twig->render('comment/thread.twig', [
     'comment'   => $commentPage,
     'paginator' => $paginator,
     'subbed'    => $isSubscribed,
-    'textarea'  => (new Gazelle\Util\Textarea('quickpost', '', 90, 8))->setPreviewManual(true),
+    'textarea'  => (new Util\Textarea('quickpost', '', 90, 8))->setPreviewManual(true),
     'url'       => $_SERVER['REQUEST_URI'],
     'url_stem'  => 'comments.php?page=artist',
     'userMan'   => $userMan,
@@ -330,4 +333,4 @@ echo $Twig->render('comment/thread.twig', [
 </div>
 </div>
 <?php
-View::show_footer();
+\View::show_footer();

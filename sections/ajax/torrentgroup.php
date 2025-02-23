@@ -1,13 +1,17 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 $groupId  = (int)($_GET['id'] ?? 0);
 $infohash = $_GET['hash'] ?? null;
 if ($groupId && $infohash) {
     json_error('bad parameters');
 }
 
-$tgMan = new Gazelle\Manager\TGroup();
+$tgMan = new Manager\TGroup();
 $tgroup = $infohash
     ? $tgMan->findByTorrentInfohash($infohash)
     : $tgMan->findById($groupId);
@@ -16,9 +20,9 @@ if (is_null($tgroup)) {
     json_error('bad parameters');
 }
 
-echo (new Gazelle\Json\TGroup(
+echo (new Json\TGroup(
         $tgroup,
         $Viewer,
-        (new \Gazelle\Manager\Torrent())->setViewer($Viewer))
+        (new Manager\Torrent())->setViewer($Viewer))
     )->setVersion(2)
     ->response();

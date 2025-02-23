@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$userMan = new Gazelle\Manager\User();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$userMan = new Manager\User();
 if (!isset($_GET['userid'])) {
     $user = $Viewer;
 } else {
@@ -16,7 +20,7 @@ if (!isset($_GET['userid'])) {
 }
 
 echo $Twig->render('user/invite-tree-page.twig', [
-    'tree'   => new Gazelle\User\InviteTree($user),
+    'tree'   => new User\InviteTree($user),
     'user'   => $user,
     'viewer' => $Viewer,
 ]);

@@ -2,13 +2,17 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-/** @var Gazelle\Manager\Contest $contestMan */
+declare(strict_types=1);
+
+namespace Gazelle;
+
+/** @var Manager\Contest $contestMan */
 
 $prior = $contestMan->priorContests();
 if (!empty($_POST['leaderboard'])) {
-    $contest = new Gazelle\Contest((int)$_POST['leaderboard']);
+    $contest = new Contest((int)$_POST['leaderboard']);
 } elseif (!empty($_GET['id'])) {
-    $contest = new Gazelle\Contest((int)$_GET['id']);
+    $contest = new Contest((int)$_GET['id']);
 } else {
     $contest = $contestMan->currentContest();
     if (is_null($contest)) {
@@ -16,7 +20,7 @@ if (!empty($_POST['leaderboard'])) {
     }
 }
 
-$paginator = new Gazelle\Util\Paginator(CONTEST_ENTRIES_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(CONTEST_ENTRIES_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($contest->totalUsers());
 $isRequestFill = $contest instanceof \Gazelle\Contest\RequestFill;
 

@@ -2,21 +2,25 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('users_auto_reports')) {
     error(403);
 }
 
-$userMan = new Gazelle\Manager\User();
-$ratMan  = new Gazelle\Manager\ReportAutoType();
-$search  = new Gazelle\Search\ReportAuto(new Gazelle\Manager\ReportAuto($ratMan), $ratMan);
+$userMan = new Manager\User();
+$ratMan  = new Manager\ReportAutoType();
+$search  = new Search\ReportAuto(new Manager\ReportAuto($ratMan), $ratMan);
 
 $isOld = isset($_GET['view']) && $_GET['view'] === 'old';
 if (isset($_GET['id'])) {
     $search->setId((int)$_GET['id']);
 } elseif (empty($_GET['view'])) {
-    $search->setState(\Gazelle\Enum\ReportAutoState::open);
+    $search->setState(Enum\ReportAutoState::open);
 } elseif ($isOld) {
-    $search->setState(\Gazelle\Enum\ReportAutoState::closed);
+    $search->setState(Enum\ReportAutoState::closed);
 } else {
     error(404);
 }
@@ -46,7 +50,7 @@ if (isset($_GET['type'])) {
     $search->setType($type);
 }
 
-$paginator = new Gazelle\Util\Paginator(REPORTS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(REPORTS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($search->total());
 
 $requestUri = (string)$_SERVER['REQUEST_URI'];

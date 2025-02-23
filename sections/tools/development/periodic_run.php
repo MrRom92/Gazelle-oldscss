@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_schedule')) {
     error(403);
 }
@@ -13,7 +17,7 @@ if (!$taskId) {
     error("Task not found");
 }
 
-$scheduler = new Gazelle\TaskScheduler();
+$scheduler = new TaskScheduler();
 ob_start();
 $processed = $scheduler->runTask($taskId, true);
 $output    = ob_get_flush();

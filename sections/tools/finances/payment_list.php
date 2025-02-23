@@ -2,12 +2,16 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_view_payments')) {
     error(403);
 }
 
 echo $Twig->render('admin/payment.twig', [
-    'donorMan' => new Gazelle\Manager\Donation(),
-    'list'     => (new Gazelle\Manager\Payment())->list(),
+    'donorMan' => new Manager\Donation(),
+    'list'     => (new Manager\Payment())->list(),
     'viewer'   => $Viewer,
 ]);

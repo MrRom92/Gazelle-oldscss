@@ -1,7 +1,11 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
-$alertList = (new Gazelle\User\Notification($Viewer))->alertList();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$alertList = (new User\Notification($Viewer))->alertList();
 
 $payload = [];
 foreach ($alertList as $alert) {

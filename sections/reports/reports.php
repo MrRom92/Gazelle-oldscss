@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Enum\SearchReportOrder;
 
 if (!$Viewer->permittedAny('admin_reports', 'site_moderate_forums')) {
@@ -10,8 +14,8 @@ if (!$Viewer->permittedAny('admin_reports', 'site_moderate_forums')) {
 
 require_once 'array.php';
 
-$search    = new Gazelle\Search\Report();
-$paginator = new Gazelle\Util\Paginator(REPORTS_PER_PAGE, (int)($_REQUEST['page'] ?? 1));
+$search    = new Search\Report();
+$paginator = new Util\Paginator(REPORTS_PER_PAGE, (int)($_REQUEST['page'] ?? 1));
 $typeList  = ['collage', 'comment', 'post', 'request', 'thread', 'user'];
 
 if (!$Viewer->permitted('admin_reports')) {
@@ -60,13 +64,13 @@ if (isset($_REQUEST['id'])) {
 $paginator->setTotal($search->total());
 
 echo $Twig->render('report/index.twig', [
-    'list' => (new Gazelle\Manager\Report(new Gazelle\Manager\User()))->decorate(
+    'list' => (new Manager\Report(new Manager\User()))->decorate(
         $search->page($paginator->limit(), $paginator->offset()),
-        new Gazelle\Manager\Collage(),
-        new Gazelle\Manager\Comment(),
-        new Gazelle\Manager\ForumThread(),
-        new Gazelle\Manager\ForumPost(),
-        new Gazelle\Manager\Request(),
+        new Manager\Collage(),
+        new Manager\Comment(),
+        new Manager\ForumThread(),
+        new Manager\ForumPost(),
+        new Manager\Request(),
     ),
     'paginator' => $paginator,
     'type'      => $Types,

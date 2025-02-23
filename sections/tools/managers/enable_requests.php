@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('users_mod')) {
     error(403);
 }
@@ -11,7 +15,7 @@ if (!FEATURE_EMAIL_REENABLE) {
 }
 
 $showChecked = $_GET['show_checked'] ?? false;
-$enableMan = new Gazelle\Manager\AutoEnable();
+$enableMan = new Manager\AutoEnable();
 $enableMan->configureView($_GET['view'] ?? '', $showChecked);
 
 // Build query further based on search
@@ -27,7 +31,7 @@ if (isset($_GET['search'])) {
     }
 }
 
-$heading = new Gazelle\Util\SortableTableHeader('submitted_timestamp', [
+$heading = new Util\SortableTableHeader('submitted_timestamp', [
     'submitted_timestamp' => ['dbColumn' => 'uer.Timestamp', 'defaultSort' => 'desc', 'text' => 'Age'],
     'handled_timestamp'   => ['dbColumn' => 'uer.Outcome',   'defaultSort' => 'desc', 'text' => 'Checked Date'],
     'outcome'             => ['dbColumn' => 'uer.HandledTimestamp', 'defaultSort' => 'desc', 'text' => 'Outcome'],
@@ -35,7 +39,7 @@ $heading = new Gazelle\Util\SortableTableHeader('submitted_timestamp', [
 $orderBy = $heading->getOrderBy();
 $dir = $heading->getOrderDir();
 
-$paginator = new Gazelle\Util\Paginator(ITEMS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(ITEMS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($enableMan->total());
 
 echo $Twig->render('enable/list.twig', [
@@ -50,9 +54,9 @@ echo $Twig->render('enable/list.twig', [
 
     'heading'   => $heading,
     'outcome'   => [
-        'approved'  => \Gazelle\Manager\AutoEnable::APPROVED,
-        'denied'    => \Gazelle\Manager\AutoEnable::DENIED,
-        'discarded' => \Gazelle\Manager\AutoEnable::DISCARDED,
+        'approved'  => Manager\AutoEnable::APPROVED,
+        'denied'    => Manager\AutoEnable::DENIED,
+        'discarded' => Manager\AutoEnable::DISCARDED,
     ],
     'page'      => $enableMan->page($orderBy, $dir, $paginator->limit(), $paginator->offset()),
     'paginator' => $paginator,

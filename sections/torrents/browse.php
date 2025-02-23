@@ -4,12 +4,16 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Util\SortableTableHeader;
 
-$torMan    = (new Gazelle\Manager\Torrent())->setViewer($Viewer);
-$reportMan = new Gazelle\Manager\Torrent\Report($torMan);
-$tagMan    = new Gazelle\Manager\Tag();
-$tgMan     = (new Gazelle\Manager\TGroup())->setViewer($Viewer);
+$torMan    = (new Manager\Torrent())->setViewer($Viewer);
+$reportMan = new Manager\Torrent\Report($torMan);
+$tagMan    = new Manager\Tag();
+$tgMan     = (new Manager\TGroup())->setViewer($Viewer);
 $snatcher  = $Viewer->snatch();
 
 if (!empty($_GET['searchstr']) || !empty($_GET['groupname'])) {
@@ -20,7 +24,7 @@ if (!empty($_GET['searchstr']) || !empty($_GET['groupname'])) {
     }
 }
 
-$imgTag = '<img loading="lazy" src="' . (new Gazelle\User\Stylesheet($Viewer))->imagePath() . '%s.png" class="tooltip" alt="%s" title="%s"/>';
+$imgTag = '<img loading="lazy" src="' . (new User\Stylesheet($Viewer))->imagePath() . '%s.png" class="tooltip" alt="%s" title="%s"/>';
 $headerMap = [
     'year'     => ['defaultSort' => 'desc', 'text' => 'Year'],
     'time'     => ['defaultSort' => 'desc', 'text' => 'Created', 'dbColumn' => 'created'],
@@ -59,10 +63,10 @@ if (!isset($_GET['tags_type'])) {
     $_GET['tags_type'] = '1';
 }
 
-$paginator = new Gazelle\Util\Paginator(TORRENTS_PER_PAGE, (int)($_GET['page'] ?? 1));
-$Search = new Gazelle\Search\Torrent(
-    new Gazelle\Manager\TGroup(),
-    new Gazelle\Manager\Torrent(),
+$paginator = new Util\Paginator(TORRENTS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$Search = new Search\Torrent(
+    new Manager\TGroup(),
+    new Manager\Torrent(),
     $GroupResults,
     $header->getSortKey(),
     $header->getOrderDir(),
@@ -71,8 +75,11 @@ $Search = new Gazelle\Search\Torrent(
     $Viewer->permitted('site_search_many')
 );
 $Results = $Search->query($_GET);
-if ($Results === false) {
+if ($Results == false) {
     $Results = [];
+} else {
+    // bleah
+    $Results = array_map('intval', $Results);
 }
 if ($GroupResults) {
     // FIXME: is this even needed?
@@ -107,7 +114,7 @@ echo $Twig->render('torrent/browse-header.twig', [
     'hide_remaster' => ($_GET['remastertitle'] ?? $_GET['remasteryear'] ?? $_GET['remastercataloguenumber'] ?? '') != ''
         ? '' : ' hidden',
     'hide_advanced' => $hideAdvanced,
-    'release_type'  => (new Gazelle\ReleaseType())->list(),
+    'release_type'  => (new ReleaseType())->list(),
     'results_total' => $RealNumResults,
     'results_shown' => $NumResults,
     'search_mode'   => $searchMode,
@@ -126,9 +133,9 @@ if ($NumResults == 0) {
     exit;
 }
 
-$releaseTypes = (new Gazelle\ReleaseType())->list();
+$releaseTypes = (new ReleaseType())->list();
 $bookmark = new \Gazelle\User\Bookmark($Viewer);
-$imgProxy = new Gazelle\Util\ImageProxy($Viewer);
+$imgProxy = new Util\ImageProxy($Viewer);
 
 echo $paginator->linkbox();
 ?>
@@ -306,4 +313,4 @@ foreach ($Results as $Key => $GroupID) {
 <?= $paginator->linkbox() ?>
 </div>
 <?php
-View::show_footer();
+\View::show_footer();

@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!array_key_exists('type', $_GET) && !array_key_exists('id', $_GET)) {
     error(404);
 }

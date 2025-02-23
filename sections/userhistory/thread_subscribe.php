@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 // perform the back end of subscribing to topics
 
 if ($Viewer->disableForums()) {
@@ -8,7 +12,7 @@ if ($Viewer->disableForums()) {
 }
 authorize();
 
-$thread = (new Gazelle\Manager\ForumThread())->findById((int)($_GET['threadid'] ?? 0));
+$thread = (new Manager\ForumThread())->findById((int)($_GET['threadid'] ?? 0));
 if (is_null($thread)) {
     error(404);
 }
@@ -16,4 +20,4 @@ if (!$Viewer->readAccess($thread->forum())) {
     error(403);
 }
 
-json_print('success', (new Gazelle\User\Subscription($Viewer))->subscribe($thread->id()));
+json_print('success', (new User\Subscription($Viewer))->subscribe($thread->id()));

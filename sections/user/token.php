@@ -2,8 +2,12 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 $userId = (int)($_GET['user_id'] ?? $Viewer->id());
-$user = new Gazelle\User($userId);
+$user = new User($userId);
 
 $tokenId = (int)($_GET['token_id'] ?? 0);
 $error = null;

@@ -2,22 +2,26 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!isset($_GET['userid'])) {
     $user = $Viewer;
 } else {
     if (!$Viewer->permitted('admin_bp_history')) {
         error(403);
     }
-    $user = (new Gazelle\Manager\User())->findById((int)($_GET['userid'] ?? 0));
+    $user = (new Manager\User())->findById((int)($_GET['userid'] ?? 0));
     if (is_null($user)) {
         error(404);
     }
 }
 
-$bonus       = new Gazelle\User\Bonus($user);
+$bonus       = new User\Bonus($user);
 $summary     = $bonus->summary();
 $poolSummary = $bonus->poolHistory();
-$paginator   = new Gazelle\Util\Paginator(TORRENTS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator   = new Util\Paginator(TORRENTS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($summary['nr']);
 
 echo $Twig->render('user/bonus-history.twig', [

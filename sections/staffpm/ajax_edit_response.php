@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->isStaffPMReader()) {
     error(403);
 }
@@ -13,7 +17,7 @@ if (!$name || !$message) {
 }
 
 $id     = (int)($_POST['id'] ?? 0);
-$spmMan = new Gazelle\Manager\StaffPM();
+$spmMan = new Manager\StaffPM();
 $answer = $spmMan->commonAnswer($id);
 if (is_null($answer)) {
     $spmMan->createCommonAnswer($name, $message);

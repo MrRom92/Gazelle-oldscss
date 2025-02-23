@@ -1,9 +1,13 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 // echo out the slice of the form needed for the selected upload type ($_GET['section']).
 
-$uploadForm = new Gazelle\Upload($Viewer);
+$uploadForm = new Upload($Viewer);
 $emitJS = isset($_GET['js']);
 
 switch (CATEGORY[(int)$_GET['categoryid']]) {
@@ -34,7 +38,7 @@ switch (CATEGORY[(int)$_GET['categoryid']]) {
     case 'Music':
         echo $emitJS
             ? $uploadForm->albumReleaseJS()
-            : $uploadForm->music((new Gazelle\Manager\Tag())->genreList(), new Gazelle\Manager\TGroup());
+            : $uploadForm->music((new Manager\Tag())->genreList(), new Manager\TGroup());
         break;
 
     default:

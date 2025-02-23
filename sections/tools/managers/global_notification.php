@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_global_notification')) {
     error(403);
 }
 
-$global = new Gazelle\Notification\GlobalNotification();
+$global = new Notification\GlobalNotification();
 if (isset($_POST['set'])) {
     $global->create($_POST['title'], $_POST['url'], $_POST['level'], (int)$_POST['length']);
 } elseif (isset($_POST['delete'])) {

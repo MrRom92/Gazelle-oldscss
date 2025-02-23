@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
 $reason = trim($_POST['reason']);
@@ -8,7 +12,7 @@ if (!$reason) {
     error('You must enter a reason!');
 }
 
-$collage = (new Gazelle\Manager\Collage())->findById((int)$_POST['collageid']);
+$collage = (new Manager\Collage())->findById((int)$_POST['collageid']);
 if (is_null($collage)) {
     error(404);
 }
@@ -20,7 +24,7 @@ $collageId = $collage->id();
 $name = $collage->name();
 $collage->remove();
 
-(new Gazelle\Manager\Subscription())->flushPage('collages', $collageId);
+(new Manager\Subscription())->flushPage('collages', $collageId);
 $collage->logger()->general(
    "Collage $collageId ($name) was deleted by {$Viewer->username()}: $reason"
 );

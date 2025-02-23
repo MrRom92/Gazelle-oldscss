@@ -1,7 +1,11 @@
 <?php
 /** @phpstan-var \Twig\Environment $Twig */
 
-$group = (new Gazelle\Manager\TGroup())->findById((int)($_GET['id'] ?? 0));
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$group = (new Manager\TGroup())->findById((int)($_GET['id'] ?? 0));
 if (is_null($group)) {
     error(404);
 }

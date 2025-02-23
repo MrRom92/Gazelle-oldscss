@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_edit_wiki')) {
     error(403);
 }
@@ -12,12 +16,12 @@ if (count($imageList) != count($summaryList)) {
     error('Missing an image or a summary');
 }
 
-$tgroup = (new Gazelle\Manager\TGroup())->findById((int)($_POST['groupid'] ?? 0));
+$tgroup = (new Manager\TGroup())->findById((int)($_POST['groupid'] ?? 0));
 if (is_null($tgroup)) {
     error(404);
 }
 
-$imgProxy = new Gazelle\Util\ImageProxy($Viewer);
+$imgProxy = new Util\ImageProxy($Viewer);
 
 foreach ($imageList as $n => $image) {
     $image = trim($image);

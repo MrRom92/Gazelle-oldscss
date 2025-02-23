@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_manage_permissions')) {
     error(403);
 }
 
-$userMan = new Gazelle\Manager\User();
+$userMan = new Manager\User();
 $user = $userMan->findById((int)($_REQUEST['userid']));
 if (is_null($user)) {
     error(404);

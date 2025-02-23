@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$torMan  = (new Gazelle\Manager\Torrent())->setViewer($Viewer);
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$torMan  = (new Manager\Torrent())->setViewer($Viewer);
 $id      = (int)($_GET['id'] ?? 0);
 $torrent = $torMan->findById($id);
 if (is_null($torrent)) {
@@ -18,11 +22,11 @@ echo $Twig->render('reportsv2/create.twig', [
         'sitelink' => $_POST['sitelink'] ?? '',
         'track'    => $_POST['track'] ?? '',
     ],
-    'report_man' => new Gazelle\Manager\Torrent\Report($torMan),
-    'rtype_list' => (new Gazelle\Manager\Torrent\ReportType())
+    'report_man' => new Manager\Torrent\Report($torMan),
+    'rtype_list' => (new Manager\Torrent\ReportType())
         ->categoryList($torrent->group()->categoryId()),
     'torrent'    => $torrent,
     'tor_man'    => $torMan,
-    'url_stem'   => (new Gazelle\User\Stylesheet($Viewer))->imagePath(),
+    'url_stem'   => (new User\Stylesheet($Viewer))->imagePath(),
     'viewer'     => $Viewer,
 ]);

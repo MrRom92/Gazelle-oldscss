@@ -1,11 +1,15 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_manage_permissions')) {
     error(403);
 }
 
-$privMan = new Gazelle\Manager\Privilege();
+$privMan = new Manager\Privilege();
 
 $privilege = $privMan->findById((int)($_REQUEST['removeid'] ?? 0));
 if ($privilege) {
@@ -24,7 +28,7 @@ $usersAffected = null;
 
 if (isset($_REQUEST['submit'])) {
     authorize();
-    $validator = new Gazelle\Util\Validator();
+    $validator = new Util\Validator();
     $validator->setFields([
         ['name', true, 'string', 'You did not enter a valid name for this permission set.'],
         ['level', true, 'number', 'You did not enter a valid level for this permission set.'],
@@ -43,17 +47,17 @@ if (isset($_REQUEST['submit'])) {
             error("You can't toggle secondary when there are users");
         }
 
-        $check = $privMan->findByLevel($_REQUEST['level']);
+        $check = $privMan->findByLevel((int)$_REQUEST['level']);
         if ($check && $privilege->id() != $check->id()) {
             error('There is already a permission class with that level.');
         }
     }
 
-    $name          = $_REQUEST['name'];
-    $forums        = $_REQUEST['forums'];
-    $displayStaff  = isset($_REQUEST['displaystaff']);
-    $staffGroupId  = $displayStaff
-        ? (new Gazelle\Manager\StaffGroup())->findById((int)($_REQUEST['staffgroup'] ?? 0))?->id()
+    $name         = $_REQUEST['name'];
+    $forums       = $_REQUEST['forums'];
+    $displayStaff = isset($_REQUEST['displaystaff']);
+    $staffGroupId = $displayStaff
+        ? (new Manager\StaffGroup())->findById((int)($_REQUEST['staffgroup'] ?? 0))?->id()
         : null;
     $level         = (int)$_REQUEST['level'];
     $secondary     = (int)isset($_REQUEST['secondary']);
@@ -89,7 +93,7 @@ if (isset($_REQUEST['submit'])) {
         ->setField('`Values`', serialize($privilegeList))
         ->modify();
 
-    $usersAffected = (new Gazelle\Manager\User())->flushUserclass($privilege->id());
+    $usersAffected = (new Manager\User())->flushUserclass($privilege->id());
 }
 
 require_once 'userclass_edit.php';

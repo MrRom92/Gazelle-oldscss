@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$wikiMan = new Gazelle\Manager\Wiki();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$wikiMan = new Manager\Wiki();
 
 if (empty($_GET['nojump'])) {
     $article = $wikiMan->findByAlias($_GET['search'] ?? '');
@@ -24,17 +28,17 @@ $TypeMap = [
 ];
 $Type = $TypeMap[$_GET['type'] ?? 'title'];
 
-$search = new Gazelle\Search\Wiki($Viewer, $Type, $_GET['search'] ?? '');
+$search = new Search\Wiki($Viewer, $Type, $_GET['search'] ?? '');
 $search->setOrderBy($header->getOrderBy())->setOrderDir($header->getOrderDir());
 
-$paginator = new Gazelle\Util\Paginator(WIKI_ARTICLES_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(WIKI_ARTICLES_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($search->total());
 
 echo $Twig->render('wiki/search.twig', [
     'header'    => $header,
     'paginator' => $paginator,
     'page'      => $search->page($paginator->limit(), $paginator->offset()),
-    'alias'     => \Gazelle\Wiki::normalizeAlias($_GET['search'] ?? ''),
+    'alias'     => Wiki::normalizeAlias($_GET['search'] ?? ''),
     'order'     => $_GET['order'] ?? 'asc',
     'search'    => $_GET['search'],
     'sort'      => $_GET['sort'] ?? 'title',

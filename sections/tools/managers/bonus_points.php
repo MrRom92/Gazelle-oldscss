@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('users_mod')) {
     error(403);
 }
@@ -18,7 +22,7 @@ if (isset($_REQUEST['add_points'])) {
         error('Please enter a positive number of points.');
     }
 
-    $bonusMan = new Gazelle\Manager\Bonus();
+    $bonusMan = new Manager\Bonus();
     $activeCount = $bonusMan->addActivePoints($active, $since);
     $uploadCount = $bonusMan->addUploadPoints($upload, $since);
     $seedCount   = $bonusMan->addSeedPoints($seed);

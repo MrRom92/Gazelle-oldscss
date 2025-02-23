@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Util\Time;
 
-$torMan        = new Gazelle\Manager\Torrent();
-$reportMan     = new Gazelle\Manager\Torrent\Report($torMan);
-$reportTypeMan = new Gazelle\Manager\Torrent\ReportType();
+$torMan        = new Manager\Torrent();
+$reportMan     = new Manager\Torrent\Report($torMan);
+$reportTypeMan = new Manager\Torrent\ReportType();
 
 $torrent = $torMan->findById((int)($_GET['torrentid'] ?? 0));
 if (is_null($torrent)) {
@@ -37,7 +41,7 @@ if ($torrent->snatchTotal() >= 5 && !$Viewer->permitted('torrents_delete')) { //
 echo $Twig->render('torrent/remove.twig', [
     'report_category_list' => $reportTypeMan->categoryList($torrent->group()->categoryId()),
     'report_type'          => $reportTypeMan->findByType('dupe'),
-    'request_list'         => $torrent->requestFills(new Gazelle\Manager\Request()),
+    'request_list'         => $torrent->requestFills(new Manager\Request()),
     'torrent'              => $torrent,
     'viewer'               => $Viewer,
 ]);

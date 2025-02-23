@@ -2,13 +2,17 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_reports')) {
     error(403);
 }
 
-$userMan       = new Gazelle\Manager\User();
-$reportMan     = new Gazelle\Manager\Torrent\Report(new Gazelle\Manager\Torrent());
-$reportTypeMan = new Gazelle\Manager\Torrent\ReportType();
+$userMan       = new Manager\User();
+$reportMan     = new Manager\Torrent\Report(new Manager\Torrent());
+$reportTypeMan = new Manager\Torrent\ReportType();
 $categories    = $reportMan->categories();
 
 $filter = [];
@@ -57,7 +61,7 @@ if (isset($_GET['dt-until']) && preg_match('/(\d\d\d\d-\d\d-\d\d)/', $_GET['dt-u
     $dtUntil = date('Y-m-d');
 }
 
-$paginator = new Gazelle\Util\Paginator(TORRENTS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(TORRENTS_PER_PAGE, (int)($_GET['page'] ?? 1));
 
 if (!$filter) {
     $list = [];

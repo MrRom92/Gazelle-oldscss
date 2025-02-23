@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if ($Viewer->disableForums()) {
     error(403);
 }
 
-$userMan = new Gazelle\Manager\User();
+$userMan = new Manager\User();
 $user = empty($_GET['userid']) ? $Viewer : $userMan->findById((int)$_GET['userid']);
 if (is_null($user)) {
     error(404);
@@ -24,12 +28,12 @@ if ($showGrouped) {
     $title = "Post history";
 }
 
-$forumSearch = (new Gazelle\Search\Forum($user))
+$forumSearch = (new Search\Forum($user))
     ->setViewer($Viewer)
     ->setShowGrouped($showGrouped)
     ->setShowUnread($showUnread);
 
-$paginator = new Gazelle\Util\Paginator($Viewer->postsPerPage(), (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator($Viewer->postsPerPage(), (int)($_GET['page'] ?? 1));
 $paginator->setTotal($forumSearch->postHistoryTotal());
 
 echo $Twig->render('user/post-history.twig', [

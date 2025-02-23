@@ -2,12 +2,16 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('torrents_edit')) {
     error(403);
 }
 authorize();
 
-$artMan = new Gazelle\Manager\Artist();
+$artMan = new Manager\Artist();
 $aliasId = (int)$_GET['aliasid'];
 $artist  = $artMan->findByAliasId($aliasId);
 if (is_null($artist)) {
@@ -23,7 +27,7 @@ if (!empty($artist->aliasInfo()[$aliasId]['alias'])) {
     error("This alias has redirecting aliases attached.");
 }
 
-$tgroupList = $artMan->tgroupList($aliasId, new Gazelle\Manager\TGroup());
+$tgroupList = $artMan->tgroupList($aliasId, new Manager\TGroup());
 if ($tgroupList) {
     echo $Twig->render('artist/tgroup-usage.twig', [
         'artist' => $artist,

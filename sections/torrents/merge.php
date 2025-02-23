@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('torrents_edit')) {
     error(403);
 }
 
-$tgMan = new Gazelle\Manager\TGroup();
+$tgMan = new Manager\TGroup();
 $old = $tgMan->findById((int)($_POST['groupid'] ?? 0));
 if (is_null($old)) {
     error(404);
@@ -38,8 +42,8 @@ $tgMan->merge(
     $old,
     $new,
     $Viewer,
-    new \Gazelle\Manager\User(),
-    new \Gazelle\Manager\Vote(),
+    new Manager\User(),
+    new Manager\Vote(),
 );
 
 header('Location: ' . $new->location());

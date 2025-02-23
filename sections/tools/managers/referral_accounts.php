@@ -3,6 +3,13 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
+/**
+ * @param array<string> $Types
+ */
 function type_list(array $Types, int $Selected = 0): string {
     $Ret = '';
     foreach ($Types as $id => $name) {
@@ -21,10 +28,10 @@ if (!$Viewer->permitted('admin_manage_referrals')) {
     error(403);
 }
 
-$ReferralManager = new Gazelle\Manager\Referral();
+$ReferralManager = new Manager\Referral();
 $ReferralAccounts = $ReferralManager->getFullAccounts();
 
-View::show_header('Referral Accounts');
+\View::show_header('Referral Accounts');
 ?>
 <div class="header">
     <h2>Referral account manager</h2>
@@ -70,7 +77,7 @@ foreach ($ReferralAccounts as $a) {
             </td>
             <td>
                 <select name="type">
-                    <?=type_list($ReferralManager->getTypes(), $Type)?>
+                    <?= type_list($ReferralManager->getTypes(), $Type)?>
                 </select>
             </td>
             <td>
@@ -112,7 +119,7 @@ if (!$ReferralManager->readOnly) {
             </td>
             <td>
                 <select name="type">
-                    <?=type_list($ReferralManager->getTypes())?>
+                    <?= type_list($ReferralManager->getTypes())?>
                 </select>
             </td>
             <td>
@@ -130,5 +137,5 @@ if (!$ReferralManager->readOnly) {
 } ?>
 </table>
 <?php
-    View::show_footer();
+    \View::show_footer();
 

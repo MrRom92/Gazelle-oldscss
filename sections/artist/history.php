@@ -1,7 +1,11 @@
 <?php
 /** @phpstan-var \Twig\Environment $Twig */
 
-$artistMan = new Gazelle\Manager\Artist();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$artistMan = new Manager\Artist();
 $artist = $artistMan->findById((int)$_GET['artistid']);
 if (is_null($artist)) {
     error(404);

@@ -6,16 +6,16 @@ trait Pg {
     protected static \Gazelle\DB\Pg $pgro; // R/O access
     protected static \Gazelle\DB\Pg $pg;   // R/W access
 
-    public function pgro(): \Gazelle\DB\Pg {
-        return self::$pgro ??= new \Gazelle\DB\Pg(PG_RO_DSN);
+    public function pgro(): DB\Pg {
+        return self::$pgro ??= new DB\Pg(PG_RO_DSN);
     }
 
-    public function pg(): \Gazelle\DB\Pg {
+    public function pg(): DB\Pg {
         return self::pgStatic();
     }
 
     // disgusting hack required for \View class
-    public static function pgStatic(): \Gazelle\DB\Pg {
-        return self::$pg ??= new \Gazelle\DB\Pg(PG_RW_DSN);
+    public static function pgStatic(): DB\Pg {
+        return self::$pg ??= new DB\Pg(PG_RW_DSN);
     }
 }

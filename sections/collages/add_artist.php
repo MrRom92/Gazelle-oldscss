@@ -1,13 +1,17 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
 if (!in_array($_POST['action'], ['add_artist', 'add_artist_batch'])) {
     error(403);
 }
 
-$collageMan = new Gazelle\Manager\Collage();
+$collageMan = new Manager\Collage();
 $collage    = null;
 if (isset($_POST['collage_combo'])) {
     // From artist page
@@ -63,7 +67,7 @@ if ($_REQUEST['action'] == 'add_artist') {
 }
 
 /* check that they correspond to artist pages */
-$artistMan = new Gazelle\Manager\Artist();
+$artistMan = new Manager\Artist();
 $list = [];
 foreach ($URL as $u) {
     $artist = preg_match(ARTIST_REGEXP, $u, $match)

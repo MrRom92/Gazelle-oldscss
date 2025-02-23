@@ -3,12 +3,16 @@
 /** @phpstan-var \Gazelle\Cache $Cache */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_clear_cache')) {
     error(403);
 }
 
 $result = [];
-if (isset($_POST['confirm-global']) && isset($_POST['flush-global'])) {
+if (isset($_POST['confirm-flush']) && isset($_POST['global_flush'])) {
     authorize();
     $Cache->flush();
     $result['global flush'] = $Cache->getResultMessage();
@@ -36,7 +40,7 @@ if (!empty($_REQUEST['key'])) {
         }
     }
 } else {
-    $flusher = new Gazelle\Util\CacheMultiFlush();
+    $flusher = new Util\CacheMultiFlush();
     foreach (array_keys(CACHE_DB) as $namespace) {
         if (empty($_REQUEST["flush-$namespace"])) {
             continue;

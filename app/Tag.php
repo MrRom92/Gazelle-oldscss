@@ -107,7 +107,7 @@ class Tag extends BaseObject {
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
 
-    public function addTGroup(\Gazelle\TGroup $tgroup, \Gazelle\User $user, int $weight): int {
+    public function addTGroup(TGroup $tgroup, User $user, int $weight): int {
         self::$db->begin_transaction();
         self::$db->prepared_query("
             INSERT INTO torrents_tags
@@ -154,7 +154,7 @@ class Tag extends BaseObject {
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
 
-    public function voteTGroup(\Gazelle\TGroup $tgroup, \Gazelle\User $user, string $way): int {
+    public function voteTGroup(TGroup $tgroup, User $user, string $way): int {
         self::$db->begin_transaction();
         self::$db->prepared_query("
             SELECT TagID
@@ -196,7 +196,7 @@ class Tag extends BaseObject {
         return $affected;
     }
 
-    public function hasVoteTGroup(\Gazelle\TGroup $tgroup, \Gazelle\User $user): bool {
+    public function hasVoteTGroup(TGroup $tgroup, User $user): bool {
         return (bool)self::$db->scalar("
             SELECT 1
             FROM torrents_tags_votes
@@ -207,7 +207,7 @@ class Tag extends BaseObject {
         );
     }
 
-    public function removeTGroup(\Gazelle\TGroup $tgroup): bool {
+    public function removeTGroup(TGroup $tgroup): bool {
         $tgroupId = $tgroup->id();
         self::$db->begin_transaction();
         self::$db->prepared_query("

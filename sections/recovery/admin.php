@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_recovery')) {
     error(403);
 }
 
-$recovery = new Gazelle\Manager\Recovery();
+$recovery = new Manager\Recovery();
 if (isset($_GET['task'])) {
     $id = (int)($_GET['id'] ?? 0);
     if ($id) {
@@ -40,7 +44,7 @@ if (isset($_GET['task'])) {
 }
 
 $state = $_GET['state'] ?? 'pending';
-$paginator = new Gazelle\Util\Paginator(ITEMS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(ITEMS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($recovery->total($state, $Viewer->id()));
 
 echo $Twig->render('recovery/admin.twig', [

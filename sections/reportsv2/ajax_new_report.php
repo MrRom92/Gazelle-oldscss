@@ -4,6 +4,10 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 /*
  * This is the AJAX page that gets called from the JavaScript
  * function NewReport(), any changes here should probably be
@@ -14,9 +18,10 @@ if (!$Viewer->permitted('admin_reports')) {
     error(403);
 }
 
-$torMan    = new Gazelle\Manager\Torrent();
-$reportMan = new Gazelle\Manager\Torrent\Report($torMan);
-$report    = $reportMan->findNewest();
+$torMan    = new Manager\Torrent();
+$reportMan = new Manager\Torrent\Report($torMan);
+
+$report = $reportMan->findNewest();
 if (is_null($report->torrent())) {
     echo $Twig->render('reportsv2/deleted.twig', [
         'report'  => $report,
@@ -27,10 +32,10 @@ if (is_null($report->torrent())) {
 
 $report->claim($Viewer);
 echo $Twig->render('reportsv2/new.twig', [
-    'category_list' => (new Gazelle\Manager\Torrent\ReportType())
+    'category_list' => (new Manager\Torrent\ReportType())
         ->categoryList($report->reportType()->categoryId()),
     'report'        => $report,
-    'request_list'  => (new Gazelle\Manager\Request())->findByTorrentReported($report->torrent()),
+    'request_list'  => (new Manager\Request())->findByTorrentReported($report->torrent()),
     'size'          => '(' . number_format($report->torrent()->size() / (1024 * 1024), 2) . ' MiB)',
     'torrent'       => $report->torrent(),
     'other'         => [

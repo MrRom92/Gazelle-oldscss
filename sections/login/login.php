@@ -2,13 +2,17 @@
 /** @phpstan-var ?\Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (isset($Viewer)) {
     header("Location: /index.php");
     exit;
 }
 
-$login = new Gazelle\Login();
-$watch = new Gazelle\LoginWatch($login->requestContext()->remoteAddr());
+$login = new Login();
+$watch = new LoginWatch($login->requestContext()->remoteAddr());
 
 if (!empty($_POST['username']) && !empty($_POST['password'])) {
     $user = $login->login(
@@ -16,7 +20,7 @@ if (!empty($_POST['username']) && !empty($_POST['password'])) {
         password:   $_POST['password'],
         watch:      $watch,
         twofa:      $_POST['twofa'] ?? '',
-        persistent: $_POST['keeplogged'] ?? false,
+        persistent: isset($_POST['keeplogged']),
     );
 
     if ($user) {
@@ -35,14 +39,14 @@ if (!empty($_POST['username']) && !empty($_POST['password'])) {
         }
 
         if ($user->isEnabled()) {
-            if (!\Gazelle\Util\PasswordCheck::checkPasswordStrength($_POST['password'], $user)) {
+            if (!Util\PasswordCheck::checkPasswordStrength($_POST['password'], $user)) {
                 $user->addStaffNote("login prevented because of weak/compromised password")->modify();
                 $user->logoutEverywhere();
                 echo $Twig->render('login/weak-password.twig');
                 exit;
             }
             $useragent = $_SERVER['HTTP_USER_AGENT'] ?? '[no-useragent]';
-            $context = new Gazelle\BaseRequestContext(
+            $context = new BaseRequestContext(
                 $_SERVER['SCRIPT_NAME'],
                 $_SERVER['REMOTE_ADDR'],
                 $useragent,
@@ -50,7 +54,7 @@ if (!empty($_POST['username']) && !empty($_POST['password'])) {
             if ($user->permitted('site_disable_ip_history')) {
                 $context->anonymize();
             }
-            $session = new Gazelle\User\Session($user);
+            $session = new User\Session($user);
             $current = $session->create([
                 'keep-logged' => $login->persistent() ? '1' : '0',
                 'browser'     => $context->ua(),
@@ -74,7 +78,7 @@ echo $Twig->render('login/login.twig', [
     'delta'    => $watch->bannedEpoch() - time(),
     'error'    => $login->error(),
     'ip_addr'  => $login->requestContext()->remoteAddr(),
-    'tor_node' => (new Gazelle\Manager\Tor())->isExitNode(
+    'tor_node' => (new Manager\Tor())->isExitNode(
         $login->requestContext()->remoteAddr()
     ),
     'watch'    => $watch,

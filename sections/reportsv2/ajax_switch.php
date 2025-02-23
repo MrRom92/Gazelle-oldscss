@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 /*
  * This page is for creating a report using AJAX.
  * It should have the following posted fields:
@@ -17,13 +21,13 @@ if (!$Viewer->permitted('admin_reports')) {
 }
 
 authorize();
-$torMan = new Gazelle\Manager\Torrent();
+$torMan = new Manager\Torrent();
 $other = $torMan->findById((int)$_POST['otherid']);
 if (is_null($other)) {
     json_error("bad other id");
 }
 
-$reportMan = new Gazelle\Manager\Torrent\Report($torMan);
+$reportMan = new Manager\Torrent\Report($torMan);
 if ($reportMan->existsRecent($other->id(), $Viewer->id())) {
     json_error("too soon");
 }
@@ -34,12 +38,12 @@ if (is_null($report)) {
 
 $new = $reportMan->create(
     torrent:     $other,
-    user:        new Gazelle\User($report->reporterId()),
+    user:        new User($report->reporterId()),
     reportType:  $report->reportType(),
     reason:      $report->reason(),
     image:       implode(' ', $report->image()),
     otherIdList: (string)$report->torrentId(),
-    irc:         new Gazelle\Util\Irc(),
+    irc:         new Util\Irc(),
 );
 
 if ($other->uploaderId() != $Viewer->id()) {

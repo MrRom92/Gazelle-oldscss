@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Gazelle\Cache $Cache */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if ($Viewer->disableTagging()) {
     json_or_error('tagging disabled for your account', 403);
 }
@@ -10,7 +14,7 @@ if (!defined('AJAX') || !AJAX) {
     authorize();
 }
 
-$tgMan = new Gazelle\Manager\TGroup();
+$tgMan = new Manager\TGroup();
 $tgroup = $tgMan->findById((int)($_REQUEST['groupid'] ?? 0));
 if (is_null($tgroup)) {
     json_or_error('invalid groupid', 0);

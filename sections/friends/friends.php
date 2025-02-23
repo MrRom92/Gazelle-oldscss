@@ -2,12 +2,16 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$friend = new Gazelle\User\Friend($Viewer);
-$paginator = new Gazelle\Util\Paginator(FRIENDS_PER_PAGE, (int)($_GET['page'] ?? 1));
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$friend = new User\Friend($Viewer);
+$paginator = new Util\Paginator(FRIENDS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($friend->total());
 
 echo $Twig->render('user/friend.twig', [
-    'list'      => $friend->page(new Gazelle\Manager\User(), $paginator->limit(), $paginator->offset()),
+    'list'      => $friend->page(new Manager\User(), $paginator->limit(), $paginator->offset()),
     'paginator' => $paginator,
     'viewer'    => $Viewer,
 ]);

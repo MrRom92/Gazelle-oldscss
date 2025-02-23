@@ -2,26 +2,30 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$artistMan  = new Gazelle\Manager\Artist();
-$collageMan = new Gazelle\Manager\Collage();
-$forumMan   = new Gazelle\Manager\Forum();
-$threadMan  = new Gazelle\Manager\ForumThread();
-$requestMan = new Gazelle\Manager\Request();
-$tgMan      = (new Gazelle\Manager\TGroup())->setViewer($Viewer);
-$userMan    = new Gazelle\Manager\User();
-$subscriber = new Gazelle\User\Subscription($Viewer);
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$artistMan  = new Manager\Artist();
+$collageMan = new Manager\Collage();
+$forumMan   = new Manager\Forum();
+$threadMan  = new Manager\ForumThread();
+$requestMan = new Manager\Request();
+$tgMan      = (new Manager\TGroup())->setViewer($Viewer);
+$userMan    = new Manager\User();
+$subscriber = new User\Subscription($Viewer);
 $showUnread = (bool)($_GET['showunread'] ?? true);
 
-$paginator = new Gazelle\Util\Paginator($Viewer->postsPerPage(), (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator($Viewer->postsPerPage(), (int)($_GET['page'] ?? 1));
 $paginator->setTotal(
     $showUnread
         ? $forumMan->unreadSubscribedForumTotal($Viewer) + $subscriber->unreadCommentTotal()
         : $forumMan->subscribedForumTotal($Viewer) + $subscriber->commentTotal()
 );
 
-$avatarFilter = Gazelle\Util\Twig::factory($userMan)->createTemplate('{{ user|avatar(viewer)|raw }}');
+$avatarFilter = Util\Twig::factory($userMan)->createTemplate('{{ user|avatar(viewer)|raw }}');
 
-$Results = (new Gazelle\User\Subscription($Viewer))->latestSubscriptionList($showUnread, $paginator->limit(), $paginator->offset());
+$Results = (new User\Subscription($Viewer))->latestSubscriptionList($showUnread, $paginator->limit(), $paginator->offset());
 foreach ($Results as &$result) {
     $postLink = $result['PostID'] ? "&amp;postid={$result['PostID']}#post{$result['PostID']}" : '';
     switch ($result['Page']) {
@@ -74,7 +78,7 @@ foreach ($Results as &$result) {
             error('Unknown comment history target');
     }
     if (!empty($result['LastReadBody'])) {
-        $result['avatar'] = $avatarFilter->render(['user' => new Gazelle\User($result['LastReadUserID']), 'viewer' => $Viewer]);
+        $result['avatar'] = $avatarFilter->render(['user' => new User($result['LastReadUserID']), 'viewer' => $Viewer]);
     }
     if ($result['LastReadEditedUserID']) {
         $result['editor_link'] = $userMan->findById($result['LastReadEditedUserID'])->link();

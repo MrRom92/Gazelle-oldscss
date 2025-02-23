@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$request = (new Gazelle\Manager\Request())->findById((int)$_GET['id']);
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$request = (new Manager\Request())->findById((int)$_GET['id']);
 if (is_null($request)) {
     error(404);
 }

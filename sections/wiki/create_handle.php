@@ -1,15 +1,19 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
-$validator = new Gazelle\Util\Validator();
+$validator = new Util\Validator();
 $validator->setField('title', true, 'string', 'The title must be between 3 and 100 characters', ['range' => [3, 100]]);
 if (!$validator->validate($_POST)) {
     error($validator->errorMessage());
 }
 
-$wikiMan = new Gazelle\Manager\Wiki();
+$wikiMan = new Manager\Wiki();
 $title = trim($_POST['title']);
 $article = $wikiMan->findByTitle($title);
 if ($article) {

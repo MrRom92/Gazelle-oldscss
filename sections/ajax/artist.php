@@ -1,7 +1,11 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
-$artistMan  = new Gazelle\Manager\Artist();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$artistMan  = new Manager\Artist();
 $revisionId = isset($_GET['revisionid']) ? (int)$_GET['revisionid'] : null;
 $artistId   = (int)($_GET['id'] ?? 0);
 
@@ -37,13 +41,13 @@ if ($artistId) {
     json_die("failure", "bad parameters");
 }
 
-echo (new Gazelle\Json\Artist(
+echo (new Json\Artist(
     $artist,
     $Viewer,
-    new Gazelle\User\Bookmark($Viewer),
-    new Gazelle\Manager\Request(),
-    new Gazelle\Manager\TGroup(),
-    new Gazelle\Manager\Torrent(),
+    new User\Bookmark($Viewer),
+    new Manager\Request(),
+    new Manager\TGroup(),
+    new Manager\Torrent(),
 ))
     ->setReleasesOnly(!empty($_GET['artistreleases']))
     ->setVersion(2)

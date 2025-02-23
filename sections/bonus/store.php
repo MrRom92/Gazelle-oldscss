@@ -2,7 +2,13 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$bonus = new Gazelle\User\Bonus($Viewer);
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$bonus    = new User\Bonus($Viewer);
+$bonusMan = new Manager\Bonus();
+
 $purchase = isset($_GET['complete']) ? $bonus->item($_GET['complete'])['Title'] : false;
 if (($_GET['action'] ?? '') !== 'donate') {
     $donate = false;
@@ -23,8 +29,6 @@ if (($_GET['action'] ?? '') !== 'donate') {
         $donate = 'No bonus points donated, insufficient funds.';
     }
 }
-
-$bonusMan = new Gazelle\Manager\Bonus();
 
 echo $Twig->render('bonus/store.twig', [
     'bonus'    => $bonus,

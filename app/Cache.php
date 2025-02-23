@@ -12,7 +12,7 @@ order to better handle the caching of full pages with bits of dynamic
 content that are different for every user.
 
 Also, Memcache::get and Memcache::set have been wrapped by
-Gazelle\Cache::get_value and Gazelle\Cache::cache_value. get_value uses
+Cache::get_value and Cache::cache_value. get_value uses
 the same argument as get, but cache_value only takes the key, the value,
 and the duration (no zlib).
 

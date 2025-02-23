@@ -2,16 +2,20 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('users_mod')) {
     error(403);
 }
 
-$validator = new Gazelle\Util\Validator();
+$validator = new Util\Validator();
 $validator->setFields([
     ['tag',     true, 'string', 'Enter a single tag to change.', ['range' => [2, 100]]],
     ['replace', true, 'string', 'Enter a single replacement name.', ['range' => [2, 100]]],
 ]);
-$tagMan = new Gazelle\Manager\Tag();
+$tagMan = new Manager\Tag();
 
 $affectedTGroups  = [];
 $affectedRequests = [];

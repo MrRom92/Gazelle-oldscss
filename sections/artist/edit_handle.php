@@ -1,13 +1,17 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_edit_wiki')) {
     error(403);
 }
 
 authorize();
 
-$artist = (new Gazelle\Manager\Artist())->findById((int)$_POST['artistid']);
+$artist = (new Manager\Artist())->findById((int)$_POST['artistid']);
 if (is_null($artist)) {
     error(404);
 }
@@ -34,7 +38,7 @@ if ($image != $artist->image()) {
         if (!preg_match(IMAGE_REGEXP, $image)) {
             error(display_str($image) . " does not look like a valid image url");
         }
-        $banned = (new Gazelle\Util\ImageProxy($Viewer))->badHost($image);
+        $banned = (new Util\ImageProxy($Viewer))->badHost($image);
         if ($banned) {
             error("Please rehost images from $banned elsewhere.");
         }
@@ -51,7 +55,7 @@ $summary   = [];
 $discogsId = (int)($_POST['discogs-id']);
 if ($discogsId != $artist->discogs()->id()) {
     $summary[] = $discogsId ? "Discogs relation set to $discogsId" : "Discogs relation cleared";
-    $artist->setField('discogs', new Gazelle\Util\Discogs($discogsId));
+    $artist->setField('discogs', new Util\Discogs($discogsId));
 }
 
 if (isset($_POST['locked'])) {

@@ -1,7 +1,11 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
-$user = (new Gazelle\Manager\User())->findById((int)($_GET['userid'] ?? 0));
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$user = (new Manager\User())->findById((int)($_GET['userid'] ?? 0));
 if (is_null($user)) {
     json_error("bad userid");
 }
@@ -10,7 +14,7 @@ if ($limit < 1 || $limit > 50) {
     json_error("bad limit");
 }
 
-echo (new Gazelle\Json\UserRecent($user, $Viewer, new Gazelle\Manager\TGroup()))
+echo (new Json\UserRecent($user, $Viewer, new Manager\TGroup()))
     ->setLimit($limit)
     ->setVersion(2)
     ->response();

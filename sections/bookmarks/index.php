@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 switch ($_REQUEST['action'] ?? 'view') {
     case 'add':
         include_once 'add.php';

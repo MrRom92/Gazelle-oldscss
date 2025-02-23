@@ -494,7 +494,7 @@ abstract class TorrentAbstract extends BaseObject {
         return $this->info()['LogScore'];
     }
 
-    public function logfileList(\Gazelle\File\RipLog $ripFiler, \Gazelle\File\RipLogHTML $htmlFiler): array {
+    public function logfileList(File\RipLog $ripFiler, File\RipLogHTML $htmlFiler): array {
         self::$db->prepared_query("
             SELECT LogID AS id,
                 Score,
@@ -567,7 +567,7 @@ abstract class TorrentAbstract extends BaseObject {
     /**
      * Get the reports associated with this torrent
      *
-     * @return array of ids of \Gazelle\Torrent\Report
+     * @return array of ids of Torrent\Report
      */
     public function reportIdList(User $viewer): array {
         if ($this->isDeleted()) {

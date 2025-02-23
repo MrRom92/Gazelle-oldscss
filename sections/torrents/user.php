@@ -4,6 +4,10 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Util\SortableTableHeader;
 
 if (!isset($_GET['userid'])) {
@@ -13,13 +17,13 @@ if (!isset($_GET['userid'])) {
 if ($_GET['userid'] == 'me') {
     $_GET['userid'] = $Viewer->id();
 }
-$user = (new Gazelle\Manager\User())->findById((int)($_GET['userid'] ?? 0));
+$user = (new Manager\User())->findById((int)($_GET['userid'] ?? 0));
 if (is_null($user)) {
     error(404);
 }
 $userId = $user->id();
 
-$imgTag = '<img loading="lazy" src="' . (new Gazelle\User\Stylesheet($Viewer))->imagePath()
+$imgTag = '<img loading="lazy" src="' . (new User\Stylesheet($Viewer))->imagePath()
     . '%s.png" class="tooltip" alt="%s" title="%s"/>';
 $headerMap = [
     'name'     => ['dbColumn' => 'tg.Name', 'defaultSort' => 'asc',  'text' => 'Torrent'],
@@ -70,7 +74,7 @@ if (!empty($_GET['media']) && in_array($_GET['media'], MEDIA)) {
     $args[] = $_GET['media'];
 }
 
-$releaseMan = new Gazelle\ReleaseType();
+$releaseMan = new ReleaseType();
 if (!empty($_GET['releasetype'])) {
     $releaseType = (int)$_GET['releasetype'];
     if ($releaseMan->findNameById($releaseType)) {
@@ -127,7 +131,7 @@ if (!isset($_GET['tags_type'])) {
 }
 
 if (!empty($_GET['tags'])) {
-    $tagMan = new Gazelle\Manager\Tag();
+    $tagMan = new Manager\Tag();
     $tags = explode(',', $_GET['tags']);
     $includeTags = [];
     $excludeTags = [];
@@ -283,7 +287,7 @@ if (empty($groupBy)) {
     $groupBy = 't.ID';
 }
 
-$db = Gazelle\DB::DB();
+$db = DB::DB();
 $torrentCount = (int)$db->scalar("
     SELECT count(*) FROM (
         SELECT t.ID $havingColumns
@@ -298,7 +302,7 @@ $torrentCount = (int)$db->scalar("
     ", ...$args
 );
 
-$paginator = new Gazelle\Util\Paginator(TORRENTS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(TORRENTS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($torrentCount);
 array_push($args, $paginator->limit(), $paginator->offset());
 
@@ -325,11 +329,11 @@ $torrentsInfo = $db->to_array('TorrentID', MYSQLI_ASSOC);
 $action       = display_str($_GET['type']);
 $urlStem      = "torrents.php?userid={$userId}&amp;type=";
 
-$torMan   = (new Gazelle\Manager\Torrent())->setViewer($Viewer);
-$imgProxy = new Gazelle\Util\ImageProxy($Viewer);
+$torMan   = (new Manager\Torrent())->setViewer($Viewer);
+$imgProxy = new Util\ImageProxy($Viewer);
 $snatcher = $Viewer->snatch();
 
-View::show_header($user->username() . "'s $action torrents", ['js' => 'voting']);
+\View::show_header($user->username() . "'s $action torrents", ['js' => 'voting']);
 ?>
 <div class="thin">
     <div class="linkbox">
@@ -492,7 +496,7 @@ foreach (CATEGORY as $catKey => $catName) {
         </tr>
 <?php
     $pageSize = 0;
-    $vote = new Gazelle\User\Vote($Viewer);
+    $vote = new User\Vote($Viewer);
 
     foreach ($torrentsInfo as $torrentID => $info) {
         $torrent = $torMan->findById((int)$torrentID);
@@ -541,4 +545,4 @@ foreach (CATEGORY as $catKey => $catName) {
 } /* if ($torrentCount) */ ?>
 </div>
 <?php
-View::show_footer();
+\View::show_footer();

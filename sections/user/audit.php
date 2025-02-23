@@ -3,10 +3,12 @@
 
 declare(strict_types=1);
 
+namespace Gazelle;
+
 if (!$Viewer->permitted('users_mod')) {
     error(403);
 }
-$userMan = new Gazelle\Manager\User();
+$userMan = new Manager\User();
 $user = $userMan->findById((int)($_GET['id'] ?? 0));
 if (is_null($user)) {
     error(404);

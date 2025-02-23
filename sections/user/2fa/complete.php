@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$user = (new Gazelle\Manager\User())->findById((int)($_REQUEST['userid'] ?? 0));
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$user = (new Manager\User())->findById((int)($_REQUEST['userid'] ?? 0));
 if (is_null($user)) {
     error(404);
 }
@@ -17,7 +21,7 @@ if (empty($_SESSION['private_key'])) {
     error(404);
 }
 
-$recoveryKeys = $user->MFA()->create(new Gazelle\Manager\UserToken(), $_SESSION['private_key'], $Viewer);
+$recoveryKeys = $user->MFA()->create(new Manager\UserToken(), $_SESSION['private_key'], $Viewer);
 if (!$recoveryKeys) {
     error('failed to create 2FA');
 }

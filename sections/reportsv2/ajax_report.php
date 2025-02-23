@@ -2,6 +2,10 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 /*
  * The backend to changing the report type when making a report.
  * It prints out the relevant report_messages from the array, then
@@ -10,13 +14,13 @@
 
 authorize();
 
-$reportType = (new Gazelle\Manager\Torrent\ReportType())->findByType($_POST['type'] ?? '');
+$reportType = (new Manager\Torrent\ReportType())->findByType($_POST['type'] ?? '');
 if (is_null($reportType)) {
     json_error("bad parameters");
 }
 ?>
 <ul>
-    <li><?= Text::full_format($reportType->explanation()) ?></li>
+    <li><?= \Text::full_format($reportType->explanation()) ?></li>
 </ul>
 <br />
 <table class="layout border" cellpadding="3" cellspacing="1" border="0" width="100%">

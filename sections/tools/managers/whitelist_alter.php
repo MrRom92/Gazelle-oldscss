@@ -1,14 +1,18 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_whitelist')) {
     error(403);
 }
 
 authorize();
 
-$tracker   = new Gazelle\Tracker();
-$whitelist = new Gazelle\Manager\ClientWhitelist();
+$tracker   = new Tracker();
+$whitelist = new Manager\ClientWhitelist();
 
 $submitAction = $_POST['submit'] ?? null;
 

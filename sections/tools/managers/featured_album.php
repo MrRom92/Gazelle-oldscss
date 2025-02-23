@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Enum\FeaturedAlbumType;
 use Gazelle\Enum\LeechType;
 use Gazelle\Enum\LeechReason;
@@ -10,9 +14,9 @@ if (!$Viewer->permitted('users_mod')) {
     error(403);
 }
 
-$tgMan   = new Gazelle\Manager\TGroup();
-$torMan  = new Gazelle\Manager\Torrent();
-$manager = new Gazelle\Manager\FeaturedAlbum();
+$tgMan   = new Manager\TGroup();
+$torMan  = new Manager\Torrent();
+$manager = new Manager\FeaturedAlbum();
 
 if (isset($_GET['unfeature'])) {
     authorize();
@@ -65,13 +69,13 @@ if (isset($_POST['groupid'])) {
 
     $featuredAlbum = $manager->create(
         featureType: $featureType,
-        news:        new Gazelle\Manager\News(),
+        news:        new Manager\News(),
         tgMan:       $tgMan,
         torMan:      $torMan,
-        threadMan:   new Gazelle\Manager\ForumThread(),
-        tracker:     new Gazelle\Tracker(),
+        threadMan:   new Manager\ForumThread(),
+        tracker:     new Tracker(),
         tgroup:      $tgroup,
-        forum:       new Gazelle\Forum($featureType->forumId()),
+        forum:       new Forum($featureType->forumId()),
         leechType:   $leechType,
         threshold:   $threshold,
         title:       $title,
@@ -85,7 +89,7 @@ if (isset($_POST['groupid'])) {
 }
 
 echo  $Twig->render('admin/feature-album.twig', [
-    'body'         => new Gazelle\Util\Textarea('body', '', 80, 20),
+    'body'         => new Util\Textarea('body', '', 80, 20),
     'current'      => [
         'aotm'     => $manager->findByType(FeaturedAlbumType::AlbumOfTheMonth),
         'showcase' => $manager->findByType(FeaturedAlbumType::Showcase),

@@ -1,17 +1,21 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (isset($_GET['id']) && isset($_GET['hash'])) {
     json_error('bad parameters');
 } elseif (isset($_GET['hash'])) {
-    $torrent = (new Gazelle\Manager\Torrent())->findByInfohash($_GET['hash'] ?? '');
+    $torrent = (new Manager\Torrent())->findByInfohash($_GET['hash'] ?? '');
 } else {
-    $torrent = (new Gazelle\Manager\Torrent())->findById((int)$_GET['id']);
+    $torrent = (new Manager\Torrent())->findById((int)$_GET['id']);
 }
 if (is_null($torrent)) {
     json_error('bad parameters');
 }
 
-echo (new Gazelle\Json\Torrent($torrent, $Viewer, new Gazelle\Manager\Torrent()))
+echo (new Json\Torrent($torrent, $Viewer, new Manager\Torrent()))
     ->setVersion(5)
     ->response();

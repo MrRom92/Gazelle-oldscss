@@ -1,15 +1,19 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_dnu')) {
     error(403);
 }
 
 authorize();
 
-$manager = new Gazelle\Manager\DNU();
+$manager = new Manager\DNU();
 
-$db = Gazelle\DB::DB();
+$db = DB::DB();
 
 if ($_POST['submit'] == 'Reorder') {
     // Reorder, issued from an ajax call, see dnu.js
@@ -22,7 +26,7 @@ if ($_POST['submit'] == 'Delete') {
     $manager->remove((int)$_POST['id']);
 } else {
     // Edit & Create, Shared Validation
-    $Val = new Gazelle\Util\Validator();
+    $Val = new Util\Validator();
     $Val->setField('name', true, 'string', 'The name must be set, have a length of between 5 and 100 characters.', ['range' => [5, 100]]);
     $Val->setField('description', false, 'string', 'The description has a maximum length of 255 characters.', ['maxlength' => 255]);
     if (!$Val->validate($_POST)) {

@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_bp_history')) {
     error(403);
 }
 
-$bonus = new Gazelle\Stats\Bonus();
+$bonus = new Stats\Bonus();
 $day = [];
 $week = [];
 $month = [];
@@ -21,5 +25,5 @@ echo $Twig->render('admin/bonus-stats.twig', [
     'day'   => $day,
     'week'  => $week,
     'month' => $month,
-    'fl'    => (new Gazelle\Stats\Users())->stockpileTokenList(10),
+    'fl'    => (new Stats\Users())->stockpileTokenList(10),
 ]);

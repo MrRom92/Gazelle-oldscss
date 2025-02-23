@@ -1,13 +1,17 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
 if (!$Viewer->permitted('site_admin_requests')) {
     error(403);
 }
 
-$request = (new Gazelle\Manager\Request())->findById((int)$_POST['id']);
+$request = (new Manager\Request())->findById((int)$_POST['id']);
 if (is_null($request)) {
     error(404);
 }
@@ -46,7 +50,7 @@ foreach ($_POST as $k => $v) {
  *    $check:
  *      4 => true
  */
-$userMan = new Gazelle\Manager\User();
+$userMan = new Manager\User();
 $refund = [];
 $remove = [];
 foreach ($action as $userId => $operation) {

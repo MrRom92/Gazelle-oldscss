@@ -1,9 +1,13 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 header('Content-Type: application/json; charset=utf-8');
 
-$lastfm   = new Gazelle\Util\LastFM();
+$lastfm   = new Util\LastFM();
 $username = $_GET['username'] ?? null;
 $mode     = $_REQUEST['mode'] ?? '';
 if (!$username && $mode != 'weekly') {

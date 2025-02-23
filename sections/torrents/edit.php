@@ -4,7 +4,11 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
-$torrent = (new Gazelle\Manager\Torrent())->findById((int)($_GET['id'] ?? 0));
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$torrent = (new Manager\Torrent())->findById((int)($_GET['id'] ?? 0));
 if (is_null($torrent)) {
     error(404);
 }
@@ -18,7 +22,7 @@ $categoryName = $tgroup->categoryName();
 $isMusic      = $categoryName === 'Music';
 $artist       = $isMusic ? $tgroup->primaryArtist() : null;
 
-View::show_header('Edit torrent', ['js' => 'upload,torrent']);
+\View::show_header('Edit torrent', ['js' => 'upload,torrent']);
 
 if ($Viewer->permitted('torrents_edit') && ($Viewer->permitted('users_mod') || $isMusic)) {
     if ($isMusic) {
@@ -59,10 +63,10 @@ if (!($torrent->isRemastered() && !$torrent->remasterYear()) || $Viewer->permitt
         'HasCue'                  => $torrent->hasCue(),
         'LogScore'                => $torrent->logScore(),
     ];
-    foreach (\Gazelle\Enum\TorrentFlag::cases() as $flag) {
+    foreach (Enum\TorrentFlag::cases() as $flag) {
         $torrentInfo[$flag->value] = $torrent->hasFlag($flag);
     }
-    $uploadForm = new Gazelle\Upload(
+    $uploadForm = new Upload(
         $Viewer,
         $torrentInfo,
         $Err ?? false
@@ -75,14 +79,14 @@ if (!($torrent->isRemastered() && !$torrent->remasterYear()) || $Viewer->permitt
         'Comics'            => $uploadForm->comic(),
         'E-Books'           => $uploadForm->ebook(),
         'E-Learning Videos' => $uploadForm->elearning(),
-        default => $uploadForm->music([], new Gazelle\Manager\TGroup()),
+        default => $uploadForm->music([], new Manager\TGroup()),
     };
     echo $uploadForm->foot(false);
 };
 
 echo $Twig->render('torrent/edit-torrent.twig', [
     'artist'            => $artist,
-    'release_type_list' => (new Gazelle\ReleaseType())->list(),
+    'release_type_list' => (new ReleaseType())->list(),
     'torrent'           => $torrent,
     'viewer'            => $Viewer,
 ]);

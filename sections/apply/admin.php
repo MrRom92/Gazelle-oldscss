@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$appRoleMan = new Gazelle\Manager\ApplicantRole();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$appRoleMan = new Manager\ApplicantRole();
 if ($Viewer->permitted('admin_manage_applicants')) {
     $list = $appRoleMan->list(); // everything, including archived roles
 } else {
@@ -33,6 +37,6 @@ if (isset($_POST['auth'])) {
 echo $Twig->render('applicant/admin.twig', [
     'error'  => $error,
     'list'   => $list,
-    'text'   => new Gazelle\Util\Textarea('description', ''),
+    'text'   => new Util\Textarea('description', ''),
     'viewer' => $Viewer,
 ]);

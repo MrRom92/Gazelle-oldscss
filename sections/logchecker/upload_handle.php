@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use OrpheusNET\Logchecker\Logchecker;
 
 ini_set('upload_max_filesize', 1_000_000);
 
-$torrent = (new Gazelle\Manager\Torrent())->findById((int)$_POST['torrentid']);
+$torrent = (new Manager\Torrent())->findById((int)$_POST['torrentid']);
 if (is_null($torrent)) {
     error('No torrent is selected.');
 }
@@ -18,18 +22,18 @@ if ($torrent->uploaderId() != $Viewer->id() && !$Viewer->permitted('admin_add_lo
 }
 
 $action = in_array($_POST['from_action'], ['upload', 'update']) ? $_POST['from_action'] : 'upload';
-$logfileSummary = new Gazelle\LogfileSummary($_FILES['logfiles']);
+$logfileSummary = new LogfileSummary($_FILES['logfiles']);
 
 if (!$logfileSummary->total()) {
     error("No logfiles uploaded.");
 } else {
-    $ripFiler = new Gazelle\File\RipLog();
-    $htmlFiler = new Gazelle\File\RipLogHTML();
+    $ripFiler = new File\RipLog();
+    $htmlFiler = new File\RipLogHTML();
 
     $torrent->removeLogDb();
     $ripFiler->remove([$torrent->id(), null]);
     $htmlFiler->remove([$torrent->id(), null]);
-    $torrentLogManager = new Gazelle\Manager\TorrentLog($ripFiler, $htmlFiler);
+    $torrentLogManager = new Manager\TorrentLog($ripFiler, $htmlFiler);
 
     $checkerVersion = Logchecker::getLogcheckerVersion();
     foreach ($logfileSummary->all() as $logfile) {

@@ -3,6 +3,10 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 //**********************************************************************//
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Upload form ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 // $Properties, $Err and $categoryId are set in upload_handle.php,      //
@@ -12,7 +16,7 @@
 
 ini_set('max_file_uploads', '100');
 
-$tgMan = new Gazelle\Manager\TGroup();
+$tgMan = new Manager\TGroup();
 if (!isset($Properties)) {
     $requestId = (int)($_GET['requestid'] ?? 0);
     if ((int)($_GET['groupid'] ?? 0)) {
@@ -40,7 +44,7 @@ if (!isset($Properties)) {
             }
         }
     } elseif ($requestId) {
-        $request = (new Gazelle\Manager\Request())->findById($requestId);
+        $request = (new Manager\Request())->findById($requestId);
         if ($request) {
             $categoryId = $request->categoryId();
             $Properties = [
@@ -58,7 +62,7 @@ if (!isset($Properties)) {
             ];
         }
     } elseif (isset($_GET['artistid'])) {
-        $artist = (new Gazelle\Manager\Artist())->findById((int)$_GET['artistid']);
+        $artist = (new Manager\Artist())->findById((int)$_GET['artistid']);
         if ($artist) {
             $Properties = [
                 'add-format' => true,
@@ -80,11 +84,11 @@ if (!isset($Err)) {
     $Err = false;
 }
 
-$dnu     = new Gazelle\Manager\DNU();
+$dnu     = new Manager\DNU();
 $dnuNew  = $dnu->hasNewForUser($Viewer);
 $dnuHide = !$dnuNew && $Viewer->permitted('torrents_hide_dnu');
 
-View::show_header('Upload', ['js' => 'upload,validate_upload,musicbrainz,bbcode']);
+\View::show_header('Upload', ['js' => 'upload,validate_upload,musicbrainz,bbcode']);
 ?>
 <div class="<?= $Viewer->permitted('torrents_hide_dnu') ? 'box pad' : '' ?> dnu_list" style="margin: 0px auto; width: 700px;">
     <h3 id="dnu_header">Do Not Upload List</h3>
@@ -102,12 +106,12 @@ View::show_header('Upload', ['js' => 'upload,validate_upload,musicbrainz,bbcode'
 <?php foreach ($dnu->dnuList() as $index => $bad) { ?>
         <tr class="row<?=$index % 2 ? 'b' : 'a'?>">
             <td>
-                <?= Text::full_format($bad['name']) ?>
+                <?= \Text::full_format($bad['name']) ?>
 <?php   if ($bad['is_new']) { ?>
                 <strong class="important_text">(New!)</strong>
 <?php   } ?>
             </td>
-            <td><?= Text::full_format($bad['description']) ?></td>
+            <td><?= \Text::full_format($bad['description']) ?></td>
         </tr>
 <?php } ?>
     </table>
@@ -117,7 +121,7 @@ View::show_header('Upload', ['js' => 'upload,validate_upload,musicbrainz,bbcode'
 if (!isset($categoryId)) {
     $categoryId = CATEGORY_MUSIC;
 }
-$uploadForm = new Gazelle\Upload($Viewer, $Properties, $Err);
+$uploadForm = new Upload($Viewer, $Properties, $Err);
 echo $uploadForm->head($categoryId);
 echo match (CATEGORY[$categoryId - 1]) {
     'Audiobooks',       => $uploadForm->audiobook(),
@@ -126,6 +130,6 @@ echo match (CATEGORY[$categoryId - 1]) {
     'Comedy'            => $uploadForm->comedy(),
     'E-Books'           => $uploadForm->ebook(),
     'E-Learning Videos' => $uploadForm->elearning(),
-    default             => $uploadForm->music((new Gazelle\Manager\Tag())->genreList(), $tgMan),
+    default             => $uploadForm->music((new Manager\Tag())->genreList(), $tgMan),
 };
 echo $uploadForm->foot(true);

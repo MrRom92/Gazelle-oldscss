@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 header('Content-Type: application/json; charset=utf-8');
 
 if (!$Viewer->permitted('users_auto_reports')) {

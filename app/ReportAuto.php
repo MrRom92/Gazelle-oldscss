@@ -9,7 +9,7 @@ class ReportAuto extends BasePgObject {
 
     public function __construct(
         protected int $id,
-        protected $typeMan = new \Gazelle\Manager\ReportAutoType(),
+        protected $typeMan = new Manager\ReportAutoType(),
     ) {
         parent::__construct($id);
     }
@@ -143,7 +143,7 @@ class ReportAuto extends BasePgObject {
     /**
      * returns comment id on success, null otherwise
      */
-    public function addComment(\Gazelle\User $user, string $comment): ?int {
+    public function addComment(User $user, string $comment): ?int {
         $commentId = $this->pg()->scalar("
             INSERT INTO report_auto_comment
                    (id_report_auto, id_user, comment)

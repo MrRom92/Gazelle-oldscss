@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\Cache $Cache */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 $ipaddr     = $_SERVER['REMOTE_ADDR'];
 $key        = "apl-recovery.$ipaddr";
 $rate_limit = 0;

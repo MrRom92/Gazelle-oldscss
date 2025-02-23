@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_periodic_task_view')) {
     error(403);
 }
 
-$scheduler = new Gazelle\TaskScheduler();
+$scheduler = new TaskScheduler();
 $taskId = (int)($_REQUEST['id'] ?? 0);
 
 if ($taskId && $_REQUEST['mode'] === 'run_now') {

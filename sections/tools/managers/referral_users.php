@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_view_referrals')) {
     error(403);
 }
 
-$ReferralManager = new Gazelle\Manager\Referral();
+$ReferralManager = new Manager\Referral();
 
 if (isset($_POST['id'])) {
     authorize();
@@ -37,7 +41,7 @@ if (!empty($EndDate)) {
 }
 
 $View = $_GET['view'] ?? 'all';
-$paginator = new Gazelle\Util\Paginator(USERS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(USERS_PER_PAGE, (int)($_GET['page'] ?? 1));
 
 echo $Twig->render('admin/referral-users.twig', [
     'invite'     => $Invite,

@@ -261,16 +261,19 @@ class User extends \Gazelle\BaseManager {
      * @return array $classes
      */
     public function classList(): array {
-        if (($classList = self::$cache->get_value('user_class')) === false) {
-            $qid = self::$db->get_query_id();
+        $classList = self::$cache->get_value('user_class');
+        if ($classList === false) {
             self::$db->prepared_query("
                 SELECT ID, Name, Level, Secondary, badge
                 FROM permissions
                 ORDER BY Level
             ");
-            $classList = self::$db->to_array('ID');
-            self::$db->set_query_id($qid);
-            self::$cache->cache_value('user_class', $classList, 7200);
+            $classList = [];
+            foreach (self::$db->to_array(false, MYSQLI_ASSOC, false) as $row) {
+                $row['Level'] = (int)$row['Level'];
+                $classList[$row['ID']] = $row;
+            }
+            self::$cache->cache_value('user_class', $classList, 86400);
         }
         return $classList;
     }

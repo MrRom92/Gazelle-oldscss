@@ -1,9 +1,13 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
-$poll = (new Gazelle\Manager\ForumPoll())->findById((int)($_POST['threadid'] ?? 0));
+$poll = (new Manager\ForumPoll())->findById((int)($_POST['threadid'] ?? 0));
 if (is_null($poll)) {
     error(404);
 }

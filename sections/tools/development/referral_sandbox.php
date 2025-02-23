@@ -3,11 +3,15 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_manage_referrals')) {
     error(403);
 }
 
-$referralManager = new Gazelle\Manager\Referral();
+$referralManager = new Manager\Referral();
 $referralAccounts = $referralManager->getFullAccounts();
 
 $cookie = [];
@@ -17,7 +21,7 @@ $hasResult = false;
 if (isset($_POST['url'])) {
     authorize();
     $url = $_POST['url'];
-    $proxy = new Gazelle\Util\Proxy(REFERRAL_KEY, REFERRAL_BOUNCER);
+    $proxy = new Util\Proxy(REFERRAL_KEY, REFERRAL_BOUNCER);
     $hasResult = true;
     $failedLogin = false;
 
@@ -52,7 +56,7 @@ if (isset($_POST['url'])) {
     }
 }
 
-View::show_header("Referral Sandbox");
+\View::show_header("Referral Sandbox");
 ?>
 <style type="text/css">
 div#preview {display: none;}
@@ -192,5 +196,5 @@ var_dump($response)
 <?php } ?>
 </div>
 <?php
-View::show_footer();
+\View::show_footer();
 

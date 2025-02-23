@@ -4,14 +4,14 @@ namespace Gazelle;
 
 use Gazelle\Util\Textarea;
 
-class Upload extends \Gazelle\Base {
+class Upload extends Base {
     final public const TORRENT_INPUT_ACCEPT = ['application/x-bittorrent', '.torrent'];
     final public const JSON_INPUT_ACCEPT = ['application/json', '.json'];
 
     protected bool $isUploaded;
 
     public function __construct(
-        protected \Gazelle\User $user,
+        protected User $user,
         protected array|false $Torrent = false,
         protected string|false $Error = false,
     ) {
@@ -66,7 +66,7 @@ class Upload extends \Gazelle\Base {
     }
 
     public function foot(bool $showFooter): string {
-        $torMan = new \Gazelle\Manager\Torrent();
+        $torMan = new Manager\Torrent();
         return self::$twig->render('upload/footer.twig', [
             'is_upload'    => !$this->isUploaded || isset($this->Torrent['add-format']),
             'info'         => $this->Torrent,
@@ -129,18 +129,18 @@ class Upload extends \Gazelle\Base {
         ]);
     }
 
-    public function music(array $GenreTags, \Gazelle\Manager\TGroup $manager): string {
+    public function music(array $GenreTags, Manager\TGroup $manager): string {
         return self::$twig->render('upload/music.twig', [
             'add_format'          => $this->isUploaded && is_array($this->Torrent) && isset($this->Torrent['add-format']),
             'description_album'   => $this->albumDescription(),
             'description_release' => $this->releaseDescription(),
             'is_uploaded'         => $this->isUploaded,
             'logchecker_accept'   => \OrpheusNET\Logchecker\Logchecker::getAcceptValues(),
-            'release_type'        => (new \Gazelle\ReleaseType())->list(),
+            'release_type'        => (new ReleaseType())->list(),
             'tag_list'            => $GenreTags,
             'tgroup'              => $this->isUploaded && is_array($this->Torrent) ? $manager->findById($this->Torrent['GroupID']) : null,
             'torrent'             => $this->Torrent,
-            'torrent_flags'       => \Gazelle\Enum\TorrentFlag::cases(),
+            'torrent_flags'       => Enum\TorrentFlag::cases(),
             'user'                => $this->user,
         ]);
     }

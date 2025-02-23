@@ -2,20 +2,24 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if ($Viewer->uploadedSize() < 250 * 1024 * 1024 || !$Viewer->permitted('site_submit_requests')) {
     error('You have not enough upload to make a request.');
 }
 
 // We may be able to prepare some things based on whence we came
 if (isset($_GET['artistid'])) {
-    $artist = (new Gazelle\Manager\Artist())->findById((int)$_GET['artistid']);
+    $artist = (new Manager\Artist())->findById((int)$_GET['artistid']);
     if ($artist) {
         $artistRole = [
             ARTIST_MAIN => [$artist->name()],
         ];
     }
 } elseif (isset($_GET['groupid'])) {
-    $tgroup = (new Gazelle\Manager\TGroup())->findById((int)$_GET['groupid']);
+    $tgroup = (new Manager\TGroup())->findById((int)$_GET['groupid']);
     if ($tgroup) {
         $categoryId   = $tgroup->categoryId();
         $categoryName = $tgroup->categoryName();
@@ -28,7 +32,7 @@ if (isset($_GET['artistid'])) {
     }
 }
 
-$bounty = $_POST['amount'] ?? $Viewer->ordinal()->value('request-bounty-create');
+$bounty = (float)($_POST['amount'] ?? $Viewer->ordinal()->value('request-bounty-create'));
 [$amount, $unit] = array_values(byte_format_array($bounty));
 if (in_array($unit, ['GiB', 'TiB'])) {
     $unitGiB = true;
@@ -45,19 +49,19 @@ echo $Twig->render('request/request.twig', [
     'error'            => $error        ?? null,
     'tgroup'           => $tgroup       ?? null,
     'viewer'           => $Viewer,
-    'release_list'     => (new Gazelle\ReleaseType())->list(),
-    'tag_list'         => (new Gazelle\Manager\Tag())->genreList(),
+    'release_list'     => (new ReleaseType())->list(),
+    'tag_list'         => (new Manager\Tag())->genreList(),
     'amount'           => $bounty,
     'amount_box'       => $amount          ?? REQUEST_MIN,
     'unit_GiB'         => isset($unitGiB),
     'artist_role'      => $artistRole      ?? [],
     'catalogue_number' => $catalogueNumber ?? '',
     'category_id'      => $categoryId      ?? null,
-    'description'      => new Gazelle\Util\Textarea('description', $description ?? '', 70, 7),
-    'encoding'         => $encoding        ?? new Gazelle\Request\Encoding(),
-    'format'           => $format          ?? new Gazelle\Request\Format(),
-    'log_cue'          => $logCue          ?? new Gazelle\Request\LogCue(),
-    'media'            => $media           ?? new Gazelle\Request\Media(),
+    'description'      => new Util\Textarea('description', $description ?? '', 70, 7),
+    'encoding'         => $encoding        ?? new Request\Encoding(),
+    'format'           => $format          ?? new Request\Format(),
+    'log_cue'          => $logCue          ?? new Request\LogCue(),
+    'media'            => $media           ?? new Request\Media(),
     'oclc'             => $oclc            ?? '',
     'image'            => $image           ?? '',
     'record_label'     => $recordLabel     ?? '',

@@ -1,12 +1,16 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_manage_forums')) {
     error(403);
 }
 
 authorize();
-$manager = new Gazelle\Manager\ForumTransition();
+$manager = new Manager\ForumTransition();
 $transition = $manager->findById((int)($_POST['id'] ?? 0));
 
 if ($_POST['submit'] === 'Delete') {
@@ -15,7 +19,7 @@ if ($_POST['submit'] === 'Delete') {
     }
     $transition->remove();
 } else {
-    $validator = new Gazelle\Util\Validator();
+    $validator = new Util\Validator();
     $validator->setFields([
         ['source', true, 'number', 'You must set a source forum ID for the transition'],
         ['destination', true, 'number', 'You must set a destination forum ID for the transition'],
@@ -28,7 +32,7 @@ if ($_POST['submit'] === 'Delete') {
         error($validator->errorMessage());
     }
 
-    $forumMan = new Gazelle\Manager\Forum();
+    $forumMan = new Manager\Forum();
     $source = $forumMan->findById((int)$_POST['source']);
     if (is_null($source)) {
         error("no such source forum id: " . (int)$_POST['source']);

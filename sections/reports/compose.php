@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_moderate_forums')) {
     error(403);
 }
@@ -19,7 +23,7 @@ $reportType = $Types[$type];
 
 $user = null;
 if (!isset($Return)) {
-    $user = (new Gazelle\Manager\User())->findById((int)($_GET['toid'] ?? 0));
+    $user = (new Manager\User())->findById((int)($_GET['toid'] ?? 0));
     if (is_null($user)) {
         error(404);
     }
@@ -30,58 +34,58 @@ if (!isset($Return)) {
 
 switch ($type) {
     case 'user':
-        $reported = (new Gazelle\Manager\User())->findById($id);
+        $reported = (new Manager\User())->findById($id);
         if (is_null($reported)) {
             error(404);
         }
-        $report = new Gazelle\Report\User($reportId, $reported);
+        $report = new Report\User($reportId, $reported);
         break;
 
     case 'request':
     case 'request_update':
-        $request = (new Gazelle\Manager\Request())->findById($id);
+        $request = (new Manager\Request())->findById($id);
         if (is_null($request)) {
             error(404);
         }
-        $report = new Gazelle\Report\Request($reportId, $request);
+        $report = new Report\Request($reportId, $request);
         break;
 
     case 'collage':
-        $collage = (new Gazelle\Manager\Collage())->findById($id);
+        $collage = (new Manager\Collage())->findById($id);
         if (is_null($collage)) {
             error(404);
         }
-        $report = new Gazelle\Report\Collage($reportId, $collage);
+        $report = new Report\Collage($reportId, $collage);
         break;
 
     case 'thread':
-        $thread = (new Gazelle\Manager\ForumThread())->findById($id);
+        $thread = (new Manager\ForumThread())->findById($id);
         if (is_null($thread)) {
             error(404);
         }
         if (!$Viewer->readAccess($thread->forum())) {
             error(403);
         }
-        $report = new Gazelle\Report\ForumThread($reportId, $thread);
+        $report = new Report\ForumThread($reportId, $thread);
         break;
 
     case 'post':
-        $post = (new Gazelle\Manager\ForumPost())->findById($id);
+        $post = (new Manager\ForumPost())->findById($id);
         if (is_null($post)) {
             error(404);
         }
         if (!$Viewer->readAccess($post->thread()->forum())) {
             error(403);
         }
-        $report = new Gazelle\Report\ForumPost($reportId, $post);
+        $report = new Report\ForumPost($reportId, $post);
         break;
 
     case 'comment':
-        $comment = (new Gazelle\Manager\Comment())->findById($id);
+        $comment = (new Manager\Comment())->findById($id);
         if (is_null($comment)) {
             error(404);
         }
-        $report = (new Gazelle\Report\Comment($reportId, $comment))->setContext($reportType['title']);
+        $report = (new Report\Comment($reportId, $comment))->setContext($reportType['title']);
         break;
 
     default:
@@ -92,7 +96,7 @@ echo $Twig->render('report/compose-reply.twig', [
     'report'  => $report,
     'user'    => $user,
     'viewer'  => $Viewer,
-    'body'    => new Gazelle\Util\Textarea(
+    'body'    => new Util\Textarea(
         'body',
         "You reported {$report->bbLink()} for the reason:\n[quote]{$report->reason()}[/quote]",
         90, 8

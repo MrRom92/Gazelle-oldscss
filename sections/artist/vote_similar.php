@@ -1,12 +1,16 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 $way = trim($_GET['way']);
 if (!in_array($way, ['up', 'down'])) {
     error('Missing artist vote decision');
 }
 
-$artistMan = new Gazelle\Manager\Artist();
+$artistMan = new Manager\Artist();
 $artist    = $artistMan->findById((int)($_GET['artistid'] ?? 0));
 $similar   = $artistMan->findById((int)($_GET['similarid'] ?? 0));
 if (is_null($artist) || is_null($similar)) {

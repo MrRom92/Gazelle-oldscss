@@ -2,9 +2,13 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-Text::$TOC = true;
+declare(strict_types=1);
 
-$wikiMan = new Gazelle\Manager\Wiki();
+namespace Gazelle;
+
+\Text::$TOC = true;
+
+$wikiMan = new Manager\Wiki();
 $article = false;
 $error = false;
 if (isset($_GET['id'])) {
@@ -25,7 +29,7 @@ if (!$article) {
 if (!$article->readable($Viewer)) {
     error(403);
 }
-$classList = (new Gazelle\Manager\User())->classLevelList();
+$classList = (new Manager\User())->classLevelList();
 
 echo $Twig->render('wiki/article.twig', [
     'article' => $article,

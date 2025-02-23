@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('users_mod')) {
     error(403);
 }
 
-$userMan = new Gazelle\Manager\User();
+$userMan = new Manager\User();
 $amount = (int)($_POST['numtokens'] ?? 0);
 $flAdded = false;
 $flCleared = false;

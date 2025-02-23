@@ -88,7 +88,7 @@ class Debug {
         }
 
         $errorList = (string)json_encode(self::$Errors);
-        $id = (new \Gazelle\Manager\ErrorLog())->create(
+        $id = (new Manager\ErrorLog())->create(
            uri:       $uri,
            userId:    $userId,
            duration:  $this->duration(),
@@ -113,7 +113,7 @@ class Debug {
                 'flags'         => $this->markList(),
                 'includes'      => $this->includeList(),
                 'perf'          => $this->perfInfo(),
-                'ocelot'        => (new \Gazelle\Tracker())->requestList(),
+                'ocelot'        => (new Tracker())->requestList(),
                 'searches'      => class_exists('Sphinxql') ? \Sphinxql::$Queries : [],
                 'searches_time' => class_exists('Sphinxql') ? \Sphinxql::$Time : 0.0,
                 'queries'       => $this->db->queryList(),

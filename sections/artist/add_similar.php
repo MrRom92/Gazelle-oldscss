@@ -1,11 +1,15 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!defined('AJAX')) {
     authorize();
 }
 
-$artistMan = new Gazelle\Manager\Artist();
+$artistMan = new Manager\Artist();
 $artist = $artistMan->findById((int)($_POST['artistid'] ?? 0));
 if (is_null($artist)) {
     if (defined('AJAX')) {

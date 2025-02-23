@@ -2,18 +2,22 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('torrents_edit')) {
     error(403);
 }
 authorize();
 
 $redirectId = (int)$_POST['redirect'];
-$newName = Gazelle\Artist::sanitize($_POST['name']);
+$newName = Artist::sanitize($_POST['name']);
 if (empty($newName)) {
     error('The specified name is empty.');
 }
 
-$artMan = new Gazelle\Manager\Artist();
+$artMan = new Manager\Artist();
 $artist = $artMan->findById((int)$_POST['artistid']);
 if (is_null($artist)) {
     error(404);

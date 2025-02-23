@@ -1,9 +1,13 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
-$userMan = new Gazelle\Manager\User();
+$userMan = new Manager\User();
 $recipient = $userMan->findById((int)($_POST['toid'] ?? 0));
 if (is_null($recipient)) {
     error("No such recipient!");

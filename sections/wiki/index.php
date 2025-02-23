@@ -1,11 +1,15 @@
 <?php
 // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 function class_list(int $Selected = 0): string {
     /** @phpstan-var \Gazelle\User $Viewer */
     global $Viewer;
     $Return = '';
-    $Classes = (new Gazelle\Manager\User())->classList();
+    $Classes = (new Manager\User())->classList();
     foreach ($Classes as $Class) {
         if ($Class['Level'] <= $Viewer->privilege()->effectiveClassLevel()) {
             $Return .= '<option value="' . $Class['Level'] . '"';

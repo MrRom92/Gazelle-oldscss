@@ -1,13 +1,17 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
 if (!$Viewer->permitted('admin_manage_wiki')) {
     error(403);
 }
 
-$article = (new Gazelle\Manager\Wiki())->findById((int)$_GET['id']);
+$article = (new Manager\Wiki())->findById((int)$_GET['id']);
 if (is_null($article)) {
     error(404);
 }

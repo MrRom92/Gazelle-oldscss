@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 switch ($_REQUEST['action'] ?? '') {
     case 'assign':
         include 'assign.php';
@@ -30,7 +34,7 @@ switch ($_REQUEST['action'] ?? '') {
         include 'ajax_get_response.php';
         break;
     case 'preview':
-        echo Text::full_format($_POST['message'] ?? '');
+        echo \Text::full_format($_POST['message'] ?? '');
         break;
     case 'get_post':
         include 'get_post.php';

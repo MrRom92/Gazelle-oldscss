@@ -3,6 +3,10 @@
 /** @phpstan-var \Gazelle\Cache $Cache */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Enum\TorrentFlag;
 
 /*
@@ -19,14 +23,14 @@ if (!$Viewer->permitted('admin_reports')) {
 authorize();
 
 $fromReportPage = !isset($_POST['from_delete']);
-$reportTypeMan  = new Gazelle\Manager\Torrent\ReportType();
-$reportMan      = new Gazelle\Manager\Torrent\Report(new Gazelle\Manager\Torrent());
-$userMan        = new Gazelle\Manager\User();
+$reportTypeMan  = new Manager\Torrent\ReportType();
+$reportMan      = new Manager\Torrent\Report(new Manager\Torrent());
+$userMan        = new Manager\User();
 
 $report = $reportMan->findById((int)($_POST['reportid'] ?? 0));
 if (is_null($report)) {
     // torrent is being deleted using RM link
-    $torMan = new Gazelle\Manager\Torrent();
+    $torMan = new Manager\Torrent();
     $torrent = $torMan->findById((int)($_POST['torrentid'] ?? 0));
     if (is_null($torrent)) {
         json_die("failure", "torrent not found");
@@ -39,7 +43,7 @@ if (is_null($report)) {
         torrent:     $torrent,
         user:        $Viewer,
         reportType:  $reportType,
-        irc:         new Gazelle\Util\Irc(),
+        irc:         new Util\Irc(),
         reason:      '',
         otherIdList: '',
     );

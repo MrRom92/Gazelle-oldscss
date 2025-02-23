@@ -1,11 +1,15 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->isStaffPMReader()) {
     error(403);
 }
 
-$staffPm = (new Gazelle\Manager\StaffPM())->findById((int)($_REQUEST['convid'] ?? 0));
+$staffPm = (new Manager\StaffPM())->findById((int)($_REQUEST['convid'] ?? 0));
 if (is_null($staffPm)) {
     header('Location: staffpm.php');
     exit;
@@ -19,7 +23,7 @@ if (isset($_GET['convid'])) {
     if (empty($_GET['to'])) {
         error(404);
     }
-    $classList = (new Gazelle\Manager\User())->classList();
+    $classList = (new Manager\User())->classList();
     match ($_GET['to']) {
         'forum' => $staffPm->assignClass($classList[FORUM_MOD]['Level'], $Viewer),
         'staff' => $staffPm->assignClass($classList[MOD]['Level'], $Viewer),
@@ -39,7 +43,7 @@ if ($Viewer->privilege()->effectiveClassLevel() < $staffPm->classLevel() && $Vie
     if ($assignTo == 'class') {
         $staffPm->assignClass($NewLevel, $Viewer);
     } else {
-        $assignee = (new Gazelle\Manager\User())->findById($NewLevel);
+        $assignee = (new Manager\User())->findById($NewLevel);
         if (is_null($assignee)) {
             error(404);
         }

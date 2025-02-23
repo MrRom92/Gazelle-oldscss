@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$userMan = new Gazelle\Manager\User();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$userMan = new Manager\User();
 if (!isset($_GET['id'])) {
     $user = $Viewer;
 } else {
@@ -18,7 +22,7 @@ if (!$Viewer->permitted('users_view_invites') && !$ownProfile) {
 }
 
 $inviteSourceMan = $Viewer->permitted('users_view_invites') || $Viewer->isRecruiter()
-    ? new Gazelle\Manager\InviteSource()
+    ? new Manager\InviteSource()
     : null;
 
 if ($inviteSourceMan && isset($_GET['edit'])) {
@@ -62,7 +66,7 @@ if ($inviteSourceMan && isset($_GET['edit'])) {
 }
 
 $heading = new \Gazelle\Util\SortableTableHeader('created', [
-    // see Gazelle\User\Invite::page() for these table aliases
+    // see User\Invite::page() for these table aliases
     'id'         => ['dbColumn' => 'um.ID',           'defaultSort' => 'desc'],
     'username'   => ['dbColumn' => 'um.Username',     'defaultSort' => 'desc', 'text' => 'Username'],
     'email'      => ['dbColumn' => 'um.Email',        'defaultSort' => 'desc', 'text' => 'Email'],
@@ -73,7 +77,7 @@ $heading = new \Gazelle\Util\SortableTableHeader('created', [
     'ratio'      => ['dbColumn' => '(uls.Uploaded / uls.Downloaded)', 'defaultSort' => 'desc', 'text' => 'Ratio'],
 ]);
 
-$paginator = new Gazelle\Util\Paginator(ITEMS_PER_PAGE, (int)($_REQUEST['page'] ?? 1));
+$paginator = new Util\Paginator(ITEMS_PER_PAGE, (int)($_REQUEST['page'] ?? 1));
 $paginator->setTotal($user->invite()->total());
 
 echo $Twig->render('user/invited.twig', [
@@ -85,9 +89,9 @@ echo $Twig->render('user/invited.twig', [
             $heading->getOrderBy(), $heading->getOrderDir(), $paginator->limit(), $paginator->offset()
         )
     ),
-    'invites_open'      => (new Gazelle\Stats\Users())->newUsersAllowed($user),
+    'invites_open'      => (new Stats\Users())->newUsersAllowed($user),
     'invite_source'     => $inviteSourceMan,
-    'notes'             => new Gazelle\Util\Textarea('notes', '', 60, 4),
+    'notes'             => new Util\Textarea('notes', '', 60, 4),
     'own_profile'       => $ownProfile,
     'paginator'         => $paginator,
     'user'              => $user,

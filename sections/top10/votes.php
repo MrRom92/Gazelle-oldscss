@@ -4,8 +4,12 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
-$vote = new Gazelle\User\Vote($Viewer);
-$tagMan = new Gazelle\Manager\Tag();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$vote = new User\Vote($Viewer);
+$tagMan = new Manager\Tag();
 
 $all = ($_GET['anyall'] ?? 'all') === 'all';
 
@@ -33,17 +37,17 @@ if (empty($_GET['advanced']) || !$Viewer->permitted('site_advanced_top10')) {
 }
 $vote->setTopLimit($limit);
 
-$bookmark     = new Gazelle\User\Bookmark($Viewer);
+$bookmark     = new User\Bookmark($Viewer);
 $snatcher     = $Viewer->snatch();
-$imgProxy     = new Gazelle\Util\ImageProxy($Viewer);
-$reportMan    = new Gazelle\Manager\Report(new Gazelle\Manager\User());
-$tgMan        = (new Gazelle\Manager\TGroup())->setViewer($Viewer);
-$torMan       = (new Gazelle\Manager\Torrent())->setViewer($Viewer);
-$urlStem      = (new Gazelle\User\Stylesheet($Viewer))->imagePath();
+$imgProxy     = new Util\ImageProxy($Viewer);
+$reportMan    = new Manager\Report(new Manager\User());
+$tgMan        = (new Manager\TGroup())->setViewer($Viewer);
+$torMan       = (new Manager\Torrent())->setViewer($Viewer);
+$urlStem      = (new User\Stylesheet($Viewer))->imagePath();
 $topVotes     = $vote->topVotes();
 $number       = 0;
 
-View::show_header(TOP_TEN_HEADING . " – Voted Groups", ['js' => 'browse,voting']);
+\View::show_header(TOP_TEN_HEADING . " – Voted Groups", ['js' => 'browse,voting']);
 ?>
 <div class="thin">
     <div class="header">
@@ -244,4 +248,4 @@ echo ' [' . $tgroup->year() . ']'; } ?></strong>
 </table>
 </div>
 <?php
-View::show_footer();
+\View::show_footer();

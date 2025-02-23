@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 require_once match ($_REQUEST['action'] ?? '') {
     'deadthread'   => 'dead_thread.php',
     'deleteblog'   => 'delete_blog.php',

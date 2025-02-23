@@ -8,10 +8,12 @@
 
 declare(strict_types=1);
 
+namespace Gazelle;
+
 use Gazelle\Enum\UserTokenType;
 use Gazelle\User\Vote;
 
-$userMan = new Gazelle\Manager\User();
+$userMan = new Manager\User();
 $user = $userMan->findById((int)$_GET['id']);
 if (is_null($user)) {
     header("Location: log.php?search=User+" . (int)$_GET['id']);
@@ -21,16 +23,16 @@ if (is_null($user)) {
 $userId      = $user->id();
 $username    = $user->username();
 $Class       = $user->primaryClass();
-$donor       = new Gazelle\User\Donor($user);
-$userBonus   = new Gazelle\User\Bonus($user);
-$viewerBonus = new Gazelle\User\Bonus($Viewer);
-$history     = new Gazelle\User\History($user);
-$limiter     = new Gazelle\User\UserclassRateLimit($user);
-$donorMan    = new Gazelle\Manager\Donation();
-$ipv4        = new Gazelle\Manager\IPv4();
-$tgMan       = (new Gazelle\Manager\TGroup())->setViewer($Viewer);
+$donor       = new User\Donor($user);
+$userBonus   = new User\Bonus($user);
+$viewerBonus = new User\Bonus($Viewer);
+$history     = new User\History($user);
+$limiter     = new User\UserclassRateLimit($user);
+$donorMan    = new Manager\Donation();
+$ipv4        = new Manager\IPv4();
+$tgMan       = (new Manager\TGroup())->setViewer($Viewer);
 $resetToken  = $Viewer->permitted('users_mod')
-    ? (new Gazelle\Manager\UserToken())->findByUser($user, UserTokenType::password)
+    ? (new Manager\UserToken())->findByUser($user, UserTokenType::password)
     : false;
 
 if (!empty($_POST)) {
@@ -76,7 +78,7 @@ function check_paranoia_here(?string $Setting): int|false {
     }
 }
 
-View::show_header($username, [
+\View::show_header($username, [
     'js' => 'vendor/jquery.imagesloaded,vendor/jquery.wookmark,bbcode,comments,lastfm,requests,user'
         . ($Viewer->isStaff() ? ',info_paster' : '')
         . ($Viewer->permitted('users_view_ips') ? ',resolve-ip' : '')
@@ -91,7 +93,7 @@ echo $Twig->render('user/header.twig', [
         'other'  => $FL_OTHER_tokens ?? null,
         'latest' => $viewerBonus->otherLatest($user),
     ],
-    'friend'       => new Gazelle\User\Friend($Viewer),
+    'friend'       => new User\Friend($Viewer),
     'preview_user' => $previewer,
     'user'         => $user,
     'userMan'      => $userMan,
@@ -100,16 +102,16 @@ echo $Twig->render('user/header.twig', [
 
 echo $Twig->render('user/sidebar.twig', [
     'ancestry'      => $userMan->ancestry($user),
-    'applicant'     => new Gazelle\Manager\Applicant(),
+    'applicant'     => new Manager\Applicant(),
     'invite_source' => $Viewer->permitted('admin_manage_invite_source')
-        ? (new Gazelle\Manager\InviteSource())->findSourceNameByUser($user) : null,
+        ? (new Manager\InviteSource())->findSourceNameByUser($user) : null,
     'next_class'    => $user->nextClass($userMan),
     'user'          => $user,
     'viewer'        => $Viewer,
 ]);
 
 // Last.fm statistics and comparability
-$lastfmInfo = (new Gazelle\Util\LastFM())->userInfo($user);
+$lastfmInfo = (new Util\LastFM())->userInfo($user);
 if ($lastfmInfo) {
     echo $Twig->render('user/lastfm.twig', [
         'can_reload'  => ($OwnProfile && $Cache->get_value("lastfm_clear_cache_$userId") === false) || $Viewer->permitted('users_mod'),
@@ -121,8 +123,8 @@ if ($lastfmInfo) {
 $vote             = new Vote($user);
 $stats            = $user->stats();
 $Uploads          = check_paranoia_here('uploads+') ? $stats->uploadTotal() : 0;
-$rank = new Gazelle\UserRank(
-    new Gazelle\UserRank\Configuration(RANKING_WEIGHT),
+$rank = new UserRank(
+    new UserRank\Configuration(RANKING_WEIGHT),
     [
         'uploaded'   => $user->uploadedSize(),
         'downloaded' => $user->downloadedSize(),
@@ -276,7 +278,7 @@ if ($Viewer->permitted('users_mod') && $user->onRatioWatch()) {
                 <span style="float: right;"><a href="#" onclick="$('#profilediv').gtoggle(); this.innerHTML = (this.innerHTML == 'Hide' ? 'Show' : 'Hide'); return false;" class="brackets">Hide</a></span>&nbsp;
             </div>
             <div class="pad profileinfo" id="profilediv">
-                <?= $user->profileInfo() ? Text::full_format($user->profileInfo()) : 'This profile is currently empty.' ?>
+                <?= $user->profileInfo() ? \Text::full_format($user->profileInfo()) : 'This profile is currently empty.' ?>
             </div>
         </div>
 <?php
@@ -289,7 +291,7 @@ foreach (range(1, 4) as $level) {
             <?= html_escape($donor->profileTitle($level) ?? "Extra Info $level") ?>
             <span style="float: right;"><a href="#" onclick="$('#profilediv_<?= $level ?>').gtoggle(); this.innerHTML = (this.innerHTML == 'Hide' ? 'Show' : 'Hide'); return false;" class="brackets">Hide</a></span>
         </div>
-        <div class="pad profileinfo" id="profilediv_<?= $level ?>"><?= Text::full_format($profileInfo) ?></div>
+        <div class="pad profileinfo" id="profilediv_<?= $level ?>"><?= \Text::full_format($profileInfo) ?></div>
     </div>
 <?php
     }
@@ -324,7 +326,7 @@ if ($OwnProfile || !$user->hasAttr('hide-vote-recent') || $Viewer->permitted('vi
 }
 
 echo $Twig->render('user/collage-list.twig', [
-    'list'    => (new Gazelle\Manager\Collage())->findPersonalByUser($user),
+    'list'    => (new Manager\Collage())->findPersonalByUser($user),
     'manager' => $tgMan,
 ]);
 
@@ -332,14 +334,14 @@ echo $Twig->render('user/collage-list.twig', [
 if ($Viewer->permitted('users_linked_users')) {
     echo $Twig->render('user/linked.twig', [
         'hash'      => signature($comments ?? '', USER_EDIT_SALT),
-        'user_link' => (new Gazelle\User\UserLink($user))->info(),
+        'user_link' => (new User\UserLink($user))->info(),
         'user'      => $user,
         'viewer'    => $Viewer,
     ]);
 }
 
 if ($Viewer->permitted('users_view_invites')) {
-    $tree = new Gazelle\User\InviteTree($user);
+    $tree = new User\InviteTree($user);
     if ($tree->hasInvitees()) {
 ?>
         <div class="box" id="invitetree_box">
@@ -362,19 +364,19 @@ if ($Viewer->permitted('users_give_donor')) {
 if (!$Viewer->disableRequests() && $user->propertyVisible($previewer, 'requestsvoted_list')) {
     echo $Twig->render('request/user-unfilled.twig', [
         'bounty' => $Viewer->ordinal()->value('request-bounty-vote'),
-        'list'   => (new Gazelle\Manager\Request())->findUnfilledByUser($user, 100),
+        'list'   => (new Manager\Request())->findUnfilledByUser($user, 100),
         'viewer' => $Viewer,
     ]);
 }
 
 if ($Viewer->permitted('users_mod') || $Viewer->isStaffPMReader()) {
     echo $Twig->render('admin/staffpm-list.twig', [
-        'list' => (new Gazelle\Staff($Viewer))->userStaffPmList($user),
+        'list' => (new Staff($Viewer))->userStaffPmList($user),
     ]);
 }
 
 if ($Viewer->permitted('admin_reports')) {
-    $reports = (new Gazelle\Manager\Report($userMan))->findByReportedUser($user);
+    $reports = (new Manager\Report($userMan))->findByReportedUser($user);
     if ($reports) {
         echo $Twig->render('admin/user-reports-list.twig', [
             'list' => $reports
@@ -390,7 +392,7 @@ if ($Viewer->permitted('users_warn')) {
 <div class="box">
     <div class="head">Forum warnings</div>
     <div class="pad">
-        <div id="forumwarningslinks" class="AdminComment" style="width: 98%;"><?=Text::full_format($ForumWarnings)?></div>
+        <div id="forumwarningslinks" class="AdminComment" style="width: 98%;"><?=\Text::full_format($ForumWarnings)?></div>
     </div>
 </div>
 <?php
@@ -399,8 +401,8 @@ if ($Viewer->permitted('users_warn')) {
 
 if ($Viewer->permitted('users_auto_reports')) {
     $raTypeMan = new \Gazelle\Manager\ReportAutoType();
-    $raSearch = new Gazelle\Search\ReportAuto(new \Gazelle\Manager\ReportAuto($raTypeMan), $raTypeMan);
-    $openReports = $raSearch->setUser($user)->setState(\Gazelle\Enum\ReportAutoState::open)->userTotalList($userMan);
+    $raSearch = new Search\ReportAuto(new \Gazelle\Manager\ReportAuto($raTypeMan), $raTypeMan);
+    $openReports = $raSearch->setUser($user)->setState(Enum\ReportAutoState::open)->userTotalList($userMan);
     if ($openReports && $openReports[0][1]) { ?>
 <div class="box">
     <div class="head">
@@ -412,13 +414,13 @@ if ($Viewer->permitted('users_auto_reports')) {
 }
 
 echo $Twig->render('user/main-column.twig', [
-    'asn'           => new Gazelle\Search\ASN(),
+    'asn'           => new Search\ASN(),
     'class_list'    => $userMan->classLevelList(),
     'donor'         => $donor,
-    'forum_man'     => new Gazelle\Manager\Forum(),
+    'forum_man'     => new Manager\Forum(),
     'history'       => $history,
-    'invite_source' => (new Gazelle\Manager\InviteSource())->inviterConfiguration($user),
-    'is_traced'     => $Viewer->permitted('admin_tracker') && (new Gazelle\Tracker())->isTraced($user),
+    'invite_source' => (new Manager\InviteSource())->inviterConfiguration($user),
+    'is_traced'     => $Viewer->permitted('admin_tracker') && (new Tracker())->isTraced($user),
     'prl'           => $limiter,
     'user'          => $user,
     'viewer'        => $Viewer,

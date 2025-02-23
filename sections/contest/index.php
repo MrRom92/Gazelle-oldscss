@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$contestMan = new Gazelle\Manager\Contest();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$contestMan = new Manager\Contest();
 
 switch ($_GET['action'] ?? '') {
     case 'leaderboard':

@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Util\Irc;
 
 /* Creating a new thread
@@ -21,7 +25,7 @@ authorize();
 if (!isset($_POST['forum'])) {
     error('Forum ID not specified');
 }
-$forum = (new Gazelle\Manager\Forum())->findById((int)$_POST['forum']);
+$forum = (new Manager\Forum())->findById((int)$_POST['forum']);
 if (is_null($forum)) {
     error(404);
 }
@@ -60,10 +64,10 @@ if (empty($_POST['question']) || empty($_POST['answers']) || !$Viewer->permitted
     }
 }
 
-$thread = (new Gazelle\Manager\ForumThread())->create($forum, $Viewer, $title, $body);
+$thread = (new Manager\ForumThread())->create($forum, $Viewer, $title, $body);
 $threadId = $thread->id();
 if ($needPoll) {
-    (new Gazelle\Manager\ForumPoll())->create($threadId, $question, $answerList);
+    (new Manager\ForumPoll())->create($threadId, $question, $answerList);
     if ($forum->id() == STAFF_FORUM_ID) {
         Irc::sendMessage(
             IRC_CHAN_STAFF,
@@ -73,13 +77,13 @@ if ($needPoll) {
 }
 
 if (isset($_POST['subscribe'])) {
-    (new Gazelle\User\Subscription($Viewer))->subscribe($threadId);
+    (new User\Subscription($Viewer))->subscribe($threadId);
 }
-$userMan = new Gazelle\Manager\User();
+$userMan = new Manager\User();
 foreach ($forum->autoSubscribeUserIdList() as $userId) {
     $user = $userMan->findById($userId);
     if ($user) {
-        (new Gazelle\User\Subscription($user))->subscribe($threadId);
+        (new User\Subscription($user))->subscribe($threadId);
     }
 }
 

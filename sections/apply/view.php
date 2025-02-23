@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$appMan = new Gazelle\Manager\Applicant();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$appMan = new Manager\Applicant();
 if (isset($_REQUEST['id'])) {
     $app = $appMan->findById((int)$_GET['id']);
     if (is_null($app)) {
@@ -46,6 +50,6 @@ echo $Twig->render('applicant/view.twig', [
         $Viewer->permitted('users_mod') => $appMan->openList($Viewer),
         default                         => $appMan->userList($Viewer),
     },
-    'note'     => new Gazelle\Util\Textarea('note_reply', ''),
+    'note'     => new Util\Textarea('note_reply', ''),
     'viewer'   => $Viewer,
 ]);

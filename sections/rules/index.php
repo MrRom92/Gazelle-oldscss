@@ -2,13 +2,17 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 switch ($_GET['p'] ?? '') {
     case 'chat':
         echo $Twig->render('rules/chat.twig');
         break;
     case 'clients':
         echo $Twig->render('rules/client-whitelist.twig', [
-            'list' => (new Gazelle\Manager\ClientWhitelist())->list(),
+            'list' => (new Manager\ClientWhitelist())->list(),
         ]);
         break;
     case 'collages':
@@ -37,10 +41,10 @@ switch ($_GET['p'] ?? '') {
         echo $Twig->render('rules/tag-page.twig');
         break;
     case 'upload':
-        Text::$TOC = true;
+        \Text::$TOC = true;
         echo $Twig->render('rules/upload.twig', [
-            'body' => Text::full_format((new Gazelle\Wiki(RULES_WIKI_PAGE_ID))->body(), false, 3, true),
-            'toc'  => Text::parse_toc(0, true),
+            'body' => \Text::full_format((new Wiki(RULES_WIKI_PAGE_ID))->body(), false, 3, true),
+            'toc'  => \Text::parse_toc(0, true),
         ]);
         break;
     default:

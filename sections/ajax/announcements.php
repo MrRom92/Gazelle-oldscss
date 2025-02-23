@@ -1,7 +1,11 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
-$newsMan = new Gazelle\Manager\News();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$newsMan = new Manager\News();
 $newsReader = new \Gazelle\WitnessTable\UserReadNews();
 if ($newsMan->latestId() < $newsReader->lastRead($Viewer)) {
     $newsReader->witness($Viewer);
@@ -18,12 +22,12 @@ foreach ($headlines as $item) {
         'newsId'   => $item['id'],
         'title'    => $item['title'],
         'bbBody'   => $item['body'],
-        'body'     => Text::full_format($item['body']),
+        'body'     => \Text::full_format($item['body']),
         'newsTime' => $item['created'],
     ];
 }
 
-$headlines = (new Gazelle\Manager\Blog())->headlines();
+$headlines = (new Manager\Blog())->headlines();
 $blog = [];
 foreach ($headlines as $item) {
     $blog[] = [
@@ -31,7 +35,7 @@ foreach ($headlines as $item) {
         'author'   => $item->userId(),
         'title'    => $item->title(),
         'bbBody'   => $item->body(),
-        'body'     => Text::full_format($item->body()),
+        'body'     => \Text::full_format($item->body()),
         'blogTime' => $item->created(),
         'threadId' => $item->threadId(),
     ];

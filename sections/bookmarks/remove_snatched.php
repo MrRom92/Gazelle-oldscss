@@ -1,8 +1,12 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
-(new Gazelle\User\Bookmark($Viewer))->removeSnatched();
+(new User\Bookmark($Viewer))->removeSnatched();
 
 header('Location: bookmarks.php');

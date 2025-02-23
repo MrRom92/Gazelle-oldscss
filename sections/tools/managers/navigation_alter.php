@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Util\Arrays;
 
 if (!$Viewer->permitted('admin_manage_navigation')) {
@@ -9,7 +13,7 @@ if (!$Viewer->permitted('admin_manage_navigation')) {
 
 authorize();
 
-$manager = new Gazelle\Manager\UserNavigation();
+$manager = new Manager\UserNavigation();
 
 if ($_POST['submit'] == 'Delete') {
     $id = (int)($_POST['id'] ?? 0);
@@ -19,7 +23,7 @@ if ($_POST['submit'] == 'Delete') {
     }
     $control->remove();
 } else {
-    $validator = new Gazelle\Util\Validator();
+    $validator = new Util\Validator();
     $validator->setFields([
         ['tag',       true, 'string', 'The key must be set, and has a max length of 20 characters', ['maxlength' => 20]],
         ['title',     true, 'string', 'The title must be set, and has a max length of 50 characters', ['maxlength' => 50]],

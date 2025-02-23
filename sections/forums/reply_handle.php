@@ -1,12 +1,16 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if ($Viewer->disablePosting()) {
     error('Your posting privileges have been removed.');
 }
 authorize();
 
-$thread = (new Gazelle\Manager\ForumThread())->findById((int)($_POST['threadid'] ?? 0));
+$thread = (new Manager\ForumThread())->findById((int)($_POST['threadid'] ?? 0));
 if (is_null($thread)) {
     error(404);
 }
@@ -25,7 +29,7 @@ if ($body === '') {
 }
 
 if ($thread->lastAuthorId() == $Viewer->id() && isset($_POST['merge'])) {
-    $post = (new Gazelle\Manager\ForumPost())->findById($thread->lastPostId());
+    $post = (new Manager\ForumPost())->findById($thread->lastPostId());
     if (is_null($post)) {
         error("cannot find post #{$thread->lastPostId()} in thread {$thread->id()}");
     }
@@ -34,13 +38,13 @@ if ($thread->lastAuthorId() == $Viewer->id() && isset($_POST['merge'])) {
     $post = $thread->addPost($Viewer, $body);
 }
 
-(new Gazelle\User\Notification\Quote($Viewer))->create(
-    new Gazelle\Manager\User(), $body, $post->id(), 'forums', $threadId
+(new User\Notification\Quote($Viewer))->create(
+    new Manager\User(), $body, $post->id(), 'forums', $threadId
 );
-$subscription = new Gazelle\User\Subscription($Viewer);
+$subscription = new User\Subscription($Viewer);
 if (isset($_POST['subscribe']) && !$subscription->isSubscribed($threadId)) {
     $subscription->subscribe($threadId);
 }
-(new Gazelle\Manager\Subscription())->flushPage('forums', $threadId);
+(new Manager\Subscription())->flushPage('forums', $threadId);
 
 header("Location: {$post->location()}");

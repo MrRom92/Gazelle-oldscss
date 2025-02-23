@@ -2,8 +2,12 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$userMan = new Gazelle\Manager\User();
-$search = (new Gazelle\Search\Collage())->setLookup($_GET['type'] ?? 'name');
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$userMan = new Manager\User();
+$search = (new Search\Collage())->setLookup($_GET['type'] ?? 'name');
 
 if (!empty($_GET['bookmarks'])) {
     $search->setBookmarkView($Viewer);
@@ -19,7 +23,7 @@ if (($_GET['action'] ?? '') === 'mine') {
     }
 
     if (!empty($_GET['tags'])) {
-        $tagMan = new Gazelle\Manager\Tag();
+        $tagMan = new Manager\Tag();
         $list = explode(',', $_GET['tags']);
         $taglist = [];
         foreach ($list as $name) {
@@ -52,14 +56,14 @@ if (($_GET['action'] ?? '') === 'mine') {
     }
 }
 
-$paginator = new Gazelle\Util\Paginator(COLLAGES_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(COLLAGES_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($search->total());
 
 echo $Twig->render('collage/browse.twig', [
     'input'     => $_GET,
     'page'      => $search->page($paginator->limit(), $paginator->offset()),
     'paginator' => $paginator,
-    'personal'  => (new Gazelle\Manager\Collage())->findPersonalByUser($Viewer),
+    'personal'  => (new Manager\Collage())->findPersonalByUser($Viewer),
     'search'    => $search,
     'viewer'    => $Viewer,
 ]);

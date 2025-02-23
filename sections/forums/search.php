@@ -3,9 +3,13 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Util\Time;
 
-$search = new Gazelle\Search\Forum($Viewer);
+$search = new Search\Forum($Viewer);
 $search->setSearchType($_GET['type'] ?? 'title')
     ->setSearchText(trim($_GET['search'] ?? ''));
 
@@ -66,10 +70,10 @@ if (isset($_GET['forums']) && is_array($_GET['forums'])) {
     $search->setForumList($_GET['forums']);
 }
 
-$paginator = new Gazelle\Util\Paginator(POSTS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(POSTS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($search->totalHits());
 
-View::show_header('Forums › Search', ['js' => 'bbcode,forum_search']);
+\View::show_header('Forums › Search', ['js' => 'bbcode,forum_search']);
 ?>
 <div class="thin">
     <div class="header">
@@ -131,7 +135,7 @@ echo "class='hidden'"; } ?>>
     $LastCategoryID = -1;
     $Columns = 0;
     $i = 0;
-    foreach ((new Gazelle\Manager\Forum())->forumList() as $forum) {
+    foreach ((new Manager\Forum())->forumList() as $forum) {
         if (!$Viewer->readAccess($forum)) {
             continue;
         }
@@ -232,7 +236,7 @@ echo "&amp;postid=$PostID#post$PostID"; } ?>"></a></span>
         </tr>
 <?php    if ($search->isBodySearch()) { ?>
         <tr class="row<?=$Row?> hidden" id="post_<?=$PostID?>_text">
-            <td colspan="4"><?=Text::full_format($Body)?></td>
+            <td colspan="4"><?=\Text::full_format($Body)?></td>
         </tr>
 <?php    }
 }
@@ -242,4 +246,4 @@ echo "&amp;postid=$PostID#post$PostID"; } ?>"></a></span>
     <?= $paginator->linkbox() ?>
 </div>
 <?php
-View::show_footer();
+\View::show_footer();

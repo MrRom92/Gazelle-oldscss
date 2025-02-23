@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 /*
  * This page handles the backend from when a user submits a report.
  * It checks for (in order):
@@ -15,18 +19,18 @@
 
 authorize();
 
-$torMan = new Gazelle\Manager\Torrent();
+$torMan = new Manager\Torrent();
 $torrent = $torMan->findById((int)($_POST['torrentid'] ?? 0));
 if (is_null($torrent)) {
     error(404);
 }
 
-$reportMan = new Gazelle\Manager\Torrent\Report($torMan);
+$reportMan = new Manager\Torrent\Report($torMan);
 if ($reportMan->existsRecent($torrent->id(), $Viewer->id())) {
     error("Slow down, you're moving too fast!");
 }
 
-$reportType = (new Gazelle\Manager\Torrent\ReportType())->findByType($_POST['type'] ?? '');
+$reportType = (new Manager\Torrent\ReportType())->findByType($_POST['type'] ?? '');
 if (is_null($reportType)) {
     error("bad report type");
 }
@@ -113,7 +117,7 @@ $report = $reportMan->create(
     track:       $trackList,
     image:       $Images,
     link:        $Links,
-    irc:         new Gazelle\Util\Irc(),
+    irc:         new Util\Irc(),
 );
 
 if (!$reportType->isInvisible() && $torrent->uploaderId() != $Viewer->id()) {

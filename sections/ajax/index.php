@@ -3,6 +3,10 @@
 /** @phpstan-var ?\Gazelle\User $Viewer */
 /** @phpstan-var \Gazelle\Cache $Cache */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 define('AJAX', !isset($_POST['auth']));
 
 /* 'x' requests every 'y' seconds: [5,10] = 5 requests every 10 seconds */
@@ -81,7 +85,7 @@ if (!$Viewer->permitted('site_unlimit_ajax') && isset($LimitedPages[$Action])) {
     } else {
         $Cache->increment_value('ajax_requests_' . $UserID);
         if ($UserRequests > $rate) {
-            Gazelle\Util\Irc::sendMessage(IRC_CHAN_STATUS, "ajax rate limit hit by {$Viewer->username()} on $Action");
+            Util\Irc::sendMessage(IRC_CHAN_STATUS, "ajax rate limit hit by {$Viewer->username()} on $Action");
             json_error("Rate limit exceeded");
         }
     }
@@ -196,7 +200,7 @@ switch ($Action) {
         include_once 'wiki.php';
         break;
     case 'get_friends':
-        echo json_encode((new Gazelle\User\Friend($Viewer))->userList());
+        echo json_encode((new User\Friend($Viewer))->userList());
         break;
     case 'news_ajax':
         include_once 'news_ajax.php';

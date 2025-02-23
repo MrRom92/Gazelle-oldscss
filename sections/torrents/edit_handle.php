@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Gazelle\Debug $Debug */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Enum\LeechType;
 use Gazelle\Enum\LeechReason;
 use Gazelle\Enum\TorrentFlag;
@@ -9,7 +13,7 @@ use OrpheusNET\Logchecker\Logchecker;
 
 authorize();
 
-$torMan = new Gazelle\Manager\Torrent();
+$torMan = new Manager\Torrent();
 $torrent = $torMan->findById((int)($_POST['torrentid'] ?? 0));
 if (is_null($torrent)) {
     error(404);
@@ -77,7 +81,7 @@ if (!$Viewer->permitted('edit_unknowns')) {
     }
 }
 
-$Validate = new Gazelle\Util\Validator();
+$Validate = new Util\Validator();
 $Validate->setField('type', true, 'number', 'Not a valid category.', ['range' => [1, count(CATEGORY)]]);
 switch (CATEGORY[(int)($_POST['type'] ?? 0) - 1]) {
     case 'Music':
@@ -145,7 +149,7 @@ if (!$Err && isset($Properties['Image'])) { /** @phpstan-ignore-line */
         $Err = display_str($Properties['Image']) . " does not look like a valid image url";
     }
 
-    $banned = (new Gazelle\Util\ImageProxy($Viewer))->badHost($Properties['Image']);
+    $banned = (new Util\ImageProxy($Viewer))->badHost($Properties['Image']);
     if ($banned) {
         $Err = "Please rehost images from $banned elsewhere.";
     }
@@ -198,13 +202,13 @@ foreach ($propertyMap as $field => $method) {
 //******************************************************************************//
 //--------------- Start database stuff -----------------------------------------//
 
-$db = Gazelle\DB::DB();
+$db = DB::DB();
 $db->begin_transaction(); // It's all or nothing
 
 if (isset($_FILES['logfiles'])) {
-    $logfileSummary = new Gazelle\LogfileSummary($_FILES['logfiles']);
+    $logfileSummary = new LogfileSummary($_FILES['logfiles']);
     if ($logfileSummary->total()) {
-        $torrentLogManager = new Gazelle\Manager\TorrentLog(new Gazelle\File\RipLog(), new Gazelle\File\RipLogHTML());
+        $torrentLogManager = new Manager\TorrentLog(new File\RipLog(), new File\RipLogHTML());
         $checkerVersion = Logchecker::getLogcheckerVersion();
         foreach ($logfileSummary->all() as $logfile) {
             $torrentLogManager->create($torrent, $logfile, $checkerVersion);
@@ -260,7 +264,7 @@ if ($Viewer->permitted('torrents_freeleech')) {
     $leechType = $torMan->lookupLeechType($_POST['leech_type'] ?? LeechType::Normal->value);
     if ($leechType != $torrent->leechType() || $reason != $torrent->leechReason()) {
         $torMan->setListFreeleech(
-            tracker:   new Gazelle\Tracker(),
+            tracker:   new Tracker(),
             idList:    [$torrent->id()],
             leechType: $leechType,
             reason:    $reason,
@@ -277,7 +281,8 @@ $db->commit();
 
 $changeLog = shortenString(implode(', ', $change), 300);
 $torrent->logger()->torrent($torrent, $Viewer, $changeLog)
-    ->general("Torrent $TorrentID ({$torrent->group()->name()}) in group {$torrent->groupId()} was edited by "
-        . $Viewer->username() . " ($changeLog)");
+    ->general(
+        "Torrent $TorrentID ({$torrent->group()->name()}) in group {$torrent->groupId()} was edited by {$Viewer->username()} ($changeLog)"
+    );
 
 header("Location: " . $torrent->location());

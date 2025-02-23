@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 if (!$Viewer->permitted('torrents_edit')) {
     error(403);
@@ -10,12 +14,12 @@ $role = (int)$_GET['importance'];
 if (!$role) {
     error('No role specified to delete');
 }
-$tgMan = new Gazelle\Manager\TGroup();
+$tgMan = new Manager\TGroup();
 $tgroup = $tgMan->findById((int)$_GET['groupid']);
 if (is_null($tgroup)) {
     error(404);
 }
-$artist = (new Gazelle\Manager\Artist())->findByAliasId((int)$_GET['aliasid']);
+$artist = (new Manager\Artist())->findByAliasId((int)$_GET['aliasid']);
 if (is_null($artist)) {
     error(404);
 }

@@ -2,10 +2,14 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!isset($_GET['userid'])) {
     $user = $Viewer;
 } else {
-    $user = (new Gazelle\Manager\User())->findById((int)$_GET['userid']);
+    $user = (new Manager\User())->findById((int)$_GET['userid']);
     if (is_null($user)) {
         error(404);
     }
@@ -14,7 +18,7 @@ if (!isset($_GET['userid'])) {
     }
 }
 
-$torMan = new Gazelle\Manager\Torrent();
+$torMan = new Manager\Torrent();
 $torMan->setViewer($Viewer);
 
 if ($_GET['expire'] ?? 0) {
@@ -29,7 +33,7 @@ if ($_GET['expire'] ?? 0) {
     header("Location: userhistory.php?action=token_history&userid=" . $user->id());
 }
 
-$paginator = new Gazelle\Util\Paginator(25, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(25, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($user->stats()->flTokenTotal());
 
 echo $Twig->render('user/history-freeleech.twig', [

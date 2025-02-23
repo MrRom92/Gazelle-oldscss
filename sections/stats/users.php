@@ -1,7 +1,11 @@
 <?php
 /** @phpstan-var \Twig\Environment $Twig */
 
-$statsUser = new Gazelle\Stats\Users();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$statsUser = new Stats\Users();
 $flow      = $statsUser->flow();
 
 echo $Twig->render('stats/user.twig', [

@@ -1,9 +1,13 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
-$pm = (new Gazelle\Manager\PM($Viewer))->findById((int)$_POST['convid']);
+$pm = (new Manager\PM($Viewer))->findById((int)$_POST['convid']);
 if (is_null($pm)) {
     error(404);
 }

@@ -1,7 +1,11 @@
 <?php
 /** @phpstan-var \Twig\Environment $Twig */
 
-$validator = new Gazelle\Util\Validator();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$validator = new Util\Validator();
 $validator->setField('email', true, 'email', 'You entered an invalid email address.');
 
 $error = false;
@@ -12,9 +16,9 @@ if (isset($_REQUEST['expired'])) {
     $error = $validator->validate($_REQUEST) ? false : $validator->errorMessage();
     if (!$error) {
         $sent = true;
-        $user = (new Gazelle\Manager\User())->findByEmail(trim($_REQUEST['email']));
+        $user = (new Manager\User())->findByEmail(trim($_REQUEST['email']));
         if ($user?->isEnabled()) {
-            (new Gazelle\Manager\UserToken())->createPasswordResetToken($user);
+            (new Manager\UserToken())->createPasswordResetToken($user);
         }
     }
 }

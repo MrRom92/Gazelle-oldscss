@@ -1,21 +1,25 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use OrpheusNET\Logchecker\Logchecker;
 
 if (!$Viewer->permitted('users_mod')) {
     error(403);
 }
 
-$torrent = (new Gazelle\Manager\Torrent())->findById((int)$_GET['torrentid']);
+$torrent = (new Manager\Torrent())->findById((int)$_GET['torrentid']);
 $logId = (int)$_GET['logid'];
 if (is_null($torrent) || !$logId) {
     error(404);
 }
 
-$logpath = (new Gazelle\File\RipLog())->path([$torrent->id(), $logId]);
-$logfile = new Gazelle\Logfile($logpath, basename($logpath));
-(new Gazelle\File\RipLogHTML())->put($logfile->text(), [$torrent->id(), $logId]);
+$logpath = (new File\RipLog())->path([$torrent->id(), $logId]);
+$logfile = new Logfile($logpath, basename($logpath));
+(new File\RipLogHTML())->put($logfile->text(), [$torrent->id(), $logId]);
 
 $torrent->rescoreLog($logId, $logfile, Logchecker::getLogcheckerVersion());
 

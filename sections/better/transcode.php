@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 /**
  * New transcode module:
  * $_GET['filter'] determines which torrents should be shown and can be uploaded (default), snatched or seeding
@@ -18,7 +22,7 @@ if (!isset($_GET['userid'])) {
     if (!$Viewer->permitted('users_override_paranoia')) {
         error(403);
     }
-    $user = (new Gazelle\Manager\User())->findById((int)$_GET['userid']);
+    $user = (new Manager\User())->findById((int)$_GET['userid']);
     if (is_null($user)) {
         error(404);
     }
@@ -27,7 +31,7 @@ if (!isset($_GET['userid'])) {
 $filter = $_GET['filter'] ?? 'uploaded';
 $search = $_GET['search'] ?? null;
 $target = $_GET['target'] ?? null;
-$better = new Gazelle\Search\Transcode($user, new Gazelle\Manager\Torrent());
+$better = new Search\Transcode($user, new Manager\Torrent());
 
 switch ($filter) {
     case 'seeding':

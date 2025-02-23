@@ -1,9 +1,13 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
-$tgroup = (new Gazelle\Manager\TGroup())->findById((int)$_GET['groupid']);
-$tag    = (new Gazelle\Manager\Tag())->findById((int)$_GET['tagid']);
+$tgroup = (new Manager\TGroup())->findById((int)$_GET['groupid']);
+$tag    = (new Manager\Tag())->findById((int)$_GET['tagid']);
 $way    = $_GET['way'];
 
 if (is_null($tgroup) || is_null($tag) || !in_array($way, ['up', 'down'])) {

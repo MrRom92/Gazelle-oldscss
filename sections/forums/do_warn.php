@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 // this file is used by sections/comments/take_warn.php and sections/forums/take_warn.php
 // @phpstan-ignore-next-line return type has no value type specified in iterable type array
 function handleWarningRequest(\Gazelle\Manager\ForumPost|\Gazelle\Manager\Comment $manager): array {

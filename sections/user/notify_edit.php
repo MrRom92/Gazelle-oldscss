@@ -2,13 +2,17 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_torrents_notify')) {
     error(403);
 }
 
 echo $Twig->render('user/edit-notification-filter.twig', [
     'list' => [
-        ...(new Gazelle\User\Notification($Viewer))->filterList(new Gazelle\Manager\User()),
+        ...(new User\Notification($Viewer))->filterList(new Manager\User()),
         [
             'ID'            => false,
             'Label'         => '',
@@ -28,6 +32,6 @@ echo $Twig->render('user/edit-notification-filter.twig', [
             'Users'         => '',
         ]
     ],
-    'release_type' => (new Gazelle\ReleaseType())->list(),
+    'release_type' => (new ReleaseType())->list(),
     'viewer'       => $Viewer,
 ]);

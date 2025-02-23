@@ -1,11 +1,15 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_manage_payments')) {
     error(403);
 }
 
-$Payment = new Gazelle\Manager\Payment();
+$Payment = new Manager\Payment();
 
 if ($_POST['submit'] == 'Delete') {
     if (!is_number($_POST['id']) || $_POST['id'] == '') {
@@ -13,7 +17,7 @@ if ($_POST['submit'] == 'Delete') {
     }
     $Payment->remove($_POST['id']);
 } else {
-    $Validator = new Gazelle\Util\Validator();
+    $Validator = new Util\Validator();
     $Validator->setFields([
         ['text', true, 'string', 'The payment text must be set, and has a max length of 100 characters', ['maxlength' => 100]],
         ['rent', true, 'number', 'Rent must be zero or positive)', ['min' => 0, 'allowperiod' => true]],
@@ -30,16 +34,16 @@ if ($_POST['submit'] == 'Delete') {
         $Payment->create(
             trim($_POST['text']),
             $_POST['expiry'],
-            $_POST['rent'],
+            (float)$_POST['rent'],
             $_POST['cc'],
             isset($_POST['active']),
         );
     } else {
         $Payment->modify(
-            $_POST['id'],
+            (int)$_POST['id'],
             trim($_POST['text']),
             $_POST['expiry'],
-            $_POST['rent'],
+            (float)$_POST['rent'],
             $_POST['cc'],
             isset($_POST['active']),
         );

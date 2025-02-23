@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('users_view_email')) {
     error(403);
 }
@@ -13,7 +17,7 @@ $direction = (int)($_POST['direction'] ?? 0);
 $limit     = 0;
 $offset    = 0;
 $search    = null;
-$paginator = new Gazelle\Util\Paginator(50, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(50, (int)($_GET['page'] ?? 1));
 
 $text = match (true) {
     isset($_POST['text'])     => trim($_POST['text']),
@@ -21,7 +25,7 @@ $text = match (true) {
     default                   => '',
 };
 if ($text) {
-    $search = (new Gazelle\Search\Email(new Gazelle\Search\ASN()))
+    $search = (new Search\Email(new Search\ASN()))
         ->create('email_search_' . getmypid())
         ->setColumn($column)
         ->setDirection($direction);
@@ -45,5 +49,5 @@ echo $Twig->render('admin/email-search.twig', [
     'live_page'    => $search?->liveList($limit, $offset),
     'history_page' => $search?->historyList($limit, $offset),
     'paginator'    => $paginator,
-    'text'         => new Gazelle\Util\Textarea('text', $text, 90, 10),
+    'text'         => new Util\Textarea('text', $text, 90, 10),
 ]);

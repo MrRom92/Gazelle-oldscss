@@ -1,13 +1,17 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('torrents_edit')) {
     error(403);
 }
 
 authorize();
 
-$artistMan = new Gazelle\Manager\Artist();
+$artistMan = new Manager\Artist();
 $artist = $artistMan->findById((int)($_POST['artistid'] ?? 0));
 if (is_null($artist) || empty($_POST['aliasid'])) {
     error(404);
@@ -16,7 +20,7 @@ if (is_null($artist) || empty($_POST['aliasid'])) {
 }
 
 $aliasId = (int)$_POST['aliasid'];
-$newName = Gazelle\Artist::sanitize($_POST['name']);
+$newName = Artist::sanitize($_POST['name']);
 if (empty($newName)) {
     error('No new name given.');
 } elseif (!isset($artist->aliasList()[$aliasId])) {
@@ -35,8 +39,8 @@ $result = $artist->renameAlias(
     $aliasId,
     $newName,
     $Viewer,
-    new Gazelle\Manager\Request(),
-    new Gazelle\Manager\TGroup(),
+    new Manager\Request(),
+    new Manager\TGroup(),
 );
 
 if (is_null($result)) {

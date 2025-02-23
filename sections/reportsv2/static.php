@@ -4,6 +4,10 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 /*
  * This page is used for viewing reports in every viewpoint except auto.
  * It doesn't AJAX grab a new report when you resolve each one, use auto
@@ -18,22 +22,22 @@ if (!$Viewer->permitted('admin_reports')) {
     error(403);
 }
 
-$torMan        = new Gazelle\Manager\Torrent();
-$reportMan     = new Gazelle\Manager\Torrent\Report($torMan);
-$reportTypeMan = new Gazelle\Manager\Torrent\ReportType();
-$requestMan    = new Gazelle\Manager\Request();
-$userMan       = new Gazelle\Manager\User();
-$search        = new Gazelle\Search\Torrent\Report($_GET['view'] ?? '', $_GET['id'] ?? '', $reportTypeMan, $userMan);
-$imgProxy      = new Gazelle\Util\ImageProxy($Viewer);
-$ripFiler      = new Gazelle\File\RipLog();
-$htmlFiler     = new Gazelle\File\RipLogHTML();
+$torMan        = new Manager\Torrent();
+$reportMan     = new Manager\Torrent\Report($torMan);
+$reportTypeMan = new Manager\Torrent\ReportType();
+$requestMan    = new Manager\Request();
+$userMan       = new Manager\User();
+$search        = new Search\Torrent\Report($_GET['view'] ?? '', $_GET['id'] ?? '', $reportTypeMan, $userMan);
+$imgProxy      = new Util\ImageProxy($Viewer);
+$ripFiler      = new File\RipLog();
+$htmlFiler     = new File\RipLogHTML();
 
-$paginator = new Gazelle\Util\Paginator(REPORTS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(REPORTS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($search->total());
 
 $page = $search->page($reportMan, $paginator->limit(), $paginator->offset());
 
-View::show_header('Torrent Reports', ['js' => 'reportsv2,bbcode,browse,torrent']);
+\View::show_header('Torrent Reports', ['js' => 'reportsv2,bbcode,browse,torrent']);
 ?>
 <div class="header">
     <h2><?= $search->title() ?></h2>
@@ -150,7 +154,7 @@ if ($search->canUnclaim($Viewer)) {
 <?php                   } ?>
                         </span>
 <?php                   if ($extra->description()) { ?>
-                        <br /><span class="report_other_torrent_info" title="Release description of other torrent">Release info: <?= Text::full_format($extra->description()) ?></span>
+                        <br /><span class="report_other_torrent_info" title="Release description of other torrent">Release info: <?= \Text::full_format($extra->description()) ?></span>
 <?php                   } ?>
                     </td>
                 </tr>
@@ -161,7 +165,7 @@ if ($search->canUnclaim($Viewer)) {
                         <table><tr><td>Reported</td><td>Relevant</td></tr><tr>
                             <td width="50%" style="vertical-align: top; max-width: 500px;">
 <?php
-                            $log = new Gazelle\Torrent\Log( $torrentId );
+                            $log = new Torrent\Log( $torrentId );
                             $details = $log->logDetails();
                         ?>
                                 <ul class="nobullet logdetails">
@@ -204,8 +208,8 @@ if ($search->canUnclaim($Viewer)) {
                                 </ul>
                             </td>
                             <td width="50%" style="vertical-align: top; max-width: 500px;">
-<?php
-                            $log = new Gazelle\Torrent\Log($extra->id());
+                        <?php
+                            $log = new Torrent\Log($extra->id());
                             $details = $log->logDetails();
 ?>
                                 <ul class="nobullet logdetails">
@@ -273,7 +277,7 @@ if ($search->canUnclaim($Viewer)) {
 <?php       } ?>
                 <tr>
                     <td class="label">User comment:</td>
-                    <td class="wrap_overflow"><?= Text::full_format($report->reason()) ?></td>
+                    <td class="wrap_overflow"><?= \Text::full_format($report->reason()) ?></td>
                 </tr>
 <?php       if ($report->status() == 'InProgress') { /* BEGIN MOD STUFF */ ?>
                 <tr>
@@ -392,4 +396,4 @@ if ($search->canUnclaim($Viewer)) {
 </div>
 <?php
 echo $paginator->linkbox();
-View::show_footer();
+\View::show_footer();

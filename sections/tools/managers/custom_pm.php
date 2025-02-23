@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_site_debug')) {
     error(403);
 }
@@ -15,7 +19,7 @@ if (isset($_POST['query'])) {
     $result = [];
     switch ($_POST['source']) {
         case 'my':
-            $db = Gazelle\DB::DB(readWrite: false);
+            $db = DB::DB(readWrite: false);
             try {
                 $db->prepared_query($_POST['query']);
                 $result = $db->collect(0, false);
@@ -40,7 +44,7 @@ if (isset($_POST['query'])) {
     }
 
     // we don't actually know if the query returned user ids, so check them
-    $userMan = new Gazelle\Manager\User();
+    $userMan = new Manager\User();
     foreach ($result as $userId) {
         $user = $userMan->findById($userId);
         if ($user) {
@@ -66,7 +70,7 @@ echo $Twig->render('admin/custom-pm.twig', [
     'error'     => $error,
     'delivered' => $delivered,
     'id_list'   => $delivered ? [] : $idList,
-    'message'   => new Gazelle\Util\Textarea('message', $delivered ? '' : $_POST['message'] ?? '', 100, 6),
+    'message'   => new Util\Textarea('message', $delivered ? '' : $_POST['message'] ?? '', 100, 6),
     'query'     => $delivered ? '' : $_POST['query'] ?? '',
     'source'    => $_POST['source'] ?? 'my',
     'viewer'    => $Viewer,

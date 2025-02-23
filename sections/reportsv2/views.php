@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 /*
  * This page is to outline all of the views built into reports v2.
  * It's used as the main page as it also lists the current reports by type
@@ -12,9 +16,9 @@ if (!$Viewer->permitted('admin_reports')) {
     error(403);
 }
 
-$reportMan     = new Gazelle\Manager\Torrent\Report(new Gazelle\Manager\Torrent());
-$reportTypeMan = new Gazelle\Manager\Torrent\ReportType();
-$userMan       = new Gazelle\Manager\User();
+$reportMan     = new Manager\Torrent\Report(new Manager\Torrent());
+$reportTypeMan = new Manager\Torrent\ReportType();
+$userMan       = new Manager\User();
 
 echo $Twig->render('reportsv2/summary.twig', [
     'in_progress' => $reportMan->inProgressSummary($userMan),

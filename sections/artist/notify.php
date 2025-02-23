@@ -1,12 +1,16 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_torrents_notify')) {
     error(403);
 }
 authorize();
 
-$artist = (new Gazelle\Manager\Artist())->findById((int)$_GET['artistid']);
+$artist = (new Manager\Artist())->findById((int)$_GET['artistid']);
 if (is_null($artist)) {
     error(404);
 }

@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_periodic_task_view')) {
     error(403);
 }
 
-$stats = (new Gazelle\TaskScheduler())->getRuntimeStats();
+$stats = (new TaskScheduler())->getRuntimeStats();
 echo $Twig->render('admin/scheduler/stats.twig', [
     'hourly' => [
         'duration'  => json_encode($stats['hourly'][0]['data']),

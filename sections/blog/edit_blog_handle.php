@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_manage_blog')) {
     error(403);
 }
@@ -16,16 +20,16 @@ if (empty($title)) {
     error('The title of the blog article must not be empty');
 }
 
-$blog = (new Gazelle\Manager\Blog())->findById((int)($_POST['blogid'] ?? 0));
+$blog = (new Manager\Blog())->findById((int)($_POST['blogid'] ?? 0));
 if (is_null($blog)) {
     error(404);
 }
 
-$manager = new Gazelle\Manager\ForumThread();
+$manager = new Manager\ForumThread();
 $thread = match ((int)($_POST['thread'] ?? -1)) {
     -1 => null,
      0 => $manager->create(
-        forum: new Gazelle\Forum(ANNOUNCEMENT_FORUM_ID),
+        forum: new Forum(ANNOUNCEMENT_FORUM_ID),
         user:  $Viewer,
         title: $title,
         body:  $body,
@@ -42,7 +46,7 @@ $blog->setField('Body', $body)
     ->modify();
 
 if ($thread && isset($_POST['subscribe'])) {
-    (new Gazelle\User\Subscription($Viewer))->subscribe($thread->id());
+    (new User\Subscription($Viewer))->subscribe($thread->id());
 }
 
 header('Location: blog.php');

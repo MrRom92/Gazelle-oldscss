@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$request = (new Gazelle\Manager\Request())->findById((int)($_GET['id'] ?? 0));
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$request = (new Manager\Request())->findById((int)($_GET['id'] ?? 0));
 if (is_null($request)) {
     error(404);
 }
@@ -17,10 +21,10 @@ if (isset($returnEdit)) {
     // if we are coming back from an edit, these were already initialized in take_new_edit
     /** @var string $categoryName */
     /** @var array $artistRole */
-    /** @var Gazelle\Request\Encoding $encoding */
-    /** @var Gazelle\Request\Format $format */
-    /** @var Gazelle\Request\Media $media */
-    /** @var Gazelle\Request\LogCue $logCue */
+    /** @var Request\Encoding $encoding */
+    /** @var Request\Format $format */
+    /** @var Request\Media $media */
+    /** @var Request\LogCue $logCue */
 } else {
     $categoryId      = $request->categoryId();
     $categoryName    = $request->categoryName();
@@ -47,12 +51,12 @@ echo $Twig->render('request/request.twig', [
     'request'          => $request,
     'category_name'    => $categoryName,
     'artist_role'      => $artistRole,
-    'tgroup'           => (new Gazelle\Manager\TGroup())->findById((int)($groupId ?? $request->tgroupId())),
-    'release_list'     => (new Gazelle\ReleaseType())->list(),
-    'tag_list'         => (new Gazelle\Manager\Tag())->genreList(),
+    'tgroup'           => (new Manager\TGroup())->findById((int)($groupId ?? $request->tgroupId())),
+    'release_list'     => (new ReleaseType())->list(),
+    'tag_list'         => (new Manager\Tag())->genreList(),
     'catalogue_number' => $catalogueNumber ?? $request->catalogueNumber(),
     'category_id'      => $categoryId      ?? $request->categoryId(),
-    'description'      => new Gazelle\Util\Textarea('description', $description ?? $request->description(), 70, 7),
+    'description'      => new Util\Textarea('description', $description ?? $request->description(), 70, 7),
     'encoding'         => $encoding,
     'format'           => $format,
     'log_cue'          => $logCue,

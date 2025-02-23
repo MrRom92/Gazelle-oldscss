@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (empty($_GET['query'])) {
     json_die("failure", "no query");
 }
@@ -13,5 +17,5 @@ $fullName = rawurldecode($_GET['query']);
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode([
     'query'       => $fullName,
-    'suggestions' => (new Gazelle\Manager\Collage())->autocomplete($fullName, isset($_GET['artist'])),
+    'suggestions' => (new Manager\Collage())->autocomplete($fullName, isset($_GET['artist'])),
 ]);

@@ -5,9 +5,9 @@ namespace Gazelle\Top10;
 class Torrent extends \Gazelle\Base {
     private string $baseQuery = "
         SELECT
-            t.ID,
-            g.ID,
-            ((t.Size * tls.Snatched) + (t.Size * 0.5 * tls.Leechers)) AS Data
+            t.ID AS torrent_id,
+            g.ID AS tgroup_id,
+            ((t.Size * tls.Snatched) + (t.Size * 0.5 * tls.Leechers)) AS score
         FROM torrents AS t
         INNER JOIN torrents_leech_stats tls ON (tls.TorrentID = t.ID)
         INNER JOIN torrents_group AS g ON (g.ID = t.GroupID)
@@ -22,7 +22,7 @@ class Torrent extends \Gazelle\Base {
     ) {}
 
     public function getTopTorrents($getParameters, $details = 'all', $limit = 10): array {
-        $cacheKey = "top10_{$details}_{$limit}_"
+        $cacheKey = "T10_{$details}_{$limit}_"
             . trim(signature(implode('', $getParameters), TOP10_SALT), '=');
         $topTorrents = self::$cache->get_value($cacheKey);
 
@@ -81,7 +81,11 @@ class Torrent extends \Gazelle\Base {
         );
 
         self::$db->prepared_query($query, ...$parameters);
-        $topTorrents = self::$db->to_array();
+        $topTorrents = [];
+        foreach (self::$db->to_array(false, MYSQLI_ASSOC, false) as $row) {
+            $row['score'] = (float)$row['score']; // wtf
+            $topTorrents[] = $row;
+        }
 
         self::$cache->cache_value($cacheKey, $topTorrents, 3600 * 6);
         self::$cache->delete_value("{$cacheKey}_lock");
@@ -99,7 +103,7 @@ class Torrent extends \Gazelle\Base {
         return match ($details) {
             'snatched' => 'tls.Snatched',
             'seeded'   => 'tls.Seeders',
-            'data'     => 'Data',
+            'data'     => 'score',
             default    => '(tls.Seeders + tls.Leechers)',
         };
     }

@@ -4,6 +4,10 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 /*
  * $_REQUEST['action'] is artist, collages, requests or torrents (default torrents)
  * $_REQUEST['type'] depends on the page:
@@ -18,7 +22,7 @@
  *     If missing or invalid, this defaults to the comments one made
  */
 
-$userMan = new Gazelle\Manager\User();
+$userMan = new Manager\User();
 if (!isset($_GET['id'])) {
     $User = $Viewer;
 } else {
@@ -181,10 +185,10 @@ $joinArgs[] = $Action;
 $Join = implode("\n", $Join);
 $cond = 'WHERE ' . implode(" AND ", $condition);
 
-$db = Gazelle\DB::DB();
+$db = DB::DB();
 
 // Posts per page limit stuff
-$paginator = new Gazelle\Util\Paginator($Viewer->postsPerPage(), (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator($Viewer->postsPerPage(), (int)($_GET['page'] ?? 1));
 $paginator->setTotal(
     (int)$db->scalar("
         SELECT count(DISTINCT C.ID) FROM $table $Join $cond", ...array_merge($joinArgs, $condArgs)
@@ -213,13 +217,13 @@ $Comments = $db->prepared_query("
 $requestList = [];
 $tgroupList = [];
 if ($Action == 'requests') {
-    $requestMan = new Gazelle\Manager\Request();
+    $requestMan = new Manager\Request();
     foreach (array_flip(array_flip($db->collect('PageID'))) as $id) {
         $id = (int)$id;
         $requestList[$id] = $requestMan->findById($id);
     }
 } elseif ($Action == 'torrents') {
-    $tgMan = new Gazelle\Manager\TGroup();
+    $tgMan = new Manager\TGroup();
     foreach (array_flip(array_flip($db->collect('PageID'))) as $id) {
         $id = (int)$id;
         $tgroupList[$id] = $tgMan->findById($id);
@@ -239,7 +243,7 @@ if ($TypeLinks) {
     ));
 }
 
-View::show_header(sprintf($Title, $Username), ['js' => 'bbcode,comments']);
+\View::show_header(sprintf($Title, $Username), ['js' => 'bbcode,comments']);
 ?>
 <div class="thin">
     <div class="header">
@@ -255,10 +259,10 @@ View::show_header(sprintf($Title, $Username), ['js' => 'bbcode,comments']);
 <?php
 } else {
     echo $paginator->linkbox();
-    $commentMan = new Gazelle\Manager\Comment();
+    $commentMan = new Manager\Comment();
     $db->set_query_id($Comments);
     while ([$AuthorID, $Page, $PageID, $Name, $PostID, $Body, $AddedTime, $EditedTime, $EditedUserID] = $db->next_record(escape: false)) {
-        $author = new Gazelle\User($AuthorID);
+        $author = new User($AuthorID);
         echo $Twig->render('comment/comment.twig', [
             'added_time'  => $AddedTime,
             'author'      => $author,
@@ -283,4 +287,4 @@ View::show_header(sprintf($Title, $Username), ['js' => 'bbcode,comments']);
 ?>
 </div>
 <?php
-View::show_footer();
+\View::show_footer();

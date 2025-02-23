@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted("admin_global_notification")) {
     error(403);
 }
@@ -14,7 +18,7 @@ if (!is_number($_POST['class_id']) || empty($_POST['subject']) || empty($_POST['
 set_time_limit(0);
 
 $permissionId = $_POST['class_id'];
-$db = Gazelle\DB::DB();
+$db = DB::DB();
 $db->prepared_query("
     (SELECT ID AS UserID FROM users_main WHERE PermissionID = ? AND ID != ?)
     UNION DISTINCT
@@ -22,7 +26,7 @@ $db->prepared_query("
     ", $permissionId, $Viewer->id(), $permissionId, $Viewer->id()
 );
 
-$userMan = new Gazelle\Manager\User();
+$userMan = new Manager\User();
 $subject = trim($_POST['subject']);
 $body    = trim($_POST['body']);
 while ([$userId] = $db->next_record()) {

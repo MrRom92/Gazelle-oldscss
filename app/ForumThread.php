@@ -310,7 +310,7 @@ class ForumThread extends BaseObject {
 
         // LastPostID is a chicken and egg situation when removing a thread,
         // so foreign key constraints must be suspended temporarily.
-        $db = new \Gazelle\DB();
+        $db = new DB();
         $db->relaxConstraints(true);
         self::$db->prepared_query("
             DELETE ft, fp, unq

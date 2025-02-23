@@ -1,21 +1,25 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('users_linked_users')) {
     error(403);
 }
 authorize();
 
-$userMan = new Gazelle\Manager\User();
+$userMan = new Manager\User();
 $source  = $userMan->findById((int)$_REQUEST['userid']);
 if (is_null($source)) {
     error(404);
 }
-$userLink = new Gazelle\User\UserLink($source);
+$userLink = new User\UserLink($source);
 
 switch ($_REQUEST['dupeaction'] ?? '') {
     case 'remove':
-        $userLink->removeUser($userMan->findById($_REQUEST['removeid']), $Viewer);
+        $userLink->removeUser($userMan->findById((int)$_REQUEST['removeid']), $Viewer);
         break;
 
     case 'update':

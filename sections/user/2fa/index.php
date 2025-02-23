@@ -1,7 +1,11 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
-$user = (new Gazelle\Manager\User())->findById((int)($_REQUEST['userid'] ?? 0));
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$user = (new Manager\User())->findById((int)($_REQUEST['userid'] ?? 0));
 if (is_null($user)) {
     error(404);
 }

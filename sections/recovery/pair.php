@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_recovery')) {
     error(403);
 }
@@ -12,11 +16,11 @@ $currId   = false;
 $result   = false;
 $confirm  = false;
 $message  = false;
-$recovery = new Gazelle\Manager\Recovery();
+$recovery = new Manager\Recovery();
 
 if (isset($_POST['curr']) && isset($_POST['prev'])) {
     authorize();
-    $userMan  = new Gazelle\Manager\User();
+    $userMan  = new Manager\User();
     $currId = (int)trim($_POST['curr']);
     $curr = $userMan->findById($currId);
     if (is_null($curr)) {

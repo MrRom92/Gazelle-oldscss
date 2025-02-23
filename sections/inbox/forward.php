@@ -1,13 +1,17 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
-$pm = (new Gazelle\Manager\PM($Viewer))->findById((int)$_POST['convid']);
+$pm = (new Manager\PM($Viewer))->findById((int)$_POST['convid']);
 if (is_null($pm)) {
     error('Sorry, there is no trace of that conversation in your folder');
 }
-$recipient = (new Gazelle\Manager\User())->findById((int)$_POST['receiverid']);
+$recipient = (new Manager\User())->findById((int)$_POST['receiverid']);
 if (is_null($recipient)) {
     error('Sorry, there is no-one here by that name');
 }

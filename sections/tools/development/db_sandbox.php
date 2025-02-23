@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Enum\SourceDB;
 use Gazelle\Util\Text;
 
@@ -23,7 +27,7 @@ if (isset($_GET['debug'])) {
     }
     $textAreaRows = max(8, substr_count($query, "\n") + 2);
 } elseif (isset($_GET['table'])) {
-    $query = (new Gazelle\DB())->selectQuery($_GET['table']);
+    $query = (new DB())->selectQuery($_GET['table']);
     $textAreaRows = max(8, substr_count($query, "\n") + 2);
 } elseif (!empty($_POST['query'])) {
     $query = trim($_POST['query']);
@@ -42,7 +46,7 @@ if ($execute) {
             $db = new \Gazelle\DB\Pg(PG_RO_DSN);
             $result = $db->all($query);
         } else {
-            $db = Gazelle\DB::DB(readWrite: false);
+            $db = DB::DB(readWrite: false);
             $db->prepared_query($query);
             $result = $db->to_array(false, MYSQLI_ASSOC, false);
         }

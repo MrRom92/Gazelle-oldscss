@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_create_users')) {
     error(403);
 }
@@ -22,14 +26,14 @@ if (isset($_POST['Username'])) {
         error('Please supply a password');
     }
 
-    $creator = new Gazelle\UserCreator();
+    $creator = new UserCreator();
     try {
         $user = $creator->setUsername($username)
             ->setEmail($email)
             ->setPassword($password)
             ->setAdminComment('Created by ' . $Viewer->username() . ' via admin toolbox')
             ->create();
-    } catch (Gazelle\Exception\UserCreatorException $e) {
+    } catch (Exception\UserCreatorException $e) {
         error(match ($e->getMessage()) {
             'username-invalid' => 'Specified username is forbidden',
             default            => 'Unable to create user',

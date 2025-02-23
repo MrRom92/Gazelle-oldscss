@@ -1,10 +1,14 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
-/** @var Gazelle\Collage $Collage required from collage.php */
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
+/** @var Collage $Collage required from collage.php */
 $Collage->setViewer($Viewer);
 $CollageID       = $Collage->id();
 $CollageCovers   = (int)($Viewer->option('CollageCovers') ?? 25) * (1 - (int)$Viewer->option('HideCollage'));
@@ -39,7 +43,7 @@ if ($CollageCovers) {
 }
 
 echo $Twig->render('collage/header.twig', [
-    'bookmarked' => (new Gazelle\User\Bookmark($Viewer))->isCollageBookmarked($CollageID),
+    'bookmarked' => (new User\Bookmark($Viewer))->isCollageBookmarked($CollageID),
     'collage'    => $Collage,
     'object'     => 'artist',
     'viewer'     => $Viewer,
@@ -48,7 +52,7 @@ echo $Twig->render('collage/header.twig', [
 echo $Twig->render('collage/sidebar.twig', [
     'artists'      => 0, // only makes sense for torrent collages
     'collage'      => $Collage,
-    'comments'     => (new Gazelle\Manager\Comment())->collageSummary($CollageID),
+    'comments'     => (new Manager\Comment())->collageSummary($CollageID),
     'contributors' => array_slice($Collage->contributors(), 0, 5, true),
     'entries'      => $Collage->numArtists(),
     'object'       => 'artist',

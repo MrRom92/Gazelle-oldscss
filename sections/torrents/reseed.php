@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$torrent = (new Gazelle\Manager\Torrent())->findById((int)$_GET['torrentid']);
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$torrent = (new Manager\Torrent())->findById((int)$_GET['torrentid']);
 if (is_null($torrent)) {
     error(404);
 }

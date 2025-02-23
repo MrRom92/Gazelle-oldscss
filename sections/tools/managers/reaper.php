@@ -2,12 +2,16 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_view_flow')) {
     error(403);
 }
 
 $affected = false;
-$reaper   = new Gazelle\Torrent\Reaper(new Gazelle\Manager\Torrent(), new Gazelle\Manager\User());
+$reaper   = new Torrent\Reaper(new Manager\Torrent(), new Manager\User());
 
 $extend = array_key_extract_suffix('extend-', $_POST);
 if ($extend) {

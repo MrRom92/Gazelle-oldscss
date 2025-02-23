@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 require_once match ($_REQUEST['action'] ?? '') {
     'ajax_claim'               => 'ajax_claim.php',
     'ajax_get_resolve_options' => 'ajax_get_resolve_options.php',

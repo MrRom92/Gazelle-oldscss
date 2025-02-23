@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_archive_ajax')) {
     json_die('failure', 'insufficient permissions to view page');
 }
@@ -16,7 +20,7 @@ if ($_GET['type'] === 'active') {
 }
 
 $where = implode(' AND ', $where);
-$db = Gazelle\DB::DB();
+$db = DB::DB();
 $db->prepared_query("SELECT t.ID FROM torrents t INNER JOIN torrents_leech_stats tls ON (tls.TorrentID = t.ID) WHERE {$where}");
 
 json_print('success', ['IDs' => $db->collect('ID', false)]);

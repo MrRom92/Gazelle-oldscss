@@ -2,12 +2,16 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$torrent = (new Gazelle\Manager\Torrent())->findById((int)$_GET['torrentid']);
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$torrent = (new Manager\Torrent())->findById((int)$_GET['torrentid']);
 if (is_null($torrent)) {
     error(404);
 }
 
-$paginator = new Gazelle\Util\Paginator(PEERS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(PEERS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($torrent->seederTotal());
 
 echo $Twig->render('torrent/seederlist.twig', [
@@ -15,6 +19,6 @@ echo $Twig->render('torrent/seederlist.twig', [
     'list'       => $torrent->seederList($Viewer, $paginator->limit(), $paginator->offset()),
     'paginator'  => $paginator,
     'torrent_id' => $torrent->id(),
-    'url_stem'   => (new Gazelle\User\Stylesheet($Viewer))->imagePath(),
+    'url_stem'   => (new User\Stylesheet($Viewer))->imagePath(),
     'user_id'    => $Viewer->id(),
 ]);

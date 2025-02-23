@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$recipient = (new Gazelle\Manager\User())->findById((int)$_GET['toid']);
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$recipient = (new Manager\User())->findById((int)$_GET['toid']);
 if (is_null($recipient)) {
     error(404);
 }
@@ -14,7 +18,7 @@ if ($recipient->id() == $Viewer->id()) {
 }
 
 echo $Twig->render('inbox/compose.twig', [
-    'body'      => new Gazelle\Util\Textarea('body', '', 95, 10),
+    'body'      => new Util\Textarea('body', '', 95, 10),
     'recipient' => $recipient,
     'viewer'    => $Viewer,
 ]);

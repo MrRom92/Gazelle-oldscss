@@ -2,12 +2,16 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_staffpm_stats')) {
     error(403);
 }
 
-$userMan = new Gazelle\Manager\User();
-$spmMan  = new Gazelle\Manager\StaffPM();
+$userMan = new Manager\User();
+$spmMan  = new Manager\StaffPM();
 
 $isStaffView  = ($_REQUEST['view'] ?? 'staff') === 'staff';
 $SupportStaff = [...array_keys($userMan->flsList()), ...array_keys($userMan->staffList())];

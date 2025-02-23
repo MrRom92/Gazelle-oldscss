@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 /**
  * @var array $Item
  * @var int   $Price
@@ -9,8 +13,8 @@
 
 if (isset($_REQUEST['preview']) && isset($_REQUEST['title']) && isset($_REQUEST['BBCode'])) {
     echo $_REQUEST['BBCode'] === 'true'
-        ? Text::full_format($_REQUEST['title'])
-        : Text::strip_bbcode($_REQUEST['title']);
+        ? \Text::full_format($_REQUEST['title'])
+        : \Text::strip_bbcode($_REQUEST['title']);
     exit;
 }
 

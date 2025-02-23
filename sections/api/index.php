@@ -1,10 +1,14 @@
 <?php
 /** @phpstan-var \Gazelle\Debug $Debug */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (empty($_GET['aid']) || empty($_GET['token'])) {
     json_error('invalid parameters');
 }
-if (!(new Gazelle\API())->validateToken((int)($_GET['aid'] ?? 0), $_GET['token'] ?? '')) {
+if (!(new API())->validateToken((int)($_GET['aid'] ?? 0), $_GET['token'] ?? '')) {
     json_error('invalid token');
 }
 $className = "Gazelle\\API\\" . str_replace("_", "", ucwords($_GET['action'], "_"));

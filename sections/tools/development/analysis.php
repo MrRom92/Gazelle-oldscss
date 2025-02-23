@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_analysis')) {
     error(403);
 }
 
-$errorLog = new Gazelle\Manager\ErrorLog();
+$errorLog = new Manager\ErrorLog();
 $case = null;
 
 if (isset($_POST['remove'])) {

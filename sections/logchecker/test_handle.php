@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (isset($_FILES['log']) && is_uploaded_file($_FILES['log']['tmp_name'])) {
     $file    = $_FILES['log'];
     $isPaste = false;

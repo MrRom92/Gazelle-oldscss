@@ -94,7 +94,7 @@ class Torrent extends TorrentAbstract {
      * Convert a stored torrent into a binary file that can be loaded in a torrent client
      */
     public function torrentBody(string $announceUrl): string {
-        $filer = new \Gazelle\File\Torrent();
+        $filer = new File\Torrent();
         $contents = $filer->get($this->id);
         if ($contents == false) {
             return '';
@@ -184,7 +184,7 @@ class Torrent extends TorrentAbstract {
         return $affected;
     }
 
-    public function rescoreLog(int $logId, \Gazelle\Logfile $logfile, string $version): int {
+    public function rescoreLog(int $logId, Logfile $logfile, string $version): int {
         self::$db->prepared_query("
             UPDATE torrents_logs SET
                 Score = ?, `Checksum` = ?, ChecksumState = ?, Ripper = ?, RipperVersion = ?,
@@ -311,7 +311,7 @@ class Torrent extends TorrentAbstract {
         self::$db->begin_transaction();
         $this->info();
         if ($this->id > MAX_PREV_TORRENT_ID && $removePoints) {
-            (new \Gazelle\User\Bonus($this->uploader()))->removePointsForUpload($this);
+            (new User\Bonus($this->uploader()))->removePointsForUpload($this);
         }
 
         $edition  = $this->edition();
@@ -322,13 +322,13 @@ class Torrent extends TorrentAbstract {
         $media    = $this->media();
         $format   = $this->format();
         $encoding = $this->encoding();
-        (new \Gazelle\Tracker())->update('delete_torrent', [
+        (new Tracker())->update('delete_torrent', [
             'id'        => $this->id,
             'info_hash' => $this->infohashEncoded(),
             'reason'    => $trackerReason,
         ]);
 
-        $manager = new \Gazelle\DB();
+        $manager = new DB();
         $manager->relaxConstraints(true);
         [$ok, $message] = $manager->softDelete(MYSQL_DB, 'torrents_leech_stats', [['TorrentID', $this->id]], false);
         if (!$ok) {
@@ -439,7 +439,7 @@ class Torrent extends TorrentAbstract {
         );
         $affected = self::$db->affected_rows();
         self::$cache->delete_value("users_tokens_{$user->id()}");
-        (new \Gazelle\Tracker())->removeToken($this, $user);
+        (new Tracker())->removeToken($this, $user);
         return $affected;
     }
 
@@ -573,7 +573,7 @@ class Torrent extends TorrentAbstract {
      *
      * @return int number of files regenned
      */
-    public function regenerateFilelist(\Gazelle\File\Torrent $filer, \OrpheusNET\BencodeTorrent\BencodeTorrent $encoder): int {
+    public function regenerateFilelist(File\Torrent $filer, \OrpheusNET\BencodeTorrent\BencodeTorrent $encoder): int {
         $torrentFile = $filer->get($this->id);
         if ($torrentFile === false) {
             return 0;

@@ -2,12 +2,16 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$blogMan = new Gazelle\Manager\Blog();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$blogMan = new Manager\Blog();
 
 $action = ($_GET['action'] ?? '') === 'editblog' ? 'Edit' : 'Create';
 if ($Viewer->permitted('admin_manage_blog')) {
     $blog = $blogMan->findById((int)($_GET['id'] ?? 0));
-    $body = new Gazelle\Util\Textarea('body', $blog ? $blog->body() : '');
+    $body = new Util\Textarea('body', $blog ? $blog->body() : '');
 } else {
     $blog = null;
     $body = null;

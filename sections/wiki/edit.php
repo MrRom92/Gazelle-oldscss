@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$article = (new Gazelle\Manager\Wiki())->findById((int)$_GET['id']);
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$article = (new Manager\Wiki())->findById((int)$_GET['id']);
 if (is_null($article)) {
     error(404);
 }
@@ -14,7 +18,7 @@ if (!$article->editable($Viewer)) {
 echo $Twig->render('wiki/create.twig', [
     'action'     => 'edit',
     'article'    => $article,
-    'body'       => new Gazelle\Util\Textarea('body', $article->body(), 92, 20),
-    'class_list' => (new Gazelle\Manager\User())->classList(),
+    'body'       => new Util\Textarea('body', $article->body(), 92, 20),
+    'class_list' => (new Manager\User())->classList(),
     'viewer'     => $Viewer,
 ]);

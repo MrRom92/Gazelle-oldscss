@@ -1,9 +1,13 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
-$collage = (new Gazelle\Manager\Collage())->findById((int)($_GET['collageid'] ?? 0));
+$collage = (new Manager\Collage())->findById((int)($_GET['collageid'] ?? 0));
 if (is_null($collage)) {
     error(404);
 }

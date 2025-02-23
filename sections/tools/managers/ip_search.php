@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('users_view_ips')) {
     error(403);
 }
@@ -12,7 +16,7 @@ $found     = 0;
 $limit     = 0;
 $offset    = 0;
 $search    = null;
-$paginator = new Gazelle\Util\Paginator(50, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(50, (int)($_GET['page'] ?? 1));
 
 $text = match (true) {
     isset($_POST['text'])  => trim($_POST['text']),
@@ -21,7 +25,7 @@ $text = match (true) {
     default                => '',
 };
 if ($text) {
-    $search = (new Gazelle\Search\IPv4(new Gazelle\Search\ASN()))
+    $search = (new Search\IPv4(new Search\ASN()))
         ->create('search_' . getmypid())
         ->setColumn($column)
         ->setDirection($direction);
@@ -45,5 +49,5 @@ echo $Twig->render('admin/ip-search.twig', [
     'snatch'    => $search?->snatchList($limit, $offset),
     'tracker'   => $search?->trackerList($limit, $offset),
     'paginator' => $paginator,
-    'text'      => new Gazelle\Util\Textarea('text', $text, 90, 10)
+    'text'      => new Util\Textarea('text', $text, 90, 10)
 ]);

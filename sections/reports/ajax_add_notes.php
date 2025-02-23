@@ -1,10 +1,14 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_moderate_forums')) {
     json_error('forbidden');
 }
-$report = (new Gazelle\Manager\Report(new Gazelle\Manager\User()))->findById((int)($_POST['id'] ?? 0));
+$report = (new Manager\Report(new Manager\User()))->findById((int)($_POST['id'] ?? 0));
 if (is_null($report)) {
     json_error('bad post id');
 }

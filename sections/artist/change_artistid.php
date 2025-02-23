@@ -2,12 +2,16 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('torrents_edit')) {
     error(403);
 }
 authorize();
 
-$artMan = new Gazelle\Manager\Artist();
+$artMan = new Manager\Artist();
 $artist = $artMan->findById((int)($_POST['artistid'] ?? 0));
 if (is_null($artist)) {
     error('Please select a valid artist to change.');

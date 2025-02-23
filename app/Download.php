@@ -18,8 +18,8 @@ class Download extends Base {
     protected DownloadStatus $status;
 
     public function __construct(
-        protected \Gazelle\Torrent $torrent,
-        protected \Gazelle\User\UserclassRateLimit $limiter,
+        protected Torrent $torrent,
+        protected User\UserclassRateLimit $limiter,
         protected bool $useToken,
     ) {}
 
@@ -101,7 +101,7 @@ class Download extends Base {
                     self::$db->rollback();
                     return DownloadStatus::no_tokens;
                 }
-                if (!(new \Gazelle\Tracker())->addToken($this->torrent, $user)) {
+                if (!(new Tracker())->addToken($this->torrent, $user)) {
                     self::$db->rollback();
                     return DownloadStatus::tracker;
                 }

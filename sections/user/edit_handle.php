@@ -2,10 +2,14 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
-$irc     = new Gazelle\Util\Irc();
-$userMan = new Gazelle\Manager\User();
+$irc     = new Util\Irc();
+$userMan = new Manager\User();
 if (!isset($_REQUEST['id'])) {
     $ownProfile = true;
     $user = $Viewer;
@@ -24,7 +28,7 @@ if (!isset($_REQUEST['id'])) {
     }
 }
 
-$validator = new Gazelle\Util\Validator();
+$validator = new Util\Validator();
 $validator->setFields([
     ['stylesheet', true, "number", "You forgot to select a stylesheet."],
     ['styleurl', false, "regex", "You did not enter a valid stylesheet URL.", ['regex' => CSS_REGEXP]],
@@ -35,7 +39,7 @@ $validator->setFields([
     ['irckey', false, "string", "You did not enter a valid IRC key. An IRC key must be between 6 and 32 characters long.", ['range' => [6, 32]]],
     ['new_pass_1', false, "regex",
         "You did not enter a valid password. A strong password is 8 characters or longer, contains at least 1 lowercase and uppercase letter, and contains at least a number or symbol.",
-        ['regex' => \Gazelle\Util\PasswordCheck::REGEXP]
+        ['regex' => Util\PasswordCheck::REGEXP]
     ],
     ['new_pass_2', true, "compare", "Your passwords do not match.", ['comparefield' => 'new_pass_1']],
 ]);
@@ -122,7 +126,7 @@ if ($user->email() != trim($_POST['email'])) {
     if (!$Viewer->permitted('users_edit_profiles') && !$user->validatePassword($_POST['password'])) {
         error('You must enter your current password when changing your email address.');
     }
-    if ($ownProfile && !\Gazelle\Util\PasswordCheck::checkPasswordStrength($_POST['password'], $user)) {
+    if ($ownProfile && !Util\PasswordCheck::checkPasswordStrength($_POST['password'], $user)) {
         // same corner case as with changing passwords, see comment there
         $user->addStaffNote("forced logout because of weak/compromised password")->modify();
         $user->logoutEverywhere();
@@ -149,7 +153,7 @@ $ResetPassword = false;
 if (!empty($_POST['password']) && !empty($_POST['new_pass_1']) && !empty($_POST['new_pass_2'])) {
     if (!$user->validatePassword($_POST['password'])) {
         error('You did not enter the correct password.');
-    } elseif (!\Gazelle\Util\PasswordCheck::checkPasswordStrength($_POST['password'], $user)) {
+    } elseif (!Util\PasswordCheck::checkPasswordStrength($_POST['password'], $user)) {
         // This is a corner case: the user already has an active session and is trying to change their password.
         // They would not have been able to log in with this password and since it is weak it might as well be
         // an attacker that happens to have the compromised password, and an old login session, but no access to
@@ -159,8 +163,8 @@ if (!empty($_POST['password']) && !empty($_POST['new_pass_1']) && !empty($_POST[
         echo $Twig->render('login/weak-password.twig');
         exit;
     } else {
-        if (!\Gazelle\Util\PasswordCheck::checkPasswordStrength($_POST['new_pass_1'], $user)) {
-            error(\Gazelle\Util\PasswordCheck::ERROR_MSG);
+        if (!Util\PasswordCheck::checkPasswordStrength($_POST['new_pass_1'], $user)) {
+            error(Util\PasswordCheck::ERROR_MSG);
         }
         if ($_POST['password'] == $_POST['new_pass_1']) {
             error('Your new password cannot be the same as your old password.');
@@ -220,18 +224,18 @@ if ($Viewer->permitted('site_advanced_search')) {
 $user->setField('option_list', $option);
 
 $navList = [];
-foreach ((new Gazelle\Manager\UserNavigation())->fullList() as $n) {
+foreach ((new Manager\UserNavigation())->fullList() as $n) {
     if ($n['mandatory'] || isset($_POST["n_{$n['id']}"])) {
         $navList[] = (int)$n['id'];
     }
 }
 $user->setField('nav_list', $navList);
 
-(new Gazelle\Util\LastFM())->modifyUsername($user, trim($_POST['lastfm_username'] ?? ''));
+(new Util\LastFM())->modifyUsername($user, trim($_POST['lastfm_username'] ?? ''));
 
 $notification = preg_grep('/^notifications_[^_]+_/', array_keys($_POST));
 if ($notification) {
-    (new Gazelle\User\Notification($user))->save($notification);
+    (new User\Notification($user))->save($notification);
 }
 
 foreach (
@@ -252,9 +256,9 @@ foreach (
     $user->toggleAttr($attr, $state);
 }
 
-$history = new \Gazelle\User\History($user);
+$history = new User\History($user);
 if ($NewEmail) {
-    $history->registerNewEmail($NewEmail, $ownProfile, new \Gazelle\Manager\IPv4(), $irc, new \Gazelle\Util\Mail());
+    $history->registerNewEmail($NewEmail, $ownProfile, new Manager\IPv4(), $irc, new Util\Mail());
 }
 
 if (isset($_POST['resetpasskey'])) {
@@ -262,7 +266,7 @@ if (isset($_POST['resetpasskey'])) {
     $newPasskey = randomString();
     $user->setField('torrent_pass', $newPasskey);
     $user->modifyAnnounceKeyHistory($oldPasskey, $newPasskey);
-    (new Gazelle\Tracker())->modifyPasskey(old: $oldPasskey, new: $newPasskey);
+    (new Tracker())->modifyPasskey(old: $oldPasskey, new: $newPasskey);
 }
 
 $user->modify();
@@ -277,7 +281,7 @@ $requestBountyCreate = max(
     REQUEST_MIN * 1024 * 1024, // never go below request minimum
     min(
         2 * 1024 ** 4, // do not exceed 2 TiB
-        byte_unformat($_POST['req-create'], $_POST['req-c-unit'])
+        byte_unformat((float)$_POST['req-create'], $_POST['req-c-unit'])
     )
 );
 if ($requestBountyCreate != $ordinal->value('request-bounty-create')) {
@@ -287,14 +291,14 @@ $requestBountyVote = max(
     REQUEST_MIN * 1024 * 1024, // never go below request minimum
     min(
         1024 ** 4, // do not exceed 1 TiB
-        byte_unformat($_POST['req-vote'], $_POST['req-v-unit'])
+        byte_unformat((float)$_POST['req-vote'], $_POST['req-v-unit'])
     )
 );
 if ($requestBountyVote != $ordinal->value('request-bounty-vote')) {
     $ordinal->set('request-bounty-vote', $requestBountyVote);
 }
 
-$donor = new Gazelle\User\Donor($user);
+$donor = new User\Donor($user);
 if ($donor->isDonor()) {
     $donor->setVisible(isset($_POST['p_donor_stats']));
     $donor->setForumDecoration(
@@ -320,7 +324,7 @@ if ($donor->isDonor()) {
 
 $user->flush();
 
-(new Gazelle\User\Stylesheet($user))->modifyInfo((int)$_POST['stylesheet'], $_POST['styleurl']);
+(new User\Stylesheet($user))->modifyInfo((int)$_POST['stylesheet'], $_POST['styleurl']);
 
 if ($ResetPassword) {
     $user->logoutEverywhere();

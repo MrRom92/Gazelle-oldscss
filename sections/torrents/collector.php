@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('zip_downloader')) {
     error(403);
 }
@@ -19,11 +23,11 @@ switch ($title) {
         break;
     case 'seedbox':
         authorize();
-        $user = (new Gazelle\Manager\User())->findById((int)($_GET['userid'] ?? 0));
+        $user = (new Manager\User())->findById((int)($_GET['userid'] ?? 0));
         if (is_null($user)) {
             error(404);
         }
-        $ids = (new Gazelle\User\Seedbox($user))
+        $ids = (new User\Seedbox($user))
             ->setSource($_GET['s'] ?? '')
             ->setTarget($_GET['t'] ?? '')
             ->setUnion($_GET['m'] === 'union')
@@ -38,10 +42,10 @@ if (!$ids) {
     error('No groups found to collect');
 }
 
-$collector = new Gazelle\Collector\TList($Viewer, new Gazelle\Manager\Torrent(), $title, 0);
+$collector = new Collector\TList($Viewer, new Manager\Torrent(), $title, 0);
 $collector->setList($ids);
 if (!$collector->prepare([])) {
     error("Nothing to gather, choose some encodings and media!");
 }
 
-$collector->emitZip(Gazelle\Util\Zip::make($title));
+$collector->emitZip(Util\Zip::make($title));

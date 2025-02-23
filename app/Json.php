@@ -82,7 +82,7 @@ abstract class Json extends Base {
         }
         $info = [
             'debug' => [
-                'queries' => \Gazelle\DB::DB()->queryList(),
+                'queries' => DB::DB()->queryList(),
             ],
         ];
         if (class_exists('Sphinxql')) {

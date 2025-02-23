@@ -2,12 +2,16 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_view_flow')) {
     error(403);
 }
 
-$userMan = new Gazelle\Manager\User();
-$paginator = new Gazelle\Util\Paginator(USERS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$userMan = new Manager\User();
+$paginator = new Util\Paginator(USERS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($userMan->totalRatioWatchUsers());
 
 echo $Twig->render('admin/ratio-watch.twig', [

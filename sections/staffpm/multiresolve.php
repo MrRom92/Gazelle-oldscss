@@ -1,7 +1,11 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
-$manager = new Gazelle\Manager\StaffPM();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$manager = new Manager\StaffPM();
 
 $list = [];
 foreach ($_POST['id'] as $id) {

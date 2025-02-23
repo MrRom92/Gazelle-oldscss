@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_manage_permissions')) {
     error(403);
 }
 
-$privMan = new Gazelle\Manager\Privilege();
+$privMan = new Manager\Privilege();
 
 $privilege = null;
 if (isset($_REQUEST['id']) && $_REQUEST['id'] !== 'new') {
@@ -20,7 +24,7 @@ if (isset($_REQUEST['id']) && $_REQUEST['id'] !== 'new') {
 echo $Twig->render('admin/privilege-edit.twig', [
     'edited'     => isset($usersAffected),
     'edit_total' => $usersAffected ?? 0,
-    'group_list' => (new Gazelle\Manager\StaffGroup())->groupList(),
+    'group_list' => (new Manager\StaffGroup())->groupList(),
     'privilege'  => $privilege,
     'viewer'     => $Viewer,
 ]);

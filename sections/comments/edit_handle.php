@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if ($Viewer->disablePosting()) {
     error('Your posting privileges have been removed.');
 }
@@ -11,14 +15,14 @@ if (!strlen($body)) {
     error(404);
 }
 
-$comment = (new Gazelle\Manager\Comment())->findById((int)($_REQUEST['postid'] ?? 0));
+$comment = (new Manager\Comment())->findById((int)($_REQUEST['postid'] ?? 0));
 if (is_null($comment)) {
     error(404);
 }
 if ($comment->userId() != $Viewer->id() && !$Viewer->permitted('site_moderate_forums')) {
     error(403);
 }
-$user = (new Gazelle\Manager\User())->findById($comment->userId());
+$user = (new Manager\User())->findById($comment->userId());
 if (is_null($user)) {
     error(404);
 }
@@ -34,4 +38,4 @@ if ((bool)($_POST['pm'] ?? false) && !$comment->isAuthor($Viewer)) {
 }
 
 // This gets sent to the browser, which echoes it in place of the old body
-echo Text::full_format($body);
+echo \Text::full_format($body);

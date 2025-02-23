@@ -2,17 +2,21 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_periodic_task_view')) {
     error(403);
 }
 
-$scheduler = new Gazelle\TaskScheduler();
+$scheduler = new TaskScheduler();
 $id = (int)($_GET['id'] ?? 0);
 if (!$scheduler->getTask($id)) {
     error(404);
 }
 
-$header = new Gazelle\Util\SortableTableHeader('launchtime', [
+$header = new Util\SortableTableHeader('launchtime', [
     'id'         => ['defaultSort' => 'desc'],
     'launchtime' => ['defaultSort' => 'desc',  'text' => 'Launch Time'],
     'duration'   => ['defaultSort' => 'desc',  'text' => 'Duration'],
@@ -21,7 +25,7 @@ $header = new Gazelle\Util\SortableTableHeader('launchtime', [
     'errors'     => ['defaultSort' => 'desc',  'text' => 'Errors']
 ]);
 
-$paginator = new Gazelle\Util\Paginator(ITEMS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(ITEMS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($scheduler->getTotal($id));
 
 $stats = $scheduler->getTaskRuntimeStats($id);

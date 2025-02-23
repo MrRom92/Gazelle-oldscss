@@ -2,15 +2,19 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (MONERO_DONATION_ADDRESS) {
-    $moneroDonation = new Gazelle\Donate\Monero();
+    $moneroDonation = new Donate\Monero();
     $moneroAddr = $moneroDonation->address($Viewer->id());
 } else {
     $moneroAddr = null;
 }
 
 if (BITCOIN_DONATION_XYZPUB) {
-    $btcDonation = new Gazelle\Donate\Bitcoin();
+    $btcDonation = new Donate\Bitcoin();
     $btcAddr = $btcDonation->address($Viewer->id());
 } else {
     $btcAddr = null;

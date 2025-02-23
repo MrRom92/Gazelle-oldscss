@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$staffpmMan = new Gazelle\Manager\StaffPM();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$staffpmMan = new Manager\StaffPM();
 $viewMap = [
     '' => [
         'status' => ['Unanswered'],
@@ -47,7 +51,7 @@ if (isset($_GET['id'])) {
 }
 
 if ($viewMap[$view]['title'] === 'Your Unanswered') {
-    $classlist = (new Gazelle\Manager\User())->classList();
+    $classlist = (new Manager\User())->classList();
     if ($Viewer->privilege()->effectiveClassLevel() >= $classlist[MOD]['Level']) {
         $staffpmMan->setUserclassLevel($classlist[MOD]['Level']);
     } elseif ($Viewer->privilege()->effectiveClassLevel() == $classlist[FORUM_MOD]['Level']) {
@@ -55,7 +59,7 @@ if ($viewMap[$view]['title'] === 'Your Unanswered') {
     }
 }
 
-$paginator = new Gazelle\Util\Paginator(MESSAGES_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(MESSAGES_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($staffpmMan->searchTotal());
 
 echo $Twig->render('staffpm/staff-inbox.twig', [

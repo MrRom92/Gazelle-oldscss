@@ -2,20 +2,24 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!($Viewer->permitted('site_delete_artist') && $Viewer->permitted('torrents_delete'))) {
     error(403);
 }
 authorize();
 
-$artist = (new Gazelle\Manager\Artist())->findById((int)($_GET['artistid'] ?? 0));
+$artist = (new Manager\Artist())->findById((int)($_GET['artistid'] ?? 0));
 if (is_null($artist)) {
     error(404);
 }
 
-$tgMan = new Gazelle\Manager\TGroup();
+$tgMan = new Manager\TGroup();
 $tgroupList = array_map(fn ($id) => $tgMan->findById($id), $artist->tgroupIdUsage());
 
-$reqMan = new Gazelle\Manager\Request();
+$reqMan = new Manager\Request();
 $requestList = array_map(fn ($id) => $reqMan->findById($id), $artist->requestIdUsage());
 
 if (count($tgroupList) + count($requestList) > 0) {

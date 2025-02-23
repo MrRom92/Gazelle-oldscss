@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Enum\LeechType;
 use Gazelle\Enum\LeechReason;
 
@@ -10,7 +14,7 @@ if (!$Viewer->permitted('site_edit_wiki')) {
 
 authorize();
 
-$collageMan = new Gazelle\Manager\Collage();
+$collageMan = new Manager\Collage();
 $collage    = $collageMan->findById((int)($_POST['collageid'] ?? 0));
 if (is_null($collage)) {
     error(404);
@@ -47,7 +51,7 @@ if (isset($_POST['name'])) {
 if (!isset($_POST['regen-tags'])) {
     $collage->setField(
         'TagList',
-        (new Gazelle\Manager\Tag())
+        (new Manager\Tag())
             ->normalize(str_replace(',', ' ', (string)$_POST['tags']))
     );
 } else {

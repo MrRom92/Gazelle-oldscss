@@ -1,9 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
-echo (new Gazelle\Json\Stats\User(
-    new Gazelle\Stats\Users(),
-    $Viewer,
-))
+declare(strict_types=1);
+
+namespace Gazelle;
+
+echo (new Json\Stats\User(new Stats\Users(), $Viewer))
     ->setVersion(2)
     ->response();

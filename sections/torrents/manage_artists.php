@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('torrents_edit')) {
     error(403);
 }
@@ -18,7 +22,7 @@ if (!$roleAliasList) {
     error('No artists to manage');
 }
 
-$tgroup = (new Gazelle\Manager\TGroup())->findById((int)($_POST['groupid'] ?? 0));
+$tgroup = (new Manager\TGroup())->findById((int)($_POST['groupid'] ?? 0));
 if (is_null($tgroup)) {
     error(404);
 }

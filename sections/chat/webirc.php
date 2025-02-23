@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->disableIRC() && !$Viewer->IRCKey()) {
     $ircKey = randomString(32);
     $Viewer->setField('IRCKey', $ircKey)->modify();

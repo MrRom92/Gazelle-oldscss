@@ -2,7 +2,11 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$changeMan = new Gazelle\Manager\Changelog();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$changeMan = new Manager\Changelog();
 
 if ($Viewer->permitted('users_mod') && isset($_POST['perform'])) {
     authorize();
@@ -22,7 +26,7 @@ if ($Viewer->permitted('users_mod') && isset($_POST['perform'])) {
     }
 }
 
-$paginator = new Gazelle\Util\Paginator(POSTS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(POSTS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($changeMan->total());
 
 echo $Twig->render('admin/changelog.twig', [

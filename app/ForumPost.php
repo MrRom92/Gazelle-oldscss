@@ -210,7 +210,7 @@ class ForumPost extends BaseObject {
         self::$db->commit();
 
         $this->thread()->forum()->adjust();
-        (new \Gazelle\Manager\Subscription())->flushPage('forums', $threadId);
+        (new Manager\Subscription())->flushPage('forums', $threadId);
 
         $thread->flushPostCatalogue($this);
         $thread->flush();

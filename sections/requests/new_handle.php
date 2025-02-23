@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
 if (!$Viewer->permitted('site_submit_requests') || $Viewer->uploadedSize() < 250 * 1024 * 1024) {
@@ -27,15 +31,15 @@ $tgroup       = null;
 $title        = null;
 $year         = null;
 
-$encoding = new Gazelle\Request\Encoding(
+$encoding = new Request\Encoding(
     isset($_POST['all_bitrates']),
     array_trim_prefix('bitrate_', $_POST['bitrates'] ?? [])
 );
-$format = new Gazelle\Request\Format(
+$format = new Request\Format(
     isset($_POST['all_formats']),
     array_trim_prefix('format_', $_POST['formats'] ?? [])
 );
-$media = new Gazelle\Request\Media(
+$media = new Request\Media(
     isset($_POST['all_media']),
     array_trim_prefix('media_', $_POST['media'] ?? [])
 );
@@ -53,16 +57,16 @@ $amount          = (int)$_POST['amount'];
 while (true) { // break early on error
     if ($categoryName !== 'Music') {
         $artistRole = [];
-        $logCue = new Gazelle\Request\LogCue();
+        $logCue = new Request\LogCue();
     } else {
         $logCue = $format->exists('FLAC') && $media->exists('CD')
-            ? new Gazelle\Request\LogCue(
+            ? new Request\LogCue(
                 isset($_POST['needcksum']),
                 isset($_POST['needcue']),
                 isset($_POST['needlog']),
                 (int)($_POST['minlogscore'] ?? 0)
             )
-            : new Gazelle\Request\LogCue();
+            : new Request\LogCue();
 
         if (empty($_POST['artists'])) {
             $error = 'You did not enter any artists.';
@@ -99,7 +103,7 @@ while (true) { // break early on error
             break;
         }
 
-        if (!(new Gazelle\ReleaseType())->findNameById($releaseType)) {
+        if (!(new ReleaseType())->findNameById($releaseType)) {
             $error = 'Please pick a release type';
             break;
         }
@@ -133,7 +137,7 @@ while (true) { // break early on error
             ? (int)$match['id']
             : (int)$_POST['groupid'];
         if ($GroupID > 0) {
-            $tgroup = (new Gazelle\Manager\TGroup())->findById($GroupID);
+            $tgroup = (new Manager\TGroup())->findById($GroupID);
             if (is_null($tgroup)) {
                 $error = 'The torrent group, if entered, must correspond to a music torrent group on the site.';
                 break;
@@ -141,7 +145,7 @@ while (true) { // break early on error
         }
     }
 
-    $validator = new Gazelle\Util\Validator();
+    $validator = new Util\Validator();
     $validator->setFields([
         ['description', true,  'string', 'You forgot to enter a description.', ['maxlength' => 32000]],
         ['image',       false, 'image',  ''],
@@ -179,7 +183,7 @@ if (isset($error)) {
     exit;
 }
 
-$request = (new Gazelle\Manager\Request())->create(
+$request = (new Manager\Request())->create(
     user:            $Viewer,
     bounty:          $amount,
     categoryId:      $categoryId,
@@ -199,9 +203,9 @@ $request = (new Gazelle\Manager\Request())->create(
     groupId:         $tgroup?->id(),
 );
 if ($categoryName == 'Music') {
-    $request->artistRole()->set($artistRole, $Viewer, new Gazelle\Manager\Artist());
+    $request->artistRole()->set($artistRole, $Viewer, new Manager\Artist());
 }
-(new Gazelle\Manager\Tag())->replaceTagList(
+(new Manager\Tag())->replaceTagList(
     $request,
     array_map('trim', explode(',', $tags)),
     $Viewer
@@ -209,10 +213,10 @@ if ($categoryName == 'Music') {
 $tgroup?->flush();
 
 if ($Viewer->option('AutoSubscribe')) {
-    (new Gazelle\User\Subscription($Viewer))->subscribeComments('requests', $request->id());
+    (new User\Subscription($Viewer))->subscribeComments('requests', $request->id());
 }
 
-Gazelle\Util\Irc::sendMessage(
+Util\Irc::sendMessage(
     IRC_CHAN_REQUEST,
     "{$request->text()} – {$request->publicLocation()} – " . implode(' ', $request->tagNameList())
 );

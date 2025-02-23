@@ -1,8 +1,12 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 $postId = (int)($_GET['post'] ?? 0);
-$pm = (new Gazelle\Manager\PM($Viewer))->findByPostId($postId);
+$pm = (new Manager\PM($Viewer))->findByPostId($postId);
 if (is_null($pm)) {
     error(403);
 }

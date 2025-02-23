@@ -1,6 +1,12 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
+use Gazelle\Enum\NotificationType;
+
 if (!$Viewer->permitted('admin_manage_blog')) {
     error(403);
 }
@@ -18,16 +24,16 @@ if (empty($title)) {
 
 $thread = match ((int)($_POST['thread'] ?? -1)) {
     -1 => null,
-     0 => (new Gazelle\Manager\ForumThread())->create(
-        forum: new Gazelle\Forum(ANNOUNCEMENT_FORUM_ID),
+     0 => (new Manager\ForumThread())->create(
+        forum: new Forum(ANNOUNCEMENT_FORUM_ID),
         user:  $Viewer,
         title: $title,
         body:  $body,
     ),
-    default => (new Gazelle\Manager\ForumThread())->findById((int)$_POST['thread']),
+    default => (new Manager\ForumThread())->findById((int)$_POST['thread']),
 };
 
-$blog = (new Gazelle\Manager\Blog())->create([
+$blog = (new Manager\Blog())->create([
     'title'     => $title,
     'body'      => $body,
     'important' => isset($_POST['important']) ? 1 : 0,
@@ -36,11 +42,11 @@ $blog = (new Gazelle\Manager\Blog())->create([
 ]);
 
 if ($thread && isset($_POST['subscribe'])) {
-    (new Gazelle\User\Subscription($Viewer))->subscribe($thread->id());
+    (new User\Subscription($Viewer))->subscribe($thread->id());
 }
-$notification = new Gazelle\Manager\Notification();
-$notification->push($notification->pushableTokens(Gazelle\Enum\NotificationType::BLOG), "New blog article", $blog->title(), $blog->publicLocation());
+$notification = new Manager\Notification();
+$notification->push($notification->pushableTokens(NotificationType::BLOG), "New blog article", $blog->title(), $blog->publicLocation());
 
-Gazelle\Util\Irc::sendMessage(IRC_CHAN, "New blog article: " . $blog->title());
+Util\Irc::sendMessage(IRC_CHAN, "New blog article: " . $blog->title());
 
 header('Location: blog.php');

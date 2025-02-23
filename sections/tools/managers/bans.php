@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_manage_ipbans')) {
     error(403);
 }
 
-$IPv4Man = new Gazelle\Manager\IPv4();
+$IPv4Man = new Manager\IPv4();
 
 if (isset($_POST['submit'])) {
     authorize();
@@ -17,7 +21,7 @@ if (isset($_POST['submit'])) {
         }
         $IPv4Man->removeBan($id);
     } else { //Edit & Create, Shared Validation
-        $validator = new Gazelle\Util\Validator();
+        $validator = new Util\Validator();
         $validator->setFields([
             ['start', true,'regex','You must include the starting IP address.',['regex' => '/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/i']],
             ['end', true,'regex','You must include the ending IP address.',['regex' => '/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/i']],
@@ -34,7 +38,7 @@ if (isset($_POST['submit'])) {
     }
 }
 
-$header = new Gazelle\Util\SortableTableHeader('created', [
+$header = new Util\SortableTableHeader('created', [
     'fromip'     => ['dbColumn' => 'i.FromIP',    'defaultSort' => 'asc',  'text' => 'From'],
     'toip'       => ['dbColumn' => 'i.ToIP',      'defaultSort' => 'asc',  'text' => 'To'],
     'reason'     => ['dbColumn' => 'i.Reason',    'defaultSort' => 'asc',  'text' => 'Reason'],
@@ -50,7 +54,7 @@ if (!empty($_REQUEST['notes'])) {
 if (!empty($_REQUEST['ip']) && preg_match(IP_REGEXP, $_REQUEST['ip'])) {
     $IPv4Man->setFilterIpaddr($_REQUEST['ip']);
 }
-$paginator = new Gazelle\Util\Paginator(IPS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(IPS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($IPv4Man->total());
 
 echo $Twig->render('admin/ipaddr-bans.twig', [

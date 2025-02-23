@@ -61,8 +61,8 @@ abstract class Collector extends Base  {
     abstract public function fillZip(\ZipStream\ZipStream $zip): int;
 
     public function __construct(
-        protected \Gazelle\User $user,
-        protected \Gazelle\Manager\Torrent $torMan,
+        protected User $user,
+        protected Manager\Torrent $torMan,
         protected readonly string          $title,
         protected int                      $orderBy,
     ) {

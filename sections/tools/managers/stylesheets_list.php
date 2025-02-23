@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_manage_stylesheets')) {
     error(403);
 }
 
-$heading = new Gazelle\Util\SortableTableHeader('id', [
+$heading = new Util\SortableTableHeader('id', [
     'id'      => ['dbColumn' => 's.ID', 'defaultSort' => 'asc'],
     'name'    => ['dbColumn' => 's.Name', 'defaultSort' => 'asc',  'text' => 'Name'],
     'enabled' => ['dbColumn' => 'total_enabled', 'defaultSort' => 'desc', 'text' => 'Enabled Users'],
@@ -15,5 +19,5 @@ $heading = new Gazelle\Util\SortableTableHeader('id', [
 
 echo $Twig->render('admin/stylesheet.twig', [
     'heading' => $heading,
-    'list'    => (new Gazelle\Manager\Stylesheet())->usageList($heading->getOrderBy(), $heading->getOrderDir()),
+    'list'    => (new Manager\Stylesheet())->usageList($heading->getOrderBy(), $heading->getOrderDir()),
 ]);

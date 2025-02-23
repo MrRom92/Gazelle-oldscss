@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
 if (!isset($_POST['agreement'])) {
@@ -9,7 +13,7 @@ if (!isset($_POST['agreement'])) {
 }
 
 // Can the site allow an invite to be spent?
-if (!(new Gazelle\Stats\Users())->newUsersAllowed($Viewer) || !$Viewer->canInvite()) {
+if (!(new Stats\Users())->newUsersAllowed($Viewer) || !$Viewer->canInvite()) {
     error(403);
 }
 $email = trim($_POST['email'] ?? '');
@@ -17,7 +21,7 @@ if (!preg_match(EMAIL_REGEXP, $email)) {
     error('Invalid email.');
 }
 
-$manager = new Gazelle\Manager\Invite();
+$manager = new Manager\Invite();
 if ($manager->emailExists($Viewer, $email)) {
     error('You already have a pending invite to that address!');
 }
@@ -32,7 +36,7 @@ if ($Viewer->isInterviewer() || $Viewer->isStaff()) {
 
 $inviteSourceMan = null;
 if ($Viewer->isRecruiter()) {
-    $inviteSourceMan = new Gazelle\Manager\InviteSource();
+    $inviteSourceMan = new Manager\InviteSource();
 }
 
 if ($inviteSourceMan || $Viewer->permitted('users_invite_notes')) {

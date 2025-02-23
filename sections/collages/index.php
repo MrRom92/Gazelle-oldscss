@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 require_once match ($_REQUEST['action'] ?? '') {
     'add_torrent',
     'add_torrent_batch'     => 'add_torrent.php',

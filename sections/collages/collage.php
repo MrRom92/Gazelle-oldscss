@@ -1,6 +1,10 @@
 <?php
 
-$collageMan = new Gazelle\Manager\Collage();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$collageMan = new Manager\Collage();
 $Collage = $collageMan->findById((int)($_GET['id'] ?? 0));
 if (is_null($Collage)) {
     error(404);
@@ -13,4 +17,4 @@ if ($Collage->isDeleted()) {
 
 require_once $Collage->isArtist() ? 'collage_artists.php' : 'collage_torrent.php';
 
-View::show_footer();
+\View::show_footer();

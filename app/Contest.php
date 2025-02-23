@@ -51,7 +51,7 @@ class Contest extends BaseObject {
         }
 
         // upload-flac-no-single => UploadFlacNoSingle
-        $className = '\\Gazelle\\Contest\\' . implode('', array_map('ucfirst', explode('-', $info['contest_type'])));
+        $className = 'Contest\\' . implode('', array_map('ucfirst', explode('-', $info['contest_type'])));
         $info['type'] = new $className($this->id, $info['date_begin'], $info['date_end']);
 
         if ($info['bonus_pool_id']) {
@@ -104,7 +104,7 @@ class Contest extends BaseObject {
         return $this->info()['name'];
     }
 
-    public function rank(\Gazelle\User $user): ?array {
+    public function rank(User $user): ?array {
         $page   = 0;
         $userId = $user->id();
         while (true) {

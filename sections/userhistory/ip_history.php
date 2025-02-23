@@ -2,20 +2,24 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('users_view_ips')) {
     error(403);
 }
 
-$user = (new Gazelle\Manager\User())->findById((int)$_GET['userid']);
+$user = (new Manager\User())->findById((int)$_GET['userid']);
 if (is_null($user)) {
     error(404);
 }
-$ipMan = new Gazelle\Manager\IPv4();
+$ipMan = new Manager\IPv4();
 if (trim($_GET['ip'] ?? '') !== '') {
     $ipMan->setFilterIpaddrRegexp(trim($_GET['ip']));
 }
 
-$paginator = new Gazelle\Util\Paginator(IPS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$paginator = new Util\Paginator(IPS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($ipMan->userTotal($user));
 
 echo $Twig->render('admin/userhistory-site-ip.twig', [

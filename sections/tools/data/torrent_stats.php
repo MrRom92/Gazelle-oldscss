@@ -4,15 +4,17 @@
 
 declare(strict_types=1);
 
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_view_flow')) {
     error(403);
 }
 
-$userMan = new Gazelle\Manager\User();
+$userMan = new Manager\User();
 echo $Twig->render('admin/stats/torrent.twig', [
-    'notification' => new Gazelle\Manager\Notification(),
-    'reaper'       => new Gazelle\Torrent\Reaper(new Gazelle\Manager\Torrent(), $userMan),
-    'torr_stat'    => new Gazelle\Stats\Torrent(),
-    'user_stat'    => new Gazelle\Stats\Users(),
+    'notification' => new Manager\Notification(),
+    'reaper'       => new Torrent\Reaper(new Manager\Torrent(), $userMan),
+    'torr_stat'    => new Stats\Torrent(),
+    'user_stat'    => new Stats\Users(),
     'user_man'     => $userMan,
 ]);

@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_manage_applicants')) {
     error(403);
 }
 
-$role = (new Gazelle\Manager\ApplicantRole())->findById((int)($_GET['id'] ?? 0));
+$role = (new Manager\ApplicantRole())->findById((int)($_GET['id'] ?? 0));
 if (is_null($role)) {
     error(404);
 }
@@ -29,10 +33,10 @@ if (isset($_POST['auth'])) {
     }
 }
 
-$userMan = new Gazelle\Manager\User();
+$userMan = new Manager\User();
 
 echo $Twig->render('applicant/role.twig', [
-    'text'        => new Gazelle\Util\Textarea('description', $role->description()),
+    'text'        => new Util\Textarea('description', $role->description()),
     'role'        => $role,
     'error'       => $error ?? null,
     'viewer'      => $Viewer,

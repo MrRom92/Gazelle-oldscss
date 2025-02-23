@@ -1,17 +1,21 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_collages_create')) {
     error(403);
 }
 
 authorize();
 
-$artist = (new Gazelle\Manager\Artist())->findById((int)($_POST['artistid'] ?? 0));
+$artist = (new Manager\Artist())->findById((int)($_POST['artistid'] ?? 0));
 if (is_null($artist)) {
     error(404);
 }
-$collage = (new Gazelle\Manager\Collage())->findById((int)$_POST['collageid']);
+$collage = (new Manager\Collage())->findById((int)$_POST['collageid']);
 if (is_null($collage)) {
     error(404);
 }

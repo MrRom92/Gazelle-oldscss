@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 authorize();
 
 if (!$Viewer->permitted('site_edit_wiki')) {
@@ -10,7 +14,7 @@ if (!$Viewer->permitted('site_edit_wiki')) {
 if (!$Viewer->permitted('torrents_edit_vanityhouse') && isset($_POST['vanity_house'])) {
     error(403);
 }
-$tgroup = (new Gazelle\Manager\TGroup())->findById((int)$_REQUEST['groupid']);
+$tgroup = (new Manager\TGroup())->findById((int)$_REQUEST['groupid']);
 if (is_null($tgroup)) {
     error(404);
 }
@@ -39,7 +43,7 @@ if (($_GET['action'] ?? '') == 'revert') {
     if ($tgroup->categoryName() === 'Music') {
         // edit, variables are passed via POST
         $ReleaseType = (int)$_POST['releasetype'];
-        $rt = new Gazelle\ReleaseType();
+        $rt = new ReleaseType();
         $newReleaseTypeName = $rt->findNameById($ReleaseType);
         if (!$newReleaseTypeName) {
             error(403);
@@ -67,7 +71,7 @@ if (($_GET['action'] ?? '') == 'revert') {
         if (!preg_match(IMAGE_REGEXP, $Image)) {
             error(display_str($Image) . " does not look like a valid image url");
         }
-        $banned = (new Gazelle\Util\ImageProxy($Viewer))->badHost($Image);
+        $banned = (new Util\ImageProxy($Viewer))->badHost($Image);
         if ($banned) {
             error("Please rehost images from $banned elsewhere.");
         }

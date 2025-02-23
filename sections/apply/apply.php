@@ -2,8 +2,12 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
-$appMan  = new Gazelle\Manager\Applicant();
-$roleMan = new Gazelle\Manager\ApplicantRole();
+declare(strict_types=1);
+
+namespace Gazelle;
+
+$appMan  = new Manager\Applicant();
+$roleMan = new Manager\ApplicantRole();
 
 if (isset($_POST['auth'])) {
     authorize();
@@ -27,7 +31,7 @@ if (isset($_POST['auth'])) {
 }
 
 echo $Twig->render('applicant/apply.twig', [
-    'body'         => new Gazelle\Util\Textarea('body', $body ?? ''),
+    'body'         => new Util\Textarea('body', $body ?? ''),
     'error'        => $error ?? null,
     'list'         => $roleMan->publishedList(),
     'role'         => $role ?? null,

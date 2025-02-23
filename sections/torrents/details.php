@@ -5,11 +5,15 @@
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 // phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Enum\CacheBucket;
 
 header('Access-Control-Allow-Origin: *');
 
-$tgMan  = (new Gazelle\Manager\TGroup())->setViewer($Viewer);
+$tgMan  = (new Manager\TGroup())->setViewer($Viewer);
 $tgroup = $tgMan->findById((int)($_GET['id'] ?? 0));
 if (is_null($tgroup)) {
     error(404);
@@ -17,25 +21,25 @@ if (is_null($tgroup)) {
 $tgroupId = $tgroup->id();
 $RevisionID = (int)($_GET['revisionid'] ?? 0);
 
-// Comments (must be loaded before View::show_header so that subscriptions and quote notifications are handled properly)
-$commentPage = new Gazelle\Comment\Torrent($tgroupId, (int)($_GET['page'] ?? 0), (int)($_GET['postid'] ?? 0));
+// Comments (must be loaded before \View::show_header so that subscriptions and quote notifications are handled properly)
+$commentPage = new Comment\Torrent($tgroupId, (int)($_GET['page'] ?? 0), (int)($_GET['postid'] ?? 0));
 $commentPage->load()->handleSubscription($Viewer);
 
-$paginator = new Gazelle\Util\Paginator(TORRENT_COMMENTS_PER_PAGE, $commentPage->pageNum());
+$paginator = new Util\Paginator(TORRENT_COMMENTS_PER_PAGE, $commentPage->pageNum());
 $paginator->setAnchor('comments')->setTotal($commentPage->total())->removeParam('postid');
 
-$artistMan     = new Gazelle\Manager\Artist();
-$collageMan    = new Gazelle\Manager\Collage();
-$torMan        = (new Gazelle\Manager\Torrent())->setViewer($Viewer);
-$reportMan     = new Gazelle\Manager\Torrent\Report($torMan);
-$requestMan    = new Gazelle\Manager\Request();
-$userMan       = new Gazelle\Manager\User();
+$artistMan     = new Manager\Artist();
+$collageMan    = new Manager\Collage();
+$torMan        = (new Manager\Torrent())->setViewer($Viewer);
+$reportMan     = new Manager\Torrent\Report($torMan);
+$requestMan    = new Manager\Request();
+$userMan       = new Manager\User();
 $snatcher      = $Viewer->snatch();
-$vote          = new Gazelle\User\Vote($Viewer);
+$vote          = new User\Vote($Viewer);
 
-$isSubscribed  = (new Gazelle\User\Subscription($Viewer))->isSubscribedComments('torrents', $tgroupId);
-$releaseTypes  = (new Gazelle\ReleaseType())->list();
-$urlStem       = (new Gazelle\User\Stylesheet($Viewer))->imagePath();
+$isSubscribed  = (new User\Subscription($Viewer))->isSubscribedComments('torrents', $tgroupId);
+$releaseTypes  = (new ReleaseType())->list();
+$urlStem       = (new User\Stylesheet($Viewer))->imagePath();
 
 $categoryId    = $tgroup->categoryId();
 $musicRelease  = $tgroup->categoryName() == 'Music';
@@ -55,7 +59,7 @@ $section = [
 ];
 
 echo $Twig->render('torrent/detail-header.twig', [
-    'is_bookmarked' => (new Gazelle\User\Bookmark($Viewer))->isTorrentBookmarked($tgroup->id()),
+    'is_bookmarked' => (new User\Bookmark($Viewer))->isTorrentBookmarked($tgroup->id()),
     'is_subscribed' => $isSubscribed,
     'revision_id'   => $RevisionID,
     'tgroup'        => $tgroup,
@@ -133,7 +137,7 @@ if ($musicRelease) {
 
 echo $Twig->render('tgroup/stats.twig', [
     'collage_list' => $collageMan->addToCollageDefault($tgroup, $Viewer),
-    'featured'     => (new Gazelle\Manager\FeaturedAlbum())->findById($tgroupId),
+    'featured'     => (new Manager\FeaturedAlbum())->findById($tgroupId),
     'tag_undo'     => $Cache->get_value("deleted_tags_{$tgroupId}_{$Viewer->id()}"),
     'tgroup'       => $tgroup,
     'viewer'       => $Viewer,
@@ -217,7 +221,7 @@ echo $Twig->render('tgroup/similar.twig', [
             <div class="head"><a href="#">↑</a>&nbsp;<strong><?= $tgroup->releaseTypeName() ? $tgroup->releaseTypeName() . ' info' : 'Info' ?></strong></div>
             <div class="body">
 <?php if (!empty($tgroup->description())) { ?>
-                <?= Text::full_format($tgroup->description(), cache: IMAGE_CACHE_ENABLED, bucket: CacheBucket::tgroup) ?>
+                <?= \Text::full_format($tgroup->description(), cache: IMAGE_CACHE_ENABLED, bucket: CacheBucket::tgroup) ?>
 <?php } else { ?>
                 There is no information on this torrent.
 <?php } ?>
@@ -229,7 +233,7 @@ echo $Twig->render('tgroup/similar.twig', [
     'comment'   => $commentPage,
     'paginator' => $paginator,
     'subbed'    => $isSubscribed,
-    'textarea'  => (new Gazelle\Util\Textarea('quickpost', ''))->setPreviewManual(true),
+    'textarea'  => (new Util\Textarea('quickpost', ''))->setPreviewManual(true),
     'url'       => $_SERVER['REQUEST_URI'],
     'url_stem'  => 'comments.php?page=torrents',
     'userMan'   => $userMan,
@@ -238,4 +242,4 @@ echo $Twig->render('tgroup/similar.twig', [
     </div>
 </div>
 <?php
-View::show_footer();
+\View::show_footer();

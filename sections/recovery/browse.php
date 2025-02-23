@@ -2,10 +2,14 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_recovery')) {
     error(403);
 }
-$recovery = new Gazelle\Manager\Recovery();
+$recovery = new Manager\Recovery();
 
 if (isset($_POST['username']) && strlen($_POST['username'])) {
     $class = 'username';

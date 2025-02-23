@@ -1,7 +1,11 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
-if (empty($_GET['order_by']) || !isset(Gazelle\Search\Torrent::$SortOrders[$_GET['order_by']])) {
+declare(strict_types=1);
+
+namespace Gazelle;
+
+if (empty($_GET['order_by']) || !isset(Search\Torrent::$SortOrders[$_GET['order_by']])) {
     $OrderBy = 'time';
 } else {
     $OrderBy = $_GET['order_by'];
@@ -10,9 +14,9 @@ $OrderWay = ($_GET['order_way'] ?? 'desc');
 $GroupResults = ($_GET['group_results'] ?? '1') != '0';
 $Page = (int)($_GET['page'] ?? 1);
 
-$Search = new Gazelle\Search\Torrent(
-    new Gazelle\Manager\TGroup(),
-    new Gazelle\Manager\Torrent(),
+$Search = new Search\Torrent(
+    new Manager\TGroup(),
+    new Manager\Torrent(),
     $GroupResults,
     $OrderBy,
     $OrderWay,
@@ -37,12 +41,12 @@ if ($resultTotal == 0) {
 }
 
 
-echo (new Gazelle\Json\TGroupList(
-    new Gazelle\User\Bookmark($Viewer),
+echo (new Json\TGroupList(
+    new User\Bookmark($Viewer),
     $Viewer->snatch(),
-    new Gazelle\Manager\Artist(),
-    (new Gazelle\Manager\TGroup())->setViewer($Viewer),
-    (new Gazelle\Manager\Torrent())->setViewer($Viewer),
+    new Manager\Artist(),
+    (new Manager\TGroup())->setViewer($Viewer),
+    (new Manager\Torrent())->setViewer($Viewer),
     $Results,
     $GroupResults,
     $resultTotal,

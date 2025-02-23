@@ -1,6 +1,10 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('users_mod')) {
     json_error(403);
 }
@@ -9,7 +13,7 @@ if (!FEATURE_EMAIL_REENABLE) {
     json_error("This feature is currently deactivated.");
 }
 
-$enableMan = new Gazelle\Manager\AutoEnable();
+$enableMan = new Manager\AutoEnable();
 $idList = array_map('intval', $_GET['ids'] ?? []);
 if (empty($idList)) {
     json_error("You must select at least one request to resolve");
@@ -18,9 +22,9 @@ if (empty($idList)) {
 switch ($_GET['type'] ?? '') {
     case "resolve":
         $status = match (trim($_GET['status' ?? ''])) {
-            "Approve", "Approve Selected" => Gazelle\Manager\AutoEnable::APPROVED,
-            "Discard", "Discard Selected" => Gazelle\Manager\AutoEnable::DISCARDED,
-            "Reject", "Reject Selected"   => Gazelle\Manager\AutoEnable::DENIED,
+            "Approve", "Approve Selected" => Manager\AutoEnable::APPROVED,
+            "Discard", "Discard Selected" => Manager\AutoEnable::DISCARDED,
+            "Reject", "Reject Selected"   => Manager\AutoEnable::DENIED,
             default                       => json_error("Invalid resolution option"),
         };
         $enableMan->resolveList($Viewer, $idList, $status, trim($_GET['comment'] ?? ''));

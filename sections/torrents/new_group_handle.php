@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 /***************************************************************
 * This page handles the backend of the "new group" function
 * which splits a torrent off into a new group.
@@ -20,7 +24,7 @@ if (!$year || empty($title) || empty($artistName)) {
     error('Missing parameters to set up new group');
 }
 
-$torrent = (new Gazelle\Manager\Torrent())->findById((int)($_POST['torrentid'] ?? 0));
+$torrent = (new Manager\Torrent())->findById((int)($_POST['torrentid'] ?? 0));
 if (is_null($torrent)) {
     error('Torrent does not exist!');
 }
@@ -37,15 +41,15 @@ if (empty($_POST['confirm'])) {
     exit;
 }
 
-$new = (new Gazelle\Manager\TGroup())->createFromTorrent(
+$new = (new Manager\TGroup())->createFromTorrent(
     $torrent,
     $artistName,
     $title,
     $year,
-    new Gazelle\Manager\Artist(),
-    new Gazelle\Manager\Bookmark(),
-    new Gazelle\Manager\Comment(),
-    new Gazelle\Manager\Vote(),
+    new Manager\Artist(),
+    new Manager\Bookmark(),
+    new Manager\Comment(),
+    new Manager\Vote(),
     $Viewer,
 );
 

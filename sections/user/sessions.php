@@ -2,6 +2,10 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!isset($_GET['id'])) {
     $user = $Viewer;
 } else {
@@ -9,13 +13,13 @@ if (!isset($_GET['id'])) {
     if ($userId !== $Viewer->id() && !$Viewer->permittedAny('users_logout', 'users_view_ips')) {
         error(403);
     }
-    $user = (new Gazelle\Manager\User())->findById($userId);
+    $user = (new Manager\User())->findById($userId);
     if (is_null($user)) {
         error(404);
     }
 }
 
-$session = new Gazelle\User\Session($user);
+$session = new User\Session($user);
 if (isset($_POST['all'])) {
     authorize();
     $session->dropAll();

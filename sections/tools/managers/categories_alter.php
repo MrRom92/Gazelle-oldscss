@@ -1,13 +1,17 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_manage_forums')) {
     error(403);
 }
 
 authorize();
 
-$manager = new Gazelle\Manager\ForumCategory();
+$manager = new Manager\ForumCategory();
 
 if ($_POST['submit'] == 'Delete') {
     $forumCategory = $manager->findById((int)($_POST['id'] ?? 0));
@@ -19,7 +23,7 @@ if ($_POST['submit'] == 'Delete') {
     }
 } else {
     // Edit & Create
-    $validator = new Gazelle\Util\Validator();
+    $validator = new Util\Validator();
     $validator->setFields([
         ['name', true, 'string', 'The name must be set, and has a max length of 40 characters', ['range' => [1, 40]]],
         ['sort', true, 'number', 'Sequence must be set'],

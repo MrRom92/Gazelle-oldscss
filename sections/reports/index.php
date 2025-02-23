@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 require_once match ($_REQUEST['action'] ?? '') {
     'add_notes'   => 'ajax_add_notes.php',
     'claim'       => 'ajax_claim_report.php',

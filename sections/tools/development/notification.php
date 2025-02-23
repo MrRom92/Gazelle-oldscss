@@ -2,11 +2,15 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_view_notifications')) {
     error(403);
 }
 
-$torrent = (new Gazelle\Manager\Torrent())->findById((int)($_POST['torrentid'] ?? 0));
+$torrent = (new Manager\Torrent())->findById((int)($_POST['torrentid'] ?? 0));
 
 $notifiedId   = null;
 $result       = [];
@@ -16,7 +20,7 @@ if ($torrent) {
 
     $result = $notification->userFilterList();
     if (isset($_POST['notifiedid'])) {
-        $notified = (new Gazelle\Manager\User())->find(trim($_POST['notifiedid']));
+        $notified = (new Manager\User())->find(trim($_POST['notifiedid']));
         if ($notified) {
             $notifiedId = $notified->id();
             $result = array_filter($result, fn($r) => $r['user_id'] === $notifiedId);
@@ -24,7 +28,7 @@ if ($torrent) {
     }
 
     foreach ($result as &$r) {
-        $r['filter'] = new Gazelle\NotificationFilter($r['filter_id']);
+        $r['filter'] = new NotificationFilter($r['filter_id']);
     }
     unset($r);
 }

@@ -3,11 +3,15 @@
 /** @phpstan-var \Gazelle\Cache $Cache */
 /** @phpstan-var \Twig\Environment $Twig */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 if (!$Viewer->permitted('site_debug')) {
     error(403);
 }
 
-$inspectDb = new Gazelle\DB();
+$inspectDb = new DB();
 $MemStats = $Cache->getStats();
 
 echo $Twig->render('admin/cache-db-stats.twig', [

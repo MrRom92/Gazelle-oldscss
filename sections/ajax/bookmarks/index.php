@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 switch ($_REQUEST['type'] ?? '') {
     case 'artists':
         include_once __DIR__ . '/artists.php';

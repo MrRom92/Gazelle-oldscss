@@ -61,7 +61,7 @@ class Staff extends BaseUser {
             WHERE " . implode(' AND ', $cond), ...$args);
     }
 
-    public function userStaffPmList(\Gazelle\User $user): array {
+    public function userStaffPmList(User $user): array {
         self::$db->prepared_query("
             SELECT spc.ID   AS pm_id,
                 spc.Subject AS subject,
