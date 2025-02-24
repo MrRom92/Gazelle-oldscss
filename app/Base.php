@@ -29,7 +29,7 @@ abstract class Base {
             WHERE table_schema = ?
                 AND table_name = ?
                 AND column_name = ?
-            ", SQLDB, $table, $column
+            ", MYSQL_DB, $table, $column
         );
         if (!preg_match('/^enum\((.*)\)$/', $columnType, $match)) {
             return [];
@@ -44,7 +44,7 @@ abstract class Base {
             WHERE table_schema = ?
                 AND table_name = ?
                 AND column_name = ?
-            ", SQLDB, $table, $column
+            ", MYSQL_DB, $table, $column
         );
         return $default ? (string)$default : null;
     }

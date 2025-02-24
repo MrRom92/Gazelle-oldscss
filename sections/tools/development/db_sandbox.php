@@ -27,9 +27,6 @@ if (isset($_GET['debug'])) {
     $textAreaRows = max(8, substr_count($query, "\n") + 2);
 } elseif (!empty($_POST['query'])) {
     $query = trim($_POST['query']);
-    if (preg_match('@^(?:show(\s+[\w%\';]+)+|(?:explain\s+)?select\b(?:[\s\w()<>#&/:.,?!`\'"=*+-])+\bfrom)@i', $query) !== 1) {
-        error('Invalid query');
-    }
     $textAreaRows = max(8, substr_count($query, "\n") + 2);
     $execute = true;
 } else {
@@ -42,10 +39,10 @@ $result = [];
 if ($execute) {
     try {
         if ($src == SourceDB::postgres) {
-            $db = new \Gazelle\DB\Pg(GZPG_DSN);
+            $db = new \Gazelle\DB\Pg(PG_RO_DSN);
             $result = $db->all($query);
         } else {
-            $db = Gazelle\DB::DB();
+            $db = Gazelle\DB::DB(readWrite: false);
             $db->prepared_query($query);
             $result = $db->to_array(false, MYSQLI_ASSOC, false);
         }

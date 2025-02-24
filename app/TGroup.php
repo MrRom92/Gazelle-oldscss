@@ -968,7 +968,7 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
         );
 
         $manager = new \Gazelle\DB();
-        [$ok, $message] = $manager->softDelete(SQLDB, 'torrents_group', [['ID', $this->id]]);
+        [$ok, $message] = $manager->softDelete(MYSQL_DB, 'torrents_group', [['ID', $this->id]]);
         if (!$ok) {
             return false;
         }

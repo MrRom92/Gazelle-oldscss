@@ -35,7 +35,7 @@ if (isset($_GET['mode']) && $_GET['mode'] === 'userrank') {
 } else {
     $random = openssl_random_pseudo_bytes(8, $strong);
     $db = new Gazelle\DB();
-    $pg = new Gazelle\DB\Pg(GZPG_DSN);
+    $pg = new Gazelle\DB\Pg(PG_RO_DSN);
     echo $Twig->render('admin/site-info.twig', [
         'uid'              => uid(posix_getuid()),
         'gid'              => gid(posix_getgid()),

@@ -5,8 +5,26 @@ namespace Gazelle;
 use Gazelle\Enum\Direction;
 
 class DB extends Base {
-    public static function DB(): DB\Mysql {
-        return self::$db ??= new DB\Mysql(SQLDB, SQLLOGIN, SQLPASS, SQLHOST, SQLPORT, SQLSOCK);
+    public static function DB(bool $readWrite = true): DB\Mysql {
+        if ($readWrite) {
+            return self::$db ??= new DB\Mysql(
+                MYSQL_DB,
+                MYSQL_RW_USER,
+                MYSQL_RW_PASS,
+                MYSQL_HOST,
+                MYSQL_PORT,
+                MYSQL_SOCK,
+            );
+        }
+        // R/O connections get a fresh instance each invocation
+        return new DB\Mysql(
+            MYSQL_DB,
+            MYSQL_RO_USER,
+            MYSQL_RO_PASS,
+            MYSQL_HOST,
+            MYSQL_PORT,
+            MYSQL_SOCK,
+        );
     }
 
     /**
@@ -47,7 +65,7 @@ class DB extends Base {
             WHERE table_schema = ?
                 AND table_name = ?
             ORDER BY ordinal_position
-            ", SQLDB, $tableName
+            ", MYSQL_DB, $tableName
         );
         return "SELECT " . implode(",\n    ", self::$db->collect(0)) . "\nFROM $tableName\nWHERE --";
     }
@@ -59,7 +77,7 @@ class DB extends Base {
             WHERE table_schema = ?
                 AND table_name = ?
                 AND column_name = ?
-            ", SQLDB, $tableName, $columnName
+            ", MYSQL_DB, $tableName, $columnName
         );
     }
 

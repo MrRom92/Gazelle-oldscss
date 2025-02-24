@@ -12,11 +12,11 @@ return [
         'default_environment' => 'gazelle',
         'gazelle' => [
             'adapter' => 'mysql',
-            'host'    => SQLHOST,
-            'port'    => SQLPORT,
-            'name'    => SQLDB,
-            'user'    => SQL_PHINX_USER,
-            'pass'    => SQL_PHINX_PASS,
+            'host'    => MYSQL_HOST,
+            'port'    => MYSQL_PORT,
+            'name'    => MYSQL_DB,
+            'user'    => MYSQL_PHINX_USER,
+            'pass'    => MYSQL_PHINX_PASS,
             'charset' => 'utf8mb4'
         ],
     ],

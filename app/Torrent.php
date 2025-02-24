@@ -330,13 +330,13 @@ class Torrent extends TorrentAbstract {
 
         $manager = new \Gazelle\DB();
         $manager->relaxConstraints(true);
-        [$ok, $message] = $manager->softDelete(SQLDB, 'torrents_leech_stats', [['TorrentID', $this->id]], false);
+        [$ok, $message] = $manager->softDelete(MYSQL_DB, 'torrents_leech_stats', [['TorrentID', $this->id]], false);
         if (!$ok) {
             self::$db->rollback();
             return [false, $message];
         }
-        $manager->softDelete(SQLDB, 'torrent_has_attr', [['TorrentID', $this->id]]);
-        $manager->softDelete(SQLDB, 'torrents', [['ID', $this->id]]);
+        $manager->softDelete(MYSQL_DB, 'torrent_has_attr', [['TorrentID', $this->id]]);
+        $manager->softDelete(MYSQL_DB, 'torrents', [['ID', $this->id]]);
         $manager->relaxConstraints(false);
 
         self::$db->prepared_query("
@@ -383,7 +383,7 @@ class Torrent extends TorrentAbstract {
             ", $this->id
         );
         $deleteKeys = self::$db->collect('ck', false);
-        $manager->softDelete(SQLDB, 'users_notify_torrents', [['TorrentID', $this->id]]);
+        $manager->softDelete(MYSQL_DB, 'users_notify_torrents', [['TorrentID', $this->id]]);
 
         if (!is_null($user)) {
             $key = sprintf(self::USER_RECENT_UPLOAD, $user->id());

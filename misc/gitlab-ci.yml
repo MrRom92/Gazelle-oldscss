@@ -8,8 +8,10 @@ stages:
 #   MYSQL_USER - mysql username
 #   MYSQL_ROOT_PASSWORD - mysql root password
 #   PG_DATABASE - postgres database
-#   PG_PASSWORD - postgres user password
-#   PG_USER - postgres username
+#   PG_USER - postgres R/W username
+#   PG_PASSWORD - postgres R/W password
+#   PG_RO_USER - postgres R/O user
+#   PG_RO_PASS - postgres R/O password
 #
 # optional variables that can be set:
 #   MYSQL_INIT_DB - create fresh DB with phinx, don't restore sql dump
@@ -26,8 +28,11 @@ variables:
   MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
   MYSQL_USER: $MYSQL_USER
   POSTGRES_DATABASE: ${PG_DATABASE}_${CI_COMMIT_SHORT_SHA}
-  POSTGRES_PASSWORD: $PG_PASSWORD
   POSTGRES_USER: $PG_USER
+  POSTGRES_PASSWORD: $PG_PASSWORD
+  POSTGRES_USER_PASS: $PG_PASSWORD
+  PG_RO_USER: $PG_RO_USER
+  PG_RO_PASS: $PG_RO_PASS
 
 phpstan:
   stage: analyze
@@ -77,6 +82,8 @@ e2e-tests:
     POSTGRES_DB_USER: gazelle
     PGUSER: $POSTGRES_DB_USER
     PGDATABASE: $POSTGRES_DATABASE
+    PG_RO_USER: $PG_RO_USER
+    PG_RO_PASS: $PG_RO_PASS
     PGDATA: /dev/shm/pg
     TEST_SSL_HOST: $TEST_SSL_HOST
     #ELECTRON_RUN_AS_NODE: 1

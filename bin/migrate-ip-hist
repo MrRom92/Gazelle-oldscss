@@ -7,7 +7,7 @@ require_once(__DIR__ . "/../lib/bootstrap.php");
 define('INTERVAL_DAYS', 8);
 
 $db = Gazelle\DB::DB();
-$pg = new \Gazelle\DB\Pg(GZPG_DSN);
+$pg = new \Gazelle\DB\Pg(PG_RW_DSN);
 
 $db->prepared_query("
     SELECT ID FROM users_main ORDER BY 1

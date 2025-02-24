@@ -50,7 +50,7 @@ class MysqlInfo extends \Gazelle\Base {
             WHERE table_schema = ? $where
             GROUP BY $tableColumn, engine, row_format
             ORDER BY {$this->orderBy->value} {$this->direction->value}
-            ", SQLDB
+            ", MYSQL_DB
         );
         return self::$db->to_array('table_name', MYSQLI_ASSOC, false);
     }

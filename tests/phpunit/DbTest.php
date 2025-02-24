@@ -21,12 +21,12 @@ class DbTest extends TestCase {
              FROM information_schema.tables
              WHERE table_schema = ?
                 AND table_name LIKE 'deleted_%'
-            ", SQLDB
+            ", MYSQL_DB
         );
 
         $dbMan = new DB();
         foreach ($db->collect(0, false) as $tableName) {
-            [$ok, $message] = $dbMan->checkStructureMatch(SQLDB, $tableName, "deleted_$tableName");
+            [$ok, $message] = $dbMan->checkStructureMatch(MYSQL_DB, $tableName, "deleted_$tableName");
             $this->assertTrue($ok, "mismatch -- $message");
         }
     }
@@ -39,7 +39,7 @@ class DbTest extends TestCase {
             where table_schema = ?
                 and table_name regexp ?
             order by 1
-            ", SQLDB, '(?<!_has)_attr$'
+            ", MYSQL_DB, '(?<!_has)_attr$'
         );
         $mysqlAttrTableList = $db->collect(0, false);
 
@@ -318,6 +318,25 @@ class DbTest extends TestCase {
         );
         $this->pg()->prepared_query("
             drop table test_bytea
+        ");
+    }
+
+    public function testMysqlWrite(): void {
+        $db = DB::DB(readWrite: false);
+        $this->expectException(\mysqli_sql_exception::class);
+        $this->expectExceptionMessageMatches("/^INSERT command denied to user '" . MYSQL_RO_USER . "'@'[^']+' for table 'site_options'$/");
+        $db->prepared_query("
+            INSERT INTO site_options
+                   (Name,      Value,            Comment)
+            VALUES ('phpunit', 'testMysqlWrite', 'this shall not pass')
+        ");
+    }
+
+    public function testPgWrite(): void {
+        $this->expectException(\PDOException::class);
+        $this->expectExceptionMessageMatches('/^SQLSTATE\[\d+\]: Insufficient privilege: \d+ ERROR:  permission denied for table counter$/');
+        $this->pgro()->prepared_query("
+            insert into counter values ('phpunit-testWrite', 'fail on insert', 0)
         ");
     }
 }

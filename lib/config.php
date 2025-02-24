@@ -167,61 +167,83 @@ defined('USER_EDIT_SALT') or define('USER_EDIT_SALT', 'changeme');
 // environment. It is assumed that all will be changed in production.
 
 // Hostname of the mysql instance.
-defined('SQLHOST') or define('SQLHOST', 'mysql');
+defined('MYSQL_HOST') or define('MYSQL_HOST', 'mysql');
 
 // The TCP port to use.
-defined('SQLPORT') or define('SQLPORT', 3306);
+defined('MYSQL_PORT') or define('MYSQL_PORT', 3306);
 
 // The socket to use. See the php documentation on mysqli::connect
 // to understand how these fit together. If the database and PHP interpreter
 // are running on the same host then you want to use a socket.
-defined('SQLSOCK') or define('SQLSOCK', null);
+defined('MYSQL_SOCK') or define('MYSQL_SOCK', null);
 
 // The name of the database schema.
-defined('SQLDB') or define('SQLDB', 'gazelle');
+defined('MYSQL_DB') or define('MYSQL_DB', 'gazelle');
 
 // The username of the website account. See the docs/01-MysqlRoles.txt
 // document for details on what roles need to be configured.
-defined('SQLLOGIN') or define('SQLLOGIN', 'gazelle');
+defined('MYSQL_RW_USER') or define('MYSQL_RW_USER', 'gazelle');
 
 // The password of the above account.
-defined('SQLPASS') or define('SQLPASS', 'password');
+defined('MYSQL_RW_PASS') or define('MYSQL_RW_PASS', 'password');
+
+// The username of the website account. See the docs/01-MysqlRoles.txt
+// document for details on what roles need to be configured.
+defined('MYSQL_RO_USER') or define('MYSQL_RO_USER', 'gazro');
+
+// The password of the above account.
+defined('MYSQL_RO_PASS') or define('MYSQL_RO_PASS', 'passro');
 
 // The username of the Phinx account (used for schema modifications).
 // In production, this account will have a different set of grants compared
 // to the website account (so that if the website account is compromised, it
 // cannot be used to drop tables or any other malicious activities).
-defined('SQL_PHINX_USER') or define('SQL_PHINX_USER', SQLLOGIN);
+defined('MYSQL_PHINX_USER') or define('MYSQL_PHINX_USER', MYSQL_RW_USER);
 
 // Password of the above.
-defined('SQL_PHINX_PASS') or define('SQL_PHINX_PASS', SQLPASS);
+defined('MYSQL_PHINX_PASS') or define('MYSQL_PHINX_PASS', MYSQL_RW_PASS);
 
 // ------------------------------------------------------------------------
 // Postgresql settings
 
 // Hostname of the Postgresql backend
-defined('GZPG_HOST') or define('GZPG_HOST', 'pg');
+defined('PG_HOST') or define('PG_HOST', 'pg');
 
 // Default port of the backend.
 // No need to change unless you're running on a non-standard port.
-defined('GZPG_PORT') or define('GZPG_PORT', 5432);
+defined('PG_PORT') or define('PG_PORT', 5432);
 
 // Name of the default database
-defined('GZPG_DB') or define('GZPG_DB', 'gz');
+defined('PG_DB') or define('PG_DB', 'gz');
 
 // Role name used by the website (with limited privileges)
-defined('GZPG_USER') or define('GZPG_USER', 'nyala');
+defined('PG_RW_USER') or define('PG_RW_USER', 'nyala');
 
 // Password of the above
-defined('GZPG_PASSWORD') or define('GZPG_PASSWORD', 'nyalapw');
+defined('PG_RW_PASS') or define('PG_RW_PASS', 'nyalapw');
+
+// Role name used by the website (with limited privileges)
+defined('PG_RO_USER') or define('PG_RO_USER', 'nyro');
+
+// Password of the above
+defined('PG_RO_PASS') or define('PG_RO_PASS', 'nyropw');
 
 // The DSN of the connection
-defined('GZPG_DSN') or define('GZPG_DSN',
-    'pgsql:host='      . GZPG_HOST
-        . ';port='     . GZPG_PORT
-        . ';dbname='   . GZPG_DB
-        . ';user='     . GZPG_USER
-        . ';password=' . GZPG_PASSWORD
+defined('PG_RW_DSN') or define('PG_RW_DSN',
+    'pgsql:host='      . PG_HOST
+        . ';port='     . PG_PORT
+        . ';dbname='   . PG_DB
+        . ';user='     . PG_RW_USER
+        . ';password=' . PG_RW_PASS
+);
+
+// The DSN of the read-only connection
+defined('PG_RO_DSN') or define('PG_RO_DSN',
+    'pgsql:host='      . PG_HOST
+        . ';port='     . PG_PORT
+        . ';dbname='   . PG_DB
+        . ';user='     . PG_RO_USER
+        . ';password=' . PG_RO_PASS
 );
 
 // ------------------------------------------------------------------------

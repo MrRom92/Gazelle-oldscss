@@ -32,6 +32,8 @@ services:
       - POSTGRES_USER=nyala
       - POSTGRES_PASSWORD=nyalapw
       - POSTGRES_DB=gz
+      - POSTGRES_RO_USER=nyro
+      - POSTGRES_RO_PASS=nyropw
 
   mysql:
     image: percona:ps-8.0
@@ -44,6 +46,7 @@ services:
       - MYSQL_USER=gazelle
       - MYSQL_PASSWORD=password
       - MYSQL_ROOT_PASSWORD=sc5tlc9JSCC6
+      - PERCONA_TELEMETRY_DISABLE=1 
     command:
       - mysqld
       - --group-concat-max-len=1048576

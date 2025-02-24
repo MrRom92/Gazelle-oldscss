@@ -510,7 +510,7 @@ class Mysql {
             WHERE table_schema = ?
                 AND table_name = ?
                 AND column_name = ?
-            ", SQLDB, $table, $column
+            ", MYSQL_DB, $table, $column
         );
     }
 

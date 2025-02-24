@@ -12,13 +12,10 @@ $idList    = [];
 
 if (isset($_POST['query'])) {
     authorize();
-    if (!preg_match('/\s*select /i', $_POST['query'])) {
-        error("Only SELECT queries are permitted");
-    }
     $result = [];
     switch ($_POST['source']) {
         case 'my':
-            $db = Gazelle\DB::DB();
+            $db = Gazelle\DB::DB(readWrite: false);
             try {
                 $db->prepared_query($_POST['query']);
                 $result = $db->collect(0, false);
@@ -30,7 +27,7 @@ if (isset($_POST['query'])) {
             break;
         case 'pg':
             try {
-                $result = (new \Gazelle\DB\Pg(GZPG_DSN))->column($_POST['query']);
+                $result = (new \Gazelle\DB\Pg(PG_RO_DSN))->column($_POST['query']);
             } catch (\Exception $e) {
                 $error = $e::class . " " . $e->getMessage();
             }

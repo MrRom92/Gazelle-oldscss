@@ -111,7 +111,7 @@ class SiteInfo extends Base {
             FROM information_schema.tables t
             WHERE t.table_schema = ?
                 AND t.table_name = ?
-            ", SQLDB, $tableName
+            ", MYSQL_DB, $tableName
         );
     }
 
@@ -125,7 +125,7 @@ class SiteInfo extends Base {
                 WHERE INDEX_NAME = 'PRIMARY' AND  TABLE_SCHEMA = ?
             ) AND TABLE_SCHEMA = ?
             ORDER BY TABLE_NAME
-            ", SQLDB, SQLDB
+            ", MYSQL_DB, MYSQL_DB
         );
         return self::$db->collect(0);
     }
@@ -156,7 +156,7 @@ class SiteInfo extends Base {
             ) DUP USING (table_name, column_name, referenced_table_name, referenced_column_name)
             WHERE kcu.referenced_table_schema = ?
             ORDER BY 1, 2, 3, 4, 5;
-            ", SQLDB, SQLDB
+            ", MYSQL_DB, MYSQL_DB
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
@@ -167,7 +167,7 @@ class SiteInfo extends Base {
             FROM information_schema.table_statistics
             WHERE TABLE_SCHEMA = ?
                 AND TABLE_NAME = ?
-            ", SQLDB, $tableName
+            ", MYSQL_DB, $tableName
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
@@ -184,7 +184,7 @@ class SiteInfo extends Base {
                 s.INDEX_NAME = 'PRIMARY' DESC,
                 coalesce(si.ROWS_READ, 0) DESC,
                 s.INDEX_NAME
-            ", SQLDB, $tableName
+            ", MYSQL_DB, $tableName
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
@@ -203,7 +203,7 @@ class SiteInfo extends Base {
             INNER JOIN information_schema.table_statistics ts USING (TABLE_SCHEMA, TABLE_NAME)
             WHERE t.TABLE_SCHEMA = ?
                 AND t.TABLE_NAME = ?
-            ", SQLDB, $tableName
+            ", MYSQL_DB, $tableName
         );
     }
 }

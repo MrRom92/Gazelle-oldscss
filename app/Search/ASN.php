@@ -4,7 +4,7 @@ namespace Gazelle\Search;
 
 class ASN extends \Gazelle\Base {
     public function __construct(
-        protected \Gazelle\DB\Pg $pg = new \Gazelle\DB\Pg(GZPG_DSN)
+        protected \Gazelle\DB\Pg $pg = new \Gazelle\DB\Pg(PG_RW_DSN)
     ) { }
 
     public function findByASN(int $asn): array {

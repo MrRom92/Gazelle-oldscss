@@ -15,13 +15,6 @@ export POSTGRES_USER_PASSWORD
 [ -f "${CI_PROJECT_DIR}/lib/override.config.php" ] || bash "${CI_PROJECT_DIR}/misc/docker/web/generate-config-testing.sh"
 sed -i 's|gazelle\.php|ci-coverage.php|' "${CI_PROJECT_DIR}/public/index.php"
 
-if [ ! -f "/etc/php/${PHP_VER}/cli/conf.d/99-boris.ini" ]; then
-    echo "Initialize Boris..."
-    grep '^disable_functions' "/etc/php/${PHP_VER}/cli/php.ini" \
-        | sed -r 's/pcntl_(fork|signal|signal_dispatch|waitpid),//g' \
-        > "/etc/php/${PHP_VER}/cli/conf.d/99-boris.ini"
-fi
-
 composer --version && composer install --no-progress
 bin/local-patch
 
@@ -50,6 +43,7 @@ chmod 600 ~/.pgpass
 
 cat << EOF | psql -d postgres -U ${POSTGRES_USER} 
 create role ${POSTGRES_DB_USER} with password '${POSTGRES_USER_PASSWORD}' login;
+create role ${PG_RO_USER} with password '${PG_RO_PASS}' login;
 create database ${POSTGRES_DATABASE} with owner ${POSTGRES_DB_USER};
 EOF
 
@@ -62,33 +56,36 @@ if [ -z "${MYSQL_INIT_DB-}" ]; then
     echo "Restore mysql dump..."
     (
         cat /opt/gazelle/mysql_schema.sql /opt/gazelle/mysql_data.sql
-        echo 'CREATE FUNCTION IF NOT EXISTS bonus_accrual(Size bigint, Seedtime float, Seeders integer)
+        cat <<EOF
+CREATE USER IF NOT EXISTS 'ro_$MYSQL_USER'@'%' IDENTIFIED BY 'ro_$MYSQL_PASSWORD';
+GRANT SELECT ON *.* TO 'ro_$MYSQL_USER'@'%';
+CREATE FUNCTION IF NOT EXISTS bonus_accrual(Size bigint, Seedtime float, Seeders integer)
   RETURNS float DETERMINISTIC NO SQL
   RETURN Size / pow(1024, 3) * (0.0433 + (0.07 * ln(1 + Seedtime/24)) / pow(greatest(Seeders, 1), 0.35));
 CREATE FUNCTION IF NOT EXISTS binomial_ci(p int, n int)
   RETURNS float DETERMINISTIC
-  RETURN IF(n = 0,0.0,((p + 1.35336) / n - 1.6452 * SQRT((p * (n-p)) / n + 0.67668) / n) / (1 + 2.7067 / n));' \
+  RETURN IF(n = 0,0.0,((p + 1.35336) / n - 1.6452 * SQRT((p * (n-p)) / n + 0.67668) / n) / (1 + 2.7067 / n));
+EOF
     ) | mysql -u root -p"$MYSQL_ROOT_PASSWORD" || exit 1
 fi
 
-echo "Run mysql migrations..."
-if ! ( FKEY_MY_DATABASE=1 LOCK_MY_DATABASE=1 "${CI_PROJECT_DIR}/vendor/bin/phinx" migrate -e gazelle ) ; then
-    echo "PHINX FAILED TO RUN MIGRATIONS"
-    exit 1
-fi
-
-echo "Run postgres migrations..."
-if ! "${CI_PROJECT_DIR}/vendor/bin/phinx" migrate -c ./misc/phinx-pg.php; then
-    echo "PHINX FAILED TO RUN MIGRATIONS"
+echo "Run Mysql migrations..."
+if ! FKEY_MY_DATABASE=1 LOCK_MY_DATABASE=1 "${CI_PROJECT_DIR}/vendor/bin/phinx" migrate -e gazelle; then
+    echo "phinx encountered a fatal error in the Mysql migrations"
     exit 1
 fi
 
 if [ -n "${MYSQL_INIT_DB-}" ]; then
-    echo "Run seed:run..."
     if ! "${CI_PROJECT_DIR}/vendor/bin/phinx" seed:run; then
-        echo "PHINX FAILED TO SEED"
+        echo "phinx encountered a fatal error in the Mysql seeds"
         exit 1
     fi
+fi
+
+echo "Run Postgresql migrations..."
+if ! "${CI_PROJECT_DIR}/vendor/bin/phinx" migrate -c ./misc/phinx-pg.php; then
+    echo "phinx encountered a fatal error in the Postgresql migrations"
+    exit 1
 fi
 
 if [ "${DUMP_MYSQL_SCHEMA}" = 1 ]; then
@@ -97,11 +94,9 @@ fi
 
 if [ ! -d /var/lib/gazelle/torrent ]; then
     echo "Generate file storage directories..."
-    time (
-        perl "${CI_PROJECT_DIR}/bin/generate-storage-dirs" /var/lib/gazelle/torrent 2 100
-        perl "${CI_PROJECT_DIR}/bin/generate-storage-dirs" /var/lib/gazelle/riplog 2 100
-        perl "${CI_PROJECT_DIR}/bin/generate-storage-dirs" /var/lib/gazelle/riploghtml 2 100
-    )
+    perl "${CI_PROJECT_DIR}/bin/generate-storage-dirs" /var/lib/gazelle/torrent 2 100
+    perl "${CI_PROJECT_DIR}/bin/generate-storage-dirs" /var/lib/gazelle/riplog 2 100
+    perl "${CI_PROJECT_DIR}/bin/generate-storage-dirs" /var/lib/gazelle/riploghtml 2 100
     chown -R gazelle /var/lib/gazelle
 fi
 

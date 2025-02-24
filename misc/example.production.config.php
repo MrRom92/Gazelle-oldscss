@@ -23,14 +23,14 @@ define('SQLHOST', '10.0.0.1');
 define('IRC_HOSTNAME', 'irc.example.com');
 
 // If your database is on the same host as the PHP interpreter
-define('SQLSOCK', '/var/run/mysqld/mysqld.sock');
+define('MYSQL_SOCK', '/var/run/mysqld/mysqld.sock');
 
-define('SQLDB',    'changeme');
-define('SQLLOGIN', 'changeme');
-define('SQLPASS',  'changeme');
+define('MYSQL_DB',      'changeme');
+define('MYSQL_RW_USER', 'changeme');
+define('MYSQL_RW_PASS', 'changeme');
 
-define('SQL_PHINX_USER', 'thisis.phinx');
-define('SQL_PHINX_PASS', 'thisis.phinx');
+define('MYSQL_PHINX_USER', 'thisis.phinx');
+define('MYSQL_PHINX_PASS', 'thisis.phinx');
 
 define('SPHINX_HOST', 'sphinx.example.com');
 define('SPHINXQL_HOST', SPHINX_HOST);

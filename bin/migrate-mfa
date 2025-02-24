@@ -10,7 +10,7 @@ function genPlaceholders(int $num, string $val) {
 }
 
 $db = Gazelle\DB::DB();
-$pg = new \Gazelle\DB\Pg(GZPG_DSN);
+$pg = new \Gazelle\DB\Pg(PG_RW_DSN);
 
 $values = [];
 
