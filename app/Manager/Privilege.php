@@ -214,6 +214,8 @@ class Privilege extends \Gazelle\BaseManager {
             'torrents_freeleech' => 'Make torrents freeleech',
             'torrents_hide_dnu' => 'Hide the Do Not Upload list',
             'admin_add_log' => 'Add rip logs to any upload',
+            'admin_audit_view' => 'Can view user audit trails',
+            'admin_audit_edit' => 'Can edit user audit trails',
             'admin_manage_news' => 'Manage site news',
             'admin_manage_blog' => 'Manage the site blog',
             'admin_manage_contest' => 'Manage contests',

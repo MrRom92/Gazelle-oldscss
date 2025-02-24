@@ -12,6 +12,12 @@ switch ($_REQUEST['action'] ?? '') {
     case 'audit':
         include_once 'audit.php';
         break;
+    case 'audit-edit':
+        require_once('audit-edit.php');
+        break;
+    case 'audit-edit-handle':
+        require_once('audit-edit-handle.php');
+        break;
     case 'dupes':
         include_once 'userlink_handle.php';
         break;

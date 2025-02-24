@@ -767,8 +767,7 @@ class User extends \Gazelle\BaseManager {
             LEFT JOIN user_last_access ula ON (ula.user_id = um.ID)
             SET um.Enabled = '2',
                 ui.BanDate = now(),
-                ui.BanReason = '3',
-                ui.AdminComment = CONCAT(now(), ' - Disabled for inactivity (never logged in)\n\n', ui.AdminComment)
+                ui.BanReason = '3'
             WHERE ula.user_id IS NULL
                 AND um.created < now() - INTERVAL 7 DAY
                 AND um.Enabled != '2'
@@ -893,10 +892,9 @@ class User extends \Gazelle\BaseManager {
                 um.Enabled = '2',
                 um.can_leech = 0,
                 ui.BanDate = now(),
-                ui.AdminComment = concat(now(), ' - ', ?, ui.AdminComment),
                 ui.BanReason = ?
             WHERE um.ID IN (" . placeholders($idList) . ")
-            ", "$comment\n\n", $reason, ...$idList
+            ", $reason, ...$idList
         );
         $n = (int)(self::$db->affected_rows() / 2); // there are two rows, in users_main and users_info
 
@@ -1522,8 +1520,7 @@ class User extends \Gazelle\BaseManager {
             INNER JOIN users_info ui ON (ui.UserID = um.ID) SET
                 um.can_leech          = 1,
                 ui.RatioWatchEnds     = NULL,
-                ui.RatioWatchDownload = '0',
-                ui.AdminComment       = concat(now(), ' - Taken off ratio watch by adequate ratio.\n\n', ui.AdminComment)
+                ui.RatioWatchDownload = '0'
             WHERE um.ID IN (" . placeholders($idList) . ")
         ", ...$idList);
 

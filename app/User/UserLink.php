@@ -2,6 +2,8 @@
 
 namespace Gazelle\User;
 
+use Gazelle\Enum\UserAuditEvent;
+
 class UserLink extends \Gazelle\BaseUser {
     final public const tableName = 'users_dupes';
 
@@ -117,14 +119,15 @@ class UserLink extends \Gazelle\BaseUser {
         }
 
         if ($updateNote) {
-            self::$db->prepared_query("
-                UPDATE users_info AS i
-                INNER JOIN users_dupes AS d USING (UserID) SET
-                    i.AdminComment = concat(now(), ?, i.AdminComment)
-                WHERE d.GroupID = ?
-                ", " - Linked accounts updated: [user]" . $this->user->username() . "[/user] and [user]"
-                    . $target->username() . "[/user] linked by {$admin->username()}\n\n",
-                $linkGroupId
+            $this->user->auditTrail()->addEvent(
+                UserAuditEvent::link,
+                "[user]{$this->user->username()}[/user] and [user]{$target->username()}[/user] linked",
+                $admin,
+            );
+            $target->auditTrail()->addEvent(
+                UserAuditEvent::link,
+                "[user]{$this->user->username()}[/user] and [user]{$target->username()}[/user] linked",
+                $admin,
             );
         }
         self::$db->commit();
@@ -153,12 +156,10 @@ class UserLink extends \Gazelle\BaseUser {
             ", $comments, $groupId
         );
         if ($updateNote) {
-            self::$db->prepared_query("
-                UPDATE users_info AS i SET
-                    i.AdminComment = concat(now(), ?, i.AdminComment)
-                WHERE i.UserID = ?
-                ",  "- Linked accounts updated: Comments updated by {$admin->username()}\n\n",
-                    $this->user->id()
+            $this->user->auditTrail()->addEvent(
+                UserAuditEvent::link,
+                "Comments updated",
+                $admin,
             );
         }
         self::$db->commit();
@@ -167,15 +168,10 @@ class UserLink extends \Gazelle\BaseUser {
 
     public function removeUser(\Gazelle\User $target, \Gazelle\User $admin): int {
         $targetId = $target->id();
-        self::$db->begin_transaction();
-        self::$db->prepared_query("
-            UPDATE users_info AS i
-            INNER JOIN users_dupes AS d1 ON (d1.UserID = i.UserID)
-            INNER JOIN users_dupes AS d2 ON (d2.GroupID = d1.GroupID) SET
-                i.AdminComment = concat(now(), ?, i.AdminComment)
-            WHERE d2.UserID = ?
-            ", " - Linked accounts updated: [user]" . $target->username() . "[/user] unlinked by {$admin->username()}\n\n",
-            $targetId
+        $target->auditTrail()->addEvent(
+            UserAuditEvent::link,
+            "[user]{$target->username()}[/user] unlinked",
+            $admin,
         );
         $groupId = $this->groupId($target);
         self::$db->prepared_query("

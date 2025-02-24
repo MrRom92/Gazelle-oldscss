@@ -10,9 +10,11 @@ enum UserAuditEvent: string {
     case activity   = 'activity';
     case historical = 'historical'; // previously users_info.AdminComment
     case invite     = 'invite';
+    case link       = 'link';
     case staffNote  = 'staff-note';
     case mfa        = 'mfa';
     case ratio      = 'ratio';
+    case request    = 'request';
     case userclass  = 'userclass';
     case warning    = 'warning';
 }

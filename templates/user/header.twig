@@ -5,17 +5,17 @@
 <div class="thin">
     <div class="header">
         <h2>{{ user.username }}
-{% if donor.isDonor and (own_profile or donor.isVisible or viewer.permitted('users_override_paranoia')) %}
+{% if donor.isDonor and (own_profile or donor.isVisible or viewer.permitted('users_override_paranoia')) -%}
         &nbsp;{{ donor.heart(viewer)|raw -}}
-{% endif -%}
+{% endif %}
 {% if user.isWarned -%}
         &nbsp;<a href="wiki.php?action=article&amp;name=warnings"><img src="{{
             constant('STATIC_SERVER') }}/common/symbols/warned.png" alt="Warned" title="Warned
-{%  if own_profile or viewer.permitted('users_mod') %} – Expires {{ user.warningExpiry }}{% endif %}" class="tooltip" /></a>
+{%- if own_profile or viewer.permitted('users_mod') %} – Expires {{ user.warningExpiry }}{% endif %}" class="tooltip" /></a>
 {% endif %}
-{% if user.isDisabled %}
+{% if user.isDisabled -%}
         &nbsp;<a href="rules.php"><img src="{{ constant('STATIC_SERVER') }}/common/symbols/disabled.png" alt="Banished" title="Naughty person" class="tooltip" /></a>
-{% endif -%}
+{% endif %}
 {% for badge, name in user.privilege.badgeList %}
             <span class="tooltip secondary_class" title="{{ name }}">{{ badge }}</span>
 {% endfor %}
@@ -61,7 +61,7 @@
 {%  endif %}
 {% endif %}
 {% if viewer.permitted('users_mod') %}
-        <a href="user.php?id={{ user_id }}&amp;action=audit" class="brackets">Audit</a>
+        <a href="user.php?action=audit&amp;id={{ user_id }}" class="brackets">Audit</a>
 {% endif %}
 {% if viewer.permitted('admin_clear_cache') and viewer.permitted('users_override_paranoia') %}
         <a href="user.php?action=clearcache&amp;id={{ user_id }}" class="brackets">Clear cache</a>

@@ -40,7 +40,7 @@ if (isset($_POST['curr']) && isset($_POST['prev'])) {
             if (!($prev && $confirm)) {
                 $message = "No database information to pair from $prevId to $currId";
             }
-            $message = $recovery->mapToPrevious($currId, $prevId, $Viewer->username())
+            $message = $recovery->mapToPrevious($curr, $prevId, $Viewer)
                 ? $curr->username() . " has been successfully mapped to previous user {$confirm['Username']}."
                 : "DB Error: could not map $currId to $prevId";
             $confirm = false;

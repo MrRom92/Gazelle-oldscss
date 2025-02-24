@@ -197,14 +197,13 @@ class InviteTest extends TestCase {
             'invite-tree-manip-comment'
         );
         $this->assertStringContainsString(
-            "Invite Tree comment on {$this->user->username()} by {$this->user->username()}\nReason: phpunit invite tree comment\n",
-            $this->user->staffNotes(),
+            "Invite Tree comment on {$this->user->username()} by {$this->user->username()}",
+            $this->user->auditTrail()->fullEventList()[0]['note'],
             'invite-tree-manip-user-comment',
         );
-        // need to flush to pick up the out-of-band changes
         $this->assertStringContainsString(
-            "Invite Tree comment on {$this->user->username()} by {$this->user->username()}\nReason: phpunit invite tree comment\n",
-            $this->invitee->flush()->staffNotes(),
+            "Invite Tree comment on {$this->user->username()} by {$this->user->username()}",
+            $this->invitee->auditTrail()->fullEventList()[0]['note'],
             'invite-tree-manip-inv-comment',
         );
 
@@ -223,13 +222,13 @@ class InviteTest extends TestCase {
         );
         $this->assertTrue($this->invitee->flush()->disableInvites(), 'invite-tree-inv-invites');
         $this->assertStringContainsString(
-            "Invite Tree invites removed on {$this->user->username()} by {$this->user->username()}\n",
-            $this->user->staffNotes(),
+            "Invite Tree invites removed on {$this->user->username()} by {$this->user->username()}",
+            $this->user->auditTrail()->fullEventList()[0]['note'],
             'invite-tree-manip-user-revoke',
         );
         $this->assertStringContainsString(
-            "Invite Tree invites removed on {$this->user->username()} by {$this->user->username()}\n",
-            $this->invitee->staffNotes(),
+            "Invite Tree invites removed on {$this->user->username()} by {$this->user->username()}",
+            $this->invitee->auditTrail()->fullEventList()[0]['note'],
             'invite-tree-manip-inv-revoke',
         );
 
@@ -247,21 +246,32 @@ class InviteTest extends TestCase {
             'invite-tree-manip-revoke'
         );
         $eventList = array_values(array_filter(
-            $this->invitee->auditTrail()->eventList(),
+            $this->invitee->auditTrail()->fullEventList(),
             fn ($e) => $e['event'] === UserAuditEvent::invite->value,
         ));
-        $this->assertStringContainsString('Invite Tree ban on ', $eventList[0]['note'], 'invite-tree-event-0');
-        $this->assertStringContainsString('Invite Tree invites removed on ', $eventList[1]['note'], 'invite-tree-event-1');
-        $this->assertStringContainsString('Invite Tree comment on ', $eventList[2]['note'], 'invite-tree-event-2');
+        $this->assertStringContainsString(
+            'Invite Tree ban on ',
+            $eventList[0]['note'],
+            'invite-tree-event-0');
+        $this->assertStringContainsString(
+            'Invite Tree invites removed on ',
+            $eventList[1]['note'],
+            'invite-tree-event-1'
+        );
+        $this->assertStringContainsString(
+            'Invite Tree comment on ',
+            $eventList[2]['note'],
+            'invite-tree-event-2'
+        );
         $this->assertTrue($this->invitee->flush()->isDisabled(), 'invite-tree-inv-disabled');
         $this->assertStringContainsString(
-            "Invite Tree ban on {$this->user->username()} by {$this->user->username()}\n",
-            $this->user->staffNotes(),
+            "Invite Tree ban on {$this->user->username()} by {$this->user->username()}",
+            $this->user->auditTrail()->fullEventList()[0]['note'],
             'invite-tree-manip-user-ban',
         );
         $this->assertStringContainsString(
-            "Invite Tree ban on {$this->user->username()} by {$this->user->username()}\n",
-            $this->invitee->staffNotes(),
+            "Invite Tree ban on {$this->user->username()} by {$this->user->username()}",
+            $this->invitee->auditTrail()->fullEventList()[0]['note'],
             'invite-tree-manip-inv-ban',
         );
     }
@@ -333,7 +343,11 @@ class InviteTest extends TestCase {
             'invitee-invite-source'
         );
         $this->assertEquals($profile, $this->invitee->externalProfile()->profile(), 'invite-source-profile');
-        $this->assertStringContainsString('phpunit notes', $this->invitee->staffNotes(), 'invite-recruiter-notes');
+        $this->assertStringContainsString(
+            'phpunit notes',
+            $this->invitee->auditTrail()->fullEventList()[0]['note'],
+            'invite-recruiter-notes'
+        );
 
         $inviteeList = $inviteSourceMan->userSource($this->user);
         $this->assertCount(1, $inviteeList, 'invite-source-invited-list');

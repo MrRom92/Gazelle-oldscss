@@ -208,7 +208,7 @@ class Helper {
             ->setUsername($username)
             ->setEmail(randomString(6) . "@{$tag}.example.com")
             ->setPassword(randomString())
-            ->setAdminComment("Created by tests/helper/User($tag)")
+            ->addNote("Created by tests/helper/User($tag)")
             ->create();
         if ($enable) {
             $user->setField('Enabled', UserStatus::enabled->value)->modify();
@@ -233,7 +233,7 @@ class Helper {
             ->setEmail(randomString(6) . "@key.invite.example.com")
             ->setPassword(randomString())
             ->setInviteKey($key)
-            ->setAdminComment("Created by tests/helper/User(InviteKey)")
+            ->addNote("Created by tests/helper/User(InviteKey)")
             ->create();
     }
 

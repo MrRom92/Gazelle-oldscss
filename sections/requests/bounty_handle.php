@@ -69,10 +69,10 @@ foreach ($action as $userId => $operation) {
  *   $remove = [4]
  */
 foreach ($refund as $user) {
-    $request->refundBounty($user, $Viewer->username());
+    $request->refundBounty($user, $Viewer);
 }
 foreach ($remove as $user) {
-    $request->removeBounty($user, $Viewer->username());
+    $request->removeBounty($user, $Viewer);
 }
 $request->updateSphinx();
 

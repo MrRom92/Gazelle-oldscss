@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use Gazelle\Enum\NotificationType;
+use Gazelle\Enum\UserAuditEvent;
 use Gazelle\Enum\UserStatus;
 use Gazelle\Exception\UserCreatorException;
 use Gazelle\Util\Time;
@@ -11,7 +12,7 @@ class UserCreator extends Base {
     use Pg;
 
     protected bool   $newInstall;
-    protected array  $adminComment = [];
+    protected array  $note = [];
     protected array  $email = [];
     protected int    $id;
     protected int    $permissionId;
@@ -25,8 +26,8 @@ class UserCreator extends Base {
      * Calling create() calls this as a side effect.
      */
     public function flush(): void {
-        $this->adminComment = [];
-        $this->email        = [];
+        $this->note  = [];
+        $this->email = [];
         unset($this->id);
         unset($this->announceKey);
         unset($this->inviteKey);
@@ -52,7 +53,7 @@ class UserCreator extends Base {
 
         if ($this->newInstall()) {
             $this->permissionId = SYSOP;
-            $this->adminComment[] = 'Initial account created on first registration';
+            $this->note[] = 'Initial account created on first registration';
         } else {
             $this->permissionId = USER;
         }
@@ -77,11 +78,11 @@ class UserCreator extends Base {
                 $this->email[] = $email;
             }
             if (!empty($inviterReason)) {
-                $this->adminComment[] = $inviterReason;
+                $this->note[] = $inviterReason;
             }
-            $this->adminComment[] = "invite key = " . $this->inviteKey;
+            $this->note[] = "invite key = " . $this->inviteKey;
             if (!empty($inviterNotes)) {
-                $this->adminComment[] = $inviterNotes;
+                $this->note[] = $inviterNotes;
             }
         }
 
@@ -151,9 +152,9 @@ class UserCreator extends Base {
         // create users_info row
         self::$db->prepared_query("
             INSERT INTO users_info
-                   (UserID, AdminComment)
-            VALUES (?,      ?)
-            ",  $this->id, Time::sqlTime() . " - " . implode("\n", $this->adminComment)
+                   (UserID)
+            VALUES (?)
+            ",  $this->id
         );
 
         if ($inviter) {
@@ -229,6 +230,12 @@ class UserCreator extends Base {
         self::$db->commit();
 
         (new Tracker())->addUser($user);
+        if ($this->note) {
+            (new User\AuditTrail($user))->addEvent(
+                UserAuditEvent::invite,
+                implode("\n", $this->note)
+            );
+        }
 
         $this->flush(); // So we can create another user
         return $user;
@@ -257,10 +264,11 @@ class UserCreator extends Base {
     }
 
     /**
-     * Set the initial admin comment. Not mandatory for creation
+     * Set a note regarding the creation, additional calls will be appended to
+     * the final staff note. Not mandatory.
      */
-    public function setAdminComment(string $adminComment): static {
-        $this->adminComment[] = trim($adminComment);
+    public function addNote(string $note): static {
+        $this->note[] = trim($note);
         return $this;
     }
 

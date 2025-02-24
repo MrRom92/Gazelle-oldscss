@@ -9,7 +9,7 @@ class Recovery extends \Gazelle\Task {
             if (RECOVERY_AUTOVALIDATE) {
                 $recovery->validatePending();
             }
-            $recovery->boostUpload();
+            $recovery->boostUpload(new \Gazelle\Manager\User());
         }
     }
 }

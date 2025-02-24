@@ -2,6 +2,7 @@
 
 namespace Gazelle\Manager;
 
+use Gazelle\Enum\UserAuditEvent;
 use Gazelle\Util\Mail;
 
 class Recovery extends \Gazelle\Base {
@@ -397,27 +398,23 @@ class Recovery extends \Gazelle\Base {
         return self::$db->to_array();
     }
 
-    public function mapToPrevious(int $siteUserId, int $prevUserId, string $admin_username): bool {
+    public function mapToPrevious(\Gazelle\User $user, int $prevUserId, \Gazelle\User $admin): bool {
         self::$db->prepared_query(
             sprintf("INSERT INTO %s.%s (user_id, mapped_id) VALUES (?, ?)", RECOVERY_DB, RECOVERY_MAPPING_TABLE),
-            $prevUserId, $siteUserId
+            $prevUserId, $user->id()
         );
         if (self::$db->affected_rows() != 1) {
             return false;
         }
-
-        /* staff note */
-        self::$db->prepared_query("
-            UPDATE users_info
-            SET AdminComment = CONCAT(now(), ' - ', ?, AdminComment)
-            WHERE UserID = ?
-            ", "mapped to previous id $prevUserId by $admin_username\n\n", $siteUserId
+        $user->auditTrail()->addEvent(
+            UserAuditEvent::invite,
+            "mapped to previous id $prevUserId",
+            $admin,
         );
         return true;
     }
 
-    public function boostUpload(): void {
-        $userMan = new User();
+    public function boostUpload(User $userMan): void {
         $sql = sprintf("
             SELECT HIST.Username, HIST.mapped_id, HIST.UserID, HIST.Uploaded, HIST.Downloaded, HIST.Bounty, HIST.nr_torrents, HIST.userclass,
                 round(
@@ -509,16 +506,16 @@ class Recovery extends \Gazelle\Base {
             $bounty_fmt     = byte_format($bounty);
             $final_fmt      = byte_format($final);
 
-            $admin_comment = sprintf("%s - Upload stats recovery raw: Up=%d Down=%d Bounty=%d Torrents=%d IRC=%s"
+            $adminComment = sprintf("%s - Upload stats recovery raw: Up=%d Down=%d Bounty=%d Torrents=%d IRC=%s"
                 . "\nformatted: U=%s D=%s B=%s Final=%s (%d) APL_ID=%d RESCALE=%s reclaim=$reclaimed\n\n",
                 $username, $uploaded, $downloaded, $bounty, $nr_torrents, $irc_userclass,
                 $uploaded_fmt, $downloaded_fmt, $bounty_fmt, $final_fmt, $final, $prevUserId, $irc_message
             );
 
             /* no buffer for you if < 1MB */
-            $to = $userMan->findById($siteUserId);
-            if ($to && $final >= 1.0) {
-                $username = $to->username();
+            $user = $userMan->findById($siteUserId);
+            if ($user && $final >= 1.0) {
+                $username = $user->username();
                 if (RECOVERY_BUFFER) {
                     $Body = <<<END_MSG
 Dear {$username},
@@ -566,24 +563,18 @@ END_MSG;
                     RECOVERY_BUFFER ? $final : 0
             );
 
-            /* staff note */
-            self::$db->prepared_query("
-                UPDATE users_info
-                SET AdminComment = CONCAT(?, AdminComment)
-                WHERE UserID = ?
-                ", $admin_comment, $siteUserId
-            );
+            $user->auditTrail()->addEvent(UserAuditEvent::invite, $adminComment);
 
             /* buffer */
             if (RECOVERY_BUFFER) {
                 self::$db->prepared_query("
-                    UPDATE users_leech_stats
-                    SET Uploaded = Uploaded + ?
+                    UPDATE users_leech_stats SET
+                        Uploaded = Uploaded + ?
                     WHERE UserID = ?
                     ", $final, $siteUserId
                 );
             }
-            self::$cache->delete_value('user_stats_' . $siteUserId);
+            $user->flush();
         }
     }
 

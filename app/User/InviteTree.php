@@ -207,7 +207,7 @@ class InviteTree extends \Gazelle\BaseUser {
             $staffNote .= "\nReason: $comment";
         }
         $this->user->addStaffNote($staffNote)->modify();
-        $this->user->auditTrail()->addEvent(UserAuditEvent::invite, $staffNote);
+        $this->user->auditTrail()->addEvent(UserAuditEvent::invite, $staffNote, $admin);
         $ban = [];
         foreach ($inviteeList as $inviteeId) {
             $invitee = $userMan->findById($inviteeId);
@@ -234,7 +234,7 @@ class InviteTree extends \Gazelle\BaseUser {
             }
             if (!$doDisable) {  // $userMan->disableUserList will add the staff note otherwise
                 $invitee->addStaffNote($staffNote)->modify();
-                $invitee->auditTrail()->addEvent(UserAuditEvent::invite, $staffNote);
+                $invitee->auditTrail()->addEvent(UserAuditEvent::invite, $staffNote, $admin);
             }
         }
         if ($ban) {

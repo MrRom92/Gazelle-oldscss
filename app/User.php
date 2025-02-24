@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use Gazelle\Enum\AvatarDisplay;
+use Gazelle\Enum\UserAuditEvent;
 use Gazelle\Enum\UserStatus;
 use Gazelle\User\MultiFactorAuth;
 use Gazelle\Util\Irc;
@@ -126,7 +127,8 @@ class User extends BaseObject {
         }
         $key = sprintf(self::CACHE_KEY, $this->id);
         $info = self::$cache->get_value($key);
-        if ($info !== false) {
+        if ($info !== false && isset($info['updated'])) {
+            // TODO: remove check on 'updated' key after site has been flushed
             return $this->info = $info;
         }
         $qid = self::$db->get_query_id();
@@ -153,6 +155,7 @@ class User extends BaseObject {
                 um.slogan,
                 um.Title,
                 um.torrent_pass,
+                um.updated,
                 um.Visible,
                 ui.AdminComment,
                 ui.BanDate,
@@ -184,7 +187,6 @@ class User extends BaseObject {
             return $this->info;
         }
 
-        $this->info['CommentHash'] = signature($this->info['AdminComment'], USER_EDIT_SALT);
         $this->info['nav_list']    = json_decode($this->info['nav_list'] ?? '[]', true);
         $this->info['NavItems']    = empty($this->info['NavItems']) ? [] : explode(',', $this->info['NavItems']);
         $this->info['ParanoiaRaw'] = $this->info['Paranoia'];
@@ -376,6 +378,19 @@ class User extends BaseObject {
         return $this->info()['Class'];
     }
 
+    /**
+     * This method returns a hash of the current modified date
+     * and state of the audit trail. This is used to verify that
+     * a staff member is not operating on an out-of-date version
+     * of a user.
+     */
+    public function checkpoint(): string {
+        return signature(
+            "{$this->auditTrail()->lastEventId()}|{$this->updated()}",
+            USER_EDIT_SALT
+        );
+    }
+
     public function created(): string {
         return $this->info()['created'];
     }
@@ -462,7 +477,7 @@ class User extends BaseObject {
     }
 
     public function label(): string {
-        return $this->id . " (" . $this->info()['Username'] . ")";
+        return "{$this->id} ({$this->username()})";
     }
 
     public function lastAccess(): ?string {
@@ -548,7 +563,7 @@ class User extends BaseObject {
     }
 
     public function staffNotes(): string {
-        return $this->info()['AdminComment'];
+        return $this->info()['AdminComment'] ?? '';
     }
 
     public function title(): string {
@@ -557,6 +572,10 @@ class User extends BaseObject {
             fn ($match) => 'src=' . $match[1] . image_cache_encode($match[2]) . $match[3],
             (string)$this->info()['Title'],
         );
+    }
+
+    public function updated(): string {
+        return $this->info()['updated'];
     }
 
     public function uploadedSize(): int {
@@ -996,13 +1015,11 @@ class User extends BaseObject {
             self::$cache->delete_value('user_forum_warn_' . $this->id);
         }
         if (!empty($this->staffNote)) {
-            self::$db->prepared_query("
-                UPDATE users_info SET
-                AdminComment = CONCAT(now(), ' - ', ?, AdminComment)
-                WHERE UserID = ?
-                ", implode(', ', $this->staffNote) . "\n\n", $this->id
+            $this->auditTrail()->addEvent(
+                UserAuditEvent::staffNote,
+                implode(', ', $this->staffNote)
             );
-            $changed = $changed || self::$db->affected_rows() === 1;
+            $changed = true;
             $this->staffNote = [];
         }
 
@@ -1089,19 +1106,29 @@ class User extends BaseObject {
         if (!$mergeId) {
             return null;
         }
+        self::$db->begin_transaction();
         self::$db->prepared_query("
-            UPDATE users_leech_stats uls
-            INNER JOIN users_info ui USING (UserID)
-            SET
-                uls.Uploaded = 0,
-                uls.Downloaded = 0,
-                ui.AdminComment = concat(now(), ' - ', ?, ui.AdminComment)
-            WHERE uls.UserID = ?
-            ", sprintf("leech stats (up: %s, down: %s, ratio: %s) transferred to %s (%s) by %s\n\n",
-                    byte_format($up), byte_format($down), ratio($up, $down),
-                    $this->url(), $this->username(), $staffname
-            ),
-            $mergeId
+            UPDATE users_leech_stats SET
+                Uploaded = 0,
+                Downloaded = 0
+            WHERE UserID = ?
+            ", $mergeId
+        );
+        self::$db->prepared_query("
+            UPDATE users_leech_stats SET
+                Uploaded = Uploaded + ?,
+                Downloaded = Downloaded + ?
+            WHERE UserID = ?
+            ", $up, $down, $mergeId
+        );
+        self::$db->commit();
+
+        $this->auditTrail()->addEvent(
+            UserAuditEvent::staffNote,
+            sprintf("leech stats (up: %s, down: %s, ratio: %s) transferred to %s by %s\n\n",
+                byte_format($up), byte_format($down), ratio($up, $down),
+                $this->label(), $staffname
+            )
         );
         $this->flush();
         return ['up' => $up, 'down' => $down, 'userId' => $mergeId];

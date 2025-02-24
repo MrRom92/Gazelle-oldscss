@@ -1,0 +1,26 @@
+<div id="audit{% if edit %}-edit{% endif %}">
+{% for e in audit_trail %}
+{%  if loop.first %}
+{%      if edit %}
+<div class="auhead id">#</div>
+{%      endif %}
+<div class="auhead date">Date</div>
+<div class="auhead note">Note</div>
+{%  endif %}
+{%  if edit %}
+{%      set label = '<label for="a-' ~ e.id_user_audit_trail ~ '">' %}
+{%      set label_end = '</label>' %}
+<div class="aubody id"><input type="checkbox" name="idlist[]" id="a-{{ e.id_user_audit_trail }}" value="{{ e.id_user_audit_trail }}" /></div>
+{%  endif %}
+<div class="aubody date">{{ label|raw }}{{ e.created|date('Y-m-d H:i') }}{{ label_end|raw }}</div>
+<div class="aubody note">
+    {{ e.note|bb_format }}
+{%-  if e.id_user_creator %} by {{ e.id_user_creator|user_url }}{% endif %}
+{%  if edit %}
+    {{ label|raw }}({{ e.event }}){{ label_end|raw }}
+{%  endif %}
+</div>
+{% else %}
+<div class="thin pad box">Audit trail is empty</div>
+{% endfor %}
+</div>

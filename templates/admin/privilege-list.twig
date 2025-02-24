@@ -98,6 +98,8 @@
                 <td>
                     <ul><li>Only applies to users with the same or lower class level</li></ul>
                     {{ privilege(default, user, 'users_mod') }}
+                    {{ privilege(default, user, 'admin_audit_view') }}
+                    {{ privilege(default, user, 'admin_audit_edit') }}
                     {{ privilege(default, user, 'users_edit_usernames') }}
                     {{ privilege(default, user, 'users_edit_ratio') }}
                     {{ privilege(default, user, 'users_edit_own_ratio') }}

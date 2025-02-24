@@ -18,7 +18,7 @@ class AuditTrail extends \Gazelle\BaseUser {
                    (id_user, event, note, id_user_creator)
             values (?,       ?,     ?,    ?)
             returning id_user_audit_trail
-            ", $this->id(), $event->value, $note, (int)$creator?->id()
+            ", $this->id(), $event->value, $note, $creator?->id()
         );
     }
 
@@ -60,15 +60,45 @@ class AuditTrail extends \Gazelle\BaseUser {
         );
     }
 
-    public function eventList(UserAuditOrder $order = UserAuditOrder::created): array {
+    public function eventList(array $idList, UserAuditOrder $order = UserAuditOrder::created): array {
         return $this->pg()->all("
             select id_user_audit_trail,
+                id_user_creator,
+                event,
+                note,
+                created
+            from user_audit_trail
+            where id_user = ?
+                and id_user_audit_trail in (" . placeholders($idList) . ")
+            order by {$order->value}
+            ", $this->id(), ...$idList
+        );
+    }
+
+    public function fullEventList(UserAuditOrder $order = UserAuditOrder::created): array {
+        return $this->pg()->all("
+            select id_user_audit_trail,
+                id_user_creator,
                 event,
                 note,
                 created
             from user_audit_trail
             where id_user = ?
             order by {$order->value}
+            ", $this->id()
+        );
+    }
+
+    /**
+     * Return the id of the most recent audit event. (0 if no events)
+     */
+    public function lastEventId(): int {
+        return (int)$this->pg()->scalar("
+            select id_user_audit_trail
+            from user_audit_trail
+            where id_user = ?
+            order by id_user_audit_trail desc
+            limit 1
             ", $this->id()
         );
     }
@@ -122,5 +152,54 @@ class AuditTrail extends \Gazelle\BaseUser {
             delete from user_audit_trail where id_user = ?
             ", $this->id()
         );
+    }
+
+    /**
+     * When updating a list of events, copy the list over to the revision table.
+     * Then remove all the events in the audit table except for the oldest one,
+     * and update its note with the new contents.
+     */
+    public function modifyEventList(array $idList, string $note, \Gazelle\User $user): int {
+        $affected = $this->pg()->prepared_query("
+            insert into user_audit_trail_revision
+            (id_user_audit_trail, id_user, id_user_creator, created, event, note, revision)
+            select uat.id_user_audit_trail, 
+                uat.id_user,
+                uat.id_user_creator,
+                uat.created,
+                uat.event,
+                uat.note,
+                1 + count(uatr.id_user_audit_trail) as revision
+            from user_audit_trail uat
+            left join user_audit_trail_revision uatr using (id_user_audit_trail)
+            where id_user_audit_trail in (" . placeholders($idList) . ")
+            group by uat.id_user_audit_trail
+            ", ...$idList
+        );
+        if (!$note) {
+            // delete
+            $this->pg()->prepared_query("
+                delete from user_audit_trail
+                where id_user_audit_trail in (" . placeholders($idList) . ")
+                ", ...$idList
+            );
+        } else {
+            // edit
+            $eventId = min($idList);
+            $this->pg()->prepared_query("
+                delete from user_audit_trail
+                where id_user_audit_trail != ?
+                    and id_user_audit_trail in (" . placeholders($idList) . ")
+                ", $eventId, ...$idList
+            );
+            $this->pg()->prepared_query("
+                update user_audit_trail set
+                    note = ?,
+                    id_user_creator = ?
+                where id_user_audit_trail = ?
+                ", $note, $user->id(), $eventId
+            );
+        }
+        return $affected;
     }
 }

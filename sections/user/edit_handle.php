@@ -241,6 +241,7 @@ if ($notification) {
 foreach (
     [
         'admin-error-reporting' => isset($_POST['error_reporting']),
+        'audit-trail-hidden'    => isset($_POST['audit-trail-hidden']),
         'download-as-text'      => isset($_POST['downloadtext']),
         'hide-tags'             => isset($_POST['hidetags']),
         'hide-vote-history'     => !isset($_POST['pattr_hide_vote_history']),

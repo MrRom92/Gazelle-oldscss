@@ -58,7 +58,7 @@ class UserMultiFactorAuthTest extends TestCase {
         $mfa->remove();
         $this->assertEquals(0, $this->countTokens(), 'utest-remove-mfa');
         $mfaList = array_filter(
-            $this->user->auditTrail()->eventList(),
+            $this->user->auditTrail()->fullEventList(),
             fn ($e) => $e['event'] === UserAuditEvent::mfa->value
 
         );

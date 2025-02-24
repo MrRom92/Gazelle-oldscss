@@ -51,8 +51,20 @@
                 <input type="checkbox" name="useopendyslexic" id="useopendyslexic"{{ checked(user.option('UseOpenDyslexic')) }} />
                 <label for="useopendyslexic">Enable the OpenDyslexic font</label>
             </div>
-            <p class="min_padding">This is an experimental feature, and some stylesheets will have display issues.</p>
+            <p class="min_padding">Note: some stylesheets may have display issues.</p>
         </td>
     </tr>
+{% if viewer.isStaff %}
+    <tr id="site_audit_display">
+        <td class="label">
+            <strong>User audit trail</strong></td>
+        <td>
+            <div class="field_div">
+                <label><input type="checkbox" name="audit-trail-hidden" {{ checked(user.hasAttr('audit-trail-hidden')) }} />
+                History (staff notes) on user profiles is collapsed by default</label>
+            </div>
+        </td>
+    </tr>
+{% endif %}
 </table>
 </div>

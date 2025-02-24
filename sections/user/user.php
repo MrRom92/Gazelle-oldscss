@@ -120,10 +120,10 @@ if ($lastfmInfo) {
     ]);
 }
 
-$vote             = new Vote($user);
-$stats            = $user->stats();
-$Uploads          = check_paranoia_here('uploads+') ? $stats->uploadTotal() : 0;
-$rank = new UserRank(
+$vote    = new Vote($user);
+$stats   = $user->stats();
+$Uploads = check_paranoia_here('uploads+') ? $stats->uploadTotal() : 0;
+$rank    = new UserRank(
     new UserRank\Configuration(RANKING_WEIGHT),
     [
         'uploaded'   => $user->uploadedSize(),
@@ -140,7 +140,7 @@ $rank = new UserRank(
     ],
 );
 
-$byteFormatter = fn ($value) => byte_format($value);
+$byteFormatter   = fn ($value) => byte_format($value);
 $numberFormatter = fn ($value) => number_format($value);
 
 $statList = [

@@ -29,32 +29,20 @@ function init_invitetree_toggle(toggle) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    async function toggle_editor() {
+    function toggle_audit_trail() {
         let button = document.getElementById('admincommentbutton');
-        let edit   = document.getElementById('admincomment');
-        let view   = document.getElementById('admincommentlinks');
-        if (edit.classList.contains('hidden')) {
+        let view   = document.getElementById('staffnotes');
+        if (view.classList.contains('hidden')) {
+            button.innerHTML = 'Hide';
+            view.classList.remove('hidden');
+        } else {
             button.innerHTML = 'View';
             view.classList.add('hidden');
-            edit.classList.remove('hidden');
-        } else if (view.classList.contains('hidden')) {
-            button.innerHTML = 'Edit';
-            let form = new FormData();
-            form.append('admincomment', edit.value);
-            const response = await fetch(
-                'ajax.php?action=preview', {
-                    'method': "POST",
-                    'body': form,
-                }
-            );
-            view.innerHTML = await response.text();
-            edit.classList.add('hidden');
-            view.classList.remove('hidden');
         }
     }
 
     document.getElementById('admincommentbutton')?.addEventListener('click', (e) => {
-        toggle_editor();
+        toggle_audit_trail();
         e.preventDefault();
     });
 

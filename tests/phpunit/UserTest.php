@@ -215,7 +215,12 @@ class UserTest extends TestCase {
         $this->assertEquals('irckey', $this->user->IRCKey(), 'utest-irc-key');
 
         $this->user->addStaffNote('phpunit staff note')->modify();
-        $this->assertStringContainsString('phpunit staff note', $this->user->staffNotes(), 'utest-staff-note');
+        $eventList = $this->user->auditTrail()->fullEventList();
+        $this->assertEquals(
+            'phpunit staff note',
+            $eventList[0]['note'],
+            'utest-staff-note'
+        );
 
         $notes = $this->user->staffNotes();
         $new   = "\n" . randomString(20);

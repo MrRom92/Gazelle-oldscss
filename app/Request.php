@@ -2,6 +2,7 @@
 
 namespace Gazelle;
 
+use Gazelle\Enum\UserAuditEvent;
 use Gazelle\Intf\CategoryHasArtist;
 
 class Request extends BaseObject implements CategoryHasArtist {
@@ -747,7 +748,7 @@ class Request extends BaseObject implements CategoryHasArtist {
     /**
      * Refund the bounty of a user on a request
      */
-    public function refundBounty(User $user, string $staffName): int {
+    public function refundBounty(User $user, User $admin): int {
         $bounty = $this->userBounty($user);
         self::$db->begin_transaction();
         self::$db->prepared_query("
@@ -757,18 +758,18 @@ class Request extends BaseObject implements CategoryHasArtist {
         );
         $affected = self::$db->affected_rows();
         if ($affected) {
-            $this->informRequestFillerReduction($bounty, $staffName);
-            $message = sprintf("Refund of %s bounty (%s b) on %s by %s\n\n",
-                byte_format($bounty), $bounty, $this->url(), $staffName
+            $this->informRequestFillerReduction($bounty, $admin);
+            $user->auditTrail()->addEvent(
+                UserAuditEvent::request,
+                "Refund of " . byte_format($bounty)
+                    . " bounty ({$bounty}b) on {$this->url()}",
+                $admin,
             );
             self::$db->prepared_query("
-                UPDATE users_info ui
-                INNER JOIN users_leech_stats uls USING (UserID)
-                SET
-                    uls.Uploaded = uls.Uploaded + ?,
-                    ui.AdminComment = concat(now(), ' - ', ?, ui.AdminComment)
-                WHERE ui.UserId = ?
-                ", $bounty, $message, $user->id()
+                UPDATE users_leech_stats SET
+                    Uploaded = Uploaded + ?
+                WHERE UserId = ?
+                ", $bounty, $user->id()
             );
             $user->flush();
         }
@@ -779,7 +780,7 @@ class Request extends BaseObject implements CategoryHasArtist {
     /**
      * Remove the bounty of a user on a request
      */
-    public function removeBounty(User $user, string $staffName): int {
+    public function removeBounty(User $user, User $admin): int {
         $bounty = $this->userBounty($user);
         self::$db->begin_transaction();
         self::$db->prepared_query("
@@ -789,15 +790,12 @@ class Request extends BaseObject implements CategoryHasArtist {
         );
         $affected = self::$db->affected_rows();
         if ($affected) {
-            $this->informRequestFillerReduction($bounty, $staffName);
-            $message = sprintf("Removal of %s bounty (%s b) on %s by %s\n\n",
-                byte_format($bounty), $bounty, $this->url(), $staffName
-            );
-            self::$db->prepared_query("
-                UPDATE users_info ui SET
-                    ui.AdminComment = concat(now(), ' - ', ?, ui.AdminComment)
-                WHERE ui.UserId = ?
-                ", $message, $user->id()
+            $this->informRequestFillerReduction($bounty, $admin);
+            $user->auditTrail()->addEvent(
+                UserAuditEvent::request,
+                "Removal of " . byte_format($bounty)
+                    . " bounty ({$bounty}b) on {$this->url()}",
+                $admin,
             );
             $user->flush();
         }
@@ -808,7 +806,7 @@ class Request extends BaseObject implements CategoryHasArtist {
     /**
      * Inform the filler of a request that their bounty was reduced
      */
-    public function informRequestFillerReduction(int $bounty, string $staffName): int {
+    public function informRequestFillerReduction(int $bounty, User $admin): int {
         [$fillerId, $fillDate] = self::$db->row("
             SELECT FillerID, date(TimeFilled)
             FROM requests
@@ -818,27 +816,28 @@ class Request extends BaseObject implements CategoryHasArtist {
         if (!$fillerId) {
             return 0;
         }
-        $message = sprintf("Reduction of %s bounty (%s b) on filled request %s by %s\n\n",
-            byte_format($bounty), $bounty, $this->url(), $staffName
+        $user = new User($fillerId);
+        $user->auditTrail()->addEvent(
+            UserAuditEvent::request,
+            "Reduction of " . byte_format($bounty)
+                . " bounty (${bounty}b) on filled request {$this->url()}",
+            $admin,
         );
         self::$db->prepared_query("
-            UPDATE users_info ui
-            INNER JOIN users_leech_stats uls USING (UserID)
-            SET
-                uls.Uploaded = uls.Uploaded - ?,
-                ui.AdminComment = concat(now(), ' - ', ?, ui.AdminComment)
-            WHERE ui.UserId = ?
-            ", $bounty, $message, $fillerId
+            UPDATE users_leech_stats SET
+                Uploaded = Uploaded - ?
+            WHERE UserId = ?
+            ", $bounty, $fillerId
         );
         $affected = self::$db->affected_rows();
         if ($affected) {
-            (new User($fillerId))->inbox()->createSystem(
+            $user->inbox()->createSystem(
                 "Bounty was reduced on a request you filled",
                 self::$twig->render('request/bounty-reduction.bbcode.twig', [
                     'bounty'      => $bounty,
                     'fill_date'   => $fillDate,
                     'request_url' => $this->url(),
-                    'staff_name'  => $staffName,
+                    'staff_name'  => $admin->username(),
                 ])
             );
         }

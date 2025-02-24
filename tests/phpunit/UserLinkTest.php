@@ -34,9 +34,14 @@ class UserLinkTest extends TestCase {
             'user-link-add'
         );
         $this->assertStringContainsString(
-            "Linked accounts updated: [user]{$this->userList[0]->username()}[/user] and [user]{$this->userList[1]->username()}[/user]",
-            $this->userList[1]->flush()->staffNotes(),
-            'user-link-staff-note'
+            "[user]{$this->userList[0]->username()}[/user] and [user]{$this->userList[1]->username()}[/user] linked",
+            $this->userList[0]->auditTrail()->fullEventList()[0]['note'],
+            'user-linkee-staff-note'
+        );
+        $this->assertStringContainsString(
+            "[user]{$this->userList[0]->username()}[/user] and [user]{$this->userList[1]->username()}[/user] linked",
+            $this->userList[1]->auditTrail()->fullEventList()[0]['note'],
+            'user-linked-staff-note'
         );
         $this->assertEquals(
             $linker->groupId($this->userList[0]),

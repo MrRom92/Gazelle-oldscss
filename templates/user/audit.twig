@@ -1,46 +1,36 @@
-{{ header(user.username ~ ' › Audit Trail') }}
+{{ header(user.username ~ ' › Audit Trail', {'js': 'admin'}) }}
+
 <div class="header">
 <h2>{{ user.id|user_url }} › Audit Trail</h2>
+{% if viewer.permitted('admin_audit_edit') %}
+<div class="linkbox">
+{%  if not edit %}
+    <a href="?action=audit&amp;edit=1&amp;id={{ user.id }}" class="brackets">Edit</a>
+{%  else %}
+    <a href="?action=audit&amp;id={{ user.id }}" class="brackets">View</a>
+{%  endif %}
 </div>
-<style>
-#audit {
-  align-items: start;
-  gap: 2px 10px;
-  display: grid;
-  grid-template-columns: 1fr 1fr 125px 10fr;
-  justify-items: start;
-}
+{% endif %}
+</div>
+{% if edit %}
+<form action="">
+{% endif %}
+{% include 'user/audit-list.twig' with {
+        audit_trail : user.auditTrail.fullEventList,
+        edit        : edit,
+    }
+%}
+{% if edit %}
+<input type="hidden" name="action" value="audit-edit" />
+<input type="hidden" name="auth" value="{{ viewer.auth }}" />
+<input type="hidden" name="id" value="{{ user.id }}" />
+<input type="submit" value="Edit checked" />
+</form>
+{% endif %}
 
-#audit .auhead {
-  font-weight: 900;
-  padding: 2px;
-}
-#audit .aubody {
-  padding: 2px;
-}
-#audit .id {
-  justify-self: end;
-}
-
-</style>
-
-<div id="audit">
-{% for e in user.auditTrail.eventList %}
-{%  if loop.first %}
-<div class="auhead id">#</div>
-<div class="auhead event">Event</div>
-<div class="auhead date">Date</div>
-<div class="auhead note">Note</div>
-{%  endif %}
-<div class="aubody id">{{ e.id_user_audit_trail }}</div>
-<div class="aubody event">{{ e.event }}</div>
-<div class="aubody date">{{ e.created|replace({'+00': ''}) }}</div>
-<div class="aubody note">{{ e.note|bb_format }}</div>
-{%  if loop.last %}
-{%  endif %}
-{% else %}
-<div class="thin pad box">Audit trail is empty</div>
-{% endfor %}
+<div class="head">Historical notes <a href="#" id="historical-notes" class="brackets">View</a></div>
+<div id="historical-view" class="pad hidden">
+{{ user.staffNotes|bb_format }}
 </div>
 
 {{ footer() }}

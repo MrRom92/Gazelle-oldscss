@@ -1,26 +1,23 @@
-{% from 'macro/form.twig' import selected %}
+{% from 'macro/form.twig' import hidden, selected %}
 {% set own_profile = user.id == viewer.id %}
 {% if viewer.isStaff %}
+{%  set initial_hide = viewer.hasAttr('audit-trail-hidden') %}
         <form class="manage_form" name="user" id="form" action="user.php" method="post">
         <input type="hidden" name="action" value="moderate" />
         <input type="hidden" name="userid" value="{{ user.id }}" />
         <input type="hidden" name="auth" value="{{ viewer.auth }}" />
-
+        <input type="hidden" name="checkpoint" value="{{ user.checkpoint }}" />
         <div class="box box2" id="staff_notes_box">
             <div class="head">
                 Staff Notes
-                <a href="#" id="admincommentbutton" name="admincommentbutton" class="brackets">Edit</a>
-                <a href="#" onclick="$('#staffnotes').gtoggle(); return false;" class="brackets">Toggle</a>
+                <a href="#" id="admincommentbutton" class="brackets">{% if initial_hide %}View{% else %}Hide{% endif %}</a>
             </div>
-            <div id="staffnotes" class="pad">
-                <input type="hidden" name="comment_hash" value="{{ user.info.CommentHash }}" />
-                <div id="admincommentlinks" class="AdminComment" style="width: 98%;">{{ user.staffNotes|bb_format }}</div>
-                <textarea id="admincomment" name="admincomment" onkeyup="resize('admincomment');" class="AdminComment hidden" cols="65" rows="26" style="width: 98%;">{{
-                    user.staffNotes }}</textarea>
-                <a href="#" name="admincommentbutton" class="brackets">Toggle edit</a>
-                <script type="text/javascript">
-                    resize('admincomment');
-                </script>
+            <div id="staffnotes" class="pad{{ hidden(initial_hide) }}">
+{% include 'user/audit-list.twig' with {
+        audit_trail : user.auditTrail.fullEventList,
+        edit        : edit,
+    }
+%}
             </div>
         </div>
 
@@ -173,7 +170,7 @@
         </td>
     </tr>
     <tr>
-        <td class="label tooltip" title="This message will be entered into staff notes only.">Reason:</td>
+        <td class="label tooltip" title="This message will be entered into staff notes only.">Staff Note:</td>
         <td>
             <textarea rows="1" cols="35" class="wide_input_text" name="Reason" id="Reason" onkeyup="resize('Reason');"></textarea>
         </td>

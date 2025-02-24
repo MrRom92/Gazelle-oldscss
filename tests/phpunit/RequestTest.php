@@ -336,8 +336,8 @@ class RequestTest extends TestCase {
         $statsReq->flush();
         $this->assertEquals($before['total-filled'], $statsReq->filledTotal(), 'request-stats-now-unfilled');
 
-        $this->assertEquals(1, $this->request->refundBounty($this->userList['user'], $admin->username()), 'request-bounty-refund');
-        $this->assertEquals(1, $this->request->removeBounty($admin, $admin->username()), 'request-bounty-remove');
+        $this->assertEquals(1, $this->request->refundBounty($this->userList['user'], $admin), 'request-bounty-refund');
+        $this->assertEquals(1, $this->request->removeBounty($admin, $admin), 'request-bounty-remove');
     }
 
     public function testValidate(): void {

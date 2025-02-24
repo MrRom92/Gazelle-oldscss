@@ -37,6 +37,10 @@ if (is_null($user)) {
     header("Location: log.php?search=User+" . (int)$_POST['userid']);
     exit;
 }
+if ($_POST['checkpoint'] != $user->checkpoint()) {
+    error("Somebody else has moderated this user since you loaded it. Please go back and refresh the page.");
+}
+
 $userId = $user->id();
 $ownProfile = $userId === $Viewer->id();
 
@@ -92,9 +96,6 @@ $mergeStatsFrom = trim($_POST['MergeStatsFrom']);
 $reason         = trim($_POST['Reason']);
 
 $cur = $user->info();
-if ($_POST['comment_hash'] != $cur['CommentHash']) {
-    error("Somebody else has moderated this user since you loaded it. Please go back and refresh the page.");
-}
 $cur['PermittedForums']  = $user->privilege()->permittedUserForums();
 $cur['RestrictedForums'] = $user->privilege()->forbiddenUserForums();
 
@@ -598,6 +599,7 @@ if ($editSummary) {
     $user->auditTrail()->addEvent(UserAuditEvent::staffNote, ucfirst($summary), $Viewer);
 } elseif ($adminComment !== $cur['admincomment']) {
     $user->setField('AdminComment', $adminComment);
+    $user->auditTrail()->addEvent(UserAuditEvent::staffNote, $adminComment, $Viewer);
 }
 
 if ($removedClasses) {

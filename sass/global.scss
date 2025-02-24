@@ -1071,6 +1071,30 @@ td.forum-post-head a.username {
   color: #e0e0e0;
 }
 
+#audit {
+  align-items: start;
+  gap: 2px 10px;
+  display: grid;
+  grid-template-columns: 90px 1fr;
+}
+#audit-edit {
+  align-items: start;
+  gap: 2px 10px;
+  display: grid;
+  grid-template-columns: 12px 90px 20fr;
+}
+
+#audit .auhead {
+  font-weight: 900;
+  padding: 2px;
+}
+#audit .aubody {
+  padding: 2px;
+}
+#audit .id {
+  justify-self: end;
+}
+
 #more-news-loader {
   cursor: pointer;
 }

@@ -1,11 +1,12 @@
 <?php
 /** @phpstan-var \Twig\Environment $Twig */
+/** @phpstan-var \Gazelle\User $Viewer */
 
 declare(strict_types=1);
 
 namespace Gazelle;
 
-if (!$Viewer->permitted('users_mod')) {
+if (!$Viewer->permittedAny('admin_audit_edit', 'admin_audit_view')) {
     error(403);
 }
 $userMan = new Manager\User();
@@ -16,5 +17,7 @@ if (is_null($user)) {
 $user->auditTrail()->migrate($userMan);
 
 echo $Twig->render('user/audit.twig', [
-    'user' => $user,
+    'edit'   => isset($_GET['edit']),
+    'user'   => $user,
+    'viewer' => $Viewer,
 ]);

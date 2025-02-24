@@ -14,21 +14,25 @@ class UserCreateTest extends TestCase {
     }
 
     public function testCreate(): void {
-        $name         = 'create.' . randomString(6);
-        $email        = "$name@example.com";
-        $password     = randomString(40);
-        $adminComment = 'Created by tests/phpunit/UserCreateTest.php';
+        $name     = 'create.' . randomString(6);
+        $email    = "$name@example.com";
+        $password = randomString(40);
+        $note     = 'Created by tests/phpunit/UserCreateTest.php';
 
         $this->user = (new UserCreator())
             ->setUsername($name)
             ->setEmail($email)
             ->setPassword($password)
-            ->setAdminComment($adminComment)
+            ->addNote($note)
             ->create();
 
         $this->assertEquals($name, $this->user->username(), 'user-create-username');
         $this->assertEquals($email, $this->user->email(), 'user-create-email');
-        $this->assertStringContainsString($adminComment, $this->user->staffNotes(), 'user-create-staff-notes');
+        $this->assertStringContainsString(
+            $note,
+            $this->user->auditTrail()->fullEventList()[0]['note'],
+            'user-create-staff-notes'
+        );
         $this->assertTrue($this->user->isUnconfirmed(), 'user-create-unconfirmed');
         $this->assertStringStartsWith(
             '/static/styles/apollostage/style.css?v=',
@@ -51,7 +55,7 @@ class UserCreateTest extends TestCase {
             ->setUsername('phpunit.' . randomString(10))
             ->setEmail('email@example.com')
             ->setPassword('password')
-            ->setAdminComment('phpunit test login')
+            ->addNote('phpunit test login')
             ->create();
         $login = new Login();
         $watch = new LoginWatch($login->requestContext()->remoteAddr());
@@ -81,7 +85,7 @@ class UserCreateTest extends TestCase {
             ->setUsername('0')
             ->setEmail("test@example.com")
             ->setPassword(randomString(20))
-            ->setAdminComment('Created by tests/phpunit/UserCreateTest.php');
+            ->addNote('Created by tests/phpunit/UserCreateTest.php');
 
         $this->expectException(Exception\UserCreatorException::class);
         $creator->create();
@@ -94,7 +98,7 @@ class UserCreateTest extends TestCase {
             ->setUsername(randomString(21))
             ->setEmail("test@example.com")
             ->setPassword(randomString(20))
-            ->setAdminComment('Created by tests/phpunit/UserCreateTest.php');
+            ->addNote('Created by tests/phpunit/UserCreateTest.php');
 
         $this->expectException(Exception\UserCreatorException::class);
         $creator->create();
@@ -108,7 +112,7 @@ class UserCreateTest extends TestCase {
             ->setUsername(' ' . randomString(6))
             ->setEmail("test@example.com")
             ->setPassword(randomString(20))
-            ->setAdminComment('Created by tests/phpunit/UserCreateTest.php')
+            ->addNote('Created by tests/phpunit/UserCreateTest.php')
             ->create();
 
         $this->assertInstanceOf(User::class, $this->user, 'user-create-trim');

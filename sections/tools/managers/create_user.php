@@ -31,7 +31,7 @@ if (isset($_POST['Username'])) {
         $user = $creator->setUsername($username)
             ->setEmail($email)
             ->setPassword($password)
-            ->setAdminComment('Created by ' . $Viewer->username() . ' via admin toolbox')
+            ->addNote('Created by ' . $Viewer->username() . ' via admin toolbox')
             ->create();
     } catch (Exception\UserCreatorException $e) {
         error(match ($e->getMessage()) {
