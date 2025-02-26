@@ -91,7 +91,7 @@
     </tr>
 {%  elseif better.mode == 'group' %}
     <tr>
-        <td><a href="torrents.php?id={{ item.id }}&amp;action=editgroup">[Edit]</a>&nbsp;&nbsp;{{ item.link|raw }}
+        <td><a href="{{ tgroup.url|raw }}&amp;action=editgroup" class="brackets">Edit</a>&nbsp;&nbsp;{{ item.link|raw }}
             <div class="tags">{{ item.tagList|map(tag => "#{tag.name}")|join(', ') }}</div>
         </td>
     </tr>
