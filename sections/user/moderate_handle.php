@@ -48,17 +48,8 @@ $changePassword    = !empty($_POST['ChangePassword']);
 $uploaded          = $downloaded = $bonusPoints = null;
 
 if (isset($_POST['Uploaded']) && isset($_POST['Downloaded'])) {
-    $uploaded = ($_POST['Uploaded'] === '' ? 0 : $_POST['Uploaded']);
-    if ($arithmetic = strpbrk($uploaded, '+-')) {
-        $uploaded += max(-$uploaded, get_bytes($arithmetic));
-    }
-    $downloaded = ($_POST['Downloaded'] === '' ? 0 : $_POST['Downloaded']);
-    if ($arithmetic = strpbrk($downloaded, '+-')) {
-        $downloaded += max(-$downloaded, get_bytes($arithmetic));
-    }
-    if (!is_number($uploaded) || !is_number($downloaded)) {
-        error('Invalid upload/download amounts');
-    }
+    $uploaded   = max(0, byte_arithmetic($_POST['Uploaded']));
+    $downloaded = max(0, byte_arithmetic($_POST['Downloaded']));
 }
 if (isset($_POST['BonusPoints'])) {
     $bonusPoints = (float)$_POST['BonusPoints'];

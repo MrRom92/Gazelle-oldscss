@@ -1,15 +1,20 @@
 <tr>
-    <td class="label tooltip" title="Upload amount in bytes. Also accepts e.g. +20GB or -35.6364MB on the end.">Uploaded:</td>
+    <td class="label tooltip" title="Upload amount in bytes.">Uploaded:</td>
     <td>
         <input type="hidden" name="OldUploaded" value="{{ user.uploadedSize }}" />
         <input type="text" size="20" name="Uploaded" value="{{ user.uploadedSize }}" />
     </td>
 </tr>
 <tr>
-    <td class="label tooltip" title="Download amount in bytes. Also accepts e.g. +20GB or -35.6364MB on the end.">Downloaded:</td>
+    <td class="label tooltip" title="Download amount in bytes.">Downloaded:</td>
     <td>
         <input type="hidden" name="OldDownloaded" value="{{ user.downloadedSize }}" />
         <input type="text" size="20" name="Downloaded" value="{{ user.downloadedSize }}" />
+        <div>Upload and download values can be set to a fixed value using SI units.
+        For example: 10k, 200MiB, 3Gb. Hint: only the first letter is examined.
+        The current value can remain as is, and a delta value applied, e.g. <code>{{
+        user.uploadedSize }} + 500mb</code> (or subtracted with <code>-10G</code>).
+        Values below zero will be rounded up to zero.</div>
     </td>
 </tr>
 <tr>

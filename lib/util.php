@@ -277,8 +277,7 @@ function human_format(float|int $number): string {
  */
 function get_bytes(string $size): int {
     [$value, $unit] = sscanf($size, "%f%s");
-    $unit = ltrim($unit);
-    if (empty($unit)) {
+    if (is_null($unit)) {
         return $value ? (int)round($value) : 0;
     }
     return (int)round(match (strtolower($unit[0])) {
@@ -288,6 +287,25 @@ function get_bytes(string $size): int {
         't'     => $value * 1_099_511_627_776,
         default => 0,
     });
+}
+
+function byte_arithmetic(string $expression): int {
+    if (
+        !preg_match(
+            // a number with an optional SI suffix
+            // optionally followed by plus/minus a similar number with suffix
+            '/(-?\d+(?:\.\d*)?[kmg]?)(?:i?b)?(?:\s*([+-])\s*(\d+(?:\.\d+)?[kmg]?))?/i',
+            $expression,
+            $match
+        )
+    ) {
+        return 0;
+    }
+    $size = get_bytes($match[1]);
+    if (count($match) === 4) {
+        $size += get_bytes($match[3]) * ($match[2] === '-' ? -1 : 1); /** @phpstan-ignore-line the array offsets are valid */
+    }
+    return $size;
 }
 
 /**

@@ -124,6 +124,28 @@ class UtilTest extends TestCase {
         $this->assertEquals('abcdefghij…', shortenString('abcdefghijklm', 10, false), 'shorten-string-13-shorten-ellipsis');
     }
 
+    public static function dataByteArithmetic(): array {
+        return [
+            [123456789,       '123456789',   'byte-arith-passthru'],
+            [-1,              '-1',          'byte-arith-neg-passthru'],
+            [123,             '123.4',       'byte-arith-round-down'],
+            [124,             '123.5',       'byte-arith-round-up'],
+            [1024,            '1K',          'byte-arith-one-kb'],
+            [1023,            '-1+1KiB',     'byte-arith-1023'],
+            [2048,            '1kb + 1kb',   'byte-arith-two-kb'],
+            [1024 * 1024 + 1, '1+1M',        'byte-arith-one-mb+1'],
+            [1024 * 1024 + 1, '1M+1',        'byte-arith-also-one-mb+1'],
+            [1024 * 1023,     '1mib - 1k',   'byte-arith-one-mb-1k'],
+            [0,               '',            'byte-arith-empty'],
+            [0,               'aliens',      'byte-arith-aliens'],
+        ];
+    }
+
+    #[DataProvider('dataByteArithmetic')]
+    public function testByteArithmetic(int $expected, string $expression, string $name): void {
+        $this->assertEquals($expected, byte_arithmetic($expression), $name);
+    }
+
     public function testFormat(): void {
         $this->assertFalse(ratio(0, 0),                  'format-ratio-0-0-x');
         $this->assertFalse(ratio(0, 0, 4),               'format-ratio-0-0-4');
