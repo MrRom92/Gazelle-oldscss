@@ -5,21 +5,24 @@
 use Gazelle\Enum\DownloadStatus;
 use Gazelle\Util\Irc;
 
-$torrent = (new Gazelle\Manager\Torrent())->findById((int)($_REQUEST['id'] ?? 0));
+$torrentId = (int)($_REQUEST['id'] ?? 0);
+$torrent = (new Gazelle\Manager\Torrent())->findById($torrentId);
 if (is_null($torrent)) {
     json_or_error('could not find torrent', 404);
 }
 $torrent->setViewer($Viewer);
 
-/* uTorrent Remote and various scripts redownload .torrent files periodically.
- * To prevent this retardation from blowing bandwidth etc., let's block it
- * if the .torrent file has been downloaded four times before.
- */
 if (
-    preg_match('/^(BTWebClient|Python-urllib|python-requests|uTorrent)/', $torrent->requestContext()->useragent())
-    && $Viewer->torrentDownloadCount($torrent->id()) > 3
+    preg_match(
+        BT_BROKEN_USERAGENT_REGEXP,
+        $torrent->requestContext()->useragent(),
+    )
+    && $Viewer->torrentDownloadCount($torrentId) > BT_BROKEN_USERAGENT_DOWNLOAD
 ) {
-    json_or_error('You have already downloaded this torrent file four times. If you need to download it again, please do so from your browser.');
+    json_or_error('You have downloaded this torrent file more than '
+        . BT_BROKEN_USERAGENT_DOWNLOAD
+        . 'times. If you need to download it again, please do so from a browser.'
+    );
 }
 
 $download = new Gazelle\Download($torrent, new Gazelle\User\UserclassRateLimit($Viewer), isset($_REQUEST['usetoken']));

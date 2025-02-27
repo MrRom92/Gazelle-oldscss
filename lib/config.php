@@ -1168,6 +1168,13 @@ defined('EMAIL_REGEXP')    or define('EMAIL_REGEXP',    '/^[\w-]+(?:\.[\w-]+)*(?
 defined('USERNAME_REGEXP') or define('USERNAME_REGEXP', '/\b(?:[01]$(*PRUNE)(*FAIL)|(?P<username>[\w.]{1,20}))\b/');
 
 // ------------------------------------------------------------------------
+// Various scripts redownload .torrent files periodically.
+// To prevent this retardation from blowing bandwidth etc., let's block it
+// if the .torrent file has been downloaded too often already.
+defined('BT_BROKEN_USERAGENT_REGEXP')   or define('BT_BROKEN_USERAGENT_REGEXP', '/^(BTWebClient|Python-urllib|python-requests)/');
+defined('BT_BROKEN_USERAGENT_DOWNLOAD') or define('BT_BROKEN_USERAGENT_DOWNLOAD', 3);
+
+// ------------------------------------------------------------------------
 // Donor forum descriptions
 
 defined('DONOR_FORUM_DESCRIPTION') or define('DONOR_FORUM_DESCRIPTION', [
