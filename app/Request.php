@@ -515,36 +515,38 @@ class Request extends BaseObject implements CategoryHasArtist {
             $error[] = "This torrent is of a different category than the request. If the request is actually miscategorized, please contact staff.";
         }
 
-        if (!$this->media()->exists($torrent->media())) {
-            $error[] = "{$torrent->media()} is not an allowed media for this request.";
-        }
-        if (!$this->format()->exists($torrent->format())) {
-            $error[] = "{$torrent->format()} is not an allowed format for this request.";
-        }
-        if (
-            $this->descriptionEncoding() !== "Other"
-            && !$this->encoding()->exists($torrent->encoding())
-        ) {
-            $error[] = "{$torrent->encoding()} is not an allowed encoding for this request.";
-        }
-
-        if (
-            $this->media()->exists("CD") && $torrent->media() === "CD"
-            && $this->format()->exists("FLAC") && $torrent->format() === "FLAC"
-        ) {
-            if ($this->needCue() && !$torrent->hasCue()) {
-                $error[] = "This request requires a cue file.";
+        if ($torrent->group()->categoryName() === 'Music') {
+            if (!$this->media()->exists($torrent->media())) {
+                $error[] = "{$torrent->media()} is not an allowed media for this request.";
             }
-            if ($this->needLog()) {
-                if (!$torrent->hasLogDb()) {
-                    $error[] = "This request requires a valid logfile and none was uploaded with this torrent";
-                } elseif ($this->needLogChecksum() && !$torrent->logChecksum()) {
-                    $error[] = "This request requires a logfile with a valid checksum";
-                } else {
-                    $logScore = $this->needLogScore();
-                    if ($logScore > 0 && $logScore > $torrent->logScore()) {
-                        $better = $logScore === 100 ? $logScore : "$logScore or better";
-                        $error[] = "This request requires a logfile with a score of $better";
+            if (!$this->format()->exists($torrent->format())) {
+                $error[] = "{$torrent->format()} is not an allowed format for this request.";
+            }
+            if (
+                $this->descriptionEncoding() !== "Other"
+                && !$this->encoding()->exists($torrent->encoding())
+            ) {
+                $error[] = "{$torrent->encoding()} is not an allowed encoding for this request.";
+            }
+
+            if (
+                $this->media()->exists("CD") && $torrent->media() === "CD"
+                && $this->format()->exists("FLAC") && $torrent->format() === "FLAC"
+            ) {
+                if ($this->needCue() && !$torrent->hasCue()) {
+                    $error[] = "This request requires a cue file.";
+                }
+                if ($this->needLog()) {
+                    if (!$torrent->hasLogDb()) {
+                        $error[] = "This request requires a valid logfile and none was uploaded with this torrent";
+                    } elseif ($this->needLogChecksum() && !$torrent->logChecksum()) {
+                        $error[] = "This request requires a logfile with a valid checksum";
+                    } else {
+                        $logScore = $this->needLogScore();
+                        if ($logScore > 0 && $logScore > $torrent->logScore()) {
+                            $better = $logScore === 100 ? $logScore : "$logScore or better";
+                            $error[] = "This request requires a logfile with a score of $better";
+                        }
                     }
                 }
             }
