@@ -232,6 +232,7 @@ class Similar extends \Gazelle\Base {
             INNER JOIN artists_similar_scores ass ON (ass.SimilarID = s1.SimilarID)
             INNER JOIN artists_similar_votes asv ON (asv.SimilarID = s1.SimilarID)
             WHERE s1.ArtistID = ?
+                AND ass.Score > 0
             GROUP BY s1.SimilarID
             ORDER BY score DESC,
                 votes DESC
