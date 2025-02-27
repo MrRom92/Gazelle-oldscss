@@ -1,6 +1,9 @@
-#!/bin/sh
+#! /bin/sh
 
-for patch in $(find "$(dirname $0)"/../misc/patch/ -name "*.patch" -print)
+set -eu
+
+for patch in $(find "$(dirname "$0")"/../misc/patch/ -name "*.patch" -print)
 do
-    patch -p1 < $patch || exit 1
+    # idempotent: ignore if a patch has been already applied
+    patch -p1 -f -r - -s < "$patch" 2> /dev/null || true
 done

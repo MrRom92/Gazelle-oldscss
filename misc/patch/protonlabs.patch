@@ -1,0 +1,28 @@
+diff --git a/vendor/protonlabs/bitcoin/src/Address/Bech32AddressInterface.php b/vendor/protonlabs/bitcoin/src/Address/Bech32AddressInterface.php
+index 63a06991..d6cc41a3 100644
+--- a/vendor/protonlabs/bitcoin/src/Address/Bech32AddressInterface.php
++++ b/vendor/protonlabs/bitcoin/src/Address/Bech32AddressInterface.php
+@@ -9,8 +9,8 @@ use BitWasp\Bitcoin\Network\NetworkInterface;
+ interface Bech32AddressInterface extends AddressInterface
+ {
+     /**
+-     * @param NetworkInterface $network
++     * @param NetworkInterface|null $network
+      * @return string
+      */
+-    public function getHRP(NetworkInterface $network = null): string;
++    public function getHRP(NetworkInterface|null $network = null): string;
+ }
+diff --git a/vendor/protonlabs/bitcoin/src/Address/SegwitAddress.php b/vendor/protonlabs/bitcoin/src/Address/SegwitAddress.php
+index 89aba2ed..6405c0b7 100644
+--- a/vendor/protonlabs/bitcoin/src/Address/SegwitAddress.php
++++ b/vendor/protonlabs/bitcoin/src/Address/SegwitAddress.php
+@@ -31,7 +31,7 @@ class SegwitAddress extends Address implements Bech32AddressInterface
+      * @param NetworkInterface|null $network
+      * @return string
+      */
+-    public function getHRP(NetworkInterface $network = null): string
++    public function getHRP(NetworkInterface|null $network = null): string
+     {
+         $network = $network ?: Bitcoin::getNetwork();
+         return $network->getSegwitBech32Prefix();
