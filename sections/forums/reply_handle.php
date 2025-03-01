@@ -14,8 +14,7 @@ $thread = (new Manager\ForumThread())->findById((int)($_POST['threadid'] ?? 0));
 if (is_null($thread)) {
     error(404);
 }
-$threadId = $thread->id();
-$forum    = $thread->forum();
+$forum = $thread->forum();
 
 if (!$Viewer->readAccess($forum) || !$Viewer->writeAccess($forum) || $thread->isLocked() && !$Viewer->permitted('site_moderate_forums')) {
     error(403);
@@ -39,12 +38,12 @@ if ($thread->lastAuthorId() == $Viewer->id() && isset($_POST['merge'])) {
 }
 
 (new User\Notification\Quote($Viewer))->create(
-    new Manager\User(), $body, $post->id(), 'forums', $threadId
+    new Manager\User(), $body, $post->id(), 'forums', $thread->id()
 );
 $subscription = new User\Subscription($Viewer);
-if (isset($_POST['subscribe']) && !$subscription->isSubscribed($threadId)) {
-    $subscription->subscribe($threadId);
+if (isset($_POST['subscribe']) && !$subscription->isSubscribed($thread)) {
+    $subscription->subscribe($thread);
 }
-(new Manager\Subscription())->flushPage('forums', $threadId);
+(new Manager\Subscription())->flushPage('forums', $thread->id());
 
 header("Location: {$post->location()}");

@@ -2,6 +2,8 @@
 
 namespace Gazelle\User;
 
+use Gazelle\ForumThread;
+
 class Quote extends \Gazelle\BaseUser {
     final public const tableName = 'users_notify_quoted';
     final protected const UNREAD_QUOTE_KEY = 'u_unread_%d';
@@ -65,7 +67,7 @@ class Quote extends \Gazelle\BaseUser {
     /**
      * Mark the user as having seen their quoted posts in a thread
      */
-    public function clearThread(int $threadId, int $firstPost, int $lastPost): int {
+    public function clearThread(ForumThread $thread, int $firstPost, int $lastPost): int {
         self::$db->prepared_query("
             UPDATE users_notify_quoted SET
                 UnRead = false
@@ -73,7 +75,7 @@ class Quote extends \Gazelle\BaseUser {
                 AND UserID = ?
                 AND PageID = ?
                 AND PostID BETWEEN ? AND ?
-            ", $this->user->id(), $threadId, $firstPost, $lastPost
+            ", $this->user->id(), $thread->id(), $firstPost, $lastPost
         );
         $this->flush();
         return self::$db->affected_rows();

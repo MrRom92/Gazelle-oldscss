@@ -112,6 +112,7 @@ class ForumTest extends TestCase {
         $this->assertEquals('This is where it happens', $this->forum->description(), 'forum-description');
         $this->assertEquals($forumName, $this->forum->name(), 'forum-name');
         $this->assertNull($this->forum->lastThread(), 'forum-last-thread');
+        $this->assertNull($this->forum->lastThreadName(), 'forum-last-thread-name');
 
         $find = $forumMan->findById($this->forum->id());
         $this->assertEquals($this->forum->id(), $find->id(), 'forum-forum-find');
@@ -205,10 +206,10 @@ class ForumTest extends TestCase {
 
         // Forum Posts
         $userSub = new User\Subscription($user);
-        $this->assertFalse($userSub->isSubscribed($thread->id()), 'fpost-user-is-not-subbed');
+        $this->assertFalse($userSub->isSubscribed($thread), 'fpost-user-is-not-subbed');
 
-        $userSub->subscribe($thread->id());
-        $this->assertTrue($userSub->isSubscribed($thread->id()), 'fpost-user-is-now-subbed');
+        $userSub->subscribe($thread);
+        $this->assertTrue($userSub->isSubscribed($thread), 'fpost-user-is-now-subbed');
         $list = $userSub->subscriptionList();
         $this->assertCount(1, $list, 'fpost-subscriptions-list');
         $this->assertEquals($thread->id(), $list[0], 'fpost-subscriptions-first');
@@ -228,7 +229,7 @@ class ForumTest extends TestCase {
         $this->assertEquals(1, $userSub->unread(), 'fpost-subscriptions-user-unread');
         $adminSub = new User\Subscription($admin); // now sub them
         $this->assertEquals(0, $adminSub->unread(), 'fpost-subscriptions-admin-unread');
-        $adminSub->subscribe($thread->id());
+        $adminSub->subscribe($thread);
 
         /* quote first post in reply */
         $body = "good job @{$admin->username()}";
@@ -255,7 +256,7 @@ class ForumTest extends TestCase {
         $this->assertEquals($admin->id(), $page[0]['quoter_id'], 'fpost-quote-page-0-quoter');
         $this->assertEquals($postMan->findById($reply->id())->url(), $page[0]['jump'], 'fpost-quote-page-0-jump');
 
-        $this->assertEquals(1, $quote->clearThread($thread->id(), $post->id(), $reply->id()), 'fpost-clear-thread');
+        $this->assertEquals(1, $quote->clearThread($thread, $post->id(), $reply->id()), 'fpost-clear-thread');
         $this->assertEquals(0, $quote->total(), 'fpost-quote-admin-total-clear');
         $this->assertEquals(0, $quote->unreadTotal(), 'fpost-quote-admin-unread-total-clear');
 
@@ -477,7 +478,7 @@ class ForumTest extends TestCase {
 
         $answer  = ['apple', 'banana', 'carrot'];
         $pollMan = new Manager\ForumPoll();
-        $poll    = $pollMan->create($thread->id(), 'Best food', $answer);
+        $poll    = $pollMan->create($thread, 'Best food', $answer);
         $this->assertInstanceOf(ForumPoll::class, $poll, 'forum-poll-is-forum-poll');
         $this->assertFalse($poll->isClosed(), 'forum-poll-is-not-closed');
         $this->assertFalse($poll->hasRevealVotes(), 'forum-poll-is-not-featured');

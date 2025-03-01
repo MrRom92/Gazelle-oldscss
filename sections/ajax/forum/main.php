@@ -37,7 +37,7 @@ foreach ((new Manager\Forum())->forumList() as $forum) {
         'lastPostAuthorName' => $user[$lastAuthorId] ? $user[$lastAuthorId]->username() : null,
         'lastTopicId'        => $forum->lastThreadId(),
         'lastTime'           => $forum->lastPostTime(),
-        'lastTopic'          => $forum->lastThread(),
+        'lastTopic'          => $forum->lastThreadName(),
         'read'               => $Viewer->hasReadLastPost($forum),
         'locked'             => $forum->isLocked(),
     ];

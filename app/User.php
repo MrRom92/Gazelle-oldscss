@@ -819,14 +819,14 @@ class User extends BaseObject {
      */
     public function hasReadLastPost(Forum $forum): bool {
         return $forum->isLocked()
-            || $this->lastReadInThread($forum->lastThreadId()) >= $forum->lastPostId()
+            || $this->lastReadInThread($forum->lastThread()) >= $forum->lastPostId()
             || $this->forumCatchupEpoch() >= $forum->lastPostEpoch();
     }
 
     /**
      * What is the last post this user has read in a thread?
      */
-    public function lastReadInThread(int $threadId): int {
+    public function lastReadInThread(ForumThread $thread): int {
         if (!isset($this->lastRead)) {
             self::$db->prepared_query("
                 SELECT TopicID, PostID FROM forums_last_read_topics WHERE UserID = ?
@@ -834,7 +834,7 @@ class User extends BaseObject {
             );
             $this->lastRead = self::$db->to_pair('TopicID', 'PostID', false);
         }
-        return $this->lastRead[$threadId] ?? 0;
+        return $this->lastRead[$thread->id()] ?? 0;
     }
 
     /**

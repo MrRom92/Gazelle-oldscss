@@ -46,7 +46,7 @@ $blog->setField('Body', $body)
     ->modify();
 
 if ($thread && isset($_POST['subscribe'])) {
-    (new User\Subscription($Viewer))->subscribe($thread->id());
+    (new User\Subscription($Viewer))->subscribe($thread);
 }
 
 header('Location: blog.php');

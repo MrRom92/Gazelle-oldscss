@@ -2,6 +2,8 @@
 
 namespace Gazelle\User;
 
+use Gazelle\ForumThread;
+
 class Subscription extends \Gazelle\BaseUser {
     final public const tableName    = 'users_subscriptions';
     final protected const CACHE_KEY = 'subscriptions_user_%d';
@@ -21,20 +23,20 @@ class Subscription extends \Gazelle\BaseUser {
     /**
      * (Un)subscribe from a forum thread.
      */
-    public function subscribe(int $threadId): int {
-        if ($this->isSubscribed($threadId) !== false) {
+    public function subscribe(ForumThread $thread): int {
+        if ($this->isSubscribed($thread) !== false) {
             self::$db->prepared_query('
                 DELETE FROM users_subscriptions
                 WHERE UserID = ?
                     AND TopicID = ?
-                ', $this->user->id(), $threadId
+                ', $this->user->id(), $thread->id()
             );
             $affected = self::$db->affected_rows();
         } else {
             self::$db->prepared_query('
                 INSERT IGNORE INTO users_subscriptions (UserID, TopicID)
                 VALUES (?, ?)
-                ', $this->user->id(), $threadId
+                ', $this->user->id(), $thread->id()
             );
             $affected = self::$db->affected_rows();
         }
@@ -173,8 +175,8 @@ class Subscription extends \Gazelle\BaseUser {
         );
     }
 
-    public function isSubscribed(int $threadId): bool {
-        return array_search($threadId, $this->subscriptionList()) !== false;
+    public function isSubscribed(ForumThread $thread): bool {
+        return array_search($thread->id(), $this->subscriptionList()) !== false;
     }
 
     /**

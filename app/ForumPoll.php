@@ -7,6 +7,10 @@ class ForumPoll extends BaseObject {
     final public const pkName    = 'TopicID';
     final protected const CACHE_KEY = 'forum_poll_%d';
 
+    public function __construct(ForumThread $thread) {
+        parent::__construct($thread->id());
+    }
+
     public function flush(): static {
         self::$cache->delete_multi([
             sprintf(self::CACHE_KEY, $this->id),

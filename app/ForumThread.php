@@ -136,7 +136,7 @@ class ForumThread extends BaseObject {
     }
 
     public function poll(): ForumPoll {
-        return new ForumPoll($this->id);
+        return new ForumPoll($this);
     }
 
     public function isLocked(): bool {

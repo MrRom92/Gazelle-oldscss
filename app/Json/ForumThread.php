@@ -50,7 +50,7 @@ class ForumThread extends \Gazelle\Json {
 
         $pollInfo = null;
         if ($thread->hasPoll()) {
-            $poll = new \Gazelle\ForumPoll($thread->id());
+            $poll = new \Gazelle\ForumPoll($thread);
 
             $response = $poll->response($this->user);
             $answerList = $poll->vote();
@@ -114,7 +114,7 @@ class ForumThread extends \Gazelle\Json {
             ];
         }
 
-        $subscribed = (new \Gazelle\User\Subscription($this->user))->isSubscribed($thread->id());
+        $subscribed = (new \Gazelle\User\Subscription($this->user))->isSubscribed($thread);
         if ($subscribed) {
             self::$cache->delete_value("subscriptions_user_new_{$this->user->id()}");
         }

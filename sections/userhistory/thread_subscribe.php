@@ -5,8 +5,6 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-// perform the back end of subscribing to topics
-
 if ($Viewer->disableForums()) {
     error(403);
 }
@@ -20,4 +18,4 @@ if (!$Viewer->readAccess($thread->forum())) {
     error(403);
 }
 
-json_print('success', (new User\Subscription($Viewer))->subscribe($thread->id()));
+json_print('success', (new User\Subscription($Viewer))->subscribe($thread));

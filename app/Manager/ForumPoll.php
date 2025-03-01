@@ -9,14 +9,18 @@ class ForumPoll extends \Gazelle\BaseManager {
     /**
      * Create a poll for forum thread
      */
-    public function create(int $threadId, string $question, array $answerList): \Gazelle\ForumPoll {
+    public function create(
+        \Gazelle\ForumThread $thread,
+        string               $question,
+        array                $answerList,
+    ): \Gazelle\ForumPoll {
         self::$db->prepared_query("
             INSERT INTO forums_polls
                    (TopicID, Question, Answers)
             Values (?,       ?,        ?)
-            ", $threadId, $question, serialize($answerList)
+            ", $thread->id(), $question, serialize($answerList)
         );
-        return $this->findById($threadId);
+        return $this->findById($thread->id());
     }
 
     /**
@@ -34,7 +38,16 @@ class ForumPoll extends \Gazelle\BaseManager {
                 self::$cache->cache_value($key, $id, 7200);
             }
         }
-        return $id ? new \Gazelle\ForumPoll($id) : null;
+        return $id
+            ? new \Gazelle\ForumPoll(new \Gazelle\ForumThread($id))
+            : null;
+    }
+
+    /**
+     * Instantiate a poll by its thread
+     */
+    public function findByThread(\Gazelle\Thread $thread): ?\Gazelle\ForumPoll {
+        return $this->findById($thread->id());
     }
 
     /**

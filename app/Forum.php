@@ -147,12 +147,16 @@ class Forum extends BaseObject {
         return $this->info()['last_author_id'];
     }
 
-    public function lastThread(): ?string {
-        return $this->info()['last_thread'];
+    public function lastThread($manager = new Manager\ForumThread()): ?ForumThread {
+        return $manager->findById($this->lastThreadId());
     }
 
     public function lastThreadId(): int {
         return $this->info()['last_thread_id'];
+    }
+
+    public function lastThreadName(): ?string {
+        return $this->info()['last_thread'];
     }
 
     public function lastPostEpoch(): int {

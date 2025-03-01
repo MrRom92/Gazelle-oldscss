@@ -66,7 +66,7 @@ if ($lastOnPage <= $thread->pinnedPostId() && $thread->postTotal() <= $PerPage *
 
 $quote = new User\Quote($Viewer);
 if ($quote->unreadTotal()) {
-    $quote->clearThread($threadId, $firstOnPage, $lastOnPage);
+    $quote->clearThread($thread, $firstOnPage, $lastOnPage);
 }
 
 $lastRead = $thread->userLastReadPost($Viewer);
@@ -74,7 +74,7 @@ if ($lastRead < $lastOnPage) {
     $thread->catchup($Viewer, $lastOnPage);
 }
 
-$isSubscribed = (new User\Subscription($Viewer))->isSubscribed($threadId);
+$isSubscribed = (new User\Subscription($Viewer))->isSubscribed($thread);
 if ($isSubscribed) {
     $Cache->delete_value('subscriptions_user_new_' . $Viewer->id());
 }
@@ -98,7 +98,7 @@ echo $Twig->render('forum/thread-header.twig', [
 ]);
 
 echo $Twig->render('forum/poll.twig', [
-    'poll'     => $thread->hasPoll() ? new ForumPoll($threadId) : false,
+    'poll'     => $thread->hasPoll() ? new ForumPoll($thread) : false,
     'user_man' => $userMan,
     'viewer'   => $Viewer,
 ]);

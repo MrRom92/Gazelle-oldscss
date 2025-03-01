@@ -42,10 +42,15 @@ $blog = (new Manager\Blog())->create([
 ]);
 
 if ($thread && isset($_POST['subscribe'])) {
-    (new User\Subscription($Viewer))->subscribe($thread->id());
+    (new User\Subscription($Viewer))->subscribe($thread);
 }
 $notification = new Manager\Notification();
-$notification->push($notification->pushableTokens(NotificationType::BLOG), "New blog article", $blog->title(), $blog->publicLocation());
+$notification->push(
+    $notification->pushableTokens(NotificationType::BLOG),
+    "New blog article",
+    $blog->title(),
+    $blog->publicLocation()
+);
 
 Util\Irc::sendMessage(IRC_CHAN, "New blog article: " . $blog->title());
 
