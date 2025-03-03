@@ -14,12 +14,18 @@ class Blog extends \Gazelle\BaseManager {
     /**
      * Create a blog article
      */
-    public function create(array $info): \Gazelle\Blog {
+    public function create(
+        string                    $title,
+        string                    $body,
+        int                       $important,
+        \Gazelle\ForumThread|null $thread,
+        \Gazelle\User             $user,
+    ): \Gazelle\Blog {
         self::$db->prepared_query("
             INSERT INTO blog
                    (UserID, Title, Body, ThreadID, Important)
             VALUES (?,      ?,     ?,    ?,        ?)
-            ", $info['userId'], trim($info['title']), trim($info['body']), $info['threadId'], $info['important']
+            ", $user->id(), $title, $body, $thread?->id(), $important
         );
         $this->flush();
         return new \Gazelle\Blog(self::$db->inserted_id());

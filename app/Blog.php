@@ -19,11 +19,12 @@ class Blog extends BaseObject {
             Manager\Blog::CACHE_KEY,
             sprintf(self::CACHE_KEY, $this->id),
         ]);
+        unset($this->info);
         return $this;
     }
 
     public function info(): array {
-        if (isset($this->info) && !empty($this->info)) {
+        if (isset($this->info)) {
             return $this->info;
         }
         $key = sprintf(self::CACHE_KEY, $this->id);
@@ -89,6 +90,13 @@ class Blog extends BaseObject {
     }
 
     /**
+     * The forum thread ID of the blog
+     */
+    public function thread($manager = new Manager\ForumThread()): ?ForumThread {
+        return $manager->findById((int)$this->threadId());
+    }
+
+    /**
      * The author of the blog
      */
     public function userId(): int {
@@ -96,14 +104,15 @@ class Blog extends BaseObject {
     }
 
     /**
-     * Remove an existing blog article
+     * Remove an existing blog article, and thread if it exists
      */
     public function remove(): int {
+        $affected = $this->thread()?->remove();
         self::$db->prepared_query("
             DELETE FROM blog WHERE ID = ?
             ", $this->id
         );
-        $affected = self::$db->affected_rows();
+        $affected += self::$db->affected_rows();
         $this->flush();
         return $affected;
     }

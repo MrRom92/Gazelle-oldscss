@@ -25,21 +25,21 @@ if (empty($title)) {
 $thread = match ((int)($_POST['thread'] ?? -1)) {
     -1 => null,
      0 => (new Manager\ForumThread())->create(
-        forum: new Forum(ANNOUNCEMENT_FORUM_ID),
-        user:  $Viewer,
-        title: $title,
-        body:  $body,
+        forum : new Forum(ANNOUNCEMENT_FORUM_ID),
+        title : $title,
+        body  : $body,
+        user  : $Viewer,
     ),
     default => (new Manager\ForumThread())->findById((int)$_POST['thread']),
 };
 
-$blog = (new Manager\Blog())->create([
-    'title'     => $title,
-    'body'      => $body,
-    'important' => isset($_POST['important']) ? 1 : 0,
-    'threadId'  => $thread?->id(),
-    'userId'    => $Viewer->id(),
-]);
+$blog = (new Manager\Blog())->create(
+    title     : $title,
+    body      : $body,
+    thread    : $thread,
+    important : isset($_POST['important']) ? 1 : 0,
+    user      : $Viewer,
+);
 
 if ($thread && isset($_POST['subscribe'])) {
     (new User\Subscription($Viewer))->subscribe($thread);

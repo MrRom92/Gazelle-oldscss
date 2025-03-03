@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class BlogTest extends TestCase {
     protected array $userList;
@@ -10,8 +11,8 @@ class BlogTest extends TestCase {
 
     public function setUp(): void {
         $this->userList = [
-            \GazelleUnitTest\Helper::makeUser('blog.' . randomString(10), 'blog'),
-            \GazelleUnitTest\Helper::makeUser('blog.' . randomString(10), 'blog'),
+            Helper::makeUser('blog.' . randomString(10), 'blog'),
+            Helper::makeUser('blog.' . randomString(10), 'blog'),
         ];
     }
 
@@ -28,14 +29,14 @@ class BlogTest extends TestCase {
     public function testBlogCreate(): void {
         $manager = new Manager\Blog();
         $initial = $manager->headlines();
-        $this->blog = $manager->create([
-            'userId'    => $this->userList[0]->id(),
-            'title'     => 'phpunit blog',
-            'body'      => 'phpunit blog body',
-            'threadId'  => 0,
-            'important' => 1,
-        ]);
-        $this->assertTrue(\GazelleUnitTest\Helper::recentDate($this->blog->created()), 'blog-created');
+        $this->blog = $manager->create(
+            title     : 'phpunit blog',
+            body      : 'phpunit blog body',
+            thread    : null,
+            important : 1,
+            user      : $this->userList[0],
+        );
+        $this->assertTrue(Helper::recentDate($this->blog->created()), 'blog-created');
         $this->assertEquals('phpunit blog body', $this->blog->body(), 'blog-body');
         $this->assertEquals(1, $this->blog->important(), 'blog-important');
         $this->assertEquals(0, $this->blog->threadId(), 'blog-thread-id');
@@ -54,15 +55,40 @@ class BlogTest extends TestCase {
         unset($this->blog);
     }
 
+    public function testBlogThread(): void {
+        $title      = 'blog ' . randomString(10);
+        $manager    = new Manager\Blog();
+        $this->blog = $manager->create(
+            title  : $title,
+            body   : "$title body",
+            thread : (new Manager\ForumThread())
+                ->create(
+                    new Forum(ANNOUNCEMENT_FORUM_ID),
+                    $this->userList[0],
+                    "thread $title title",
+                    "thread $title body",
+                ),
+            important : 1,
+            user      : $this->userList[0],
+        );
+        $this->assertEquals(
+            "thread $title title",
+            $this->blog->thread()->title(),
+            'blog-thread-title',
+        );
+        $this->assertEquals(3, $this->blog->remove(), 'blog-thread-remove');
+        unset($this->blog);
+    }
+
     public function testBlogWitness(): void {
         $manager = new Manager\Blog();
-        $this->blog = $manager->create([
-            'userId'    => $this->userList[0]->id(),
-            'title'     => 'phpunit blog witness',
-            'body'      => 'phpunit blog witness body',
-            'threadId'  => 0,
-            'important' => 1,
-        ]);
+        $this->blog = $manager->create(
+            title     : 'phpunit blog witness',
+            body      : 'phpunit blog witness body',
+            thread    : null,
+            important : 1,
+            user      : $this->userList[0],
+        );
 
         $witness = new WitnessTable\UserReadBlog();
         $this->assertNull($witness->lastRead($this->userList[1]), 'blog-user-not-read');
@@ -73,13 +99,13 @@ class BlogTest extends TestCase {
     public function testBlogNotification(): void {
         $manager = new Manager\Blog();
         $title   = 'phpunit blog notif';
-        $this->blog    = $manager->create([
-            'userId'    => $this->userList[0]->id(),
-            'title'     => $title,
-            'body'      => 'phpunit blog notif body',
-            'threadId'  => 0,
-            'important' => 1,
-        ]);
+        $this->blog    = $manager->create(
+            title     : $title,
+            body      : 'phpunit blog notif body',
+            thread    : null,
+            important : 1,
+            user      : $this->userList[0],
+        );
 
         $notifier = new User\Notification($this->userList[1]);
         // if this fails, the CI database has drifted (or another UT has clobbered the expected value here)
