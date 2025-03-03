@@ -16,6 +16,7 @@ if [ ! -e .docker-init-done ] ; then
     npm install
     npx update-browserslist-db@latest
     npx puppeteer browsers install chrome
+    bin/config-css /tmp/config-css.js
     npm run dev
     touch .docker-init-done
 fi

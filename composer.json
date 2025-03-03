@@ -34,7 +34,7 @@
     "protonlabs/bitcoin": "^1.0",
     "robmorgan/phinx": "^0.16",
     "robthree/twofactorauth": "^1.8.2",
-    "twig/twig": "^3.14",
+    "twig/twig": "^3.20",
     "whichbrowser/parser": "^2.1.8"
   },
   "require-dev": {

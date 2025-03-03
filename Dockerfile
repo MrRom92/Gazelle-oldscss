@@ -4,6 +4,8 @@ ENV DEB_RELEASE=bookworm
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PHP_VER=8.4
 ENV NODE_VERSION=20
+# commit of composer 2.8.6
+ENV COMPOSER_COMMIT=51c25eb405dc44528575cb36aea4aeec31c4bf15
 
 # Uncomment to skip the chromium download when installing puppeteer. If you do,
 # you'll need to launch puppeteer with:
@@ -97,13 +99,15 @@ RUN apt-get update \
     && apt-get autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
+    && curl -fsSL https://raw.githubusercontent.com/composer/getcomposer.org/$COMPOSER_COMMIT/web/installer \
+      | php -- --quiet \
+    && mv composer.phar /usr/local/bin/composer \
     # Python tools layer
     && pip3 install --break-system-packages chardet eac-logchecker xld-logchecker
 
 COPY misc/docker/ /var/www/misc/docker
 COPY lib /var/www/lib
 COPY bin/ /var/www/bin
-COPY --from=composer:2.8.3 /usr/bin/composer /usr/local/bin/composer
 
 # Permissions and configuration layer
 RUN useradd -ms /bin/bash gazelle \

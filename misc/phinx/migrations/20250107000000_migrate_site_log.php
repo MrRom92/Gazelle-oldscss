@@ -38,12 +38,7 @@ EOS;
                 '$article',
                 (SELECT Level FROM permissions WHERE Name = 'User'),
                 (SELECT Level FROM permissions WHERE Name = 'User'),
-                (SELECT um.ID
-                    FROM users_main um
-                    INNER JOIN permissions p ON (p.ID = um.PermissionID)
-                    ORDER BY p.Level DESC
-                    LIMIT 1
-                )
+                1
             )
         ");
         $this->query("
@@ -52,12 +47,7 @@ EOS;
             VALUES (
                 (SELECT ID FROM wiki_articles WHERE Title = 'Fulltext searching tips'),
                 'searchfulltext',
-                (SELECT um.ID
-                    FROM users_main um
-                    INNER JOIN permissions p ON (p.ID = um.PermissionID)
-                    ORDER BY p.Level DESC
-                    LIMIT 1
-                )
+                1
             )
         ");
     }
