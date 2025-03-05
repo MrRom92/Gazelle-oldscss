@@ -9,7 +9,7 @@ class CollageAdd extends \Gazelle\Json {
         protected \Gazelle\Collage         $collage,
         protected CollageEntry             $entry,
         protected \Gazelle\User            $user,
-        protected \Gazelle\Manager\Collage $manager,
+        protected \Gazelle\Manager\Collage $manager = new \Gazelle\Manager\Collage(),
     ) {}
 
     protected function setFailure(string $message): array {

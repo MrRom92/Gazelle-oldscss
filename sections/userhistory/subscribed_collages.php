@@ -16,7 +16,6 @@ $viewAll = (bool)($_GET['showall'] ?? 0);
 $collMan = new Manager\Collage();
 $groupSubs = $collMan->subscribedTGroupCollageList(
     $Viewer,
-    (new Manager\TGroup())->setViewer($Viewer),
     $viewAll,
 );
 
@@ -170,11 +169,7 @@ $urlStem   = (new User\Stylesheet($Viewer))->imagePath();
 }
 
 echo $Twig->render('user/subscribed-collage-artist.twig', [
-    'artist_list' => $collMan->subscribedArtistCollageList(
-        $Viewer,
-        new Manager\Artist(),
-        $viewAll
-    ),
-    'view_all' => $viewAll,
-    'viewer'   => $Viewer,
+    'artist_list' => $collMan->subscribedArtistCollageList($Viewer, $viewAll),
+    'view_all'    => $viewAll,
+    'viewer'      => $Viewer,
 ]);

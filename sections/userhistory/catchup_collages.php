@@ -11,11 +11,11 @@ $notifier = new User\Notification\Collage($Viewer);
 if (!isset($_REQUEST['collageid'])) {
     $notifier->clear();
 } else {
-    $collageId = (int)$_REQUEST['collageid'];
-    if (!$collageId) {
+    $collage = (new Manager\Collage())->findById((int)$_REQUEST['collageid']);
+    if (is_null($collage)) {
         error(404);
     }
-    $notifier->clearCollage($collageId);
+    $notifier->clearCollage($collage);
 }
 
 header('Location: userhistory.php?action=subscribed_collages');

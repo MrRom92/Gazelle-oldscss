@@ -12,10 +12,11 @@ class Collage extends AbstractNotification {
             UPDATE users_collage_subs SET
                 LastVisit = now()
             WHERE UserID = ?
-            ", $this->user->id()
+            ", $this->id()
         );
-        self::$cache->delete_value(sprintf(\Gazelle\Collage::SUBS_NEW_KEY, $this->user->id()));
-        return self::$db->affected_rows();
+        $affected = self::$db->affected_rows();
+        self::$cache->delete_value(sprintf(\Gazelle\Collage::SUBS_NEW_KEY, $this->id()));
+        return $affected;
     }
 
     public function load(): bool {
@@ -30,14 +31,15 @@ class Collage extends AbstractNotification {
         return false;
     }
 
-    public function clearCollage(int $collageId): int {
+    public function clearCollage(\Gazelle\Collage $collage): int {
         self::$db->prepared_query("
             UPDATE users_collage_subs SET
                 LastVisit = now()
             WHERE UserID = ? AND CollageID = ?
-            ", $this->user->id(), $collageId
+            ", $this->id(), $collage->id()
         );
-        self::$cache->delete_value(sprintf(\Gazelle\Collage::SUBS_NEW_KEY, $this->user->id()));
-        return self::$db->affected_rows();
+        $affected = self::$db->affected_rows();
+        self::$cache->delete_value(sprintf(\Gazelle\Collage::SUBS_NEW_KEY, $this->id()));
+        return $affected;
     }
 }

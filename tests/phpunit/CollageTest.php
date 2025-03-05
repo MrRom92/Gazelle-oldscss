@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\CollageType;
 
 /**
@@ -23,9 +24,9 @@ class CollageTest extends TestCase {
 
     public function setUp(): void {
         $this->userList = [
-            'u1'  => \GazelleUnitTest\Helper::makeUser('u1.' . randomString(6), 'collage', clearInbox: true),
-            'u2'  => \GazelleUnitTest\Helper::makeUser('u2.' . randomString(6), 'collage', clearInbox: true),
-            'u3'  => \GazelleUnitTest\Helper::makeUser('u3.' . randomString(6), 'collage', clearInbox: true),
+            'u1'  => Helper::makeUser('u1.' . randomString(6), 'collage', clearInbox: true),
+            'u2'  => Helper::makeUser('u2.' . randomString(6), 'collage', clearInbox: true),
+            'u3'  => Helper::makeUser('u3.' . randomString(6), 'collage', clearInbox: true),
         ];
         $this->userList['u1']->requestContext()->setViewer($this->userList['u1']);
         $this->artistName = [
@@ -40,31 +41,31 @@ class CollageTest extends TestCase {
         $artistMan = new Manager\Artist();
         $user      = $this->userList['u1'];
         $this->tgroupList = [
-            \GazelleUnitTest\Helper::makeTGroupMusic(
+            Helper::makeTGroupMusic(
                 $user,
                 'Some ' . randomString(8) . ' songs',
                 [[ARTIST_MAIN], [$this->artistName[0]]],
                 $this->tagList(1),
             ),
-            \GazelleUnitTest\Helper::makeTGroupMusic(
+            Helper::makeTGroupMusic(
                 $user,
                 'Some ' . randomString(8) . ' songs',
                 [[ARTIST_MAIN], [$this->artistName[1]]],
                 $this->tagList(2),
             ),
-            \GazelleUnitTest\Helper::makeTGroupMusic(
+            Helper::makeTGroupMusic(
                 $user,
                 'Some ' . randomString(8) . ' songs',
                 [[ARTIST_MAIN], [$this->artistName[2], $this->artistName[3]]],
                 $this->tagList(3),
             ),
-            \GazelleUnitTest\Helper::makeTGroupMusic(
+            Helper::makeTGroupMusic(
                 $user,
                 'Some ' . randomString(8) . ' songs',
                 [[ARTIST_MAIN], [$this->artistName[3]]],
                 $this->tagList(4),
             ),
-            \GazelleUnitTest\Helper::makeTGroupMusic(
+            Helper::makeTGroupMusic(
                 $user,
                 'Some ' . randomString(8) . ' songs',
                 [[ARTIST_MAIN], [$this->artistName[4]]],
@@ -206,8 +207,7 @@ class CollageTest extends TestCase {
 
         $this->assertEquals(1, $collage->addEntry($this->tgroupList[0], $this->userList['u3'], 'collage-add-entry'));
         $this->assertEquals(0, $collage->addEntry($this->tgroupList[0], $this->userList['u2'], 'collage-add-dupe-entry'));
-        $tgMan = new Manager\TGroup();
-        $unread = $manager->subscribedTGroupCollageList($this->userList['u2'], $tgMan, false);
+        $unread = $manager->subscribedTGroupCollageList($this->userList['u2'], false);
         $this->assertCount(1, $unread, 'collage-one-unread');
 
         // catchup
@@ -215,7 +215,7 @@ class CollageTest extends TestCase {
         $this->assertTrue($collage->isSubscribed($this->userList['u2']), 'collage-catchup');
         $this->assertCount(
             0,
-            $manager->subscribedTGroupCollageList($this->userList['u2'], $tgMan, false),
+            $manager->subscribedTGroupCollageList($this->userList['u2'], false),
             'collage-none-unread'
         );
 
@@ -282,7 +282,7 @@ class CollageTest extends TestCase {
         $this->assertTrue($this->collageList[1]->isSubscribed($this->userList['u1']), 'collage-artist-catchup');
         $this->assertCount(
             0,
-            $manager->subscribedArtistCollageList($this->userList['u1'], $artistMan, false),
+            $manager->subscribedArtistCollageList($this->userList['u1'], false),
             'collage-artist-unread'
         );
 
@@ -633,8 +633,8 @@ class CollageTest extends TestCase {
     }
 
     public function testCollageAjaxAdd(): void {
-        $manager = new Manager\Collage();
         $name    = 'phpunit collage ajax ' . randomString(20);
+        $manager = new Manager\Collage();
         $collage = $this->collageList[] = $manager->create(
             user:        $this->userList['u1'],
             categoryId:  CollageType::personal->value,
@@ -642,14 +642,11 @@ class CollageTest extends TestCase {
             description: 'phpunit collage ajax description',
             tagList:     implode(' ', $this->tagList(3)),
         );
-        $artMan    = new Manager\Artist();
-        $tgMan     = new Manager\TGroup();
 
         $byEntry = new Json\Ajax\CollageAdd(
             collage: $collage,
             entry:   $this->tgroupList[0],
             user:    $this->userList['u1'],
-            manager: $manager,
         );
         $this->assertArrayHasKey('link', $byEntry->payload(), 'collage-ajax-add-entry-id');
 
@@ -657,7 +654,6 @@ class CollageTest extends TestCase {
             collage: $collage,
             entry:   $this->tgroupList[0],
             user:    $this->userList['u1'],
-            manager: $manager,
         );
         $this->assertEquals([], $fail->payload(), 'collage-ajax-add-already');
         $response = json_decode($fail->response(), true);
@@ -667,7 +663,6 @@ class CollageTest extends TestCase {
             collage: $collage,
             entry:   $this->tgroupList[1],
             user:    $this->userList['u2'],
-            manager: $manager,
         );
         $response = json_decode($fail->response(), true);
         $this->assertEquals('personal', $response['error'], 'collage-ajax-error-personal');
@@ -677,7 +672,6 @@ class CollageTest extends TestCase {
             collage: $collage,
             entry:   $this->tgroupList[1],
             user:    $this->userList['u1'],
-            manager: $manager,
         );
         $response = json_decode($fail->response(), true);
         $this->assertEquals('locked', $response['error'], 'collage-ajax-error-locked');
@@ -701,5 +695,66 @@ class CollageTest extends TestCase {
         $shuffle = $manager->listShuffle(5, $list);
         $this->assertEquals(count($list), count($shuffle['above']), 'shuffle-partial-above');
         $this->assertCount(0, $shuffle['below'], 'shuffle-partial-below');
+    }
+
+    public function testCollageNotification(): void {
+        $manager = new Manager\Collage();
+        $this->collageList[] = $manager->create(
+            user:        $this->userList['u1'],
+            categoryId:  CollageType::theme->value,
+            name:        'phpunit collage notif ' . randomString(20),
+            description: 'phpunit collage notif description',
+            tagList:     implode(' ', $this->tagList(3)),
+        );
+        $subscriber = $this->userList['u2'];
+        $adder = $this->userList['u3'];
+        $collage = $this->collageList[0];
+        $collage->toggleSubscription($subscriber);
+        $collage->addEntry($this->tgroupList[0], $adder);
+
+        $list = $manager->subscribedTGroupCollageList($subscriber, true);
+        $this->assertCount(1, $list, 'collage-user-sub-list-total');
+        $entry = current($list);
+        $this->assertEquals(
+            $collage->id(),
+            $entry['collageId'],
+            'collage-user-entry-collageid',
+        );
+        $this->assertEquals(
+            $collage->numEntries(),
+            $entry['nrEntries'],
+            'collage-user-entry-nr-entry',
+        );
+        $this->assertTrue(
+            Helper::recentDate($entry['lastVisit']),
+            'collage-user-entry-last-visit',
+        );
+        $this->assertEquals(
+            [$this->tgroupList[0]->id()],
+            $entry['groupIds'],
+            'collage-user-group-id',
+        );
+        $this->assertEquals(
+            $this->tgroupList[0]->id(),
+            $entry['tgroup_list'][0]->id(),
+            'collage-user-tgroup-list-id',
+        );
+
+        $collage->addEntry($this->tgroupList[1], $adder);
+        sleep(1); // Mysql does not record dates with sub-second resolution
+        $notifier = new User\Notification\Collage($subscriber);
+        $this->assertEquals(
+            1,
+            $notifier->clearCollage($collage),
+            'collage-user-sub-clear-collage'
+        );
+
+        $collage->addEntry($this->tgroupList[2], $adder);
+        sleep(1);
+        $this->assertEquals(
+            1,
+            $notifier->clear(),
+            'collage-user-sub-clear-all'
+        );
     }
 }

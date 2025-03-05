@@ -337,7 +337,8 @@ class Collage extends \Gazelle\BaseManager {
         return $autocomplete;
     }
 
-    public function subscribedTGroupCollageList(\Gazelle\User $user, TGroup $manager, bool $viewAll): array {
+    public function subscribedTGroupCollageList(\Gazelle\User $user, bool $viewAll, $manager = new TGroup()): array {
+        $manager->setViewer($user);
         $cond = ['s.UserID = ?'];
         $args = [$user->id()];
         if ($viewAll) {
@@ -360,8 +361,8 @@ class Collage extends \Gazelle\BaseManager {
             GROUP BY c.ID
             ", ...$args
         );
-        $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
-        foreach ($list as &$entry) {
+        $result = [];
+        foreach (self::$db->to_array(false, MYSQLI_ASSOC, false) as $entry) {
             $entry['groupIds'] = is_null($entry['groupIds'])
                 ? []
                 : array_map('intval', explode(',', $entry['groupIds']));
@@ -372,14 +373,15 @@ class Collage extends \Gazelle\BaseManager {
                 ),
                 fn ($t) => $t instanceof \Gazelle\TGroup
             );
+            $result[] = $entry;
         }
-        return $list;
+        return $result;
     }
 
     public function subscribedArtistCollageList(
         \Gazelle\User $user,
-        Artist $manager,
-        bool $viewAll
+        bool $viewAll,
+        $manager = new Artist(),
     ): array {
         $cond = ['s.UserID = ?'];
         $args = [$user->id()];
