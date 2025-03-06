@@ -2,7 +2,10 @@
 
 namespace Gazelle\User;
 
+use Gazelle\Enum\NotificationType;
 use Gazelle\ForumThread;
+use Gazelle\Manager\Notification as NotificationManager;
+use Gazelle\Manager\ForumPost    as PostManager;
 
 class Quote extends \Gazelle\BaseUser {
     final public const tableName = 'users_notify_quoted';
@@ -11,30 +14,35 @@ class Quote extends \Gazelle\BaseUser {
     protected bool $showAll = false;
 
     public function flush(): static {
-        self::$cache->delete_value(sprintf(self::UNREAD_QUOTE_KEY, $this->user->id()));
+        self::$cache->delete_value(sprintf(self::UNREAD_QUOTE_KEY, $this->id()));
         return $this;
     }
 
-    public function create(int $quoterId, string $page, int $pageId, int $postId): int {
+    public function create(
+        string              $page,
+        int                 $pageId,
+        \Gazelle\User       $quoter,
+        int                 $postId,
+        NotificationManager $notifMan = new NotificationManager(),
+        PostManager         $postMan  = new PostManager(),
+    ): int {
         self::$db->prepared_query('
             INSERT IGNORE INTO users_notify_quoted
-                   (UserID, QuoterID, Page, PageID, PostID)
-            VALUES (?,      ?,        ?,    ?,      ?)
-            ', $this->user->id(), $quoterId, $page, $pageId, $postId
+                   (UserID, Page, PageID, QuoterID, PostID)
+            VALUES (?,      ?,    ?,      ?,        ?)
+            ', $this->id(), $page, $pageId, $quoter->id(), $postId
         );
+        $affected = self::$db->affected_rows();
 
-        $userMan = new \Gazelle\Manager\User();
-        $notifMan = new \Gazelle\Manager\Notification();
-        $postMan = new \Gazelle\Manager\ForumPost();
-
-        $quoterName = $userMan->findById($quoterId)->username();
-        $post = $postMan->findById($postId);
-        $pushTokens = $notifMan->pushableTokensById([$this->user->id()], \Gazelle\Enum\NotificationType::INBOX);
-        $notifMan->push($pushTokens,
-            "$quoterName quoted you on the forum", "", SITE_URL . '/' . $post->location());
-
+        $notifMan->push(
+            $notifMan->pushableTokensById([$this->id()], NotificationType::INBOX),
+            "{$quoter->username()} quoted you on the forum",
+            "",
+            SITE_URL . '/' . $postMan->findById($postId)->location()
+        );
         $this->flush();
-        return self::$db->affected_rows();
+
+        return $affected;
     }
 
     /**
@@ -58,7 +66,7 @@ class Quote extends \Gazelle\BaseUser {
                 UnRead = false
             WHERE Unread = true
                 AND UserID = ?
-            ", $this->user->id()
+            ", $this->id()
         );
         $this->flush();
         return self::$db->affected_rows();
@@ -75,7 +83,7 @@ class Quote extends \Gazelle\BaseUser {
                 AND UserID = ?
                 AND PageID = ?
                 AND PostID BETWEEN ? AND ?
-            ", $this->user->id(), $thread->id(), $firstPost, $lastPost
+            ", $this->id(), $thread->id(), $firstPost, $lastPost
         );
         $this->flush();
         return self::$db->affected_rows();
@@ -117,7 +125,7 @@ class Quote extends \Gazelle\BaseUser {
             "(q.Page != 'forums' OR " . join(' AND ', $forumCond) . ")",
         ];
         $args = array_merge(
-            [$this->user->id()],
+            [$this->id()],
             $forumArgs,
         );
 
@@ -256,12 +264,12 @@ class Quote extends \Gazelle\BaseUser {
      * @return int Number of unread quote notifications
      */
     public function unreadTotal(): int {
-        $key = sprintf(self::UNREAD_QUOTE_KEY, $this->user->id());
+        $key = sprintf(self::UNREAD_QUOTE_KEY, $this->id());
         $total = self::$cache->get_value($key);
         if ($total === false) {
             $forMan = new \Gazelle\Manager\Forum();
-            [$cond, $args] = $forMan->configureForUser(new \Gazelle\User($this->user->id()));
-            $args[] = $this->user->id(); // for q.UserID
+            [$cond, $args] = $forMan->configureForUser(new \Gazelle\User($this->id()));
+            $args[] = $this->id(); // for q.UserID
             $total = (int)self::$db->scalar("
                 SELECT count(*)
                 FROM users_notify_quoted AS q

@@ -2,17 +2,20 @@
 
 namespace Gazelle\User\Notification;
 
+use Gazelle\Manager\User as UserManager;
+use Gazelle\User\Quote   as UserQuote;
+
 class Quote extends AbstractNotification {
     public function className(): string {
         return 'confirmation';
     }
 
     public function clear(): int {
-        return (new \Gazelle\User\Quote($this->user))->clearAll();
+        return (new UserQuote($this->user))->clearAll();
     }
 
     public function load(): bool {
-        $total = (new \Gazelle\User\Quote($this->user))->unreadTotal();
+        $total = (new UserQuote($this->user))->unreadTotal();
         if ($total > 0) {
             $this->title = 'New quote' . plural($total);
             $this->url   = 'userhistory.php?action=quote_notifications';
@@ -26,7 +29,13 @@ class Quote extends AbstractNotification {
      *
      * @return int Number of users notified
      */
-    public function create(\Gazelle\Manager\User $userMan, string $body, int $postId, string $page, int $pageId): int {
+    public function create(
+        string      $page,
+        int         $pageId,
+        int         $postId,
+        string      $body,
+        UserManager $manager = new UserManager(),
+    ): int {
         /*
          * Explanation of the parameters PageID and Page: Page contains where
          * this quote comes from and can be forums, artist, collages, requests
@@ -39,15 +48,14 @@ class Quote extends AbstractNotification {
             return 0;
         };
         $quoted    = 0;
-        $quoterId  = $this->user->id();
         $usernames = array_unique($match['username']);
         foreach ($usernames as $username) {
-            $user = $userMan->findByUsername($username);
+            $user = $manager->findByUsername($username);
             if ($user) {
                 $notifier = new \Gazelle\User\Notification($user);
                 if ($notifier->isActive('Quote')) {
                     ++$quoted;
-                    (new \Gazelle\User\Quote($user))->create($quoterId, $page, $pageId, $postId);
+                    (new UserQuote($user))->create($page, $pageId, $this->user, $postId);
                 }
             }
         }

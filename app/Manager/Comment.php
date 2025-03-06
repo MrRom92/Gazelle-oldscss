@@ -45,7 +45,7 @@ class Comment extends \Gazelle\BaseManager {
             self::$cache->delete_value("{$page}_comments_recent_{$pageId}");
         }
         (new \Gazelle\User\Notification\Quote($user))
-            ->create(new \Gazelle\Manager\User(), $body, $postId, $page, $pageId);
+            ->create($page, $pageId, $postId, $body);
         (new Subscription())->flushPage($page, $pageId);
 
         $className = $this->className($page);

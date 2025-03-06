@@ -236,11 +236,10 @@ class ForumTest extends TestCase {
         $reply = $thread->addPost($user, $body);
         // Should the following actions (quote and subscription handling) be performed by the addPost() method?
         (new User\Notification\Quote($admin))->create(
-            new Manager\User(),
-            $body,
-            $reply->id(),
             'forums',
             $thread->id(),
+            $reply->id(),
+            $body,
         );
         (new Manager\Subscription())->flushPage('forums', $thread->id());
 

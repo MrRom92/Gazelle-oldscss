@@ -38,7 +38,7 @@ if ($thread->lastAuthorId() == $Viewer->id() && isset($_POST['merge'])) {
 }
 
 (new User\Notification\Quote($Viewer))->create(
-    new Manager\User(), $body, $post->id(), 'forums', $thread->id()
+    'forums', $thread->id(), $post->id(), $body
 );
 $subscription = new User\Subscription($Viewer);
 if (isset($_POST['subscribe']) && !$subscription->isSubscribed($thread)) {
