@@ -61,8 +61,9 @@ class Paginator {
         return $this;
     }
 
-    public function removeParam(string $param): void {
+    public function removeParam(string $param): static {
         $this->remove[] = $param;
+        return $this;
     }
 
     public function linkbox(): string {

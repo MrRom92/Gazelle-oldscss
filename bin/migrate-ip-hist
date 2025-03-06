@@ -56,7 +56,9 @@ foreach ($list as $userId) {
         $total++;
     }
 
-    persist($pg, $userId, $prev, $total, $range);
+    if ($prev) {
+        persist($pg, $userId, $prev, $total, $range);
+    }
 }
 
 function persist(\Gazelle\DB\Pg $pg, int $userId, string $ip, int $total, array $range): void {

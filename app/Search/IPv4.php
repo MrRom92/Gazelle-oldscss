@@ -3,6 +3,8 @@
 namespace Gazelle\Search;
 
 class IPv4 extends \Gazelle\Base {
+    use \Gazelle\Pg;
+
     final public const ASC = 0;
     final public const DESC = 1;
 
@@ -10,6 +12,8 @@ class IPv4 extends \Gazelle\Base {
     final public const END   = 1;
     final public const IP    = 2;
     final public const TOTAL = 3;
+
+    final protected const MAX_INSERT = 1000;
 
     /**
      * Take a freeform slab of text and search for dotted quads.
@@ -41,8 +45,14 @@ class IPv4 extends \Gazelle\Base {
         return $this;
     }
 
-    public function create(string $name): static {
-        $this->name = $name;
+    public function create(): static {
+        $this->name = 'tmp_ipsearch_' . str_replace(['.', ' '], '', microtime());
+        $this->pg()->prepared_query("drop table if exists " . $this->name);
+        $this->pg()->prepared_query("
+            create temporary table {$this->name} (
+                addr inet primary key
+            )
+        ");
         self::$db->dropTemporaryTable($this->name);
         self::$db->prepared_query("
             CREATE TEMPORARY TABLE {$this->name} (
@@ -55,19 +65,27 @@ class IPv4 extends \Gazelle\Base {
     }
 
     public function add(string $text): int {
-        if (!preg_match_all('/(\d{1,3}(?:\.\d{1,3}){3})/', $text, $match)) {
+        if (!preg_match_all('/(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4})/', $text, $match)) {
             return 0;
         }
         $quad = array_unique($match[0]);
         $added = 0;
-        foreach ($quad as $addr) {
-            self::$db->prepared_query("
-                INSERT INTO {$this->name}
-                       (addr_a, addr_n)
-                VALUES (     ?, inet_aton(?))
-                ", $addr, $addr
+        foreach (array_chunk($quad, self::MAX_INSERT) as $chunk) {
+            $added += $this->pg()->prepared_query("
+                insert into {$this->name}
+                       (addr)
+                values " . placeholders($chunk, '(?)') .
+                " on conflict do nothing",
+                 ...$chunk
             );
-            $added += self::$db->affected_rows();
+            foreach ($chunk as $addr) {
+                self::$db->prepared_query("
+                    INSERT IGNORE INTO {$this->name}
+                           (addr_a, addr_n)
+                    VALUES (     ?, inet_aton(?))
+                    ", $addr, $addr
+                );
+            }
         }
         return $added;
     }
@@ -76,41 +94,50 @@ class IPv4 extends \Gazelle\Base {
         self::$db->prepared_query("
             SELECT addr_n FROM {$this->name} ORDER BY addr_n
         ");
-        return implode(',', array_map(fn ($n) => base_convert($n, 10, 36), self::$db->collect(0)));
+        return implode('.', array_map(fn ($n) => base_convert($n, 10, 36), self::$db->collect(0)));
     }
 
     public function siteTotal(): int {
-        return (int)self::$db->scalar("
-            SELECT count(*)
-            FROM users_history_ips uhi
-            INNER JOIN {$this->name} s ON (s.addr_a = uhi.IP)
+        return (int)$this->pg()->scalar("
+            select count(distinct id_user)
+            from ip_site_history ih
+            inner join {$this->name} s on (s.addr = ih.ip)
         ");
     }
 
     public function siteList(int $limit, int $offset): array {
-        $column = ['uhi.StartTime', 'uhi.EndTime', 's.addr_n', 's.addr_n'][$this->column];
-        $direction = ['ASC', 'DESC'][$this->direction];
+        $column = ['lower(range_agg(ih.seen))', 'upper(range_agg(ih.seen))', 'min(ip)', 'count(distinct ip)'][$this->column];
+        $direction = ['asc', 'desc'][$this->direction];
 
-        self::$db->prepared_query("
-            SELECT uhi.StartTime AS first_seen,
-                uhi.EndTime      AS last_seen,
-                uhi.IP           AS ipv4,
-                uhi.UserID       AS user_id
-            FROM users_history_ips uhi
-            INNER JOIN {$this->name} s ON (s.addr_a = uhi.IP)
-            ORDER BY $column $direction
-            LIMIT ? OFFSET ?
+        $result = $this->pg()->all("
+            with cte as (
+                select 
+                  id_user,
+                  row_number() over (order by $column $direction)
+                from ip_site_history ih
+                inner join {$this->name} s on (s.addr = ih.ip)
+                group by id_user
+                limit ? offset ?
+            )
+            select
+              ip,
+              ih.id_user,
+              to_char(lower(unnest(seen)), 'YYYY-MM-DD HH24:MI') first_seen,
+              to_char(upper(unnest(seen)), 'YYYY-MM-DD HH24:MI') last_seen
+            from ip_site_history ih
+            inner join {$this->name} s on (s.addr = ih.ip)
+            inner join cte on (cte.id_user = ih.id_user)
+            order by row_number, seen, ip
             ", $limit, $offset
         );
-        $asnList = $this->asn->findByIpList(self::$db->collect('ipv4', false));
-        $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
-        foreach ($list as &$row) {
-            $row['cc']     = $asnList[$row['ipv4']]['cc'];
-            $row['is_tor'] = $asnList[$row['ipv4']]['is_tor'];
-            $row['n']      = $asnList[$row['ipv4']]['n'];
-            $row['name']   = $asnList[$row['ipv4']]['name'];
+        $asnList = $this->asn->findByIpList(array_unique(array_map(fn ($r) => $r['ip'], $result)));
+        foreach ($result as &$row) {
+            $row['cc']     = $asnList[$row['ip']]['cc'];
+            $row['is_tor'] = $asnList[$row['ip']]['is_tor'];
+            $row['n']      = $asnList[$row['ip']]['n'];
+            $row['name']   = $asnList[$row['ip']]['name'];
         }
-        return $list;
+        return $result;
     }
 
     public function snatchTotal(): int {

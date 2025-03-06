@@ -193,31 +193,28 @@ class History extends \Gazelle\BaseUser {
     }
 
     public function siteIPv4(\Gazelle\Search\ASN $asn): array {
-        $dir = $this->direction === 'down' ? 'DESC' : 'ASC';
+        $dir = $this->direction === 'down' ? 'desc' : 'asc';
         $orderBy = match ($this->column) {
-            'first' => "StartTime $dir, inet_aton(IP) $dir, EndTime $dir",
-            'last'  => "EndTime $dir, inet_aton(IP) $dir, StartTime $dir",
-            default => "inet_aton(IP) $dir, StartTime $dir, EndTime $dir",
+            'first' => "first_seen $dir, ip $dir, last_seen $dir",
+            'last'  => "last_seen $dir, ip $dir, first_seen $dir",
+            default => "ip $dir, first_seen $dir, last_seen $dir",
         };
-        self::$db->prepared_query("
-            SELECT IP                         AS ipv4,
-                min(StartTime)                AS first_seen,
-                max(coalesce(EndTime, now())) AS last_seen
-            FROM users_history_ips
-            WHERE UserID = ?
-            GROUP BY IP
-            ORDER BY $orderBy
+        $result = $this->pg()->all("
+            select ip               ipv4,
+                lower(unnest(seen)) first_seen,
+                upper(unnest(seen)) last_seen
+            from ip_site_history
+            where id_user = ?
+            order by $orderBy
             ", $this->id()
         );
-        $asnList = $asn->findByIpList(self::$db->collect('ipv4', false));
-        $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
-        foreach ($list as &$row) {
+        $asnList = $asn->findByIpList(array_unique(array_map(fn ($r) => $r['ipv4'], $result)));
+        foreach ($result as &$row) {
             $row['cc']   = $asnList[$row['ipv4']]['cc'];
             $row['n']    = $asnList[$row['ipv4']]['n'];
             $row['name'] = $asnList[$row['ipv4']]['name'];
         }
-        unset($row);
-        return $list;
+        return $result;
     }
 
     public function trackerIPv4(\Gazelle\Search\ASN $asn): array {

@@ -20,35 +20,40 @@
 {{ paginator.linkbox|raw }}
 
 <h3>Site history</h3>
+{% set prev_user = -1 %}
 {% for r in site %}
     {% if loop.first %}
 <table>
 <thead>
     <tr>
-    <th>IPv4</th>
+    <th>IP</th>
     <th>CC</th>
-    <th>First seen</th>
-    <th>Last seen</th>
+    <th>From</th>
+    <th>To</th>
     <th>ASN</th>
     <th>rDNS</th>
-    <th>User</th>
     </tr>
 </thead>
 <tbody>
     {% endif %}
+    {% if prev_user != r.id_user %}
     <tr>
-    <td{% if r.is_tor %} class="tor"{% endif %}>{{ ip_search(r.ipv4) }}</td>
+        <td colspan="6">{% if r.id_user %}{{ r.id_user|user_url }}{% else %}User #{{ r.id_user }} (deleted){% endif %}</td>
+    </tr>
+    {% endif %}
+    <tr>
+    <td{% if r.is_tor %} class="tor"{% endif %}>{{ ip_search(r.ip) }}</td>
     <td>{{ r.cc }}</td>
     <td>{{ r.first_seen }}</td>
     <td>{{ r.last_seen }}</td>
     <td>{{ asn(r.name, r.n) }}</td>
-    <td><span class="resolve-ipv4" data-ip="{{ r.ipv4 }}">Resolving...</span></td>
-    <td>{% if r.user_id %}{{ r.user_id|user_url }}{% else %}User #{{ r.user_id }}{% endif %}</td>
+    <td><span class="resolve-ipv4" data-ip="{{ r.ip }}">Resolving...</span></td>
     </tr>
     {% if loop.last %}
 </tbody>
 </table>
     {% endif %}
+    {%- set prev_user = r.id_user %}
 {% else %}
 <div>no records</div>
 {% endfor %}
@@ -136,7 +141,7 @@
     like a dotted quad address a.b.c.d). The code will take of sorting and
     deduplicating.</div>
     <br />
-    <form action="tools.php?action=ip_search&amp;column={{ column }}&amp;direction={{ direction }}{% if ip_list %}&amp;iplist={{ ip_list }}{% endif %}" method="post">
+    <form action="tools.php?action=ip_search" method="post">
     {{ text.preview|raw }}
     {{ text.field|raw }}
     <br /> Order by
