@@ -820,7 +820,7 @@ class Request extends BaseObject implements CategoryHasArtist {
         $user->auditTrail()->addEvent(
             UserAuditEvent::request,
             "Reduction of " . byte_format($bounty)
-                . " bounty (${bounty}b) on filled request {$this->url()}",
+                . " bounty ({$bounty}b) on filled request {$this->url()}",
             $admin,
         );
         self::$db->prepared_query("
