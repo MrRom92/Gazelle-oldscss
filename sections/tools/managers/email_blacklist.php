@@ -10,20 +10,23 @@ if (!$Viewer->permitted('users_view_email')) {
     error(403);
 }
 
+
 $emailBlacklist = new Manager\EmailBlacklist();
-if (!empty($_POST['email'])) {
-    $emailBlacklist->setFilterEmail(trim($_POST['email']));
+$email = trim($_POST['email'] ?? '');
+if (!empty($email)) {
+    $emailBlacklist->setFilterEmail($email);
 }
-if (!empty($_POST['comment'])) {
-    $emailBlacklist->setFilterComment(trim($_POST['comment']));
+$comment = trim($_POST['comment'] ?? '');
+if (!empty($comment)) {
+    $emailBlacklist->setFilterComment($comment);
 }
 
 $paginator = new Util\Paginator(LOG_ENTRIES_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($emailBlacklist->total());
 
 echo $Twig->render('admin/email-blacklist.twig', [
-    'comment'   => $_POST['comment'] ?? '',
-    'email'     => $_POST['email'] ?? '',
+    'comment'   => $comment,
+    'email'     => $email,
     'list'      => $emailBlacklist->page($paginator->limit(), $paginator->offset()),
     'paginator' => $paginator,
     'viewer'    => $Viewer,

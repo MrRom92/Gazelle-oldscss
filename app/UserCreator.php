@@ -86,15 +86,10 @@ class UserCreator extends Base {
             }
         }
 
-        if (!$this->email) {
-            // neither setEmail() nor setInviteKey() produced anything useful
+        $emailBlacklist = new \Gazelle\Manager\EmailBlacklist();
+        if (!$this->email || $emailBlacklist->exists(current($this->email))) {
+            // neither setEmail() nor setInviteKey() produced anything useful or email blacklisted
             throw new UserCreatorException('email');
-        }
-        $domainManager = new \Gazelle\Manager\EmailBlacklist();
-        foreach ($this->email as $email) {
-            if ($domainManager->exists($email)) {
-                throw new UserCreatorException('email');
-            }
         }
 
         // create users_main row

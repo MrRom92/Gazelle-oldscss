@@ -22,4 +22,7 @@
     </include>
     <exclude/>
   </source>
+  <php>
+    <ini name="xdebug.show_exception_trace" value="0" />
+  </php>
 </phpunit>

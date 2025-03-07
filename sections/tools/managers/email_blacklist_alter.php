@@ -24,18 +24,16 @@ if ($_POST['submit'] === 'Delete') { // Delete
         error($validator->errorMessage());
     }
 
-    $email = trim($_POST['email']);
-    if (@preg_match("/$email/", '') === false) {
-        error(html_escape($email) . " is not a valid regular expression");
-    }
+    $comment = trim($_POST['comment'] ?? '');
+    $email   = trim($_POST['email']);
 
     if ($_POST['submit'] === 'Edit') {
         if (
             !$emailBlacklist->modify(
                 id:      (int)$_POST['id'],
-                domain:  $email,
-                comment: trim($_POST['comment']),
-                user:    $Viewer,
+                email   : $email,
+                comment : $comment,
+                user    : $Viewer,
             )
         ) {
             error('Unable to edit email blacklist entry');
@@ -43,9 +41,9 @@ if ($_POST['submit'] === 'Delete') { // Delete
     } else {
         if (
             !$emailBlacklist->create(
-                domain:  $email,
-                comment: trim($_POST['comment']),
-                user:    $Viewer,
+                email   : $email,
+                comment : $comment,
+                user    : $Viewer,
             )
         ) {
             error('Unable to create email blacklist entry');

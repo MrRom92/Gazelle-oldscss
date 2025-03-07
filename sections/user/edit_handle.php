@@ -121,8 +121,9 @@ $user->setField('Paranoia', serialize($Paranoia));
 $user->setField('profile_info', substr($_POST['info'], 0, 20480));
 $user->setField('profile_title', trim($_POST['profile_title']));
 
-$NewEmail = false;
-if ($user->email() != trim($_POST['email'])) {
+$newEmail = false;
+$emailClean = trim($_POST['email']);
+if ($user->email() != $emailClean) {
     if (!$Viewer->permitted('users_edit_profiles') && !$user->validatePassword($_POST['password'])) {
         error('You must enter your current password when changing your email address.');
     }
@@ -133,8 +134,11 @@ if ($user->email() != trim($_POST['email'])) {
         echo $Twig->render('login/weak-password.twig');
         exit;
     }
-    $NewEmail = trim($_POST['email']);
-    $user->setField('Email', $NewEmail);
+    if (new Manager\EmailBlacklist()->exists($emailClean)) {
+        Error400::error('The email address or domain is not allowed.');
+    }
+    $newEmail = $emailClean;
+    $user->setField('Email', $emailClean);
 }
 
 $avatar = trim($_POST['avatar']);
@@ -258,8 +262,8 @@ foreach (
 }
 
 $history = new User\History($user);
-if ($NewEmail) {
-    $history->registerNewEmail($NewEmail, $ownProfile, new Manager\IPv4(), $irc, new Util\Mail());
+if ($newEmail) {
+    $history->registerNewEmail($newEmail, $ownProfile, new Manager\IPv4(), $irc, new Util\Mail());
 }
 
 if (isset($_POST['resetpasskey'])) {

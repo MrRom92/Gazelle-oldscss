@@ -8,47 +8,43 @@ namespace Gazelle\Manager;
  */
 
 class EmailBlacklist extends \Gazelle\Base {
+    use \Gazelle\Pg;
+
     protected string $filterComment;
     protected string $filterEmail;
 
-    public function create(string $domain, string $comment, \Gazelle\User $user): int {
-        self::$db->prepared_query("
-            INSERT INTO email_blacklist
-                   (Email, Comment, UserID)
+    public function create(string $email, string $comment, \Gazelle\User $user): int {
+        return $this->pg()->insert("
+            insert into email_blacklist
+                   (email, comment, id_user)
             VALUES (?,     ?,       ?)
-            ", $domain, $comment, $user->id()
+            ", $email, $comment, $user->id()
         );
-        return self::$db->inserted_id();
     }
 
-    public function modify(int $id, string $domain, string $comment, \Gazelle\User $user): int {
-        self::$db->prepared_query("
-            UPDATE email_blacklist SET
-                Email   = ?,
-                Comment = ?,
-                UserID  = ?,
-                Time    = now()
-            WHERE ID = ?
-            ", $domain, $comment, $user->id(), $id
+    public function modify(int $id, string $email, string $comment, \Gazelle\User $user): int {
+        return $this->pg()->prepared_query("
+            update email_blacklist set
+                email   = ?,
+                comment = ?,
+                id_user = ?
+            where id_email_blacklist = ?
+            ", $email, $comment, $user->id(), $id
         );
-        return self::$db->affected_rows();
     }
 
     public function remove(int $id): int {
-        self::$db->prepared_query("
-            DELETE FROM email_blacklist WHERE ID = ?
+        return $this->pg()->prepared_query("
+            delete from email_blacklist where id_email_blacklist = ?
             ", $id
         );
-        return self::$db->affected_rows();
     }
 
     public function exists(string $target): bool {
-        // This is a bit fragile: if someone adds an incorrect regexp, it will abort
-        return (bool)self::$db->scalar("
-            select 1 from email_blacklist WHERE ? REGEXP (
-                SELECT group_concat(Email SEPARATOR '|') FROM email_blacklist
-            )
-            LIMIT 1
+        return (bool)$this->pg()->scalar("
+            select 1
+            from email_blacklist
+            where ? ~* email
             ", $target
         );
     }
@@ -68,37 +64,36 @@ class EmailBlacklist extends \Gazelle\Base {
         $cond = [];
         if (!empty($this->filterComment)) {
             $args[] = $this->filterComment;
-            $cond[] = "Comment REGEXP ?";
+            $cond[] = "comment ~ ?";
         }
         if (!empty($this->filterEmail)) {
             $args[] = $this->filterEmail;
-            $cond[] = "Email REGEXP ?";
+            $cond[] = "email ~ ?";
         }
         return [
-            "FROM email_blacklist" . (empty($cond) ? '' : (' WHERE ' . implode(' AND ', $cond))),
+            "from email_blacklist" . (empty($cond) ? '' : (' where ' . implode(' and ', $cond))),
             $args
         ];
     }
 
     public function total(): int {
         [$from, $args] = $this->queryBase();
-        return (int)self::$db->scalar("SELECT count(*) $from", ...$args);
+        return (int)$this->pg()->scalar("select count(*) $from", ...$args);
     }
 
     public function page(int $limit, int $offset): array {
         [$from, $args] = $this->queryBase();
         $args = array_merge($args, [$limit, $offset]);
-        self::$db->prepared_query("
-            SELECT ID   AS id,
-                UserID  AS user_id,
-                Time    AS time,
-                Email   AS email,
-                Comment AS comment
+        return $this->pg()->all("
+            select id_email_blacklist as id,
+                id_user,
+                created,
+                email,
+                comment
             $from
-            ORDER BY Time DESC
-            LIMIT ? OFFSET ?
+            order by created desc
+            limit ? offset ?
             ", ...$args
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
 }
