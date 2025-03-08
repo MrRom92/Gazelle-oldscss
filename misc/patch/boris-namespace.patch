@@ -1,0 +1,13 @@
+diff --git a/vendor/d11wtq/boris/lib/Boris/EvalWorker.php b/vendor/d11wtq/boris/lib/Boris/EvalWorker.php
+index 0792d09..4b25271 100644
+--- a/vendor/d11wtq/boris/lib/Boris/EvalWorker.php
++++ b/vendor/d11wtq/boris/lib/Boris/EvalWorker.php
+@@ -149,7 +149,7 @@ class EvalWorker
+                 pcntl_signal(SIGINT, SIG_DFL, true);
+                 $__pid = posix_getpid();
+                 
+-                $__result = eval($__input);
++                $__result = eval("namespace Gazelle; " . $__input);
+                 
+                 if (posix_getpid() != $__pid) {
+                     // whatever the user entered caused a forked child

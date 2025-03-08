@@ -1,6 +1,8 @@
 #! /usr/bin/env php
 <?php
 
+namespace Gazelle;
+
 use Gazelle\Enum\FeaturedAlbumType;
 use Gazelle\Enum\LeechType;
 use Gazelle\Enum\LeechReason;
@@ -17,7 +19,7 @@ foreach (['pcntl_fork', 'pcntl_signal', 'pcntl_signal_dispatch', 'pcntl_waitpid'
     }
 }
 if ($remove) {
-    echo "The following functions musst be removed from the `disable_functions` directive in cli/php.ini:\n";
+    echo "The following functions must be removed from the `disable_functions` directive in cli/php.ini:\n";
     echo "=>  ", implode(', ', $remove), "\n";
     exit;
 }
@@ -25,16 +27,13 @@ if ($remove) {
 define('BORIS', 1);
 $_SERVER['HTTP_USER_AGENT'] = 'boris';
 $_SERVER['REMOTE_ADDR']     = '127.0.0.1';
-Gazelle\Base::setRequestContext(new Gazelle\BaseRequestContext(
+Base::setRequestContext(new BaseRequestContext(
     'boris', $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT']
 ));
 
-$b = new Boris\Boris(SITE_NAME . '> ');
-$b->setInspector(new Boris\ExportInspector);
-
-$torMan  = new Gazelle\Manager\Torrent;
-$userMan = new Gazelle\Manager\User;
-$db      = Gazelle\DB::DB();
+$torMan  = new Manager\Torrent();
+$userMan = new Manager\User();
+$db      = DB::DB();
 
 $sysop = $userMan->findById(
     $db->scalar('
@@ -45,12 +44,12 @@ $sysop = $userMan->findById(
         LIMIT 1
     ')
 );
-if (!$sysop instanceof \Gazelle\User) {
+if (!$sysop instanceof User) {
     echo "**** NOTE! no viewer context is set\n";
 } else {
     $sysop->requestContext()->setViewer($sysop);
     \Text::setViewer($sysop);
-    \Gazelle\Util\Twig::setViewer($sysop);
+    Util\Twig::setViewer($sysop);
     echo "** viewer context is @{$sysop->username()}\n";
 }
 
@@ -59,28 +58,30 @@ $preload = [
     'db'          => $db,
     'debug'       => $Debug,
     'Twig'        => $Twig,
-    'artMan'      => new Gazelle\Manager\Artist,
-    'bonus'       => new Gazelle\Manager\Bonus,
-    'collMan'     => new Gazelle\Manager\Collage,
-    'forMan'      => new Gazelle\Manager\Forum,
-    'pg'          => new Gazelle\DB\Pg(PG_RO_DSN),
-    'postMan'     => new Gazelle\Manager\ForumPost,
-    'privMan'     => new Gazelle\Manager\Privilege,
-    'repMan'      => new Gazelle\Manager\Report($userMan),
-    'reqMan'      => new Gazelle\Manager\Request,
-    'tagMan'      => new Gazelle\Manager\Tag,
-    'tgMan'       => new Gazelle\Manager\TGroup,
-    'threadMan'   => new Gazelle\Manager\ForumThread,
+    'artMan'      => new Manager\Artist(),
+    'bonus'       => new Manager\Bonus(),
+    'collMan'     => new Manager\Collage(),
+    'forMan'      => new Manager\Forum(),
+    'pg'          => new DB\Pg(PG_RO_DSN),
+    'postMan'     => new Manager\ForumPost(),
+    'privMan'     => new Manager\Privilege(),
+    'repMan'      => new Manager\Report($userMan),
+    'reqMan'      => new Manager\Request(),
+    'tagMan'      => new Manager\Tag(),
+    'tgMan'       => new Manager\TGroup(),
+    'threadMan'   => new Manager\ForumThread(),
     'torMan'      => $torMan,
-    'trepMan'     => new Gazelle\Manager\Torrent\Report($torMan),
-    'trepTypeMan' => new Gazelle\Manager\Torrent\ReportType,
+    'trepMan'     => new Manager\Torrent\Report($torMan),
+    'trepTypeMan' => new Manager\Torrent\ReportType(),
     'userMan'     => $userMan,
-    'notifMan'    => new Gazelle\Manager\Notification(),
+    'notifMan'    => new Manager\Notification(),
 ];
 
 printf("** preloaded objects:\n** %s\n", implode(', ', array_keys($preload)));
-$b->setLocal($preload);
 
+$b = new \Boris\Boris(SITE_NAME . '> ');
+$b->setInspector(new \Boris\ExportInspector());
+$b->setLocal($preload);
 $b->start();
 
 /*
