@@ -485,6 +485,24 @@ function add_json_info(array $info): array {
     return $info;
 }
 
+function json_hostname(string $ip): false|string {
+    if (isset($_SERVER['http_if_modified_since'])) {
+        header('Status: 304 Not Modified');
+        return false;
+    }
+    header('Expires: ' . date('D, d-M-Y H:i:s \U\T\C', time() + 3600 * 24 * 120)); // 120 days
+    header('Last-Modified: ' . date('D, d-M-Y H:i:s \U\T\C'));
+    if (empty($ip)) {
+        header('Status: 400 Bad Request');
+        return false;
+    }
+    $hostname = gethostbyaddr($ip);
+    if ($hostname === false) {
+        header('Status: 400 Bad Request');
+    }
+    return json_encode(['ip' => $ip, 'hostname' => $hostname]);
+}
+
 function json_encode_pretty(mixed ...$data): string {
     return (string)json_encode(
         (count([...$data]) === 1) ? [...$data][0] : [...$data],

@@ -253,6 +253,20 @@ class UtilTest extends TestCase {
         $this->assertEquals('Papua New Guinea', $iso['PG'], 'iso3166-2-pg');
     }
 
+    public function testHostname(): void {
+        $this->assertEquals(false, json_hostname(''), 'json-hostname-none');
+        // if this fails one day, update as appropriate
+        $ip = '79.51.191.7';
+        $this->assertEquals(
+            json_encode([
+                'ip'       => $ip,
+                'hostname' => 'host-79-51-191-7.retail.telecomitalia.it'
+            ]),
+            json_hostname($ip),
+            'json-hostname-random',
+        );
+    }
+
     public function testImageCache(): void {
         $url = 'https://example.com/image.jpg';
         $this->assertEquals('aHR0cHM6Ly9leGFtcGxlLmNvbS9pbWFnZS5qcGc', urlencode_safe($url), 'urlencode-safe');
