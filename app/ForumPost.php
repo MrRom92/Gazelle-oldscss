@@ -169,7 +169,7 @@ class ForumPost extends BaseObject {
             FROM forums_posts fp
             LEFT JOIN users_notify_quoted unq ON (unq.PostID = fp.ID and unq.Page = 'forums')
             WHERE fp.ID = ?
-            ", $this->id()
+            ", $this->id
         );
         if (self::$db->affected_rows() === 0) {
             $db->relaxConstraints(false);
@@ -178,7 +178,6 @@ class ForumPost extends BaseObject {
         }
 
         $thread = $this->thread();
-        $threadId = $thread->id();
         self::$db->prepared_query("
             UPDATE forums_topics t
             INNER JOIN
@@ -204,13 +203,13 @@ class ForumPost extends BaseObject {
                 t.LastPostAuthorID = LAST.AuthorID,
                 t.LastPostTime     = LAST.AddedTime
             WHERE t.ID = ?
-            ", $this->id(), $threadId, $threadId, $threadId
+            ", $this->id, $thread->id, $thread->id, $thread->id
         );
         $db->relaxConstraints(false);
         self::$db->commit();
 
-        $this->thread()->forum()->adjust();
-        (new Manager\Subscription())->flushPage('forums', $threadId);
+        $thread->forum()->adjust();
+        (new Manager\Subscription())->flushThread($thread);
 
         $thread->flushPostCatalogue($this);
         $thread->flush();

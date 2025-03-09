@@ -241,7 +241,7 @@ class ForumTest extends TestCase {
             $reply->id(),
             $body,
         );
-        (new Manager\Subscription())->flushPage('forums', $thread->id());
+        (new Manager\Subscription())->flushThread($thread);
 
         $this->assertEquals(1, $forumMan->unreadSubscribedForumTotal($admin), 'fpost-subscriptions-admin-forum-man-unread');
         $this->assertEquals(1, $adminSub->flush()->unread(), 'fpost-subscriptions-admin-new-unread');

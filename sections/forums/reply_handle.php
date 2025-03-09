@@ -44,6 +44,6 @@ $subscription = new User\Subscription($Viewer);
 if (isset($_POST['subscribe']) && !$subscription->isSubscribed($thread)) {
     $subscription->subscribe($thread);
 }
-(new Manager\Subscription())->flushPage('forums', $thread->id());
+(new Manager\Subscription())->flushThread($thread);
 
 header("Location: {$post->location()}");

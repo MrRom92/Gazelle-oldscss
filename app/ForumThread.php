@@ -323,8 +323,7 @@ class ForumThread extends BaseObject {
         $affected = self::$db->affected_rows();
         $db->relaxConstraints(false);
         $this->forum()->adjust();
-
-        (new Manager\Subscription())->move('forums', $this->id, null);
+        (new Manager\Subscription())->moveThread($this, null);
 
         $previousPost = self::$db->rowAssoc("
             SELECT AuthorID AS user_id,
