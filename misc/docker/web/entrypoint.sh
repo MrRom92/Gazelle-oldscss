@@ -13,6 +13,7 @@ if [ ! -e .docker-init-done ] ; then
     composer install --no-progress --optimize-autoloader
     bin/local-patch
     echo "Installing node, go grab a coffee"
+    bin/config-css /tmp/config-css.js
     npm install
     npx update-browserslist-db@latest
     npx puppeteer browsers install chrome

@@ -29,6 +29,7 @@ RUN apt-get update \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
         cron \
+        git  \
         make \
         nginx \
         netcat-openbsd \
@@ -54,6 +55,7 @@ RUN apt-get update \
         python3-pip \
         python3-setuptools \
         python3-wheel \
+        shellcheck \
         software-properties-common \
         unzip \
         zlib1g-dev \

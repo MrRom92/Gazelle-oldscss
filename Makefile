@@ -143,7 +143,7 @@ rector-dry-run:
 
 .PHONY: test
 test:
-	docker compose exec -T web vendor/bin/phpunit -c misc/phpunit.xml
+	docker compose exec -T web php -d xdebug.mode=coverage vendor/bin/phpunit -c misc/phpunit.xml
 
 .PHONY: twig-flush
 twig-flush:
