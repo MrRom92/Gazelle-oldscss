@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\AvatarDisplay;
 use Gazelle\Enum\AvatarSynthetic;
 use Gazelle\Enum\UserStatus;
@@ -11,18 +12,18 @@ class UserTest extends TestCase {
     protected User $user;
 
     public function setUp(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('user.' . randomString(6), 'user');
+        $this->user = Helper::makeUser('user.' . randomString(6), 'user');
     }
 
     public function tearDown(): void {
         if (isset($this->user)) {
             DB::DB()->prepared_query("
                 DELETE FROM user_read_forum WHERE user_id = ?
-                ", $this->user->id()
+                ", $this->user->id
             );
             DB::DB()->prepared_query("
                 DELETE FROM users_stats_daily WHERE UserID = ?
-                ", $this->user->id()
+                ", $this->user->id
             );
             $this->user->remove();
         }
@@ -192,7 +193,6 @@ class UserTest extends TestCase {
         $this->assertFalse($this->user->onRatioWatch(), 'utest-personal-on-ratio-watch');
         $this->assertFalse($this->user->permitted('site_debug'), 'utest-permitted-site-debug');
 
-        $this->assertNull($this->user->lastAccess(), 'utest-last-access');
         $this->assertNull($this->user->warningExpiry(), 'utest-warning-expiry');
         $this->assertNull($this->user->warningExpiry(), 'utest-warning-expiry');
 
@@ -278,6 +278,21 @@ class UserTest extends TestCase {
         $this->assertEquals('https://www.example.com/avatar.jpg', $new->avatarComponentList($this->user->flush())['image'], 'utest-avatar-show');
     }
 
+    public function testLastAccess(): void {
+        $this->assertNull($this->user->lastAccess(), 'utest-no-last-access');
+        $this->assertEquals(1, $this->user->refreshLastAccess(), 'utest-refresh-last-access');
+        $this->assertTrue(
+            Helper::recentDate($this->user->lastAccessRealtime()),
+            'utest-realtime-last-access'
+        );
+        $userMan = new Manager\User();
+        $this->assertGreaterThan(0, $userMan->refreshLastAccess(), 'utest-userman-refresh-last-access');
+        $this->assertTrue(
+            Helper::recentDate($this->user->lastAccess()),
+            'utest-has-last-access'
+        );
+    }
+
     public function testLock(): void {
         $this->assertFalse($this->user->isLocked(), 'utest-is-not-locked');
         $this->assertTrue($this->user->setField('lock-type', STAFF_LOCKED)->modify(), 'utest-set-locked');
@@ -349,12 +364,12 @@ class UserTest extends TestCase {
         $warned = new User\Warning($this->user);
         $this->assertFalse($warned->isWarned(), 'utest-warn-initial');
         $end = $warned->add(reason: 'phpunit 1', interval: '1 hour', warner: $this->user);
-        $this->assertTrue(\GazelleUnitTest\Helper::recentDate($end, -60 * 60 + 60), 'utest-warn-1-hour'); // one hour - 60 seconds
+        $this->assertTrue(Helper::recentDate($end, -60 * 60 + 60), 'utest-warn-1-hour'); // one hour - 60 seconds
         $this->assertTrue($warned->isWarned(), 'utest-is-warned');
         $this->assertEquals(1, $warned->total(), 'utest-warn-total');
 
         $end = $this->user->warn(2, "phpunit warning", $this->user, "phpunit");
-        $this->assertTrue(\GazelleUnitTest\Helper::recentDate($end, strtotime('+2 weeks') - 60), 'utest-warn-in-future'); // two weeks - 60 seconds
+        $this->assertTrue(Helper::recentDate($end, strtotime('+2 weeks') - 60), 'utest-warn-in-future'); // two weeks - 60 seconds
         $this->assertEquals(2, $warned->total(), 'utest-warn-total');
         $warningList = $warned->warningList();
         $this->assertCount(2, $warningList, 'utest-warn-list');
@@ -444,7 +459,7 @@ class UserTest extends TestCase {
             $history['ipaddr'],
             'utest-announce-key-history-ipaddr'
         );
-        $this->assertTrue(\GazelleUnitTest\Helper::recentDate($history['date']), 'utest-announce-key-history-date');
+        $this->assertTrue(Helper::recentDate($history['date']), 'utest-announce-key-history-date');
     }
 
     public function testInactive(): void {
@@ -516,7 +531,7 @@ class UserTest extends TestCase {
 
     public function testUserHash(): void {
         // ensure the same text hashed by two users is different
-        $second = \GazelleUnitTest\Helper::makeUser('user.' . randomString(6), 'user');
+        $second = Helper::makeUser('user.' . randomString(6), 'user');
         $this->assertNotEquals(
             $this->user->hashHmac('topic', 'phpunit'),
             $second->hashHmac('topic', 'phpunit'),

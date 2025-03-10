@@ -53,10 +53,7 @@ class Session extends \Gazelle\BaseUser {
         // contention on the user_last_access table. To get around this, we
         // do a cheap append to a delta table, and then reconsolidate to
         // the real table every once in a while via the scheduler.
-        self::$db->prepared_query("
-            INSERT INTO user_last_access_delta (user_id) VALUES (?)
-            ", $this->user->id()
-        );
+        $this->user->refreshLastAccess();
         (new History($this->user))->registerSiteIp($ipaddr);
 
         self::$db->prepared_query("
@@ -70,10 +67,10 @@ class Session extends \Gazelle\BaseUser {
             WHERE UserID = ? AND SessionID = ?
             ", $ipaddr, $browser['Browser'], $browser['BrowserVersion'],
                $browser['OperatingSystem'], $browser['OperatingSystemVersion'],
-               $this->user->id(), $sessionId
+               $this->user->id, $sessionId
         );
 
-        self::$cache->delete_value('users_sessions_' . $this->user->id());
+        self::$cache->delete_value('users_sessions_' . $this->user->id);
         $this->info = [];
         return true;
     }

@@ -489,14 +489,30 @@ class User extends BaseObject {
 
     public function lastAccessRealtime(): ?string {
         $lastAccess = self::$db->scalar("
-            SELECT coalesce(max(ulad.last_access), ula.last_access)
-            FROM user_last_access ula
-            LEFT JOIN user_last_access_delta ulad USING (user_id)
-            WHERE ula.user_id = ?
-            GROUP BY ula.user_id
+            SELECT max(ulad.last_access)
+            FROM user_last_access_delta ulad
+            WHERE ulad.user_id = ?
+            GROUP BY ulad.user_id
+            ", $this->id
+        );
+        if ($lastAccess) {
+            return (string)$lastAccess;
+        }
+        $lastAccess = self::$db->scalar("
+            SELECT ula.last_access FROM user_last_access ula WHERE ula.user_id = ?
             ", $this->id
         );
         return $lastAccess ? (string)$lastAccess : null;
+    }
+
+    public function refreshLastAccess(): int {
+        self::$db->prepared_query("
+            INSERT INTO user_last_access_delta (user_id) VALUES (?)
+            ", $this->id
+        );
+        $affected = self::$db->affected_rows();
+        self::$cache->delete_value(sprintf('user_last_access_%d', $this->id));
+        return $affected;
     }
 
     public function option(string $option): mixed {

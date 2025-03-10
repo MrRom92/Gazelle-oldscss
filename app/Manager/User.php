@@ -1752,7 +1752,7 @@ class User extends \Gazelle\BaseManager {
         return $affected;
     }
 
-    public function updateLastAccess(): int {
+    public function refreshLastAccess(): int {
         self::$db->begin_transaction();
         self::$db->prepared_query("
             INSERT INTO user_last_access (user_id, last_access)
