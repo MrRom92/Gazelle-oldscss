@@ -23,6 +23,8 @@
     <exclude/>
   </source>
   <php>
+    <ini name="xdebug.force_display_errors" value="0" />
     <ini name="xdebug.show_exception_trace" value="0" />
+    <ini name="xdebug.show_error_trace" value="0" />
   </php>
 </phpunit>

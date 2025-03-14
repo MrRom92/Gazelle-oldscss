@@ -23,10 +23,14 @@ if (($_GET['action'] ?? '') !== 'donate') {
         $donate = 'Warning! You cannot donate ' . number_format($value)
             . ' if you have only ' . number_format($Viewer->bonusPointsTotal(), 0)
             . ' points.';
-    } elseif ($bonus->donate((int)$_POST['poolid'], $value)) {
-        $donate = 'Success! Your donation to the Bonus Point pool has been recorded.';
+    } elseif (!isset($_POST['poolid'])) {
+        $donate = 'No Bonus Point pool found.';
     } else {
-        $donate = 'No bonus points donated, insufficient funds.';
+        if ($bonus->donate(new BonusPool((int)$_POST['poolid']), $value)) {
+            $donate = 'Success! Your donation to the Bonus Point pool has been recorded.';
+        } else {
+            $donate = 'No bonus points donated, insufficient funds.';
+        }
     }
 }
 

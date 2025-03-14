@@ -8,7 +8,7 @@ On top of that, just because you participated, you have been awarded a further {
 
 All in all, you have been granted {{ (enabled_bonus + contest_bonus + user_bonus)|number_format }} bonus points. Enjoy!
 {% else %}
-During {{ contest.name }} that ran from {{ contest.dateBegin }} to {{ contest.dateEnd }}, you didn't upload anything. So sad, because you missed out on {{ contest_bonus|number_format }} bonus pointsjust for participating even once, and an additional {{ per_entry_bonus|number_format }} points for each successful upload.
+During {{ contest.name }} that ran from {{ contest.dateBegin }} to {{ contest.dateEnd }}, you didn't upload anything. So sad, because you missed out on {{ contest_bonus|number_format }} bonus points just for participating even once, and an additional {{ per_entry_bonus|number_format }} points for each successful upload.
 
 All is not lost, because thanks to the love and generosity of the {{ constant('SITE_NAME') }} community, you have been granted {{ enabled_bonus|number_format }} bonus points for having being here during the contest!
 {% endif %}

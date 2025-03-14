@@ -36,7 +36,7 @@ class Contest extends \Gazelle\Base {
     }
 
     public function findById(int $contestId): ?\Gazelle\Contest {
-        $id = self::$db->scalar("
+        $id = (int)self::$db->scalar("
             SELECT contest_id FROM contest WHERE contest_id = ?
             ", $contestId
         );
@@ -133,7 +133,7 @@ class Contest extends \Gazelle\Base {
         $contests = array_map(fn($id) => $this->findById($id), self::$db->collect(0));
         $totalParticipants = 0;
         foreach ($contests as $contest) {
-            $totalParticipants += $contest->doPayout();
+            $totalParticipants += $contest->doPayout(DEBUG_CONTEST_PAYOUT);
             $contest->setPaymentClosed();
         }
         return $totalParticipants;

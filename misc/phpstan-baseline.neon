@@ -21,11 +21,6 @@ parameters:
 			path: ../app/File/RipLogHTML.php
 
 		-
-			message: "#^Parameter \\#1 \\$id of class Gazelle\\\\Contest constructor expects int, float\\|int\\<min, \\-1\\>\\|int\\<1, max\\>\\|string\\|true given\\.$#"
-			count: 1
-			path: ../app/Manager/Contest.php
-
-		-
 			message: "#^Method Gazelle\\\\Util\\\\Proxy\\:\\:fetch\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: ../app/Util/Proxy.php

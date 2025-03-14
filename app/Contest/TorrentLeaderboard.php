@@ -2,6 +2,8 @@
 
 namespace Gazelle\Contest;
 
+use Gazelle\Enum\UserStatus;
+
 trait TorrentLeaderboard {
     public function leaderboard(int $limit, int $offset): array {
         $key = sprintf(\Gazelle\Contest::CONTEST_LEADERBOARD_CACHE_KEY,
@@ -20,12 +22,12 @@ trait TorrentLeaderboard {
                 INNER JOIN torrents t ON (t.ID = l.last_entry_id)
                 INNER JOIN users_main um ON (um.ID = l.user_id)
                 INNER JOIN xbt_files_users xfu ON (xfu.fid = t.ID AND xfu.uid = t.UserID)
-                WHERE um.Enabled = '1'
+                WHERE um.Enabled = ?
                     AND xfu.remaining = 0
                     AND  l.contest_id = ?
                 ORDER BY l.entry_count DESC, t.created ASC, l.user_id ASC
                 LIMIT ? OFFSET ?
-                ", $this->id, $limit, $offset
+                ", UserStatus::enabled->value, $this->id, $limit, $offset
             );
             $leaderboard = self::$db->to_array(false, MYSQLI_ASSOC, false);
 

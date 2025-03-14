@@ -2,6 +2,8 @@
 
 namespace Gazelle\User;
 
+use Gazelle\BonusPool;
+
 /**
  * Note: there is no userHasItem() method to check if a user has bought a
  * particular item in the shop. Due to the wide disparity between items that can
@@ -152,7 +154,7 @@ class Bonus extends \Gazelle\BaseUser {
         return $history;
     }
 
-    public function donate(int $poolId, int $value): bool {
+    public function donate(BonusPool $pool, int $value): bool {
         $effectiveClass = $this->user->privilege()->effectiveClassLevel();
         if ($effectiveClass < 250) {
             $taxedValue = $value * BONUS_POOL_TAX_STD;
@@ -168,7 +170,7 @@ class Bonus extends \Gazelle\BaseUser {
             return false;
         }
         $this->user->flush();
-        (new \Gazelle\BonusPool($poolId))->contribute($this->id(), $value, $taxedValue);
+        $pool->contribute($this->user, $value, $taxedValue);
         return true;
     }
 
@@ -465,8 +467,9 @@ class Bonus extends \Gazelle\BaseUser {
             WHERE user_id = ?
             ", $points, $this->id()
         );
+        $affected = self::$db->affected_rows();
         $this->flush();
-        return self::$db->affected_rows();
+        return $affected;
     }
 
     public function addPoints(float $points): int {
@@ -476,8 +479,9 @@ class Bonus extends \Gazelle\BaseUser {
             WHERE user_id = ?
             ", $points, $this->id()
         );
+        $affected = self::$db->affected_rows();
         $this->flush();
-        return self::$db->affected_rows();
+        return $affected;
     }
 
     public function removePointsForUpload(\Gazelle\Torrent $torrent): bool {

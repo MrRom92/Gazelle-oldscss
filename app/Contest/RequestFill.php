@@ -2,44 +2,71 @@
 
 namespace Gazelle\Contest;
 
-/* how many requests filled */
+use Gazelle\Enum\UserStatus;
+
+/* Contest based on how many requests filled
+ *
+ * Note: the queries all perform a join on the torrents table
+ * which looks useless, but offers an additional guarantee
+ * that the request is valid.
+ */
 
 class RequestFill extends AbstractContest {
-    // phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClassAfterLastUsed
     public function leaderboard(int $limit, int $offset): array {
-        // TODO
-        return [];
+        $key = sprintf(\Gazelle\Contest::CONTEST_LEADERBOARD_CACHE_KEY,
+            $this->id, (int)($offset / CONTEST_ENTRIES_PER_PAGE)
+        );
+        $leaderboard = self::$cache->get_value($key);
+        if ($leaderboard === false) {
+            self::$db->prepared_query("
+                SELECT
+                    l.user_id,
+                    l.entry_count,
+                    l.last_entry_id,
+                    t.created as last_upload,
+                    t.GroupID as group_id
+                FROM contest_leaderboard l
+                INNER JOIN torrents t ON (t.ID = l.last_entry_id)
+                INNER JOIN requests r ON (r.FillerID = t.UserID AND t.ID = r.TorrentID)
+                INNER JOIN users_main um ON (um.ID = l.user_id)
+                INNER JOIN xbt_files_users xfu ON (xfu.fid = t.ID AND xfu.uid = t.UserID)
+                WHERE xfu.remaining   = 0
+                    AND r.FillerID   != r.UserID
+                    AND um.Enabled    = ?
+                    AND  l.contest_id = ?
+                ORDER BY l.entry_count DESC, t.created ASC, l.user_id ASC
+                LIMIT ? OFFSET ?
+                ", UserStatus::enabled->value, $this->id, $limit, $offset
+            );
+            $leaderboard = self::$db->to_array(false, MYSQLI_ASSOC, false);
+
+            $torMan = new \Gazelle\Manager\Torrent();
+            for ($i = 0, $leaderboardCount = count($leaderboard); $i < $leaderboardCount; $i++) {
+                $torrent = $torMan->findById($leaderboard[$i]['last_entry_id']);
+                $leaderboard[$i]['last_entry_link']
+                    = $torrent->groupLink() . ' ' . $torrent->label();
+            }
+            self::$cache->cache_value($key, $leaderboard, 3600);
+        }
+        return $leaderboard;
     }
 
-    // phpcs:enable Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClassAfterLastUsed
-
     public function ranker(): array {
-        return [
-            "SELECT r.FillerID AS userid,
-                count(*) AS nr,
-                max(if(r.TimeFilled = LAST.TimeFilled AND r.TimeAdded < ?, TorrentID, NULL)) AS last_torrent
+        return ["
+            SELECT r.FillerID    AS user_id,
+                count(*)         AS nr,
+                max(r.TorrentID) AS last_torrent
             FROM requests r
-            INNER JOIN (
-                SELECT r.FillerID,
-                    MAX(r.TimeFilled) AS TimeFilled
-                FROM requests r
-                INNER JOIN users_main um ON (um.ID = r.FillerID)
-                INNER JOIN torrents t ON (t.ID = r.TorrentID)
-                WHERE um.Enabled = '1'
-                    AND r.FillerId != r.UserID
-                    AND r.TimeAdded < ?
-                    AND r.TimeFilled BETWEEN ? AND ?
-                GROUP BY r.FillerID
-            ) LAST USING (FillerID)
+            INNER JOIN torrents t ON (t.ID = r.TorrentID)
+            INNER JOIN users_main um ON (um.ID = r.FillerID)
             WHERE r.FillerId != r.UserID
-                AND r.TimeAdded < ?
+                AND um.Enabled = ?
+                AND r.created < ?
                 AND r.TimeFilled BETWEEN ? AND ?
             GROUP BY r.FillerID
             ",
             [
-                $this->begin,
-                $this->begin,
-                $this->begin, $this->end,
+                UserStatus::enabled->value,
                 $this->begin,
                 $this->begin, $this->end,
             ]
@@ -48,43 +75,47 @@ class RequestFill extends AbstractContest {
 
     public function participationStats(): array {
         return self::$db->rowAssoc("
-            SELECT count(*) AS total_entries,
+            SELECT count(DISTINCT r.ID) AS total_entries,
                 count(DISTINCT um.ID) AS total_users
             FROM contest c,
                 users_main um
             INNER JOIN requests r ON (r.FillerID = um.ID)
-            WHERE um.Enabled = '1'
-                AND r.FillerId != r.UserID
+            INNER JOIN torrents t ON (t.ID = r.TorrentID)
+            WHERE r.FillerId != r.UserID
                 AND r.TimeFilled BETWEEN c.date_begin AND c.date_end
-                AND r.TimeAdded < c.date_begin
+                AND r.created < c.date_begin
+                AND um.Enabled   = ?
                 AND c.contest_id = ?
-            ", $this->id
+            ", UserStatus::enabled->value, $this->id
         );
     }
 
-    public function userPayout(int $enabledUserBonus, int $contestBonus, int $perEntryBonus): array {
+    public function userPayout(): array {
         self::$db->prepared_query("
-            SELECT um.ID,
-                count(r.ID) AS total_entries,
-                ? AS enabled_bonus,
-                CASE WHEN count(r.ID) > 0 THEN ? ELSE 0 END AS contest_bonus,
-                count(r.ID) * ? AS entries_bonus
-            FROM contest c,
-                users_main um
-            INNER JOIN user_last_access AS ula ON (ula.user_id = um.ID)
-            LEFT JOIN requests r ON (r.FillerID = um.ID)
-            WHERE um.Enabled = '1'
-                AND ula.last_access >= c.date_begin
-                AND (
-                    r.ID IS NULL
-                    OR
-                    r.TimeFilled BETWEEN c.date_begin AND c.date_end
-                )
-                AND c.contest_id = ?
-            GROUP BY um.ID
-            ", $enabledUserBonus, $contestBonus, $perEntryBonus, $this->id
+            WITH c AS (
+                SELECT um.ID    AS user_id,
+                    count(r.ID) AS total_entries
+                FROM contest c,
+                    users_main um
+                INNER JOIN requests r ON (r.FillerID = um.ID)
+                INNER JOIN torrents t ON (t.ID = r.TorrentID)
+                WHERE r.FillerId != r.UserID
+                    AND r.TimeFilled BETWEEN c.date_begin AND c.date_end
+                    AND r.created < c.date_begin
+                    AND um.Enabled   = ?
+                    AND c.contest_id = ?
+                GROUP BY um.ID
+            )
+            SELECT um.ID                     AS user_id,
+                coalesce(c.total_entries, 0) AS total_entries
+            FROM users_main um
+            LEFT JOIN c ON (c.user_id = um.ID)
+            WHERE um.Enabled = ?
+                AND um.created <= (SELECT date_end FROM contest WHERE contest_id = ?)
+            ", UserStatus::enabled->value, $this->id,
+               UserStatus::enabled->value, $this->id,
         );
-        return self::$db->to_array('ID', MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
 
     public function requestPairs(): array {
@@ -94,6 +125,7 @@ class RequestFill extends AbstractContest {
             self::$db->prepared_query("
                 SELECT r.FillerID, r.UserID, count(*) AS nr
                 FROM requests r
+                INNER JOIN torrents t ON (t.ID = r.TorrentID)
                 WHERE r.TimeFilled BETWEEN ? AND ?
                 GROUP BY r.FillerID, r.UserId
                 HAVING count(*) > 1

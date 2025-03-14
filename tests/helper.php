@@ -144,11 +144,12 @@ class Helper {
         string          $recordLabel     = 'Unitest Artists',
         string          $title           = 'phpunit remaster title',
         int             $size            = 10_000_000,
+        bool            $seed            = false,
     ): \Gazelle\Torrent {
         if (empty($catalogueNumber)) {
             $catalogueNumber = 'UA-REM-' . random_int(10000, 99999);
         }
-        return (new \Gazelle\Manager\Torrent())->create(
+        $torrent = (new \Gazelle\Manager\Torrent())->create(
             tgroup:                  $tgroup,
             user:                    $user,
             description:             'phpunit release description',
@@ -166,6 +167,10 @@ class Helper {
             remasterRecordLabel:     $recordLabel,
             remasterCatalogueNumber: $catalogueNumber,
         );
+        if ($seed) {
+            static::generateTorrentSeed($torrent, $user);
+        }
+        return $torrent;
     }
 
     public static function addTorrentTraffic(\Gazelle\Torrent $torrent, int $leechTotal, int $seedTotal, int $snatchTotal): int {
@@ -176,7 +181,7 @@ class Helper {
                 Seeders  = ?,
                 Snatched = ?
             WHERE TorrentID = ?
-            ", $leechTotal, $seedTotal, $snatchTotal, $torrent->id()
+            ", $leechTotal, $seedTotal, $snatchTotal, $torrent->id
         );
         return $db->affected_rows();
     }
@@ -187,7 +192,7 @@ class Helper {
             INSERT INTO xbt_files_users
                    (fid, uid, useragent, peer_id, active, remaining, ip, timespent, mtime)
             VALUES (?,   ?,   ?,         ?,       1, 0, '127.0.0.1', 1, unix_timestamp(now() - interval 5 second))
-            ",  $torrent->id(), $user->id(), 'ua-' . randomString(12), randomString(20)
+            ",  $torrent->id, $user->id, 'ua-' . randomString(12), randomString(20)
         );
         return $db->affected_rows();
     }
@@ -198,7 +203,7 @@ class Helper {
             INSERT INTO xbt_snatched
                    (fid, uid, tstamp, IP, seedtime)
             VALUES (?,   ?,   unix_timestamp(now()), '127.0.0.1', 1)
-            ", $torrent->id(), $user->id()
+            ", $torrent->id, $user->id
         );
         return $db->affected_rows();
     }
@@ -239,6 +244,12 @@ class Helper {
 
     public static function removeTGroup(\Gazelle\TGroup $tgroup, \Gazelle\User $user): void {
         $torMan = new \Gazelle\Manager\Torrent();
+        if (!(new \Gazelle\Manager\TGroup())->findById($tgroup->id)) {
+            // Already deleted. This can occur when removing two
+            // torrents separately that belong to the same group.
+            // See TestContest for an example.
+            return;
+        }
         foreach ($tgroup->torrentIdList() as $torrentId) {
             $torMan->findById($torrentId)?->remove($user, 'phpunit teardown');
         }
@@ -261,5 +272,18 @@ class Helper {
     public static function flushDonationMonth(int $month): void {
         global $Cache;
         $Cache->delete_value("donations_month_$month");
+    }
+
+    /**
+     * Sleep long enough to allow the epoch second to roll over. This is needed
+     * for Mysql timestamps, which have a resolution of one second, and Gazelle
+     * requires certain events to have occurred "in the past". This avoids
+     * having to sleep an entire second, when e.g. 2ms may suffice. On average,
+     * the call duration will be 500ms.
+     */
+    public static function sleepTick(): float {
+        $pause = (1 - (float)(explode(' ', microtime())[0]));
+        usleep((int)(1000000 * $pause));
+        return $pause;
     }
 }

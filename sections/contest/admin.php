@@ -27,11 +27,11 @@ if (isset($_POST['cid'])) {
         ->setField('name',            trim($_POST['name']))
         ->modify();
     if ($contest->hasBonusPool()) {
-        $affected = $contest->modifyBonusPool(
-            contest: (int)$_POST['pool-contest'],
-            entry:   (int)$_POST['pool-entry'],
-            user:    (int)$_POST['pool-user'],
-        );
+        $contest->bonusPool()
+            ->setField('contest', (int)$_POST['pool-contest'])
+            ->setField('entry',   (int)$_POST['pool-entry'])
+            ->setField('user',    (int)$_POST['pool-user'])
+            ->modify();
     }
 } elseif (isset($_POST['new'])) {
     authorize();

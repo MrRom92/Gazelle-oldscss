@@ -63,11 +63,12 @@ class DebugTest extends TestCase {
 
     public function testMark(): void {
         global $Debug;
-        $event = 'phpunit-' . randomString();
-        $Debug->mark($event);
-        $list = $Debug->markList();
+        $message = 'phpunit-' . randomString();
+        $Debug->mark($message);
+        $list = array_filter($list = $Debug->markList(), fn ($m) => $m[0] === $message);
         $this->assertCount(1, $list, 'debug-marklist');
-        $this->assertCount(4, $list[0], 'debug-mark-total');
-        $this->assertEquals($event, $list[0][0], 'debug-mark-event');
+        $event = current($list);
+        $this->assertCount(4, $event, 'debug-mark-total');
+        $this->assertEquals($message, $event[0], 'debug-mark-event');
     }
 }

@@ -1,6 +1,8 @@
 #! /usr/bin/env php
 <?php
 
+namespace Gazelle;
+
 /**
  * Sometimes, unit tests crash and burn and leave garbage behind in the database.
  * This program will clean out all known test entries. Any remaining entries are
@@ -9,7 +11,7 @@
 
 require_once(__DIR__ . '/../lib/bootstrap.php');
 
-$db = Gazelle\DB::DB();
+$db = DB::DB();
 
 // clean artists
 
@@ -77,11 +79,10 @@ $db->prepared_query("
 // clean collages
 $db->prepared_query("
     SELECT ID
-    FROM collages
-    WHERE Name regexp '^(phpunit collage (?:ajax|comment|report) )'
+    FROM collages c
+    WHERE c.Name regexp '^phpunit (?:freeleech|collage (?:ajax|comment|report)) '
 ");
-
-$collageMan = new Gazelle\Manager\Collage;
+$collageMan = new Manager\Collage();
 foreach ($db->collect(0, false) as $collageId) {
     $collage = $collageMan->findById($collageId);
     echo "collage {$collage->id()} ({$collage->name()})\n";
@@ -95,7 +96,7 @@ $db->prepared_query("
     WHERE Title regexp '^(?:The [a-z]{6} Test Sessions|phpunit request(?: report)?)$'
 ");
 
-$reqMan = new Gazelle\Manager\Request;
+$reqMan = new Manager\Request();
 foreach ($db->collect(0, false) as $requestId) {
     $request = $reqMan->findById($requestId);
     echo "request {$request->id()} ({$request->title()})\n";
@@ -109,7 +110,7 @@ $db->prepared_query("
     WHERE Name regexp '^phpunit '
 ");
 
-$forMan = new Gazelle\Manager\Forum;
+$forMan = new Manager\Forum();
 foreach ($db->collect(0, false) as $forumId) {
     $forum = $forMan->findById($forumId);
     echo "forum {$forum->id()} ({$forum->name()})\n";
@@ -134,7 +135,7 @@ $db->prepared_query("
 $groupList   = $db->collect('gid', false);
 $torrentList = $db->collect('tid', false);
 
-$torMan = new Gazelle\Manager\Torrent;
+$torMan = new Manager\Torrent();
 foreach ($torrentList as $torrentId) {
     $torrent = $torMan->findById((int)$torrentId);
     if ($torrent) {
@@ -142,40 +143,25 @@ foreach ($torrentList as $torrentId) {
         $torrent->remove(null, 'garbage collection', -1);
     }
 }
-$tgMan = new Gazelle\Manager\TGroup;
+$tgMan = new Manager\TGroup();
 foreach ($groupList as $tgroupId) {
     $tgroup = $tgMan->findById($tgroupId);
     if ($tgroup) {
         echo "tgroup $torrentId ({$tgroup->name()})\n";
-        $tgroup->remove(new Gazelle\User(1));
+        $tgroup->remove(new User(1));
     }
-}
-
-// clean collages
-
-$db->prepared_query("
-    SELECT ID
-    FROM collages c
-    WHERE c.Name regexp '^phpunit freeleech '
-");
-$collMan = new Gazelle\Manager\Collage;
-
-foreach ($db->collect(0, false) as $collageId) {
-    $collage = $collMan->findById($collageId);
-    echo "collage {$collage->id()} ({$collage->name()})\n";
-    $collage->hardRemove();
 }
 
 // and finally, clean users
 
-(new Gazelle\DB)->relaxConstraints(true);
+(new DB())->relaxConstraints(true);
 
 $db->prepared_query("
     SELECT um.ID
     FROM users_main um
-    WHERE um.Username regexp '^(?:(?:(?:admin|bb|bo(?:nus(?:g|r|stat))?|collage|create|donor|download|inbox\.(?:recv|send)|forum|friend[1-3]|invitee?|mod|priv[12]|sitelog|tag|text|tgroup\.[au]|trk(?:fl)?|u(?:[1-3]|pload|ser(?:hist)?)|wiki)\.[a-z]{6}|tag\.[a-z]{8}|(?:admin|art(?:2|ist|y)|backlog|blog|collfree|comment|dnu|dupip|email[1-3]?|enc\.med|feat|fls|invite|ipv4|merge|mod|nav|new(?:\.grp|s)|phpunit|re(?:aper|clab|g[1-5]|lease|portg?|q)|sbox|searchrep|spec|tag(?:no|2(?:no|yes))?|text|tg(?:cat|vote|man)|token|torman|torrent|trk(?:down|fl|free)?|ul[1-3]|um[123]|uploader|user|year|xva)\.[a-z]{10}|notf(?:\.(new|enc))?\.[^.]+)|spm_(?:fls|mod|sysop|user)_[a-z]{10})$'
+    WHERE um.Username regexp '^(?:(?:(?:admin|bb|bo(?:nus(?:g|r|stat))?|collage|contest|create|donor|download|inbox\.(?:recv|send)|forum|friend[1-3]|invitee?|mod|priv[12]|sitelog|tag|text|tgroup\.[au]|trk(?:fl)?|u(?:[1-3]|pload|ser(?:hist)?)|wiki)\.[a-z]{6}|tag\.[a-z]{8}|(?:admin|art(?:2|ist|y)|backlog|blog|collfree|comment|dnu|dupip|email[1-3]?|enc\.med|feat|fls|invite|ipv4|merge|mod|nav|new(?:\.grp|s)|phpunit|re(?:aper|clab|g[1-5]|lease|portg?|q)|sbox|searchrep|spec|tag(?:no|2(?:no|yes))?|text|tg(?:cat|vote|man)|token|torman|torrent|trk(?:down|fl|free)?|ul[1-3]|um[123]|uploader|user|year|xva)\.[a-z]{10}|notf(?:\.(new|enc))?\.[^.]+)|spm_(?:fls|mod|sysop|user)_[a-z]{10})$'
 ");
-$userMan = new Gazelle\Manager\User;
+$userMan = new Manager\User();
 
 foreach ($db->collect(0, false) as $userId) {
     $user = $userMan->findById($userId);
@@ -198,5 +184,17 @@ $db->prepared_query("
     DELETE uf
     FROM users_freeleeches uf
     LEFT JOIN users_main um ON (um.ID = uf.UserID)
+    WHERE um.ID IS NULL
+");
+$db->prepared_query("
+    DELETE ula
+    FROM user_last_access_delta ula
+    LEFT JOIN users_main um ON (um.ID = ula.user_id)
+    WHERE um.ID IS NULL
+");
+$db->prepared_query("
+    DELETE ula
+    FROM user_last_access ula
+    LEFT JOIN users_main um ON (um.ID = ula.user_id)
     WHERE um.ID IS NULL
 ");
