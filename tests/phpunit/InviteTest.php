@@ -330,7 +330,7 @@ class InviteTest extends TestCase {
             'invite-source-create-pending'
         );
 
-        // create auser from the invite
+        // create user from the invite
         $this->invitee = (new UserCreator())
             ->setUsername('create.' . randomString(6))
             ->setEmail(randomString(6) . '@example.com')
@@ -342,6 +342,7 @@ class InviteTest extends TestCase {
             $inviteSourceMan->findSourceNameByUser($this->invitee),
             'invitee-invite-source'
         );
+        $this->assertEquals($sourceName, $this->invitee->inviteSource(), 'invitee-source-name');
         $this->assertEquals($profile, $this->invitee->externalProfile()->profile(), 'invite-source-profile');
         $this->assertStringContainsString(
             'phpunit notes',
@@ -421,16 +422,99 @@ class InviteTest extends TestCase {
         $this->assertEquals(1, $inviteSourceMan->remove($sourceId), 'invite-source-create-remove');
     }
 
+    public function testRemoveInvite(): void {
+        $this->user->setField('Invites', 1)->modify();
+        $manager = new Manager\Invite();
+        $invite = $manager->create(
+            $this->user,
+            'invite-unittest@unitte.st',
+            'unittest invite remove notes',
+            'unittest invite remove reason',
+            ''
+        );
+        $this->assertTrue($manager->removeInviteKey($invite->key()), 'invite-remove-key');
+        $this->assertNull($manager->findUserByKey($invite->key()), 'invite-removed-key');
+    }
+
+    public function testExpireInvite(): void {
+        $this->user->setField('Invites', 1)->modify();
+        $this->assertEquals(1, $this->user->unusedInviteTotal(), 'invite-user-has-invite');
+        $manager = new Manager\Invite();
+        $invite = $manager->create(
+            $this->user,
+            'invite-unittest@unitte.st',
+            'unittest invite remove notes',
+            'unittest invite remove reason',
+            ''
+        );
+        $this->assertEquals(0, $this->user->unusedInviteTotal(), 'invite-user-all-used');
+        // invites are not BaseObjects
+        DB::DB()->prepared_query("
+            UPDATE invites SET
+                Expires = now() - INTERVAL 1 SECOND
+            WHERE InviteKey = ?
+            ", $invite->key()
+        );
+        $this->assertEquals(1, DB::DB()->affected_rows(), 'invite-modify-expiry');
+        $this->assertEquals(1, $manager->expire(), 'invite-manager-expire');
+        $this->assertEquals(1, $this->user->flush()->unusedInviteTotal(), 'invite-user-invite-restored');
+    }
+
     public function testRevokeInvite(): void {
         $this->user->setField('Invites', 1)->modify();
 
         $manager = new Manager\Invite();
+        $initial = $manager->totalPending();
         $email = randomString(10) . "@invitee.example.com";
-        $this->assertFalse($manager->emailExists($this->user, $email), 'invitee-email-not-pending');
-        $invite = $manager->create($this->user, $email, 'unittest notes', 'unittest reason', '');
-        $this->assertFalse($this->user->invite()->revoke('nosuchthing'), 'invite-revoke-inexistant');
-        $this->assertTrue($this->user->invite()->revoke($invite->key()), 'invite-revoke-existing');
-        $this->assertEquals(1, $this->user->unusedInviteTotal(), 'invite-unused-1');
+        $this->assertFalse(
+            $manager->emailExists($this->user, $email),
+            'invitee-email-not-pending'
+        );
+        $invite = $manager->create(
+            $this->user,
+            $email,
+            'unittest notes',
+            'unittest reason',
+            ''
+        );
+        $this->assertEquals(
+            $initial + 1,
+            $manager->totalPending(),
+            'invite-total-pending-invites',
+        );
+        $this->assertEquals(
+            $this->user->id,
+            $manager->findUserByKey($invite->key(), new Manager\User())->id,
+            'invite-manager-find-by-key',
+        );
+        $pending = $manager->pendingInvites(1, 0);
+        $this->assertGreaterThan(0, count($pending), 'invite-list-pending');
+        $this->assertEquals(
+            ['user_id', 'ipaddr', 'key', 'expires', 'email', 'source_name'],
+            array_keys($pending[0]),
+            'invite-pending-array-keys',
+        );
+        $this->assertEquals($this->user->id, $pending[0]['user_id'], 'invite-pending-id');
+        $this->assertEquals($invite->key(), $pending[0]['key'], 'invite-pending-id');
+        $this->assertTrue(
+            $manager->emailExists($this->user, $email),
+            'invite-email-exists',
+        );
+        $this->assertEquals(
+            0,
+            $this->user->invite()->revoke('nosuchthing'),
+            'invite-revoke-inexistant',
+        );
+        $this->assertEquals(
+            2,
+            $this->user->invite()->revoke($invite->key()),
+            'invite-revoke-existing',
+        );
+        $this->assertEquals(
+            1,
+            $this->user->unusedInviteTotal(),
+            'invite-unused-1',
+        );
     }
 
     public function testEtm(): void {

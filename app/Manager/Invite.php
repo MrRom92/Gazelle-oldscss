@@ -15,7 +15,7 @@ class Invite extends \Gazelle\Base {
             INSERT INTO invites
                    (InviterID, InviteKey, Email, Notes, Reason, Expires)
             VALUES (?,         ?,         ?,     ?,     ?,      now() + INTERVAL 3 DAY)
-            ", $user->id(), $inviteKey, $email, $notes, $reason
+            ", $user->id, $inviteKey, $email, $notes, $reason
         );
         $invite = new \Gazelle\Invite($inviteKey);
         if (is_number($source)) {
@@ -25,7 +25,7 @@ class Invite extends \Gazelle\Base {
         return $invite;
     }
 
-    public function findUserByKey(string $inviteKey, User $manager): ?\Gazelle\User {
+    public function findUserByKey(string $inviteKey, User $manager = new User()): ?\Gazelle\User {
         return $manager->findById(
             (int)self::$db->scalar("
                 SELECT InviterID FROM invites WHERE InviteKey = ?
@@ -59,7 +59,7 @@ class Invite extends \Gazelle\Base {
             FROM invites
             WHERE InviterID = ?
                 AND Email = ?
-            ", $user->id(), $email
+            ", $user->id, $email
         );
     }
 
@@ -86,12 +86,15 @@ class Invite extends \Gazelle\Base {
 
         self::$db->prepared_query("
             SELECT i.InviterID AS user_id,
-                um.IP AS ipaddr,
-                i.InviteKey AS `key`,
-                i.Expires AS expires,
-                i.Email AS email
-            FROM invites AS i
+                um.IP          AS ipaddr,
+                i.InviteKey    AS `key`,
+                i.Expires      AS expires,
+                i.Email        AS email,
+                ivs.name       AS source_name
+            FROM invites i
             INNER JOIN users_main AS um ON (um.ID = i.InviterID)
+            LEFT JOIN invite_source_pending ivsp ON (ivsp.invite_key = i.InviteKey)
+            LEFT JOIN invite_source ivs USING (invite_source_id)
             $where
             ORDER BY i.Expires DESC
             LIMIT ? OFFSET ?
@@ -101,7 +104,7 @@ class Invite extends \Gazelle\Base {
     }
 
     /**
-     * Remove an invite
+     * Remove an invite without restoring it to the issuer
      *
      * @return bool true if something was actually removed
      */
@@ -115,25 +118,24 @@ class Invite extends \Gazelle\Base {
     }
 
     /**
-     * Expire unused invitations
+     * Expire unused invitations and return them to the user
      */
-    public function expire(\Gazelle\Task|null $task = null): int {
-        self::$db->begin_transaction();
-        self::$db->prepared_query("SELECT InviterID FROM invites WHERE Expires < now()");
-        $list = self::$db->collect(0, false);
-
-        self::$db->prepared_query("DELETE FROM invites WHERE Expires < now()");
-        self::$db->prepared_query("
-            DELETE isp FROM invite_source_pending isp
-            LEFT JOIN invites i ON (i.InviteKey = isp.invite_key)
-            WHERE i.InviteKey IS NULL
-        ");
-
+    public function expire(\Gazelle\Task|null $task = null, User $manager = new User()): int {
         $expired = 0;
-        foreach ($list as $userId) {
-            self::$db->prepared_query("UPDATE users_main SET Invites = Invites + 1 WHERE ID = ?", $userId);
-            self::$cache->delete_value("u_$userId");
-            $task?->debug("Expired invite from user $userId", $userId);
+        self::$db->begin_transaction();
+        self::$db->prepared_query("
+            SELECT InviterID AS 'user_id',
+                InviteKey    AS 'invite_key'
+            FROM invites
+            WHERE Expires < now()
+        ");
+        foreach (self::$db->to_array(false, MYSQLI_ASSOC, false) as $row) {
+            $user = $manager->findById($row['user_id']);
+            if (is_null($user)) {
+                continue;
+            }
+            $user->invite()->revoke($row['invite_key']);
+            $task?->debug("Expired invite {$row['invite_key']} for user {$user->username()}", $row['user_id']);
             $expired++;
         }
         self::$db->commit();

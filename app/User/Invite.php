@@ -27,35 +27,6 @@ class Invite extends \Gazelle\BaseUser {
         return $affected > 0;
     }
 
-    /**
-     * Revoke an active invitation (restore previous invite total)
-     */
-    public function revoke(string $key): bool {
-        self::$db->begin_transaction();
-        self::$db->prepared_query("
-            DELETE FROM invites WHERE InviteKey = ?
-            ", $key
-        );
-        if (self::$db->affected_rows() == 0) {
-            self::$db->rollback();
-            return false;
-        }
-        if ($this->user()->permitted('site_send_unlimited_invites')) {
-            self::$db->commit();
-            return true;
-        }
-
-        self::$db->prepared_query("
-            UPDATE users_main SET
-                Invites = Invites + 1
-            WHERE ID = ?
-            ", $this->id()
-        );
-        self::$db->commit();
-        $this->user()->flush();
-        return true;
-    }
-
     public function pendingTotal(): int {
         return (int)self::$db->scalar("
             SELECT count(*) FROM invites WHERE InviterID = ?
@@ -65,12 +36,15 @@ class Invite extends \Gazelle\BaseUser {
 
     public function pendingList(): array {
         self::$db->prepared_query("
-            SELECT InviteKey AS invite_key,
-                Email        AS email,
-                Expires      AS expires
-            FROM invites
-            WHERE InviterID = ?
-            ORDER BY Expires
+            SELECT i.InviteKey AS invite_key,
+                i.Email        AS email,
+                i.Expires      AS expires,
+                ivs.name       AS source_name
+            FROM invites i
+            LEFT JOIN invite_source_pending ivsp ON (ivsp.invite_key = i.InviteKey)
+            LEFT JOIN invite_source ivs USING (invite_source_id)
+            WHERE i.InviterID = ?
+            ORDER BY i.Expires
             ", $this->id()
         );
         return self::$db->to_array('invite_key', MYSQLI_ASSOC, false);
@@ -95,5 +69,40 @@ class Invite extends \Gazelle\BaseUser {
             ", $this->id(), $limit, $offset
         );
         return self::$db->collect(0, false);
+    }
+
+    /**
+     * Revoke an active invitation (restore previous invite total)
+     */
+    public function revoke(string $key): int {
+        self::$db->begin_transaction();
+        self::$db->prepared_query("
+            DELETE FROM invites WHERE InviteKey = ?
+            ", $key
+        );
+        $affected = self::$db->affected_rows();
+        if ($affected == 0) {
+            self::$db->rollback();
+            return 0;
+        }
+        if ($this->user()->permitted('site_send_unlimited_invites')) {
+            self::$db->commit();
+            return $affected;
+        }
+        self::$db->prepared_query("
+            DELETE FROM invite_source_pending WHERE invite_key = ?
+            ", $key
+        );
+        $affected += self::$db->affected_rows();
+        self::$db->prepared_query("
+            UPDATE users_main SET
+                Invites = Invites + 1
+            WHERE ID = ?
+            ", $this->id()
+        );
+        $affected += self::$db->affected_rows();
+        self::$db->commit();
+        $this->user()->flush();
+        return $affected;
     }
 }

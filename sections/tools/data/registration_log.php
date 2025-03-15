@@ -10,7 +10,7 @@ if (!$Viewer->permittedAny('users_view_ips', 'users_view_email')) {
     error(403);
 }
 
-$registration = new Manager\Registration(new Manager\User());
+$registration = new Manager\Registration();
 
 if (isset($_REQUEST['before_date'])) {
     if (!str_contains($_SERVER['REQUEST_URI'], '&before_date=')) {

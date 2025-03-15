@@ -122,20 +122,26 @@
 {% endif %}
 
 {% for p in user.invite.pendingList %}
-    {% if loop.first %}
+{%  if loop.first %}
 <h3>Pending invites</h3>
 <div class="box pad">
     <table width="100%">
         <tr class="colhead">
             <td>Email address</td>
             <td>Expires in</td>
+{%      if is_site_inviter %}
+            <td>Source</td>
+{%      endif %}
             <td>Invite link</td>
             <td>Revoke invite</td>
         </tr>
-    {% endif %}
+{%  endif %}
         <tr class="row{{ cycle(['a', 'b'], loop.index0) }}">
             <td>{{ p.email }}</td>
             <td>{{ p.expires|time_diff }}</td>
+{%  if is_site_inviter %}
+            <td>{{ p.source_name }}</td>
+{%  endif %}
             <td>{{ constant('SITE_URL') }}/register.php?invite={{ p.invite_key }}</td>
             <td><a href="user.php?action=delete_invite&amp;invite={{ p.invite_key }}&amp;auth={{ user.auth }}"
                 onclick="return confirm('Are you sure you want to revoke this invite?');">Revoke invite</a></td>

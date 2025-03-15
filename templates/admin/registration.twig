@@ -1,5 +1,23 @@
 {{ header('Registration log', {'js': 'resolve-ip'}) }}
 <div class="thin">
+<div class="header">
+{% if not list %}
+    <h2 align="center">No new User Registrations
+{%- else -%}
+    <h2 align="center">{{ paginator.total|number_format }} new User Registration{{ paginator.total|plural }}
+{%- endif %}
+{%- if after -%}
+    {%- if before %} between {{ after }} and {{ before }}
+    {%- else %} after {{ after -}}
+    {%- endif -%}
+{%- elseif before %} before {{ before -}}
+{%- else %} in the last 72 hours
+{%- endif -%}
+    </h2>
+</div>
+<div class="linkbox">
+    <a href="?action=invite_pool" class="brackets">Invite Pool</a>
+</div>
 <div class="box pad">
     <form action="" method="post" acclass="thin box pad">
         <input type="hidden" name="action" value="registration_log" />
@@ -12,22 +30,9 @@
 </div>
 </div>
 
-{% if not list %}
-    <h2 align="center">No new user registrations
-{%- else -%}
-    <h2 align="center">{{ paginator.total|number_format }} New user registration{{ paginator.total|plural }}
-{%- endif %}
-{%- if after -%}
-    {%- if before %} between {{ after }} and {{ before }}
-    {%- else %} after {{ after -}}
-    {%- endif -%}
-{%- elseif before %} before {{ before -}}
-{%- else %} in the last 72 hours
-{%- endif -%}
-    </h2>
-
-{% if list %}
-    {{ paginator.linkbox|raw }}
+{% for user in list %}
+{%  if loop.first %}
+{{  paginator.linkbox|raw }}
     <table width="100%">
         <tr class="colhead">
             <td>User</td>
@@ -39,8 +44,9 @@
             <td colspan="2">Host</td>
             <td>Country</td>
             <td>Registered</td>
+            <td>Source</td>
         </tr>
-    {% for user in list %}
+{%  endif %}
         <tr class="row{{ cycle(['a', 'b'], loop.index0) }}">
             <td>
                 {{ user.id|user_full }}
@@ -49,24 +55,24 @@
             </td>
             <td style="vertical-align: top">
                 {{- user.uploadedSize|octet_size -}}
-        {%- if user.inviter -%}
+{%  if user.inviter -%}
                 <br />
                 {{- user.inviter.uploadedSize|octet_size -}}
-        {%- endif -%}
+{%   endif -%}
             </td>
             <td style="vertical-align: top">
                 {{- user.downloadedSize|octet_size -}}
-        {%- if user.inviter -%}
+{%  if user.inviter -%}
                 <br />
                 {{- user.inviter.downloadedSize|octet_size -}}
-        {%- endif -%}
+{%  endif -%}
             </td>
             <td style="vertical-align: top">
                 {{- ratio(user.uploadedSize, user.downloadedSize) -}}
-        {%- if user.inviter -%}
+{%  if user.inviter -%}
                 <br />
                 {{- ratio(user.inviter.uploadedSize, user.inviter.downloadedSize) -}}
-        {%- endif -%}
+{%  endif -%}
             </td>
             <td style="vertical-align: top">
                 {{- user.email -}}
@@ -76,62 +82,66 @@
             <td style="vertical-align: top">
                 <a href="userhistory.php?action=email&amp;userid={{ user.id }}" title="Email History" class="brackets tooltip">H</a>
                 <a href="/user.php?action=search&amp;email_history=on&amp;email={{ user.email }}" title="Email Search" class="brackets tooltip">S</a>
-        {%- if user.inviter -%}
+{%  if user.inviter -%}
                 <br />
                 <a href="userhistory.php?action=email&amp;userid={{ user.inviter.id }}" title="Email History" class="brackets tooltip">H</a>
                 <a href="/user.php?action=search&amp;email_history=on&amp;email={{ user.inviter.email }}" title="Email Search" class="brackets tooltip">S</a>
-        {%- endif -%}
+{%  endif -%}
             </td>
             <td style="vertical-align: top">
                 <span style="float: left">
                 {{- user.ipaddr -}}
-        {%- if user.inviter.id -%}
+{%  if user.inviter.id -%}
                 <br />
                 {{- user.inviter.ipaddr -}}
-        {%- endif -%}
+{%  endif -%}
                 </span>
-        {%- if user.inviter and user.ipaddr == user.inviter.ipaddr -%}
+{%  if user.inviter and user.ipaddr == user.inviter.ipaddr -%}
                 <span title="IP addresses match" style="float: left; padding: 0px 5px;  color: #ffff00; font-size: large">&#x26A0;</span>
-        {%- endif -%}
+{%  endif -%}
             </td>
             <td style="vertical-align: top">
                 <span style="float: left; padding-left: 2px;" title="Duplicate usage by other users">
                 {{- ipv4.duplicateTotal(user) -}}
-        {%- if user.inviter and user.ipaddr != user.inviter.ipaddr -%}
+{%  if user.inviter and user.ipaddr != user.inviter.ipaddr -%}
                 <br />
                 {{- ipv4.duplicateTotal(user.inviter) -}}
-        {% endif %}
+{%  endif %}
                 </span>
             </td>
             <td style="vertical-align: top">
                 <span class="resolve-ipv4" data-ip="{{ user.ipaddr }}">Resolving...</span>
-        {% if user.inviter.id and user.inviter.ipaddr != user.ipaddr %}
+{%  if user.inviter.id and user.inviter.ipaddr != user.ipaddr %}
                 <br />
                 <span class="resolve-ipv4" data-ip="{{ user.inviter.ipaddr }}">Resolving...</span>
-        {% endif %}
+{%  endif %}
             </td>
             <td style="vertical-align: top">
                 <a href="userhistory.php?action=ips&amp;userid{{ user.id }}" title="IP History" class="brackets tooltip">H</a>
                 <a href="/user.php?action=search&amp;ip_history=on&amp;ip={{ user.ipaddr }}" title="IP Search" class="brackets tooltip">S</a>
                 <a href="http://whatismyipaddress.com/ip/{{ user.ipaddr }}" title="whatismyipaddress.com" class="brackets tooltip">WI</a>
-        {% if user.inviter.id and user.inviter.ipaddr != user.ipaddr %}
+{%  if user.inviter.id and user.inviter.ipaddr != user.ipaddr %}
                 <br />
                 <a href="userhistory.php?action=ips&amp;userid={{ user.inviter.id }}" title="IP History" class="brackets tooltip">H</a>
                 <a href="/user.php?action=search&amp;ip_history=on&amp;ip={{ user.inviter.ipaddr }}" title="IP Search" class="brackets tooltip">S</a>
                 <a href="http://whatismyipaddress.com/ip/{{ user.inviter.ipaddr }}" title="WI" class="brackets tooltip">WI</a>
-        {% endif %}
+{%  endif %}
             </td>
             <td>
-                TODO
+                {{ user.ipCountryIso }}
             </td>
             <td>
                 <span style="white-space: nowrap">{{- user.created|time_diff -}}</span>
                 <br />
                 <span style="white-space: nowrap">{{- user.inviter.created|time_diff -}}</span>
             </td>
+            <td>
+                {{ user.inviteSource }}
+            </td>
         </tr>
-    {% endfor %}
+{%  if loop.last %}
     </table>
     {{ paginator.linkbox|raw }}
-{% endif %}
+{%  endif %}
+{% endfor %}
 {{ footer() }}

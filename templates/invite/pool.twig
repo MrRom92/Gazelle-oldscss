@@ -2,7 +2,9 @@
 <div class="header">
     <h2>Invite Pool</h2>
 </div>
-
+<div class="linkbox">
+    <a href="?action=registration_log" class="brackets">Registration Log</a>
+</div>
 <div class="box pad">
     <p>{{ pending|number_format }} unused invites have been sent.</p>
 {% if removed is not empty %}
@@ -34,6 +36,7 @@
     <tr class="colhead">
         <td>Inviter</td>
         <td>Email address</td>
+        <td>Source</td>
         <td>IP address</td>
         <td>Invite link</td>
         <td>Expires</td>
@@ -46,8 +49,9 @@
     <tr class="row{{ cycle(['a', 'b'], loop.index0) }}">
         <td>{{ invite.user_id|user_full }}</td>
         <td>{{ invite.email }}</td>
+        <td>{{ invite.source_name }}</td>
         <td>{{ ipaddr(invite.ipaddr) }}</td>
-        <td><a href="register.php?invite={{ invite.key }}">{{ invite.key }}</a></td>
+        <td>{{ constant('SITE_URL') }}/register.php?invite={{ invite.key }}</td>
         <td>{{ invite.expires|time_diff }}</td>
 {%  if viewer.permitted('users_edit_invites') %}
         <td>

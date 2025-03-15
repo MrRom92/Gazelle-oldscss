@@ -35,7 +35,7 @@ if ($Viewer->isInterviewer() || $Viewer->isStaff()) {
 }
 
 $inviteSourceMan = null;
-if ($Viewer->isRecruiter()) {
+if ($Viewer->isRecruiter() || $Viewer->isStaff()) {
     $inviteSourceMan = new Manager\InviteSource();
 }
 

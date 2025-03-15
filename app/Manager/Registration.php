@@ -9,7 +9,7 @@ class Registration extends \Gazelle\Base {
     protected string $afterDate;
 
     public function __construct(
-        protected User $manager,
+        protected User $manager = new User(),
     ) {}
 
     public function setBeforeDate(string $date): static {

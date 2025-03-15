@@ -12,7 +12,7 @@ use Gazelle\Util\Time;
 
 class User extends BaseObject {
     final public const tableName             = 'users_main';
-    final protected const CACHE_KEY          = 'u2_%d';
+    final protected const CACHE_KEY          = 'u_%d';
     final protected const CACHE_NOTIFY       = 'u_notify_%d';
     final protected const CACHE_REFERRAL     = 'u_refer_%d';
     final protected const USER_RECENT_UPLOAD = 'u_recent_up_%d';
@@ -46,7 +46,7 @@ class User extends BaseObject {
         $this->stats()->flush();
         $this->ordinal()->flush();
         $this->privilege()->flush();
-        unset($this->info, $this->ordinal, $this->privilege, $this->stats, $this->tokenCache);
+        unset($this->info, $this->invite, $this->ordinal, $this->privilege, $this->stats, $this->tokenCache);
         return $this;
     }
 
@@ -157,6 +157,7 @@ class User extends BaseObject {
                 um.torrent_pass,
                 um.updated,
                 um.Visible,
+                um.ipcc,
                 ui.AdminComment,
                 ui.BanDate,
                 ui.NavItems,
@@ -470,6 +471,10 @@ class User extends BaseObject {
 
     public function ipaddr(): string {
         return $this->info()['IP'];
+    }
+
+    public function ipCountryIso(): string {
+        return $this->info()['ipcc'];
     }
 
     public function IRCKey(): ?string {
@@ -1581,6 +1586,15 @@ class User extends BaseObject {
 
     public function inviterId(): int {
         return (int)$this->info()['inviter_user_id'];
+    }
+
+    public function inviteSource(): ?string {
+        return $this->getSingleValue('user_invitesource', "
+            SELECT ivs.name
+            FROM user_has_invite_source uhivs
+            LEFT JOIN invite_source ivs using (invite_source_id)
+            WHERE uhivs.user_id = ?
+        ");
     }
 
     /**
