@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('users_mod')) {
-    error(403);
+    Error403::error();
 }
 
 $tagMan = new Manager\Tag();
@@ -19,7 +19,7 @@ if ($_POST['oldtags'] ?? null) {
     foreach ($_POST['oldtags'] as $tagId) {
         $tag = $tagMan->findById($tagId);
         if (is_null($tag)) {
-            error(403);
+            Error403::error();
         }
         $unofficialId[]   = $tag->id();
         $unofficialName[] = $tag->name();

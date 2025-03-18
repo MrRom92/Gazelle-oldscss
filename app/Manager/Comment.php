@@ -2,6 +2,8 @@
 
 namespace Gazelle\Manager;
 
+use Gazelle\Error400;
+
 class Comment extends \Gazelle\BaseManager {
     final public const CATALOG = '%s_comments_%d_cat_%d';
 
@@ -11,7 +13,7 @@ class Comment extends \Gazelle\BaseManager {
             'collages' => \Gazelle\Comment\Collage::class,
             'requests' => \Gazelle\Comment\Request::class,
             'torrents' => \Gazelle\Comment\Torrent::class,
-            default    => error("no comments for " . display_str($page)),
+            default    => Error400::error("no comments for " . html_escape($page)),
         };
     }
 

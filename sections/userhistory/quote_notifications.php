@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if ($Viewer->disableForums()) {
-    error(403);
+    Error403::error();
 }
 $userQuote = new User\Quote($Viewer);
 

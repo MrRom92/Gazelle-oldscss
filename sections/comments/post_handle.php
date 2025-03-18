@@ -6,18 +6,18 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if ($Viewer->disablePosting()) {
-    error('Your posting privileges have been removed.');
+    Error403::error('Your posting privileges have been removed.');
 }
 authorize();
 
 $page = $_REQUEST['page'] ?? null;
 if (!in_array($page, ['artist', 'collages', 'requests', 'torrents'])) {
-    error(403);
+    Error403::error();
 }
 
 $pageId = (int)($_REQUEST['pageid'] ?? 0);
 if (!$pageId) {
-    error(404);
+    Error404::error();
 }
 
 $commentMan = new Manager\Comment();

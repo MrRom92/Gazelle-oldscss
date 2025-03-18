@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_periodic_task_view')) {
-    error(403);
+    Error403::error();
 }
 
 $stats = (new TaskScheduler())->getRuntimeStats();

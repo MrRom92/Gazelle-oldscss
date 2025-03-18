@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_manage_wiki')) {
-    error(403);
+    Error403::error();
 }
 
 authorize();
@@ -14,7 +14,7 @@ authorize();
 $wikiMan = new Manager\Wiki();
 $article = $wikiMan->findById((int)$_POST['id']);
 if (is_null($article)) {
-    error(404);
+    Error404::error();
 }
 
 $id    = $article->id();

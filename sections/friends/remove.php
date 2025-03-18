@@ -9,7 +9,7 @@ authorize();
 
 $friend = (new Manager\User())->findById((int)($_POST['friendid'] ?? 0));
 if (!$friend) {
-    error("no such user found");
+    Error404::error("no such user found");
 }
 
 (new User\Friend($Viewer))->remove($friend);

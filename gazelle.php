@@ -1,6 +1,8 @@
 <?php
 // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 
+namespace Gazelle;
+
 use Gazelle\Util\Crypto;
 use Gazelle\Util\Time;
 
@@ -18,7 +20,7 @@ if (
     $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
 }
 
-$context = new Gazelle\BaseRequestContext(
+$context = new BaseRequestContext(
     $_SERVER['SCRIPT_NAME'],
     $_SERVER['REMOTE_ADDR'],
     $_SERVER['HTTP_USER_AGENT'] ?? '[no-useragent]',
@@ -41,8 +43,8 @@ if (
 
 $SessionID = false;
 $Viewer    = null;
-$ipv4Man   = new Gazelle\Manager\IPv4();
-$userMan   = new Gazelle\Manager\User();
+$ipv4Man   = new Manager\IPv4();
+$userMan   = new Manager\User();
 
 $forceLogout = function (): never {
     setcookie('session', '', [
@@ -84,7 +86,7 @@ if (!empty($_SERVER['HTTP_AUTHORIZATION']) && $module === 'ajax') {
         $Viewer->logoutEverywhere();
         $forceLogout();
     }
-    $session = new Gazelle\User\Session($Viewer);
+    $session = new User\Session($Viewer);
     if (!$session->valid($SessionID)) {
         $Viewer->logout($SessionID);
         $forceLogout();
@@ -139,16 +141,16 @@ if ($Viewer) {
     // To proxify images (or not), or e.g. not render the name of a thread
     // for a user who may lack the privileges to see it in the first place.
     \Text::setViewer($Viewer);
-    \Gazelle\Util\Twig::setViewer($Viewer);
+    Util\Twig::setViewer($Viewer);
     $context->setViewer($Viewer);
 }
 unset($forceLogout);
 
 $Debug->mark('load page');
-if (DEBUG_MODE || ($Viewer && $Viewer->permitted('site_debug'))) {
-    $Twig->addExtension(new Twig\Extension\DebugExtension());
+if (DEBUG_MODE || $Viewer?->permitted('site_debug')) {
+    $Twig->addExtension(new \Twig\Extension\DebugExtension());
 }
-Gazelle\Base::setRequestContext($context);
+Base::setRequestContext($context);
 
 // for sections/tools/development/process_info.php
 $Cache->cache_value('php_' . getmypid(), [
@@ -181,30 +183,25 @@ header('Cache-Control: no-cache, must-revalidate, post-check=0, pre-check=0');
 header('Pragma: no-cache');
 
 $file = realpath(__DIR__ . "/sections/{$module}/index.php");
-if (!$file || !preg_match('/^[a-z][a-z0-9_]+$/', $module)) {
-    error($Viewer ? 403 : 404);
+if ($file === false) {
+    Error400::error();
 }
 
 try {
     include_once $file;
-} catch (Gazelle\DB\MysqlException $e) {
-    Gazelle\DB::DB()->rollback();  // if there was an ongoing transaction, abort it
-    if (DEBUG_MODE || (isset($Viewer) && $Viewer->permitted('site_debug'))) {
-        echo $Twig->render('error-db.twig', [
-            'message' => $e->getMessage(),
-            'trace'   => str_replace(SERVER_ROOT . '/', '', $e->getTraceAsString()),
-        ]);
-    } else {
-        $id = $Debug->saveError($e);
-        error("That is not supposed to happen, please create a thread in the Bugs forum explaining what you were doing and referencing Error ID $id");
+} catch (\Error | \Exception $e) {
+    // if there was an ongoing transaction, abort it
+    if ($e::class === DB\MysqlException::class) {
+        DB::DB()->rollback();
     }
-} catch (\Exception $e) {
-    $Debug->saveError($e);
-}
-
-// 5. Finish up
-
-$Debug->mark('send to user');
-if (!is_null($Viewer)) {
-    $Debug->profile($Viewer, $module);
+    $id = $Debug->saveError($e);
+    $message = DEBUG_MODE || $Viewer?->permitted('site_debug')
+        ? ($e->getMessage() . " (case $id)")
+        : "That is not supposed to happen, you can a thread in the Bugs forum explaining what you were doing and referencing Error ID $id";
+    Error500::error($message);
+} finally {
+    $Debug->mark('send to user');
+    if (!is_null($Viewer)) {
+        $Debug->profile($Viewer, $module);
+    }
 }

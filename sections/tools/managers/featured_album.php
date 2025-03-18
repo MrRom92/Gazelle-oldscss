@@ -11,7 +11,7 @@ use Gazelle\Enum\LeechType;
 use Gazelle\Enum\LeechReason;
 
 if (!$Viewer->permitted('users_mod')) {
-    error(403);
+    Error403::error();
 }
 
 $tgMan   = new Manager\TGroup();
@@ -23,7 +23,7 @@ if (isset($_GET['unfeature'])) {
     match ($_GET['unfeature']) {
         'aotm'     => $manager->findByType(FeaturedAlbumType::AlbumOfTheMonth)?->unfeature(),
         'showcase' => $manager->findByType(FeaturedAlbumType::Showcase)?->unfeature(),
-        default    => error(403),
+        default    => Error403::error(),
     };
     header('Location: tools.php?action=featured_album');
     exit;
@@ -44,21 +44,21 @@ if (isset($_POST['groupid'])) {
         $tgroup = $tgMan->findById((int)$match[1]);
     }
     if (is_null($tgroup)) {
-        error('You did not enter a valid group ID');
+        Error400::error('You did not enter a valid group ID');
     }
     if (empty($_POST['body'])) {
-        error('You did not provide any text for the feature');
+        Error400::error('You did not provide any text for the feature');
     }
     $title = trim($_POST['title'] ?? '');
     if (empty($title)) {
-        error('You did not provide a title for the front page announcement');
+        Error400::error('You did not provide a title for the front page announcement');
     }
 
     if ($leechType === LeechType::Normal || !isset($_POST['neutral'])) {
         $threshold = 0;
     } else {
         if (!$size || !in_array($unit, ['k', 'm', 'g'])) {
-            error('Invalid size or units for freeleech');
+            Error400::error('Invalid size or units for freeleech');
         }
         $threshold = get_bytes("$size$unit");
     }

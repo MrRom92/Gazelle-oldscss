@@ -8,16 +8,16 @@ namespace Gazelle;
 // Remove 2FA. Users have to enter their password, moderators skip this step.
 $user = (new Manager\User())->findById((int)($_GET['userid'] ?? 0));
 if (is_null($user)) {
-    error(404);
+    Error404::error();
 }
 if (!$user->MFA()->enabled()) {
-    error($Viewer->permitted('users_edit_password') ? 'No 2FA configured' : 404);
+    Error400::error('No MFA configured');
 }
 
 $userId = $user->id();
 if (!$Viewer->permitted('users_edit_password')) {
     if ($userId !== $Viewer->id()) {
-        error(403);
+        Error403::error();
     } elseif (empty($_POST['password'])) {
         include_once 'confirm.php';
         exit;

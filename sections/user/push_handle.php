@@ -7,10 +7,10 @@ namespace Gazelle;
 
 $user = (new Manager\User())->findById((int)$_GET['userid']);
 if (is_null($user)) {
-    error(403);
+    Error403::error();
 }
 if (!$Viewer->permitted('users_mod') && $user->id() != $Viewer->id()) {
-    error(403);
+    Error403::error();
 }
 authorize();
 

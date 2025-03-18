@@ -8,11 +8,11 @@ namespace Gazelle;
 
 $article = (new Manager\Wiki())->findById((int)$_GET['id']);
 if (is_null($article)) {
-    error(404);
+    Error404::error();
 }
 
 if (!$article->editable($Viewer)) {
-    error('You do not have access to edit this article.');
+    Error403::error('You do not have access to edit this article.');
 }
 
 echo $Twig->render('wiki/create.twig', [

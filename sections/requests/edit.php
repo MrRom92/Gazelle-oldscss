@@ -8,10 +8,10 @@ namespace Gazelle;
 
 $request = (new Manager\Request())->findById((int)($_GET['id'] ?? 0));
 if (is_null($request)) {
-    error(404);
+    Error404::error();
 }
 if (!$request->canEdit($Viewer)) {
-    error(403);
+    Error403::error("You do not have the necessary privileges to edit requests.");
 }
 $requestId  = $request->id();
 $ownRequest = $request->userId() == $Viewer->id();

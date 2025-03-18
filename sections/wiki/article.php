@@ -27,7 +27,7 @@ if (!$article) {
 }
 
 if (!$article->readable($Viewer)) {
-    error(403);
+    Error403::error();
 }
 $classList = (new Manager\User())->classLevelList();
 

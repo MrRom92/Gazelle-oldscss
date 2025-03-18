@@ -8,18 +8,18 @@ namespace Gazelle;
 authorize();
 
 if (!$Viewer->permitted('torrents_edit')) {
-    error(403);
+    Error403::error();
 }
 
 $name = trim($_POST['name'] ?? '');
 if (empty($name)) {
-    error('Torrent groups must have a name');
+    Error400::error('Torrent groups must have a name');
 }
 
 $tgMan = new \Gazelle\Manager\TGroup();
 $tgroup = $tgMan->findById((int)($_POST['groupid'] ?? 0));
 if (is_null($tgroup)) {
-    error(404);
+    Error404::error();
 }
 
 $tgroup->rename($name);

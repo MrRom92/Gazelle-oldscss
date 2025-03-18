@@ -67,10 +67,10 @@ if (!$Action || !isset($Viewer)) {
 }
 $UserID = $Viewer->id();
 
-if (!empty($_SERVER['CONTENT_TYPE']) && str_starts_with($_SERVER['CONTENT_TYPE'], 'application/json')) {
+if (str_starts_with($_SERVER['CONTENT_TYPE'] ?? '', 'application/json')) {
     $input = file_get_contents('php://input');
     if ($input === false) {
-        error("json decode failure");
+        json_error("json decode failure");
     }
     $_POST = json_decode($input, true);
 }

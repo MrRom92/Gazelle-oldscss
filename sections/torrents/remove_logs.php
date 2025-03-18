@@ -7,12 +7,12 @@ namespace Gazelle;
 
 authorize();
 if (!$Viewer->permitted('torrents_delete')) {
-    error(403);
+    Error403::error();
 }
 
 $torrent = (new Manager\Torrent())->findById((int)($_GET['torrentid'] ?? 0));
 if (is_null($torrent)) {
-    error(404);
+    Error404::error();
 }
 
 $torrent->removeAllLogs(

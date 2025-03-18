@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_admin_forums')) {
-    error(403);
+    Error403::error();
 }
 
 $postId = (int)($_GET['postid'] ?? 0);

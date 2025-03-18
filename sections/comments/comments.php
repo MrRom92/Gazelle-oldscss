@@ -28,10 +28,10 @@ if (!isset($_GET['id'])) {
 } else {
     $User = $userMan->findById((int)($_GET['id'] ?? 0));
     if (is_null($User)) {
-        error(404);
+        Error404::error();
     }
     if (!$User->propertyVisible($Viewer, 'torrentcomments')) {
-        error(403);
+        Error403::error();
     }
 }
 $UserID   = $User->id();
@@ -177,7 +177,7 @@ switch ($Action) {
         }
         break;
     default:
-        error('What are you trying to comment on?');
+        Error400::error('What are you trying to comment on?');
 }
 
 $Join[] = "INNER JOIN comments C ON (C.Page = ? AND C.PageID = $idField)";

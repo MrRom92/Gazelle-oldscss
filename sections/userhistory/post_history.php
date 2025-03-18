@@ -7,13 +7,13 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if ($Viewer->disableForums()) {
-    error(403);
+    Error403::error();
 }
 
 $userMan = new Manager\User();
 $user = empty($_GET['userid']) ? $Viewer : $userMan->findById((int)$_GET['userid']);
 if (is_null($user)) {
-    error(404);
+    Error404::error();
 }
 
 $ownProfile = $user->id() === $Viewer->id();

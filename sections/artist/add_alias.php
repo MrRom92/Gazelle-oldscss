@@ -7,28 +7,28 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('torrents_edit')) {
-    error(403);
+    Error403::error();
 }
 authorize();
 
 $redirectId = (int)$_POST['redirect'];
 $newName = Artist::sanitize($_POST['name']);
 if (empty($newName)) {
-    error('The specified name is empty.');
+    Error400::error('The specified name is empty.');
 }
 
 $artMan = new Manager\Artist();
 $artist = $artMan->findById((int)$_POST['artistid']);
 if (is_null($artist)) {
-    error(404);
+    Error404::error();
 } elseif ($artist->isLocked() && !$Viewer->permitted('users_mod')) {
-    error('This artist is locked.');
+    Error400::error('This artist is locked.');
 }
 
 $otherArtist = $artMan->findByName($newName);
 if ($otherArtist) {
     if ($otherArtist->id() === $artist->id()) {
-        error("This artist already has the specified alias.");
+        Error400::error("This artist already has the specified alias.");
     }
     echo $Twig->render('artist/error-alias.twig', [
         'alias'  => $newName,
@@ -41,10 +41,10 @@ $redirArtist = null;
 if ($redirectId) {
     $redirArtist = $artMan->findByAliasId($redirectId);
     if (is_null($redirArtist)) {
-        error("No alias found for desired redirect.");
+        Error400::error("No alias found for desired redirect.");
     }
     if ($artist->id() !== $redirArtist->id()) {
-        error("Cannot redirect to the alias of a different artist.");
+        Error400::error("Cannot redirect to the alias of a different artist.");
     }
 }
 

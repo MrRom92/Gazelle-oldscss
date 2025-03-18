@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_torrents_notify')) {
-    error(403);
+    Error403::error();
 }
 authorize();
 
@@ -44,7 +44,7 @@ if (!$filter->isConfigured()) {
     $error = 'You must add at least one criterion to filter by';
 }
 if ($error) {
-    error($error);
+    Error400::error($error);
 }
 
 if ($filterId) {

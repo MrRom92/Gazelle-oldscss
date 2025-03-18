@@ -13,7 +13,7 @@ if ($Viewer->permitted('admin_manage_applicants')) {
     /** @var \Gazelle\User $Viewer phpstan is dense */
     if (!array_filter($appRoleMan->publishedList(), fn($r) => $r->isStaffViewer($Viewer))) {
         // a user is being naughty
-        error(403);
+        Error403::error();
     }
     // Staff who can see specific roles cannot see the admin page
     header('Location: apply.php?action=view');

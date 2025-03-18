@@ -7,16 +7,16 @@ namespace Gazelle;
 
 $user = (new Manager\User())->findById((int)($_REQUEST['userid'] ?? 0));
 if (is_null($user)) {
-    error(404);
+    Error404::error();
 }
 if ($user->id() != $Viewer->id() && !$Viewer->permitted('users_mod')) {
-    error(403);
+    Error403::error();
 }
 
 switch ($_GET['do'] ?? '') {
     case 'configure':
         if ($user->MFA()->enabled()) {
-            error($Viewer->permitted('users_edit_password') ? '2FA is already configured' : 404);
+            Error400::error('MFA is already configured');
         }
         include_once 'configure.php';
         break;
@@ -30,5 +30,5 @@ switch ($_GET['do'] ?? '') {
         break;
 
     default:
-        error(404);
+        Error404::error();
 }

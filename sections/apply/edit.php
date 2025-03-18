@@ -7,12 +7,12 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_manage_applicants')) {
-    error(403);
+    Error403::error();
 }
 
 $role = (new Manager\ApplicantRole())->findById((int)($_GET['id'] ?? 0));
 if (is_null($role)) {
-    error(404);
+    Error404::error();
 }
 
 if (isset($_POST['auth'])) {

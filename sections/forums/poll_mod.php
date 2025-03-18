@@ -6,13 +6,13 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('forums_polls_moderate')) {
-    error(403);
+    Error403::error();
 }
 authorize();
 
 $poll = (new Manager\ForumPoll())->findById((int)($_POST['threadid'] ?? 0));
 if (is_null($poll)) {
-    error('Cannot find a poll for that thread');
+    Error404::error('Cannot find a poll for that thread');
 }
 if (isset($_POST['ck-feat']) && isset($_POST['feature'])) {
     $poll->setField('Featured', $poll->isFeatured() ? null : date('Y-m-d H:i:s'));

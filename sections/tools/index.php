@@ -281,7 +281,7 @@ switch ($_REQUEST['action'] ?? '') {
         break;
     case 'bbcode_sandbox':
         if (!$Viewer->permitted('users_mod')) {
-            error(403);
+            Error403::error();
         }
         echo $Twig->render('admin/sandbox/bbcode.twig');
         break;

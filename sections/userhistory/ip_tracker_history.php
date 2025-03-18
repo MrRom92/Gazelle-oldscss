@@ -7,13 +7,13 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permittedAny('users_mod', 'users_view_ips')) {
-    error(403);
+    Error403::error();
 }
 
 $user = (new Manager\User())->findById((int)($_GET['userid'] ?? 0));
 $ipaddr = $_GET['ip'] ?? null;
 if (is_null($user) && !preg_match(IP_REGEXP, $ipaddr)) {
-    error(403);
+    Error403::error();
 }
 
 $snatchInfo = new SnatchInfo();

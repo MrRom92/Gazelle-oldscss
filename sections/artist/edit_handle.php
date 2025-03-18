@@ -6,21 +6,21 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_edit_wiki')) {
-    error(403);
+    Error403::error();
 }
 
 authorize();
 
 $artist = (new Manager\Artist())->findById((int)$_POST['artistid']);
 if (is_null($artist)) {
-    error(404);
+    Error404::error();
 }
 
 if (($_GET['action'] ?? '') === 'revert') { // if we're reverting to a previous revision
     authorize();
     $revisionId = (int)$_GET['revisionid'];
     if (!$revisionId) {
-        error('No revision given to revert');
+        Error400::error('No revision given to revert');
     }
     $artist->revertRevision($revisionId, $Viewer);
     header("Location: " . $artist->location());
@@ -36,11 +36,11 @@ $image = trim($_POST['image']);
 if ($image != $artist->image()) {
     if (!empty($image)) {
         if (!preg_match(IMAGE_REGEXP, $image)) {
-            error(display_str($image) . " does not look like a valid image url");
+            Error400::error(html_escape($image) . " does not look like a valid image url");
         }
         $banned = (new Util\ImageProxy($Viewer))->badHost($image);
         if ($banned) {
-            error("Please rehost images from $banned elsewhere.");
+            Error400::error("Please rehost images from $banned elsewhere.");
         }
     }
     $artist->setField('image', $image);

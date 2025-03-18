@@ -17,7 +17,7 @@ if (empty($messageIds)) {
     } else {
         $action = 'delete';
     }
-    error("You forgot to select any messages to $action.");
+    Error400::error("You forgot to select any messages to $action.");
 }
 
 $inbox = $Viewer->inbox();

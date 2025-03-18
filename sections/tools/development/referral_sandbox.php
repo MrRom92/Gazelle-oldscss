@@ -8,7 +8,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_manage_referrals')) {
-    error(403);
+    Error403::error();
 }
 
 $referralManager = new Manager\Referral();

@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if ($Viewer->disableRequests()) {
-    error('Your request privileges have been removed.');
+    Error403::error('Your request privileges have been removed.');
 }
 
 require_once match ($_REQUEST['action'] ?? null) {

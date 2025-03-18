@@ -7,13 +7,13 @@ namespace Gazelle;
 
 authorize();
 if (!$Viewer->permitted('users_mod')) {
-    error(403);
+    Error403::error();
 }
 
 $torrent = (new Manager\Torrent())->findById((int)$_GET['torrentid']);
 $logId = (int)$_GET['logid'];
 if (is_null($torrent) || !$logId) {
-    error(404);
+    Error404::error();
 }
 
 (new File\RipLog())->remove([$torrent->id(), $logId]);

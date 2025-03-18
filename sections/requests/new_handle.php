@@ -8,13 +8,13 @@ namespace Gazelle;
 authorize();
 
 if (!$Viewer->permitted('site_submit_requests') || $Viewer->uploadedSize() < 250 * 1024 * 1024) {
-    error(403);
+    Error403::error();
 }
 
 $categoryName = $_POST['type'] ?? '';
 $categoryId   = array_search($categoryName, CATEGORY);
 if ($categoryId === false) {
-    error('request category corrupt');
+    Error400::error('request category corrupt');
 }
 $categoryId += 1;
 

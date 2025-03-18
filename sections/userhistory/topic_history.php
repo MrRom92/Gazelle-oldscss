@@ -7,12 +7,12 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if ($Viewer->disableForums()) {
-    error(403);
+    Error403::error();
 }
 
 $user = empty($_GET['userid']) ? $Viewer : (new Manager\User())->findById((int)$_GET['userid']);
 if (is_null($user)) {
-    error(404);
+    Error404::error();
 }
 $forumSearch = new Search\Forum($user);
 if ($Viewer->id() != $user->id()) {

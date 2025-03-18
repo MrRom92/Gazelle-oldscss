@@ -13,10 +13,10 @@ switch ($_REQUEST['action'] ?? '') {
         include_once 'audit.php';
         break;
     case 'audit-edit':
-        require_once('audit-edit.php');
+        include_once 'audit-edit.php';
         break;
     case 'audit-edit-handle':
-        require_once('audit-edit-handle.php');
+        include_once 'audit-edit-handle.php';
         break;
     case 'dupes':
         include_once 'userlink_handle.php';
@@ -92,7 +92,7 @@ switch ($_REQUEST['action'] ?? '') {
         break;
     case 'clearcache':
         if (!$Viewer->permittedAny('admin_clear_cache', 'users_override_paranoia')) {
-            error(403);
+            Error403::error();
         }
         (new Manager\User())->findById((int)$_REQUEST['id'])?->flush();
         include_once 'user.php';

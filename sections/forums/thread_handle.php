@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_moderate_forums') && empty($_POST['transition'])) {
-    error(403);
+    Error403::error();
 }
 authorize();
 
@@ -14,17 +14,17 @@ $forumMan = new Manager\Forum();
 
 $thread = (new Manager\ForumThread())->findById((int)($_POST['threadid'] ?? 0));
 if (is_null($thread)) {
-    error(404);
+    Error404::error();
 }
 $forum = $thread->forum();
 
 if (!$Viewer->writeAccess($forum)) {
-    error(403);
+    Error403::error();
 }
 
 if (isset($_POST['delete'])) {
     if (!$Viewer->permitted('site_admin_forums')) {
-        error(403);
+        Error403::error();
     }
     $thread->remove();
     header('Location: ' . $forum->location());
@@ -35,13 +35,13 @@ $newForum = null;
 if (isset($_POST['forumid'])) {
     $newForum = $forumMan->findById((int)$_POST['forumid']);
     if (is_null($newForum) && !isset($_POST['transition'])) {
-        error(404);
+        Error404::error();
     }
 }
 
 $newTitle = trim($_POST['title'] ?? '');
 if (!isset($_POST['transition']) && $newTitle === '') {
-    error("Title cannot be empty");
+    Error400::error("Title cannot be empty");
 }
 
 // Variables for database input
@@ -53,17 +53,17 @@ $newRank   = (int)($_POST['ranking'] ?? 0);
 if (!$newPinned && $newRank > 0) {
     $newRank = 0;
 } elseif ($newRank < 0) {
-    error('Ranking cannot be a negative value');
+    Error400::error('Ranking cannot be a negative value');
 }
 
 if (isset($_POST['transition'])) {
     $transId = (int)$_POST['transition'];
     if ($transId < 1) {
-        error('No forum transition ID specified');
+        Error400::error('No forum transition ID specified');
     }
     $transitions = (new Manager\ForumTransition())->threadTransitionList($Viewer, $thread);
     if (!isset($transitions[$transId])) {
-        error('Forum transition not found');
+        Error404::error("Forum transition $transId not found");
     }
     $transition = $transitions[$transId];
     $newForum   = $forumMan->findById($transition->destinationId());

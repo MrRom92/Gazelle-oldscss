@@ -15,7 +15,7 @@ $forumMan = new Manager\Forum();
 if (isset($_GET['postid'])) {
     $post = (new Manager\ForumPost())->findById((int)$_GET['postid']);
     if (is_null($post)) {
-        error(404);
+        Error404::error();
     }
     if (!isset($_GET['threadid'])) {
         header("Location: {$post->location()}");
@@ -26,16 +26,16 @@ if (isset($_GET['postid'])) {
     $post = null;
     $thread = (new Manager\ForumThread())->findById((int)$_GET['threadid']);
     if (is_null($thread)) {
-        error(404);
+        Error404::error();
     }
 } else {
-    error(404);
+    Error404::error();
 }
 $threadId = $thread->id();
 $forum = $thread->forum();
 
 if (!$Viewer->readAccess($forum)) {
-    error(403);
+    Error403::error();
 }
 
 //Escape strings for later display

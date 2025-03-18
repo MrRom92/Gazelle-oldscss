@@ -24,7 +24,7 @@ switch ($_REQUEST['action'] ?? 'view') {
     case 'edit':
         match ($_REQUEST['type'] ?? '') {
             'torrents' => include_once 'edit_torrents.php',
-            default    => error(404),
+            default    => Error404::error(),
         };
         break;
 
@@ -45,10 +45,10 @@ switch ($_REQUEST['action'] ?? 'view') {
                 include_once __DIR__ . '/../requests/requests.php';
                 break;
             default:
-                error(404);
+                Error404::error();
         }
         break;
 
     default:
-        error(404);
+        Error404::error();
 }

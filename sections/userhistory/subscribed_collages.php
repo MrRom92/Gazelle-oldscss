@@ -9,7 +9,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_collages_subscribe')) {
-    error(403);
+    Error403::error();
 }
 
 $viewAll = (bool)($_GET['showall'] ?? 0);

@@ -7,12 +7,12 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_admin_requests')) {
-    error(403);
+    Error403::error();
 }
 
 $request = (new Manager\Request())->findById((int)$_GET['id']);
 if (is_null($request)) {
-    error(404);
+    Error404::error();
 }
 
 echo $Twig->render('request/edit-bounty.twig', [

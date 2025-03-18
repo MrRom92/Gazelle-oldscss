@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('users_mod')) {
-    error(404);
+    Error404::error();
 }
 
 $isByDay = trim($_GET['datetype'] ?? 'day')  == 'day';
@@ -19,7 +19,7 @@ if (empty($_GET['date'])) {
 } else {
     $date = trim($_GET['date']);
     if (!Util\Time::validDate($date . ' 00:00:00')) {
-        error('That does not look like a date');
+        Error400::error('That does not look like a date');
     }
     $list = (new Manager\Torrent())->topTenHistoryList($date, $isByDay);
 }

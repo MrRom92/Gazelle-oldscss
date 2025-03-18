@@ -7,12 +7,12 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('users_view_ips')) {
-    error(403);
+    Error403::error();
 }
 
 $user = (new Manager\User())->findById((int)$_GET['userid']);
 if (is_null($user)) {
-    error(404);
+    Error404::error();
 }
 $ipMan = new Manager\IPv4();
 if (trim($_GET['ip'] ?? '') !== '') {

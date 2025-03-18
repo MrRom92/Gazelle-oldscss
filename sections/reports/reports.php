@@ -9,7 +9,7 @@ namespace Gazelle;
 use Gazelle\Enum\SearchReportOrder;
 
 if (!$Viewer->permittedAny('admin_reports', 'site_moderate_forums')) {
-    error(403);
+    Error403::error();
 }
 
 require_once 'array.php';

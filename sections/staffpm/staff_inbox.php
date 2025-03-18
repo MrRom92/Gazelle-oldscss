@@ -41,7 +41,7 @@ if ($Viewer->isStaff()) {
 
 $view = $_GET['view'] ?? '';
 if (!isset($viewMap[$view])) {
-    error('Unknown staff inbox view parameter');
+    Error400::error('Unknown staff inbox view parameter');
 }
 
 if (isset($_GET['id'])) {

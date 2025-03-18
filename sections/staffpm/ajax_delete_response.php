@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->isStaffPMReader()) {
-    error(403);
+    Error403::error();
 }
 
 authorize();

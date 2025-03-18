@@ -7,12 +7,12 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permittedAny('admin_audit_edit', 'admin_audit_view')) {
-    error(403);
+    Error403::error();
 }
 $userMan = new Manager\User();
 $user = $userMan->findById((int)($_GET['id'] ?? 0));
 if (is_null($user)) {
-    error(404);
+    Error404::error();
 }
 $user->auditTrail()->migrate($userMan);
 

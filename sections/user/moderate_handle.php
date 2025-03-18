@@ -28,7 +28,7 @@ function revoked(bool $state): string {
 }
 
 if (!$Viewer->permitted('users_mod')) {
-    error(403);
+    Error403::error();
 }
 
 $userMan = new Manager\User();
@@ -38,7 +38,9 @@ if (is_null($user)) {
     exit;
 }
 if ($_POST['checkpoint'] != $user->checkpoint()) {
-    error("Somebody else has moderated this user since you loaded it. Please go back and refresh the page.");
+    Error400::error(
+        "Somebody else has moderated this user since you loaded it. Please go back and refresh the page."
+    );
 }
 
 $userId = $user->id();
@@ -101,7 +103,7 @@ $cur['RestrictedForums'] = $user->privilege()->forbiddenUserForums();
 
 if ($mergeStatsFrom && ($downloaded != $user->downloadedSize() || $uploaded != $user->uploadedSize())) {
     // Too make make-work code to deal with this unlikely eventuality
-    error("Do not transfer buffer and edit upload/download in the same operation.");
+    Error400::error("Do not transfer buffer and edit upload/download in the same operation.");
 }
 
 $tracker = new Tracker();
@@ -253,11 +255,11 @@ if ($Viewer->permitted('users_edit_usernames')) {
     $username = trim($_POST['Username']);
     if ($username !== $user->username()) {
         if (in_array($username, ['0', '1'])) {
-            error('You cannot set a username of "0" or "1".');
+            Error400::error('You cannot set a username of "0" or "1".');
         } elseif (strtolower($username) !== strtolower($user->username())) {
             $found = $userMan->findByUsername($username);
             if ($found) {
-                error("Username already in use by $username");
+                Error400::error("Username already in use by $username");
             }
         }
         $user->setField('Username', $username);
@@ -268,7 +270,7 @@ if ($Viewer->permitted('users_edit_usernames')) {
 if ($title != $user->title() && $Viewer->permitted('users_edit_titles')) {
     // Using the unescaped value for the test to avoid confusion
     if (mb_strlen($_POST['Title']) > 1024) {
-        error("Custom titles have a maximum length of 1,024 characters.");
+        Error400::error("Custom titles have a maximum length of 1,024 characters.");
     } else {
         $user->setField('Title', $title);
         $editSummary[] = "title changed to [code]{$title}[/code]";

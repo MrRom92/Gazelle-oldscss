@@ -7,7 +7,7 @@ namespace Gazelle;
 
 $group = (new Manager\TGroup())->findById((int)($_GET['id'] ?? 0));
 if (is_null($group)) {
-    error(404);
+    Error404::error();
 }
 
 echo $Twig->render('revision.twig', ['object' => $group]);

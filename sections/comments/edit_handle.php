@@ -6,25 +6,25 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if ($Viewer->disablePosting()) {
-    error('Your posting privileges have been removed.');
+    Error403::error('Your posting privileges have been removed.');
 }
 authorize();
 
 $body = trim($_POST['body'] ?? '');
 if (!strlen($body)) {
-    error(404);
+    Error404::error();
 }
 
 $comment = (new Manager\Comment())->findById((int)($_REQUEST['postid'] ?? 0));
 if (is_null($comment)) {
-    error(404);
+    Error404::error();
 }
 if ($comment->userId() != $Viewer->id() && !$Viewer->permitted('site_moderate_forums')) {
-    error(403);
+    Error403::error();
 }
 $user = (new Manager\User())->findById($comment->userId());
 if (is_null($user)) {
-    error(404);
+    Error404::error();
 }
 
 $comment->setField('Body', $body)->setField('EditedUserID', $Viewer->id())->modify();

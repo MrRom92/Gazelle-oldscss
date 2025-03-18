@@ -14,7 +14,7 @@ if (
         && isset($_GET['tokens'])
     )
 ) {
-    error(403);
+    Error403::error();
 }
 
 (new Tracker())->expireFreeleechTokens($_GET['tokens']);

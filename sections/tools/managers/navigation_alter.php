@@ -8,7 +8,7 @@ namespace Gazelle;
 use Gazelle\Util\Arrays;
 
 if (!$Viewer->permitted('admin_manage_navigation')) {
-    error(403);
+    Error403::error();
 }
 
 authorize();
@@ -19,7 +19,7 @@ if ($_POST['submit'] == 'Delete') {
     $id = (int)($_POST['id'] ?? 0);
     $control = $manager->findById($id);
     if (is_null($control)) {
-        error(404);
+        Error404::error();
     }
     $control->remove();
 } else {
@@ -34,7 +34,7 @@ if ($_POST['submit'] == 'Delete') {
         ['default',   true, 'checkbox', ''],
     ]);
     if (!$validator->validate($_POST)) {
-        error($validator->errorMessage());
+        Error400::error($validator->errorMessage());
     }
 
     if ($_POST['submit'] == 'Create') {
@@ -51,7 +51,7 @@ if ($_POST['submit'] == 'Delete') {
         $id = (int)($_POST['id'] ?? 0);
         $control = $manager->findById($id);
         if (is_null($control)) {
-            error(404);
+            Error404::error();
         }
         $control->setField('tag', trim($_POST['tag']))
             ->setField('target', trim($_POST['target']))
@@ -62,7 +62,7 @@ if ($_POST['submit'] == 'Delete') {
             ->setField('initial', $_POST['default'] == 'on')
             ->modify();
     } else {
-        error('Unknown forum navigation action specified');
+        Error400::error('Unknown forum navigation action specified');
     }
 }
 

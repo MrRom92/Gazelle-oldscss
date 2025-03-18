@@ -9,21 +9,21 @@ namespace Gazelle;
 /* Move a torrent from one group to another */
 
 if (!$Viewer->permitted('torrents_edit')) {
-    error(403);
+    Error403::error();
 }
 
 $torrent = (new Manager\Torrent())->findById((int)($_POST['torrentid'] ?? 0));
 if (is_null($torrent)) {
-    error('Torrent does not exist!');
+    Error404::error('Torrent does not exist!');
 }
 
 $tgMan = new Manager\TGroup();
 $new = $tgMan->findById((int)($_POST['groupid'] ?? 0));
 if (is_null($new)) {
-    error('The destination torrent group does not exist!');
+    Error404::error('The destination torrent group does not exist!');
 }
 if ($new->categoryName() !== 'Music') {
-    error('Destination torrent group must be in the "Music" category.');
+    Error400::error('Destination torrent group must be in the "Music" category.');
 }
 
 if ($torrent->groupId() === $new->id()) {

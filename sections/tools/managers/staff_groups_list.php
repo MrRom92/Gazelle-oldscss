@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_manage_permissions')) {
-    error(403);
+    Error403::error();
 }
 
 echo $Twig->render('admin/staff-group.twig', [

@@ -8,10 +8,10 @@ namespace Gazelle;
 
 $collage = (new Manager\Collage())->findById((int)($_GET['collageid'] ?? 0));
 if (is_null($collage)) {
-    error(404);
+    Error404::error();
 }
 if ($collage->isDeleted() && !$collage->isOwner($Viewer) && !$Viewer->permitted('site_collages_delete')) {
-    error(403);
+    Error403::error();
 }
 
 echo $Twig->render('collage/delete.twig', [

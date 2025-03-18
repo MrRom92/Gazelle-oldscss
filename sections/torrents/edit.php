@@ -10,11 +10,11 @@ namespace Gazelle;
 
 $torrent = (new Manager\Torrent())->findById((int)($_GET['id'] ?? 0));
 if (is_null($torrent)) {
-    error(404);
+    Error404::error();
 }
 
 if (($Viewer->id() != $torrent->uploaderId() && !$Viewer->permitted('torrents_edit')) || $Viewer->disableWiki()) {
-    error(403);
+    Error403::error();
 }
 
 $tgroup       = $torrent->group();

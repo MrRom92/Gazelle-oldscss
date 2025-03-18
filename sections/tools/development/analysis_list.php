@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_analysis')) {
-    error(403);
+    Error403::error();
 }
 
 $errMan = new Manager\ErrorLog();

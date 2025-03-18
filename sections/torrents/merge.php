@@ -7,23 +7,23 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('torrents_edit')) {
-    error(403);
+    Error403::error();
 }
 
 $tgMan = new Manager\TGroup();
 $old = $tgMan->findById((int)($_POST['groupid'] ?? 0));
 if (is_null($old)) {
-    error(404);
+    Error404::error();
 }
 $new = $tgMan->findById((int)($_POST['targetgroupid'] ?? 0));
 if (is_null($new)) {
-    error('Target group does not exist.');
+    Error400::error('Target group does not exist.');
 }
 if ($new->id() === $old->id()) {
-    error('Old group ID is the same as new group ID!');
+    Error400::error('Old group ID is the same as new group ID!');
 }
 if ($old->categoryName() !== 'Music') {
-    error('Only music groups can be merged.');
+    Error400::error('Only music groups can be merged.');
 }
 
 // Everything is legit, ask for confirmation

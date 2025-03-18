@@ -7,16 +7,16 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('users_mod')) {
-    error(403);
+    Error403::error();
 }
 
 $torrent = (new Manager\Torrent())->findById((int)($_GET['torrentid'] ?? 0));
 if (is_null($torrent)) {
-    error(404);
+    Error404::error();
 }
 $tlog = (new Manager\TorrentLog(new File\RipLog(), new File\RipLogHTML()))->findById($torrent, (int)($_GET['logid'] ?? 0));
 if (is_null($tlog)) {
-    error(404);
+    Error404::error();
 }
 
 echo $Twig->render('torrent/edit-log.twig', [

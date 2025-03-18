@@ -10,7 +10,7 @@ authorize();
 $tgMan = new Manager\TGroup();
 $tgroup = $tgMan->findById((int)$_POST['groupid']);
 if (is_null($tgroup)) {
-    error(404);
+    Error404::error();
 }
 
 $count = $tgroup->addArtists(
@@ -20,7 +20,7 @@ $count = $tgroup->addArtists(
 );
 
 if ($count < 1) {
-    error("artist already added");
+    Error400::error("artist already added");
 }
 
 header('Location: ' . redirectUrl($tgroup->location()));

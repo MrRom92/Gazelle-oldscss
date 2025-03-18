@@ -6,14 +6,14 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_manage_payments')) {
-    error(403);
+    Error403::error();
 }
 
 $Payment = new Manager\Payment();
 
 if ($_POST['submit'] == 'Delete') {
     if (!is_number($_POST['id']) || $_POST['id'] == '') {
-        error('Unknown payment id for delete');
+        Error400::error('Unknown payment id for delete');
     }
     $Payment->remove($_POST['id']);
 } else {

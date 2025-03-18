@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permittedAny('admin_rate_limit_view', 'admin_rate_limit_manage')) {
-    error(403);
+    Error403::error();
 }
 
 $limiter = new Manager\UserclassRateLimit();
@@ -24,11 +24,11 @@ if ($_POST) {
             ['overshoot', true, 'number', 'overshoot must be set', ['minlength' => 1]],
         ]);
         if (!$val->validate($_POST)) {
-            error($val->errorMessage());
+            Error400::error($val->errorMessage());
         }
         $limiter->save($_POST['class'], $_POST['factor'], $_POST['overshoot']);
     } else {
-        error(403);
+        Error403::error();
     }
 }
 

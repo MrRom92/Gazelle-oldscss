@@ -7,15 +7,15 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_collages_manage')) {
-    error(403);
+    Error403::error();
 }
 
 $collage = (new Manager\Collage())->findById((int)($_GET['collageid'] ?? $_GET['id'] ?? 0));
 if (is_null($collage) || $collage->isArtist()) {
-    error(404);
+    Error404::error();
 }
 if ($collage->isPersonal() && !$collage->isOwner($Viewer) && !$Viewer->permitted('site_collages_delete')) {
-    error(403);
+    Error403::error();
 }
 
 echo $Twig->render('collage/manage-tgroup.twig', [

@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->hasAttr('feature-seedbox') && !$Viewer->permitted('users_view_ips')) {
-    error(403);
+    Error403::error();
 }
 
 if (!isset($_POST['action'])) {
@@ -18,10 +18,10 @@ if (!isset($_POST['action'])) {
 }
 $user = (new Manager\User())->findById($userId);
 if (!$user) {
-    error(404);
+    Error404::error();
 }
 if ($Viewer->id() != $userId && !$Viewer->permitted('users_view_ips')) {
-    error(403);
+    Error403::error();
 }
 
 $union = trim($_REQUEST['view'] ?? 'union') === 'union';
@@ -31,7 +31,7 @@ $target = ($_REQUEST['target'] ?? null);
 $seedbox = new User\Seedbox($user);
 if (isset($_POST['action']) || isset($_REQUEST['viewby'])) {
     if (is_null($source) || is_null($target) || $source === $target) {
-        error("Invalid comparison between two seedbox instances");
+        Error400::error("Invalid comparison between two seedbox instances");
     }
     $seedbox->setSource($source)
         ->setTarget($target)

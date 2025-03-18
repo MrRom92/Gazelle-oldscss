@@ -9,10 +9,10 @@ namespace Gazelle;
 $wikiMan = new Manager\Wiki();
 $article = $wikiMan->findById((int)$_GET['id']);
 if (is_null($article)) {
-    error(404);
+    Error404::error();
 }
 if (!$article->readable($Viewer)) {
-    error(403);
+    Error403::error();
 }
 
 echo $Twig->render('wiki/revision-list.twig', [

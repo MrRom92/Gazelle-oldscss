@@ -7,10 +7,10 @@ namespace Gazelle;
 
 $spm = (new Manager\StaffPM())->findById((int)($_GET['id'] ?? 0));
 if (is_null($spm)) {
-    error(404);
+    Error404::error();
 }
 if (!$spm->visible($Viewer)) {
-    error(403);
+    Error403::error();
 }
 
 $spm->unresolve($Viewer);

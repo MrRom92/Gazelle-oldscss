@@ -8,12 +8,12 @@ namespace Gazelle;
 $postId = (int)($_GET['post'] ?? 0);
 $pm = (new Manager\PM($Viewer))->findByPostId($postId);
 if (is_null($pm)) {
-    error(403);
+    Error403::error();
 }
 
 $body = $pm->postBody($postId);
 if (is_null($body)) {
-    error(404);
+    Error404::error();
 }
 
 // This gets sent to the browser, which echoes it wherever

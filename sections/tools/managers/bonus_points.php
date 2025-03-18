@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('users_mod')) {
-    error(403);
+    Error403::error();
 }
 
 $message = "";
@@ -19,7 +19,7 @@ if (isset($_REQUEST['add_points'])) {
     $since  = trim($_POST['since_date'] ?? date("Y-m-d", strtotime("-120 day", time())));
 
     if ($active < 0 || $upload < 0 ||  $seed < 0) {
-        error('Please enter a positive number of points.');
+        Error400::error('Please enter a positive number of points.');
     }
 
     $bonusMan = new Manager\Bonus();

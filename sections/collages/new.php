@@ -9,7 +9,7 @@ namespace Gazelle;
 use Gazelle\Enum\CollageType;
 
 if (!$Viewer->permitted('site_collages_create') && !$Viewer->canCreatePersonalCollage()) {
-    error(403);
+    Error403::error();
 }
 
 // the variables below are instantiated via new_handle.php in the event of an error

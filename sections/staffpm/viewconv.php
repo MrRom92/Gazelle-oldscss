@@ -9,10 +9,10 @@ namespace Gazelle;
 $manager = new Manager\StaffPM();
 $staffPM = $manager->findById((int)($_GET['id'] ?? 0));
 if (is_null($staffPM)) {
-    error(404);
+    Error404::error();
 }
 if (!$staffPM->visible($Viewer)) {
-    error(403);
+    Error403::error();
 }
 if ($staffPM->userId() === $Viewer->id() && $staffPM->isUnread()) {
     // User is viewing their own unread conversation, set it to read

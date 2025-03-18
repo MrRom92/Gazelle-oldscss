@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->isStaffPMReader()) {
-    error(403);
+    Error403::error();
 }
 
 $answer = (new Manager\StaffPM())->commonAnswer((int)($_GET['id'] ?? 0));

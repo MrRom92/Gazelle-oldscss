@@ -6,21 +6,21 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('zip_downloader')) {
-    error(403);
+    Error403::error();
 }
 
 if (!isset($_REQUEST['preference']) || count($_REQUEST['list']) === 0) {
-    error('No collage collector preference specified');
+    Error400::error('No collage collector preference specified');
 }
 
 $collage = (new Manager\Collage())->findById((int)($_REQUEST['collageid'] ?? 0));
 if (is_null($collage)) {
-    error(404);
+    Error404::error();
 }
 
 $collector = new Collector\Collage($Viewer, new Manager\Torrent(), $collage, (int)$_REQUEST['preference']);
 if (!$collector->prepare($_REQUEST['list'])) {
-    error("Nothing to gather, choose some encodings and media!");
+    Error400::error("Nothing to gather, choose some encodings and media!");
 }
 $Viewer->modifyOption('Collector', [implode(':', $_REQUEST['list']), $_REQUEST['preference']]);
 

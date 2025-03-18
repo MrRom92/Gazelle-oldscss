@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_whitelist')) {
-    error(403);
+    Error403::error();
 }
 
 authorize();
@@ -19,14 +19,14 @@ $submitAction = $_POST['submit'] ?? null;
 if ($submitAction === 'Delete') {
     $clientId = (int)$_POST['id'];
     if (!$clientId) {
-        error('Whitelist client id not found for delete');
+        Error404::error('Whitelist client id not found for delete');
     }
     $tracker->removeWhitelist($whitelist->peerId($clientId));
     $whitelist->remove($clientId);
 } else {
     // Edit or Create
     if (empty($_POST['client']) || empty($_POST['peer_id'])) {
-        error('Whitelist client id not found for create/edit');
+        Error404::error('Whitelist client id not found for create/edit');
     }
     $peer    = trim($_POST['peer_id']);
     $vstring = trim($_POST['client']);
@@ -37,7 +37,7 @@ if ($submitAction === 'Delete') {
     } else {
         $clientId = (int)($_POST['id'] ?? 0);
         if (!$clientId) {
-            error('Whitelist client id not found for edit');
+            Error404::error('Whitelist client id not found for edit');
         }
         $tracker->modifyWhitelist(old: $whitelist->modify($clientId, $peer, $vstring), new: $peer);
     }

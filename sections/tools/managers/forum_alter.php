@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_manage_forums')) {
-    error(403);
+    Error403::error();
 }
 
 authorize();
@@ -14,7 +14,7 @@ authorize();
 $forumMan = new Manager\Forum();
 $forum = $forumMan->findById((int)($_POST['id'] ?? 0));
 if (is_null($forum) && in_array($_POST['submit'], ['Edit', 'Delete'])) {
-    error('Unknown forum alter action');
+    Error400::error('Unknown forum alter action');
 }
 if ($_POST['submit'] == 'Delete') {
     $forum->remove();
@@ -23,7 +23,7 @@ if ($_POST['submit'] == 'Delete') {
     $minWrite  = (int)$_POST['minclasswrite'];
     $minCreate = (int)$_POST['minclasscreate'];
     if ($Viewer->classLevel() < min($minRead, $minWrite, $minCreate)) {
-        error(403);
+        Error403::error();
     }
 
     $validator = new Util\Validator();
@@ -37,7 +37,7 @@ if ($_POST['submit'] == 'Delete') {
         ['minclasscreate', true, 'number', 'MinClassCreate must be set'],
     ]);
     if (!$validator->validate($_POST)) {
-        error($validator->errorMessage());
+        Error400::error($validator->errorMessage());
     }
 
     if ($_POST['submit'] == 'Create') {
@@ -56,11 +56,11 @@ if ($_POST['submit'] == 'Delete') {
     } elseif ($_POST['submit'] == 'Edit') {
         $minClassRead = $forum->minClassRead();
         if (!$minClassRead || $minClassRead > $Viewer->classLevel()) {
-            error(403);
+            Error403::error();
         }
         $forum->modifyForum($_POST);
     } else {
-        error(403);
+        Error403::error();
     }
 }
 header("Location: tools.php?action=forum");

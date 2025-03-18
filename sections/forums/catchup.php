@@ -15,7 +15,7 @@ if (($_GET['forumid'] ?? '') == 'all') {
 
 $forum = (new Manager\Forum())->findById((int)($_GET['forumid'] ?? 0));
 if (is_null($forum)) {
-    error(404);
+    Error404::error();
 }
 
 $forum->userCatchup($Viewer);

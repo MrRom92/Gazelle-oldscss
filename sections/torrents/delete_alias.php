@@ -7,21 +7,21 @@ namespace Gazelle;
 
 authorize();
 if (!$Viewer->permitted('torrents_edit')) {
-    error(403);
+    Error403::error();
 }
 
 $role = (int)$_GET['importance'];
 if (!$role) {
-    error('No role specified to delete');
+    Error400::error('No role specified to delete');
 }
 $tgMan = new Manager\TGroup();
 $tgroup = $tgMan->findById((int)$_GET['groupid']);
 if (is_null($tgroup)) {
-    error(404);
+    Error404::error();
 }
 $artist = (new Manager\Artist())->findByAliasId((int)$_GET['aliasid']);
 if (is_null($artist)) {
-    error(404);
+    Error404::error();
 }
 
 // save data in case removeArtist() deletes the artist

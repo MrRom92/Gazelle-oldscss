@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_manage_permissions')) {
-    error(403);
+    Error403::error();
 }
 
 $privMan = new Manager\Privilege();
@@ -15,7 +15,7 @@ $privilege = $privMan->findById((int)($_REQUEST['removeid'] ?? 0));
 if ($privilege) {
     authorize();
     if ($privilege->userTotal() > 0) {
-        error('You cannot delete a class with users.');
+        Error400::error('You cannot delete a class with users.');
     }
     $privilege->remove();
     header("Location: tools.php?action=userclass");
@@ -34,7 +34,7 @@ if (isset($_REQUEST['submit'])) {
         ['level', true, 'number', 'You did not enter a valid level for this permission set.'],
     ]);
     if (!$validator->validate($_POST)) {
-        error($validator->errorMessage());
+        Error400::error($validator->errorMessage());
     }
 
     if ($edit) {
@@ -44,12 +44,12 @@ if (isset($_REQUEST['submit'])) {
             exit;
         }
         if (empty($_REQUEST['secondary']) == $privilege->isSecondary() && $privilege->userTotal() > 0) {
-            error("You can't toggle secondary when there are users");
+            Error400::error("You can't toggle secondary when there are users");
         }
 
         $check = $privMan->findByLevel((int)$_REQUEST['level']);
         if ($check && $privilege->id() != $check->id()) {
-            error('There is already a permission class with that level.');
+            Error400::error('There is already a permission class with that level.');
         }
     }
 

@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('users_view_email')) {
-    error(403);
+    Error403::error();
 }
 
 $found     = 0;

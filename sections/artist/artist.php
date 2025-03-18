@@ -14,7 +14,7 @@ $artist = $revisionId
     ? $artistMan->findByIdAndRevision((int)($_GET['id'] ?? 0), $revisionId)
     : $artistMan->findById((int)($_GET['id'] ?? 0));
 if (is_null($artist)) {
-    error(404);
+    Error404::error();
 }
 $artist->loadArtistRole();
 $artistId = $artist->id();

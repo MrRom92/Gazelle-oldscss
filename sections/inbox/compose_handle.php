@@ -9,15 +9,15 @@ authorize();
 
 $recipient = (new Manager\User())->findById((int)$_POST['toid']);
 if (is_null($recipient)) {
-    error(404);
+    Error404::error();
 }
 if ($Viewer->option('DisablePM') && !$recipient->isStaffPMReader()) {
-    error(403);
+    Error403::error();
 }
 
 $body = trim($_POST['body'] ?? '');
 if ($body === '') {
-    error('You cannot send a message without a body.');
+    Error400::error('You cannot send a message without a body.');
 }
 
 $userMan = new Manager\User();
@@ -28,7 +28,7 @@ if ($pm) {
 } else {
     $subject = trim($_POST['subject']);
     if (empty($subject)) {
-        error('You cannot send a message without a subject.');
+        Error400::error('You cannot send a message without a subject.');
     }
     $pm = $recipient->inbox()->create($Viewer, $subject, $body);
 }

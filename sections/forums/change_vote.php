@@ -9,15 +9,15 @@ authorize();
 
 $poll = (new Manager\ForumPoll())->findById((int)($_POST['threadid'] ?? 0));
 if (is_null($poll)) {
-    error(404);
+    Error404::error();
 }
 if (!$Viewer->permitted('site_moderate_forums') && !$poll->hasRevealVotes()) {
-    error(403);
+    Error403::error();
 }
 
 $vote = (int)$_GET['vote'];
 if (!$vote) {
-    error(404);
+    Error404::error();
 }
 $poll->modifyVote($Viewer, $vote);
 

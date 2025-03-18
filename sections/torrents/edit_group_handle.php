@@ -9,14 +9,14 @@ namespace Gazelle;
 authorize();
 
 if (!$Viewer->permitted('site_edit_wiki')) {
-    error(403);
+    Error403::error();
 }
 if (!$Viewer->permitted('torrents_edit_vanityhouse') && isset($_POST['vanity_house'])) {
-    error(403);
+    Error403::error();
 }
 $tgroup = (new Manager\TGroup())->findById((int)$_REQUEST['groupid']);
 if (is_null($tgroup)) {
-    error(404);
+    Error404::error();
 }
 
 $logInfo = [];
@@ -24,7 +24,7 @@ if (($_GET['action'] ?? '') == 'revert') {
     // we're reverting to a previous revision
     $revisionId = (int)$_GET['revisionid'];
     if (!$revisionId) {
-        error('No revision specified to revert');
+        Error400::error('No revision specified to revert');
     }
     if (empty($_GET['confirm'])) {
         echo $Twig->render('tgroup/confirm-revert.twig', [
@@ -36,7 +36,7 @@ if (($_GET['action'] ?? '') == 'revert') {
     }
     $revert = $tgroup->revertRevision($Viewer->id(), $revisionId);
     if (is_null($revert)) {
-        error(404);
+        Error404::error();
     }
     [$Body, $Image] = $revert;
 } else {
@@ -46,7 +46,7 @@ if (($_GET['action'] ?? '') == 'revert') {
         $rt = new ReleaseType();
         $newReleaseTypeName = $rt->findNameById($ReleaseType);
         if (!$newReleaseTypeName) {
-            error(403);
+            Error400::error();
         }
         if ($ReleaseType != $tgroup->releaseType()) {
             $tgroup->setField('ReleaseType', $ReleaseType);
@@ -69,11 +69,11 @@ if (($_GET['action'] ?? '') == 'revert') {
     } else {
         $Image = $_POST['image'];
         if (!preg_match(IMAGE_REGEXP, $Image)) {
-            error(display_str($Image) . " does not look like a valid image url");
+            Error400::error(html_escape($Image) . " does not look like a valid image url");
         }
         $banned = (new Util\ImageProxy($Viewer))->badHost($Image);
         if ($banned) {
-            error("Please rehost images from $banned elsewhere.");
+            Error400::error("Please rehost images from $banned elsewhere.");
         }
     }
 

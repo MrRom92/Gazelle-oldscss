@@ -10,10 +10,10 @@ $appMan = new Manager\Applicant();
 if (isset($_REQUEST['id'])) {
     $app = $appMan->findById((int)$_GET['id']);
     if (is_null($app)) {
-        error(404);
+        Error404::error();
     }
     if (!$app->isViewable($Viewer)) {
-        error(403);
+        Error403::error();
     }
 
     if (!empty($_POST['note_reply'])) {

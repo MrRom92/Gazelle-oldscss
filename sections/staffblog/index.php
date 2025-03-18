@@ -9,7 +9,7 @@ namespace Gazelle;
 use Gazelle\Util\Irc;
 
 if (!$Viewer->permitted('users_mod')) {
-    error(403);
+    Error403::error();
 }
 
 $blogMan = new Manager\StaffBlog();
@@ -33,11 +33,11 @@ if ($Viewer->permitted('admin_manage_blog')) {
                 authorize();
                 $title = trim($_POST['title'] ?? '');
                 if (empty($title)) {
-                    error("Please enter a title.");
+                    Error400::error("Please enter a title.");
                 }
                 $body = trim($_POST['body'] ?? '');
                 if (empty($body)) {
-                    error("Please enter a body.");
+                    Error400::error("Please enter a body.");
                 }
                 if ($_REQUEST['action'] == 'takenewblog') {
                     $blog = $blogMan->create($Viewer, $title, $body);
@@ -51,7 +51,7 @@ if ($Viewer->permitted('admin_manage_blog')) {
                 exit;
 
             default:
-                error(403);
+                Error403::error();
         }
     }
 }

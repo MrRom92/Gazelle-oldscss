@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('users_mod')) {
-    error(403);
+    Error403::error();
 }
 
 $tracker      = new Tracker();
@@ -57,7 +57,7 @@ if (isset($_POST['interval'])) {
     $interval = (int)$_POST['interval'];
     if ($interval != $info['announce interval']['value']) {
         if ($interval < 600) {
-            error("Cowardly refusing to lower the announce interval below five minutes");
+            Error400::error("Cowardly refusing to lower the announce interval below five minutes");
         }
         $tracker->modifyAnnounceInterval($interval);
         $dirty = true;
@@ -69,7 +69,7 @@ if (isset($_POST['jitter'])) {
     $jitter = (int)$_POST['jitter'];
     if ($jitter != $info['announce jitter']['value']) {
         if ($jitter < 0 || $jitter >= 3600) {
-            error("Cowardly refusing to set the jitter to an absurd value");
+            Error400::error("Cowardly refusing to set the jitter to an absurd value");
         }
         $tracker->modifyAnnounceJitter($jitter);
         $dirty = true;

@@ -8,10 +8,10 @@ namespace Gazelle;
 authorize();
 
 if (!in_array($_REQUEST['action'], ['add_torrent', 'add_torrent_batch'])) {
-    error(403);
+    Error403::error();
 }
 if (!$Viewer->permitted('site_collages_manage') && !$Viewer->activePersonalCollages()) {
-    error(403);
+    Error403::error();
 }
 
 $collageMan = new Manager\Collage();
@@ -27,18 +27,18 @@ if (isset($_POST['collage_combo']) && (int)$_POST['collage_combo']) {
     $collage = $collageMan->findById((int)$_POST['collageid']); // From collage page
 }
 if (!$collage) {
-    error(404);
+    Error404::error();
 }
 
 if (!$Viewer->permitted('site_collages_delete')) {
     if ($collage->isLocked()) {
-        error('This collage is locked');
+        Error400::error('This collage is locked');
     }
     if ($collage->isPersonal() && !$collage->isOwner($Viewer)) {
-        error('You cannot edit someone else\'s personal collage.');
+        Error400::error('You cannot edit someone else\'s personal collage.');
     }
     if ($collage->maxGroups() > 0 && $collage->numEntries() >= $collage->maxGroups()) {
-        error('This collage already holds its maximum allowed number of entries.');
+        Error400::error('This collage already holds its maximum allowed number of entries.');
     }
 }
 
@@ -70,7 +70,7 @@ foreach ($URL as $u) {
     preg_match(TGROUP_REGEXP, $u, $match);
     $tgroup = $tgroupMan->findById((int)($match['id'] ?? 0));
     if (is_null($tgroup)) {
-        error("The torrent " . htmlspecialchars($u) . " does not exist.");
+        Error400::error("The torrent " . htmlspecialchars($u) . " does not exist.");
     }
     $list[] = $tgroup;
 }
@@ -80,14 +80,16 @@ if (!$Viewer->permitted('site_collages_delete')) {
     if ($maxGroupsPerUser > 0) {
         if ($collage->contributionTotal($Viewer) + count($list) > $maxGroupsPerUser) {
             $entry = $maxGroupsPerUser === 1 ? 'entry' : 'entries';
-            error("You may add no more than $maxGroupsPerUser $entry to this collage.");
+            Error400::error(
+                "You may add no more than $maxGroupsPerUser $entry to this collage."
+            );
         }
     }
 
     $maxGroups = $collage->maxGroups();
     if ($maxGroups > 0 && ($collage->numEntries() + count($list) > $maxGroups)) {
         $entry = $maxGroupsPerUser === 1 ? 'entry' : 'entries';
-        error("This collage can hold only $maxGroups $entry.");
+        Error400::error("This collage can hold only $maxGroups $entry.");
     }
 }
 

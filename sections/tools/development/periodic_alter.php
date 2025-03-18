@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_periodic_task_manage')) {
-    error(403);
+    Error403::error();
 }
 
 authorize();
@@ -16,7 +16,7 @@ $scheduler = new TaskScheduler();
 
 if ($p['submit'] == 'Delete') {
     if (!is_number($p['id']) || $p['id'] == '') {
-        error('Unknown or missing task id for delete');
+        Error400::error('Unknown or missing task id for delete');
     }
 
     $scheduler->deleteTask($p['id']);
@@ -44,12 +44,12 @@ if ($p['submit'] == 'Delete') {
             isset($p['enabled']), isset($p['sane']), isset($p['debug']));
     } elseif ($p['submit'] == 'Edit') {
         if (!is_number($p['id']) || $p['id'] == '') {
-            error('Unknown or missing task id for edit');
+            Error400::error('Unknown or missing task id for edit');
         }
 
         $task = $scheduler->getTask($p['id']);
         if ($task == null) {
-            error('Task not found');
+            Error404::error('Task not found');
         }
 
         $scheduler->updateTask(intval($p['id']), $p['name'], $p['classname'], $p['description'],

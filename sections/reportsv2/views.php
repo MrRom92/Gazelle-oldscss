@@ -13,7 +13,7 @@ namespace Gazelle;
  * All the different views are self explanatory by their names.
  */
 if (!$Viewer->permitted('admin_reports')) {
-    error(403);
+    Error403::error();
 }
 
 $reportMan     = new Manager\Torrent\Report(new Manager\Torrent());

@@ -16,7 +16,7 @@ header('Access-Control-Allow-Origin: *');
 $tgMan  = (new Manager\TGroup())->setViewer($Viewer);
 $tgroup = $tgMan->findById((int)($_GET['id'] ?? 0));
 if (is_null($tgroup)) {
-    error(404);
+    Error404::error();
 }
 $tgroupId = $tgroup->id();
 $RevisionID = (int)($_GET['revisionid'] ?? 0);

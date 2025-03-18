@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_manage_ipbans')) {
-    error(403);
+    Error403::error();
 }
 
 $IPv4Man = new Manager\IPv4();
@@ -17,7 +17,7 @@ if (isset($_POST['submit'])) {
     $id = (int)($_POST['id'] ?? 0);
     if ($_POST['submit'] == 'Delete') { //Delete
         if (!$id) {
-            error('Unknown id for ip ban removal');
+            Error400::error('Unknown id for ip ban removal');
         }
         $IPv4Man->removeBan($id);
     } else { //Edit & Create, Shared Validation
@@ -28,7 +28,7 @@ if (isset($_POST['submit'])) {
             ['notes', true,'string','You must include the reason for the ban.'],
         ]);
         if (!$validator->validate($_POST)) {
-            error($validator->errorMessage());
+            Error400::error($validator->errorMessage());
         }
         if ($id) {
             $IPv4Man->modifyBan($Viewer, $id, $_POST['start'], $_POST['end'], trim($_POST['notes']));

@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if ($Viewer->uploadedSize() < 250 * 1024 * 1024 || !$Viewer->permitted('site_submit_requests')) {
-    error('You have not enough upload to make a request.');
+    Error400::error('You have not enough upload to make a request.');
 }
 
 // We may be able to prepare some things based on whence we came

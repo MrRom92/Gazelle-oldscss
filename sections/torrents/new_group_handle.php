@@ -14,19 +14,19 @@ namespace Gazelle;
 authorize();
 
 if (!$Viewer->permitted('torrents_edit')) {
-    error(403);
+    Error403::error();
 }
 
 $artistName = trim($_POST['artist']);
 $title      = trim($_POST['title']);
 $year       = (int)$_POST['year'];
 if (!$year || empty($title) || empty($artistName)) {
-    error('Missing parameters to set up new group');
+    Error400::error('Missing parameters to set up new group');
 }
 
 $torrent = (new Manager\Torrent())->findById((int)($_POST['torrentid'] ?? 0));
 if (is_null($torrent)) {
-    error('Torrent does not exist!');
+    Error400::error('Torrent does not exist!');
 }
 
 // double check

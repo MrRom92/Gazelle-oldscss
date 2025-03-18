@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_manage_forums')) {
-    error(403);
+    Error403::error();
 }
 
 authorize();
@@ -16,10 +16,10 @@ $manager = new Manager\ForumCategory();
 if ($_POST['submit'] == 'Delete') {
     $forumCategory = $manager->findById((int)($_POST['id'] ?? 0));
     if (is_null($forumCategory)) {
-        error(404);
+        Error404::error();
     }
     if (!$forumCategory->remove()) {
-        error('You must move all forums out of a category before deleting it.');
+        Error400::error('You must move all forums out of a category before deleting it.');
     }
 } else {
     // Edit & Create
@@ -29,7 +29,7 @@ if ($_POST['submit'] == 'Delete') {
         ['sort', true, 'number', 'Sequence must be set'],
     ]);
     if (!$validator->validate($_POST)) {
-        error($validator->errorMessage());
+        Error400::error($validator->errorMessage());
     }
 
     if ($_POST['submit'] == 'Create') {
@@ -37,7 +37,7 @@ if ($_POST['submit'] == 'Delete') {
     } else {
         $forumCategory = $manager->findById((int)($_POST['id'] ?? 0));
         if (is_null($forumCategory)) {
-            error(404);
+            Error404::error();
         }
         $forumCategory
             ->setField('Sort', (int)$_POST['sort'])

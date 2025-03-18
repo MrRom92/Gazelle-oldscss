@@ -22,7 +22,7 @@ if ($Viewer->permitted('users_mod') && isset($_POST['perform'])) {
             }
             break;
         default:
-            error(403);
+            Error403::error();
     }
 }
 

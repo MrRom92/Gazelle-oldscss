@@ -9,10 +9,10 @@ authorize();
 
 $request = (new Manager\Request())->findById((int)$_POST['id']);
 if (is_null($request)) {
-    error(404);
+    Error404::error();
 }
 if ($Viewer->id() != $request->userId() && !$Viewer->permitted('site_moderate_requests')) {
-    error(403);
+    Error403::error();
 }
 
 $reason = trim($_POST['reason']);

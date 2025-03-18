@@ -20,11 +20,11 @@ if (!isset($_GET['userid'])) {
     $user = $Viewer;
 } else {
     if (!$Viewer->permitted('users_override_paranoia')) {
-        error(403);
+        Error403::error();
     }
     $user = (new Manager\User())->findById((int)$_GET['userid']);
     if (is_null($user)) {
-        error(404);
+        Error404::error();
     }
 }
 

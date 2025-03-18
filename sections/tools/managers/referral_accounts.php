@@ -25,7 +25,7 @@ function type_list(array $Types, int $Selected = 0): string {
 /** @phpstan-var \Gazelle\User $Viewer */
 
 if (!$Viewer->permitted('admin_manage_referrals')) {
-    error(403);
+    Error403::error();
 }
 
 $ReferralManager = new Manager\Referral();

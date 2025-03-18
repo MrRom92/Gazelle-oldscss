@@ -231,46 +231,6 @@ parameters:
 			path: ../sections/better/better.php
 
 		-
-			message: "#^Function Gazelle\\\\notify invoked with 2 parameters, 3 required\\.$#"
-			count: 1
-			path: ../sections/error/404.php
-
-		-
-			message: "#^Function Gazelle\\\\notify invoked with 2 parameters, 3 required\\.$#"
-			count: 1
-			path: ../sections/error/413.php
-
-		-
-			message: "#^Function Gazelle\\\\notify invoked with 2 parameters, 3 required\\.$#"
-			count: 1
-			path: ../sections/error/504.php
-
-		-
-			message: "#^Function Gazelle\\\\notify\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: ../sections/error/index.php
-
-		-
-			message: "#^Function Gazelle\\\\notify\\(\\) has parameter \\$Channel with no type specified\\.$#"
-			count: 1
-			path: ../sections/error/index.php
-
-		-
-			message: "#^Function Gazelle\\\\notify\\(\\) has parameter \\$Message with no type specified\\.$#"
-			count: 1
-			path: ../sections/error/index.php
-
-		-
-			message: "#^Function Gazelle\\\\notify\\(\\) has parameter \\$Viewer with no type specified\\.$#"
-			count: 1
-			path: ../sections/error/index.php
-
-		-
-			message: "#^Variable \\$Error might not be defined\\.$#"
-			count: 1
-			path: ../sections/error/index.php
-
-		-
 			message: "#^Variable \\$info might not be defined\\.$#"
 			count: 1
 			path: ../sections/recovery/save.php

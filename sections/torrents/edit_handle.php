@@ -16,7 +16,7 @@ authorize();
 $torMan = new Manager\Torrent();
 $torrent = $torMan->findById((int)($_POST['torrentid'] ?? 0));
 if (is_null($torrent)) {
-    error(404);
+    Error404::error();
 }
 $Remastered   = $torrent->isRemastered();
 $RemasterYear = $torrent->remasterYear();
@@ -24,7 +24,7 @@ $TorrentID    = $torrent->id();
 $UserID       = $torrent->uploaderId();
 
 if ($Viewer->id() != $UserID && !$Viewer->permitted('torrents_edit')) {
-    error(403);
+    Error403::error();
 }
 
 //******************************************************************************//
@@ -69,11 +69,11 @@ foreach (TorrentFlag::cases() as $flag) {
 
 if (!$Viewer->permitted('edit_unknowns')) {
     if ($Remastered && !$RemasterYear) {
-        error("You must supply a remaster year for a remastered release");
+        Error400::error("You must supply a remaster year for a remastered release");
     }
     if ($Properties['UnknownRelease'] && !($Remastered && !$RemasterYear)) { /** @phpstan-ignore-line *//* wtf is this logic */
         if ($Viewer->id() != $UserID) {
-            error("You cannot set a release to be Unknown");
+            Error400::error("You cannot set a release to be Unknown");
         }
     }
     if ($Viewer->id() !== $UserID && $Properties['Remastered'] && !$Properties['RemasterYear']) {
@@ -86,10 +86,12 @@ $Validate->setField('type', true, 'number', 'Not a valid category.', ['range' =>
 switch (CATEGORY[(int)($_POST['type'] ?? 0) - 1]) {
     case 'Music':
         if ($Properties['Remastered'] && !$Properties['UnknownRelease'] && $Properties['RemasterYear'] < 1982 && $Properties['Media'] == 'CD') {
-            error('You have selected a year for an album that predates the medium you say it was created on.');
+            Error400::error(
+                'You have selected a year for an album that predates the medium you say it was created on.'
+            );
         }
         if ($Properties['RemasterTitle'] == 'Original Release') {
-            error('"Original Release" is not a valid remaster title.');
+            Error400::error('"Original Release" is not a valid remaster title.');
         }
 
         $Validate->setFields([
@@ -156,7 +158,7 @@ if (!$Err && isset($Properties['Image'])) { /** @phpstan-ignore-line */
 }
 
 if ($Err) {
-    error($Err);
+    Error400::error($Err);
 }
 
 $propertyMap = [
@@ -176,7 +178,7 @@ $change = [];
 foreach ($propertyMap as $field => $method) {
     if (!method_exists($torrent, $method)) {
         $Debug->saveCase("bad method $method in torrent edit id={$torrent->id()}");
-        error('Cannot proceed with torrent edit');
+        Error400::error('Cannot proceed with torrent edit');
     }
     $value = $torrent->$method();
     if (isset($Properties[$field])) {

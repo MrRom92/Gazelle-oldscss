@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!array_key_exists('type', $_GET) && !array_key_exists('id', $_GET)) {
-    error(404);
+    Error404::error();
 }
 
 switch ($_GET['type']) {
@@ -16,9 +16,9 @@ switch ($_GET['type']) {
             $file = new \Gazelle\File\RipLog();
             echo $file->get([$m[1], $m[2]]);
         } else {
-            error(404);
+            Error404::error();
         }
         break;
     default:
-        error(404);
+        Error404::error();
 }

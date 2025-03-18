@@ -12,12 +12,14 @@ namespace Gazelle;
 authorize();
 
 if (!preg_match('/^token-[1-4]$/', $Label, $match)) {
-    error(403);
+    Error403::error();
 }
 
 $viewerBonus = new \Gazelle\User\Bonus($Viewer);
 if (!$viewerBonus->purchaseToken($Label)) {
-    error("You aren't able to buy those tokens. Do you have enough bonus points?");
+    Error400::error(
+        "You aren't able to buy those tokens. Do you have enough bonus points?"
+    );
 }
 
 header('Location: bonus.php?complete=' . urlencode($Label));

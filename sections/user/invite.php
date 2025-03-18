@@ -12,13 +12,13 @@ if (!isset($_GET['id'])) {
 } else {
     $user = $userMan->findById((int)$_GET['id']);
     if (is_null($user)) {
-        error(404);
+        Error404::error();
     }
 }
 $userId = $user->id();
 $ownProfile = $user->id() == $Viewer->id();
 if (!$Viewer->permitted('users_view_invites') && !$ownProfile) {
-    error(403);
+    Error403::error();
 }
 
 $inviteSourceMan = $Viewer->permitted('users_view_invites') || $Viewer->isRecruiter()

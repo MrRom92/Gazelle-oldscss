@@ -6,23 +6,23 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_manage_blog')) {
-    error(403);
+    Error403::error();
 }
 authorize();
 
 $body = trim($_POST['body']);
 if (empty($body)) {
-    error('The body of the blog article must not be empty');
+    Error400::error('The body of the blog article must not be empty');
 }
 
 $title = trim($_POST['title']);
 if (empty($title)) {
-    error('The title of the blog article must not be empty');
+    Error400::error('The title of the blog article must not be empty');
 }
 
 $blog = (new Manager\Blog())->findById((int)($_POST['blogid'] ?? 0));
 if (is_null($blog)) {
-    error(404);
+    Error404::error();
 }
 
 $manager = new Manager\ForumThread();

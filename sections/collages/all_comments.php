@@ -8,7 +8,7 @@ namespace Gazelle;
 
 $collage = (new Manager\Collage())->findById((int)($_GET['collageid'] ?? 0));
 if (is_null($collage)) {
-    error(404);
+    Error404::error();
 }
 
 $commentPage = new Comment\Collage($collage->id(), (int)($_GET['page'] ?? 0), (int)($_GET['postid'] ?? 0));

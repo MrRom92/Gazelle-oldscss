@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('users_auto_reports')) {
-    error(403);
+    Error403::error();
 }
 
 $userMan = new Manager\User();
@@ -22,13 +22,13 @@ if (isset($_GET['id'])) {
 } elseif ($isOld) {
     $search->setState(Enum\ReportAutoState::closed);
 } else {
-    error(404);
+    Error404::error();
 }
 
 if (isset($_GET['owner'])) {
     $owner = $userMan->findById((int)$_GET['owner']);
     if (is_null($owner)) {
-        error("no such owner");
+        Error404::error("no such owner");
     }
     $search->setOwner($owner);
 }
@@ -36,7 +36,7 @@ if (isset($_GET['owner'])) {
 if (isset($_GET['userid'])) {
     $user = $userMan->findById((int)$_GET['userid']);
     if (is_null($user)) {
-        error("no such user");
+        Error404::error("no such user");
     }
     $search->setUser($user);
 }
@@ -45,7 +45,7 @@ $type = null;
 if (isset($_GET['type'])) {
     $type = $ratMan->findById((int)$_GET['type']);
     if (is_null($type)) {
-        error("no such report type");
+        Error404::error("no such report type");
     }
     $search->setType($type);
 }

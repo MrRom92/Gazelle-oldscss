@@ -6,13 +6,13 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted("admin_global_notification")) {
-    error(403);
+    Error403::error();
 }
 
 authorize();
 
 if (!is_number($_POST['class_id']) || empty($_POST['subject']) || empty($_POST['body'])) {
-    error("Error in message form");
+    Error400::error("Error in message form");
 }
 
 set_time_limit(0);

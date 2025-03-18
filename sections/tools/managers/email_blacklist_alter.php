@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('users_view_email')) {
-    error(403);
+    Error403::error();
 }
 
 authorize();
@@ -14,14 +14,14 @@ $emailBlacklist = new Manager\EmailBlacklist();
 
 if ($_POST['submit'] === 'Delete') { // Delete
     if (!$emailBlacklist->remove((int)$_POST['id'])) {
-        error('Unknown id for email blacklist removal');
+        Error400::error('Unknown id for email blacklist removal');
     }
 } else { // Edit & Create, Shared Validation
     $validator = new Util\Validator();
     $validator->setField('email', true, 'string', 'The email must be set', ['minlength' => 6]);
     $validator->setField('comment', false, 'string', 'The description has a max length of 255 characters', ['maxlength' => 255]);
     if (!$validator->validate($_POST)) {
-        error($validator->errorMessage());
+        Error400::error($validator->errorMessage());
     }
 
     $comment = trim($_POST['comment'] ?? '');
@@ -36,7 +36,7 @@ if ($_POST['submit'] === 'Delete') { // Delete
                 user    : $Viewer,
             )
         ) {
-            error('Unable to edit email blacklist entry');
+            Error400::error('Unable to edit email blacklist entry');
         }
     } else {
         if (
@@ -46,7 +46,7 @@ if ($_POST['submit'] === 'Delete') { // Delete
                 user    : $Viewer,
             )
         ) {
-            error('Unable to create email blacklist entry');
+            Error400::error('Unable to create email blacklist entry');
         }
     }
 }

@@ -11,11 +11,11 @@ if (!isset($_GET['userid'])) {
     $user = $Viewer;
 } else {
     if (!$Viewer->permitted('users_view_invites')) {
-        error(403);
+        Error403::error();
     }
     $user = $userMan->findById((int)$_GET['userid']);
     if (is_null($user)) {
-        error(404);
+        Error404::error();
     }
 }
 

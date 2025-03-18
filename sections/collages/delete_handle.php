@@ -9,15 +9,15 @@ authorize();
 
 $reason = trim($_POST['reason']);
 if (!$reason) {
-    error('You must enter a reason!');
+    Error400::error('You must enter a reason!');
 }
 
 $collage = (new Manager\Collage())->findById((int)$_POST['collageid']);
 if (is_null($collage)) {
-    error(404);
+    Error404::error();
 }
 if (!$Viewer->permitted('site_collages_delete') && !$collage->isOwner($Viewer)) {
-    error(403);
+    Error403::error();
 }
 
 $collageId = $collage->id();

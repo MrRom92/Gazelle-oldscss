@@ -12,10 +12,10 @@ if (!isset($_GET['userid'])) {
 } else {
     $user = $userMan->findById((int)$_GET['userid']);
     if (is_null($user)) {
-        error(404);
+        Error404::error();
     }
     if ($user->id() != $Viewer->id() && !$Viewer->permitted('users_override_paranoia')) {
-        error(403);
+        Error403::error();
     }
 }
 

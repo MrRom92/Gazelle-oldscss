@@ -8,7 +8,7 @@ namespace Gazelle;
 
 $tgroup = (new Manager\TGroup())->findById((int)($_POST['id'] ?? 0));
 if (!$tgroup) {
-    error(404);
+    Error404::error();
 }
 authorize();
 

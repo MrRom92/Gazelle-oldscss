@@ -8,10 +8,10 @@ namespace Gazelle;
 $postId = (int)($_GET['post'] ?? 0);
 $pm = (new Manager\StaffPM())->findByPostId($postId);
 if (is_null($pm)) {
-    error(404);
+    Error404::error();
 }
 if (!$pm->visible($Viewer)) {
-    error(403);
+    Error403::error();
 }
 
 header('Content-Type: application/json; charset=utf-8');

@@ -9,16 +9,16 @@ authorize();
 
 $article = (new Manager\Wiki())->findById((int)$_POST['article']);
 if (is_null($article)) {
-    error(404);
+    Error404::error();
 }
 if (!$article->editable($Viewer)) {
-    error(403);
+    Error403::error();
 }
 
 try {
     $article->addAlias(trim($_POST['alias']), $Viewer);
 } catch (DB\MysqlDuplicateKeyException) {
-    error('The alias you attempted to add is already assigned to an article.');
+    Error400::error('The alias you attempted to add is already assigned to an article.');
 }
 
 header('Location: ' . $article->location());

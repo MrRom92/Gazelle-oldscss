@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_site_debug')) {
-    error(403);
+    Error403::error();
 }
 
 $delivered = false;
@@ -37,7 +37,7 @@ if (isset($_POST['query'])) {
             }
             break;
         default:
-            error("Bad database source, try again");
+            Error400::error("Bad database source, try again");
     }
     if (!$error && !$result && $_POST['query']) {
         $error = "Query returned 0 rows";

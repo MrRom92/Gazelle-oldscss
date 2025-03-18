@@ -8,12 +8,12 @@ namespace Gazelle;
 
 $id = (int)$_GET['id'];
 if (!$id) {
-    error(404);
+    Error404::error();
 }
 
 require_once 'array.php';
 if (!isset($Types[$_GET['type'] ?? ''])) {
-    error(403);
+    Error403::error();
 }
 $type = $_GET['type'];
 $reportType = $Types[$type];
@@ -22,7 +22,7 @@ switch ($type) {
     case 'user':
         $user = (new Manager\User())->findById($id);
         if (is_null($user)) {
-            error(404);
+            Error404::error();
         }
         $report = new Report\User($id, $user);
         break;
@@ -30,7 +30,7 @@ switch ($type) {
     case 'request':
         $request = (new Manager\Request())->findById($id);
         if (is_null($request)) {
-            error(404);
+            Error404::error();
         }
         $report = new Report\Request($id, $request);
         break;
@@ -38,10 +38,10 @@ switch ($type) {
     case 'request_update':
         $request = (new Manager\Request())->findById($id);
         if (is_null($request)) {
-            error(404);
+            Error404::error();
         }
         if ($request->isFilled() || $request->categoryName() != 'Music' || $request->year() != 0) {
-            error(403);
+            Error403::error();
         }
         $report = (new Report\Request($id, $request))->isUpdate(true);
         break;
@@ -49,7 +49,7 @@ switch ($type) {
     case 'collage':
         $collage = (new Manager\Collage())->findById($id);
         if (is_null($collage)) {
-            error(404);
+            Error404::error();
         }
         $report = new Report\Collage($id, $collage);
         break;
@@ -57,10 +57,10 @@ switch ($type) {
     case 'thread':
         $thread = (new Manager\ForumThread())->findById($id);
         if (is_null($thread)) {
-            error(404);
+            Error404::error();
         }
         if (!$Viewer->readAccess($thread->forum())) {
-            error(403);
+            Error403::error();
         }
         $report = new Report\ForumThread($id, $thread);
         break;
@@ -68,10 +68,10 @@ switch ($type) {
     case 'post':
         $post = (new Manager\ForumPost())->findById($id);
         if (is_null($post)) {
-            error(404);
+            Error404::error();
         }
         if (!$Viewer->readAccess($post->thread()->forum())) {
-            error(403);
+            Error403::error();
         }
         $report = new Report\ForumPost($id, $post);
         break;
@@ -79,12 +79,12 @@ switch ($type) {
     case 'comment':
         $comment = (new Manager\Comment())->findById($id);
         if (is_null($comment)) {
-            error(404);
+            Error404::error();
         }
         $report = (new Report\Comment($id, $comment))->setContext($reportType['title']);
         break;
     default:
-        error('Unknown report target');
+        Error400::error('Unknown report target');
 }
 
 echo $Twig->render('report/create.twig', [

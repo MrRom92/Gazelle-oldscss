@@ -17,7 +17,7 @@ $tokenName = '';
 $_GET['do'] ??= '';
 
 if (!empty($_GET['do']) && $userId !== $Viewer->id() && !$Viewer->permitted('users_mod')) {
-    error(403);
+    Error403::error();
 }
 
 if ($_GET['do'] === 'revoke') {

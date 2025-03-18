@@ -19,7 +19,7 @@ if ($_GET['userid'] == 'me') {
 }
 $user = (new Manager\User())->findById((int)($_GET['userid'] ?? 0));
 if (is_null($user)) {
-    error(404);
+    Error404::error();
 }
 $userId = $user->id();
 
@@ -172,7 +172,7 @@ if (!empty($_GET['tags'])) {
 switch ($_GET['type']) {
     case 'snatched':
         if (!$user->propertyVisible($Viewer, 'snatched')) {
-            error(403);
+            Error403::error();
         }
         $join = "INNER JOIN xbt_snatched AS xs ON (xs.fid =  t.ID)";
         $time = 'xs.tstamp';
@@ -180,7 +180,7 @@ switch ($_GET['type']) {
         break;
     case 'snatched-unseeded':
         if (!$user->propertyVisible($Viewer, 'snatched')) {
-            error(403);
+            Error403::error();
         }
         $join = "INNER JOIN xbt_snatched AS xs ON (xs.fid = t.ID)
             LEFT JOIN xbt_files_users AS xfu USING (uid, fid)";
@@ -190,7 +190,7 @@ switch ($_GET['type']) {
         break;
     case 'seeding':
         if (!$user->propertyVisible($Viewer, 'seeding')) {
-            error(403);
+            Error403::error();
         }
         $join = "INNER JOIN xbt_files_users AS xfu ON (xfu.fid = t.ID)";
         $cond[] = 'xfu.active = 1 AND xfu.Remaining = 0';
@@ -199,7 +199,7 @@ switch ($_GET['type']) {
         break;
     case 'leeching':
         if (!$user->propertyVisible($Viewer, 'leeching')) {
-            error(403);
+            Error403::error();
         }
         $join = "INNER JOIN xbt_files_users AS xfu ON (xfu.fid = t.ID)";
         $cond[] = 'xfu.active = 1 AND xfu.Remaining > 0';
@@ -208,7 +208,7 @@ switch ($_GET['type']) {
         break;
     case 'uploaded':
         if ((empty($_GET['filter']) || $_GET['filter'] !== 'perfectflac') && !$user->propertyVisible($Viewer, 'uploads')) {
-            error(403);
+            Error403::error();
         }
         $join = "";
         $time = 'unix_timestamp(t.created)';
@@ -216,7 +216,7 @@ switch ($_GET['type']) {
         break;
     case 'uploaded-unseeded':
         if ((empty($_GET['filter']) || $_GET['filter'] !== 'perfectflac') && !$user->propertyVisible($Viewer, 'uploads')) {
-            error(403);
+            Error403::error();
         }
         $join = "LEFT JOIN xbt_files_users AS xfu ON (xfu.fid = t.ID AND xfu.uid = t.UserID)";
         $cond[] = 'xfu.fid IS NULL';
@@ -225,20 +225,20 @@ switch ($_GET['type']) {
         break;
     case 'downloaded':
         if (!($userId === $Viewer->id() || $Viewer->permitted('site_view_torrent_snatchlist'))) {
-            error(403);
+            Error403::error();
         }
         $join = "INNER JOIN users_downloads AS ud ON (ud.TorrentID = t.ID)";
         $time = 'unix_timestamp(ud.Time)';
         $userField = 'ud.UserID';
         break;
     default:
-        error(404);
+        Error404::error();
 }
 
 if (!empty($_GET['filter'])) {
     if ($_GET['filter'] === 'perfectflac') {
         if (!$user->propertyVisible($Viewer, 'perfectflacs')) {
-            error(403);
+            Error403::error();
         }
         $cond[] = "t.Format = ?";
         $args[] = 'FLAC';
@@ -250,7 +250,7 @@ if (!empty($_GET['filter'])) {
         }
     } elseif ($_GET['filter'] === 'uniquegroup') {
         if (!$user->propertyVisible($Viewer, 'uniquegroups')) {
-            error(403);
+            Error403::error();
         }
         $groupBy = 'tg.ID';
     }

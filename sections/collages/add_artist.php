@@ -8,7 +8,7 @@ namespace Gazelle;
 authorize();
 
 if (!in_array($_POST['action'], ['add_artist', 'add_artist_batch'])) {
-    error(403);
+    Error403::error();
 }
 
 $collageMan = new Manager\Collage();
@@ -29,18 +29,18 @@ if (is_null($collage) && isset($_POST['collage_ref'])) {
     $collage = $collageMan->findById((int)$_POST['collageid']);
 }
 if (is_null($collage)) {
-    error(404);
+    Error404::error();
 }
 
 if (!$Viewer->permitted('site_collages_delete')) {
     if ($collage->isLocked()) {
-        error('This collage is locked');
+        Error400::error('This collage is locked');
     }
     if ($collage->isPersonal() && !$collage->isOwner($Viewer)) {
-        error("You cannot edit someone else's personal collage.");
+        Error400::error("You cannot edit someone else's personal collage.");
     }
     if ($collage->maxGroups() > 0 && $collage->numEntries() >= $collage->maxGroups()) {
-        error('This collage already holds its maximum allowed number of entries.');
+        Error400::error('This collage already holds its maximum allowed number of entries.');
     }
 }
 
@@ -74,7 +74,7 @@ foreach ($URL as $u) {
         ? $artistMan->findById((int)$match['id'])
         : null;
     if (is_null($artist)) {
-        error("The artist " . htmlspecialchars($u) . " does not exist.");
+        Error400::error("The artist " . htmlspecialchars($u) . " does not exist.");
     }
     $list[] = $artist;
 }
@@ -84,13 +84,15 @@ if (!$Viewer->permitted('site_collages_delete')) {
     $maxGroupsPerUser = $collage->maxGroupsPerUser();
     if ($maxGroupsPerUser > 0) {
         if ($collage->contributionTotal($Viewer) + count($list) > $maxGroupsPerUser) {
-            error("You may add no more than $maxGroupsPerUser entries to this collage.");
+            Error400::error(
+                "You may add no more than $maxGroupsPerUser entries to this collage."
+            );
         }
     }
 
     $maxGroups = $collage->maxGroups();
     if ($maxGroups > 0 && ($collage->numEntries() + count($list) > $maxGroups)) {
-        error("This collage can hold only $maxGroups entries.");
+        Error400::error("This collage can hold only $maxGroups entries.");
     }
 }
 

@@ -8,23 +8,23 @@ namespace Gazelle;
 
 $request = (new Manager\Request())->findById((int)$_GET['id']);
 if (is_null($request)) {
-    error(404);
+    Error404::error();
 }
 
 $action = $_GET['action'] ?? '';
 switch ($action) {
     case 'delete':
         if ($Viewer->id() != $request->userId() && !$Viewer->permitted('site_moderate_requests')) {
-            error(403);
+            Error403::error();
         }
         break;
     case 'unfill':
         if (!in_array($Viewer->id(), [$request->userId(), $request->fillerId()]) && !$Viewer->permitted('site_moderate_requests')) {
-            error(403);
+            Error403::error();
         }
         break;
     default:
-        error('Unknown request action specified');
+        Error400::error('Unknown request action specified');
 }
 
 echo $Twig->render('request/interim.twig', [

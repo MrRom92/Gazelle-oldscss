@@ -10,7 +10,7 @@ use Gazelle\Enum\PgInfoOrderBy;
 use Gazelle\Enum\Direction;
 
 if (!$Viewer->permitted('site_database_specifics')) {
-    error(403);
+    Error403::error();
 }
 
 $info = new DB\PgInfo(

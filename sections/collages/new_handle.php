@@ -8,13 +8,13 @@ namespace Gazelle;
 use Gazelle\Enum\CollageType;
 
 if (!$Viewer->permitted('site_collages_create') && !$Viewer->canCreatePersonalCollage()) {
-    error(403);
+    Error403::error();
 }
 
 authorize();
 
 if (!isset($_POST['category'])) {
-    error(403);
+    Error403::error();
 }
 $categoryId = (int)$_POST['category'];
 $collageMan = new Manager\Collage();

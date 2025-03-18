@@ -10,7 +10,7 @@ use Gazelle\Manager\Notification;
 use Gazelle\Enum\NotificationType;
 
 if (!$Viewer->permitted('admin_manage_news')) {
-    error(403);
+    Error403::error();
 }
 
 $newsMan = new Manager\News();
@@ -39,7 +39,7 @@ switch ($_REQUEST['action']) {
         authorize();
         $id = (int)$_REQUEST['id'];
         if (!$id) {
-            error('Unknown id for handle news item edit');
+            Error400::error('Unknown id for handle news item edit');
         }
         $newsMan->modify($id, $_POST['title'], $_POST['body']);
         header('Location: index.php');
@@ -48,7 +48,7 @@ switch ($_REQUEST['action']) {
     case 'editnews':
         $id = (int)$_REQUEST['id'];
         if (!$id) {
-            error('Unknown id for news item edit');
+            Error400::error('Unknown id for news item edit');
         }
         [$title, $body] = $newsMan->fetch($id);
         break;
@@ -56,7 +56,7 @@ switch ($_REQUEST['action']) {
     case 'deletenews':
         $id = (int)$_REQUEST['id'];
         if (!$id) {
-            error('Unknown id for news item delete');
+            Error400::error('Unknown id for news item delete');
         }
         $newsMan->remove($id);
         header('Location: index.php');
@@ -67,7 +67,7 @@ switch ($_REQUEST['action']) {
         break;
 
     default:
-        error('Unknown news action');
+        Error400::error('Unknown news action');
 }
 echo $Twig->render('admin/news.twig', [
     'body'   => new Util\Textarea('body', $body),

@@ -1,10 +1,5 @@
 <?php
-// phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 // phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
-
-if (!extension_loaded('mysqli')) {
-    error('Mysqli Extension not loaded.');
-}
 
 class Sphinxql extends mysqli {
     private static $Connections = [];
@@ -101,7 +96,7 @@ class Sphinxql extends mysqli {
                 echo '<pre>' . display_str($error) . '</pre>';
                 die();
             } else {
-                error('-1');
+                Gazelle\Error500::error($message);
             }
         }
     }

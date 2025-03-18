@@ -13,7 +13,7 @@ if (!isset($_REQUEST['collageid'])) {
 } else {
     $collage = (new Manager\Collage())->findById((int)$_REQUEST['collageid']);
     if (is_null($collage)) {
-        error(404);
+        Error404::error();
     }
     $notifier->clearCollage($collage);
 }

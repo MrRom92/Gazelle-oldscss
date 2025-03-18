@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_recovery')) {
-    error(403);
+    Error403::error();
 }
 
 $recovery = new Manager\Recovery();
@@ -28,7 +28,7 @@ if (isset($_GET['task'])) {
                 $message = sprintf('<font color="orange">Request %d was unclaimed</font>', $id);
                 break;
             default:
-                error(403);
+                Error403::error();
         }
     }
 } else {

@@ -22,23 +22,25 @@ authorize();
 $torMan = new Manager\Torrent();
 $torrent = $torMan->findById((int)($_POST['torrentid'] ?? 0));
 if (is_null($torrent)) {
-    error(404);
+    Error404::error();
 }
 
 $reportMan = new Manager\Torrent\Report($torMan);
 if ($reportMan->existsRecent($torrent->id(), $Viewer->id())) {
-    error("Slow down, you're moving too fast!");
+    Error429::error("Slow down, you're moving too fast!");
 }
 
 $reportType = (new Manager\Torrent\ReportType())->findByType($_POST['type'] ?? '');
 if (is_null($reportType)) {
-    error("bad report type");
+    Error400::error("bad report type");
 }
 
 if ($reportType->needImage() === 'required') {
     $field = 'image';
     if (empty($_POST[$field])) {
-        error("You are missing a required field ($field) for a {$reportType->name()} report.");
+        Error400::error(
+            "You are missing a required field ($field) for a {$reportType->name()} report."
+        );
     }
 }
 
@@ -47,15 +49,19 @@ if ($reportType->needSitelink() !== 'none') {
     $sitelink = trim($_POST['sitelink'] ?? '');
     if ($sitelink === '') {
         if ($reportType->needSitelink() === 'required') {
-            error("You must supply a permalink [PL] in your report");
+            Error400::error("You must supply a permalink [PL] in your report");
         }
     } else {
         if (!preg_match_all(TORRENT_REGEXP, $sitelink, $match)) {
-            error("The permalink was incorrect. Please copy the torrent permalink URL, which is labelled as [PL] and is found next to the [DL] buttons.");
+            Error400::error(
+                "The permalink was incorrect. Please copy the torrent permalink URL, which is labelled as [PL] and is found next to the [DL] buttons."
+            );
         }
         $all = $match['id'];
         if (in_array($torrent->id(), $all)) {
-            error("The extra permalinks you gave included the link to the torrent you're reporting!");
+            Error400::error(
+                "The extra permalinks you gave included the link to the torrent you're reporting!"
+            );
         }
         $ExtraIDs = implode(' ', $all);
     }
@@ -65,10 +71,10 @@ $Links = '';
 if ($reportType->needLink() !== 'none') {
     $link = trim($_POST['link'] ?? '');
     if ($link === '' && $reportType->needLink() === 'required') {
-        error("You must supply one or more links in your report");
+        Error400::error("You must supply one or more links in your report");
     } elseif ($link != '') {
         if (!preg_match_all(URL_REGEXP, $link, $match)) {
-            error("The extra links you provided weren't links...");
+            Error400::error("The extra links you provided weren't links...");
         }
         $Links = implode(' ', $match[1]);
     }
@@ -79,11 +85,11 @@ if ($reportType->needImage() !== 'none') {
     $image = trim($_POST['image'] ?? '');
     if ($image === '') {
         if ($reportType->needImage() === 'required') {
-            error("You must supply one or more images in your report");
+            Error400::error("You must supply one or more images in your report");
         }
     } else {
         if (!preg_match_all(IMAGE_REGEXP, $image, $match)) {
-            error("The extra image links you provided weren't links to images...");
+            Error400::error("The extra image links you provided weren't links to images...");
         }
         $Images = implode(' ', $match[1]);
     }
@@ -98,14 +104,16 @@ if ($reportType->needTrack() !== 'none') {
             ? ''
             : implode(' ', array_filter(array_map('intval', $split), fn ($n) => $n > 0));
         if ($reportType->needTrack() === 'required' && $trackList === '') {
-            error('Tracks should be given in a space-separated list of numbers with no other characters, or "all".');
+            Error400::error(
+                'Tracks should be given in a space-separated list of numbers with no other characters, or "all".'
+            );
         }
     }
 }
 
 $reason = trim($_POST['extra']);
 if (empty($reason)) {
-    error("As useful as blank reports are, could you be a tiny bit more helpful? (Leave a comment)");
+    Error400::error("Please supply a reason to help resolve this report.");
 }
 
 $report = $reportMan->create(

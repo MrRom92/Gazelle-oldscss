@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_view_notifications')) {
-    error(403);
+    Error403::error();
 }
 
 $torrent = (new Manager\Torrent())->findById((int)($_POST['torrentid'] ?? 0));

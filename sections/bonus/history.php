@@ -10,11 +10,11 @@ if (!isset($_GET['userid'])) {
     $user = $Viewer;
 } else {
     if (!$Viewer->permitted('admin_bp_history')) {
-        error(403);
+        Error403::error();
     }
     $user = (new Manager\User())->findById((int)($_GET['userid'] ?? 0));
     if (is_null($user)) {
-        error(404);
+        Error404::error();
     }
 }
 

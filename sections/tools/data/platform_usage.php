@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_debug')) {
-    error(403);
+    Error403::error();
 }
 
 $stats = new Stats\Users();

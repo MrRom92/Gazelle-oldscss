@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->isStaffPMReader()) {
-    error(403);
+    Error403::error();
 }
 
 echo $Twig->render('staffpm/common-response.twig', [

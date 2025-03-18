@@ -7,11 +7,11 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('users_mod')) {
-    error(403);
+    Error403::error();
 }
 
 if (!FEATURE_EMAIL_REENABLE) {
-    error("Email reenabling is currently switched off");
+    Error403::error("Email reenabling is currently switched off");
 }
 
 $showChecked = $_GET['show_checked'] ?? false;

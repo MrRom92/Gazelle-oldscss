@@ -1,14 +1,13 @@
 <?php
+/** @phpstan-var \Gazelle\User $Viewer */
+/** @phpstan-var \Twig\Environment $Twig */
 
 declare(strict_types=1);
 
 namespace Gazelle;
 
-/** @phpstan-var \Gazelle\User $Viewer */
-/** @phpstan-var \Twig\Environment $Twig */
-
 if (!$Viewer->permitted('admin_manage_forums')) {
-    error(403);
+    Error403::error();
 }
 
 if (!isset($_REQUEST['userid'])) {
@@ -16,7 +15,7 @@ if (!isset($_REQUEST['userid'])) {
 } else {
     $user = (new Manager\User())->find((int)$_REQUEST['userid']);
     if (is_null($user)) {
-        error(404);
+        Error404::error();
     }
 }
 

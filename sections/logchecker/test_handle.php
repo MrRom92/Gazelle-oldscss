@@ -12,7 +12,7 @@ if (isset($_FILES['log']) && is_uploaded_file($_FILES['log']['tmp_name'])) {
     $fileTmp = tempnam(TMPDIR, 'log_');
     if ($fileTmp === false) {
         // This will only happen if the directory that TMPDIR points to disappears
-        error('Failed to persist the log file.');
+        Error404::error('Failed to persist the log file.');
     }
     file_put_contents($fileTmp, $_POST["pastelog"]);
     $file = [
@@ -21,7 +21,7 @@ if (isset($_FILES['log']) && is_uploaded_file($_FILES['log']['tmp_name'])) {
     ];
     $isPaste = true;
 } else {
-    error('No log file uploaded or file is empty.');
+    Error400::error('No log file uploaded or file is empty.');
 }
 $logfile = new \Gazelle\Logfile($file['tmp_name'], $file['name']);
 if (isset($fileTmp)) {

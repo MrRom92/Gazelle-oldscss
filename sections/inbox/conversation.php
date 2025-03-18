@@ -8,7 +8,7 @@ namespace Gazelle;
 
 $pm = (new Manager\PM($Viewer))->findById((int)($_GET['id'] ?? 0));
 if (is_null($pm)) {
-    error(404);
+    Error404::error();
 }
 
 $pm->markRead();

@@ -21,7 +21,7 @@ if (!$ThreadID) {
     $Title = $search->threadTitle($ThreadID);
     if (is_null($Title)) {
         // naughty naughty
-        error(403);
+        Error403::error();
     }
     $search->setSearchType('body');
     $Title = " › <a href=\"forums.php?action=viewthread&amp;threadid=$ThreadID\">$Title</a>";
@@ -36,14 +36,14 @@ if (!empty($userSearch)) {
 $threadCreatedBefore = $_GET['thread_created_before'] ?? '';
 if (!empty($threadCreatedBefore)) {
     if (!Time::isValidDate($threadCreatedBefore)) {
-        error("Incorrect topic created before date");
+        Error400::error("Incorrect topic created before date");
     }
     $search->setThreadCreatedBefore($threadCreatedBefore);
 }
 $threadCreatedAfter = $_GET['thread_created_after'] ?? '';
 if (!empty($threadCreatedAfter)) {
     if (!Time::isValidDate($threadCreatedAfter)) {
-        error("Incorrect topic created after date");
+        Error400::error("Incorrect topic created after date");
     }
     $search->setThreadCreatedAfter($threadCreatedAfter);
 }
@@ -52,14 +52,14 @@ if ($search->isBodySearch()) {
     $postCreatedBefore = $_GET['post_created_before'] ?? '';
     if (!empty($postCreatedBefore)) {
         if (!Time::isValidDate($postCreatedBefore)) {
-            error("Incorrect post created before date");
+            Error400::error("Incorrect post created before date");
         }
         $search->setPostCreatedBefore($postCreatedBefore);
     }
     $postCreatedAfter = $_GET['post_created_after'] ?? '';
     if (!empty($postCreatedAfter)) {
         if (!Time::isValidDate($postCreatedAfter)) {
-            error("Incorrect post created after date");
+            Error400::error("Incorrect post created after date");
         }
         $search->setPostCreatedAfter($postCreatedAfter);
     }

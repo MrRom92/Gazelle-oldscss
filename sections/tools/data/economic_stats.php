@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_view_flow')) {
-    error(403);
+    Error403::error();
 }
 
 echo $Twig->render('admin/economy.twig', [

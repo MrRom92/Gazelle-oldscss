@@ -7,7 +7,7 @@ namespace Gazelle;
 $collageMan = new Manager\Collage();
 $Collage = $collageMan->findById((int)($_GET['id'] ?? 0));
 if (is_null($Collage)) {
-    error(404);
+    Error404::error();
 }
 
 if ($Collage->isDeleted()) {

@@ -6,10 +6,10 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_upload')) {
-    error("Your userclass does not allow you to upload.");
+    Error403::error("Your userclass does not allow you to upload.");
 }
 if ($Viewer->disableUpload()) {
-    error('Your upload privileges have been revoked.');
+    Error403::error('Your upload privileges have been revoked.');
 }
 
 if (isset($_GET['action']) && $_GET['action'] == 'parse_html') {

@@ -12,7 +12,7 @@ if (!isset($_GET['userid'])) {
 } else {
     $user = $userMan->findById((int)$_GET['userid']);
     if (is_null($user)) {
-        error(404);
+        Error404::error();
     }
 }
 
@@ -34,24 +34,24 @@ if (empty($_GET['type'])) {
             break;
         case 'created':
             if (!$user->propertyVisible($Viewer, 'requestsvoted_list')) {
-                error(403);
+                Error403::error();
             }
             $search->setCreator($user);
             break;
         case 'voted':
             if (!$user->propertyVisible($Viewer, 'requestsvoted_list')) {
-                error(403);
+                Error403::error();
             }
             $search->setVoter($user);
             break;
         case 'filled':
             if (!$user->propertyVisible($Viewer, 'requestsfilled_list')) {
-                error(403);
+                Error403::error();
             }
             $search->setFiller($user);
             break;
         default:
-            error(404);
+            Error404::error();
     }
 }
 
@@ -89,7 +89,7 @@ if (isset($_GET['requestor'])) {
     if ($requestor) {
         $search->setRequestor($requestor);
     } else {
-        error(404);
+        Error404::error();
     }
 }
 

@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_create_users')) {
-    error(403);
+    Error403::error();
 }
 
 if (isset($_POST['Username'])) {
@@ -19,11 +19,11 @@ if (isset($_POST['Username'])) {
     $password = $_POST['Password'];
 
     if (empty($username)) {
-        error('Please supply a username');
+        Error400::error('Please supply a username');
     } elseif (empty($email)) {
-        error('Please supply an email address');
+        Error400::error('Please supply an email address');
     } elseif (empty($password)) {
-        error('Please supply a password');
+        Error400::error('Please supply a password');
     }
 
     $creator = new UserCreator();
@@ -34,7 +34,7 @@ if (isset($_POST['Username'])) {
             ->addNote('Created by ' . $Viewer->username() . ' via admin toolbox')
             ->create();
     } catch (Exception\UserCreatorException $e) {
-        error(match ($e->getMessage()) {
+        Error400::error(match ($e->getMessage()) {
             'username-invalid' => 'Specified username is forbidden',
             default            => 'Unable to create user',
         });

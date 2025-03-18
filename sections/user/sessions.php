@@ -11,11 +11,11 @@ if (!isset($_GET['id'])) {
 } else {
     $userId = (int)$_GET['id'];
     if ($userId !== $Viewer->id() && !$Viewer->permittedAny('users_logout', 'users_view_ips')) {
-        error(403);
+        Error403::error();
     }
     $user = (new Manager\User())->findById($userId);
     if (is_null($user)) {
-        error(404);
+        Error404::error();
     }
 }
 

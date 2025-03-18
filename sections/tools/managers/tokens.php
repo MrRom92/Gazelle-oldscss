@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('users_mod')) {
-    error(403);
+    Error403::error();
 }
 
 $userMan = new Manager\User();
@@ -17,13 +17,13 @@ $flCleared = false;
 if (isset($_POST['addtokens'])) {
     authorize();
     if ($amount < 1) {
-        error('Please enter a valid number of tokens.');
+        Error400::error('Please enter a valid number of tokens.');
     }
     $flAdded = $userMan->addMassTokens($amount, isset($_POST['allowleechdisabled']));
 } elseif (isset($_POST['cleartokens'])) {
     authorize();
     if ($amount < 0) {
-        error('Please enter a valid number of tokens.');
+        Error400::error('Please enter a valid number of tokens.');
     }
     $flCleared = $userMan->clearMassTokens($amount, isset($_POST['allowleechdisabled']), isset($_POST['onlydrop']));
 }

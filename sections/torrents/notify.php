@@ -11,13 +11,13 @@ namespace Gazelle;
 use Gazelle\Util\SortableTableHeader;
 
 if (!$Viewer->permitted('site_torrents_notify')) {
-    error(403);
+    Error403::error();
 }
 
 if ($Viewer->permitted('users_mod') && (int)($_GET['userid'] ?? 0)) {
     $user = (new Manager\User())->findById((int)$_GET['userid']);
     if (is_null($user)) {
-        error(404);
+        Error404::error();
     }
 } else {
     $user = $Viewer;

@@ -9,16 +9,16 @@ namespace Gazelle;
 $userMan = new Manager\User();
 if (!isset($_GET['userid'])) {
     if (!$Viewer->permitted('site_user_stats')) {
-        error(403);
+        Error403::error();
     }
     $user = $Viewer;
 } else {
     $user = $userMan->findById((int)$_GET['userid']);
     if (is_null($user)) {
-        error(404);
+        Error404::error();
     }
     if ($user->id() != $Viewer->id() && !$Viewer->permitted('users_mod')) {
-        error(403);
+        Error403::error();
     }
 }
 

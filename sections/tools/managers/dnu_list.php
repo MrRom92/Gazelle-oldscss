@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_dnu')) {
-    error(403);
+    Error403::error();
 }
 
 echo $Twig->render('admin/dnu.twig', [

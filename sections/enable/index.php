@@ -16,7 +16,7 @@ if (!isset($_GET['token'])) {
 
 $enabler = (new Manager\AutoEnable())->findByToken($_GET['token']);
 if (is_null($enabler)) {
-    error('invalid enable token');
+    Error400::error('invalid enable token');
 }
 
 echo $Twig->render('enable/processed.twig', [

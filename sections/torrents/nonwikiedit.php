@@ -13,11 +13,10 @@ authorize();
 $tgMan = new Manager\TGroup();
 $tgroup = $tgMan->findById((int)($_POST['groupid']));
 if (is_null($tgroup)) {
-    error(404);
+    Error404::error();
 }
-
 if (!$tgroup->canEdit($Viewer)) {
-    error(403);
+    Error403::error();
 }
 
 $log = [];

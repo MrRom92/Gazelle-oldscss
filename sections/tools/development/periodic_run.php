@@ -7,14 +7,14 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_schedule')) {
-    error(403);
+    Error403::error();
 }
 
 authorize();
 
 $taskId = (int)($_REQUEST['id'] ?? 0);
 if (!$taskId) {
-    error("Task not found");
+    Error400::error("Task not found");
 }
 
 $scheduler = new TaskScheduler();

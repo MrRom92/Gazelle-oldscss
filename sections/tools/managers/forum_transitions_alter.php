@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_manage_forums')) {
-    error(403);
+    Error403::error();
 }
 
 authorize();
@@ -15,7 +15,7 @@ $transition = $manager->findById((int)($_POST['id'] ?? 0));
 
 if ($_POST['submit'] === 'Delete') {
     if (is_null($transition)) {
-        error(404);
+        Error404::error();
     }
     $transition->remove();
 } else {
@@ -29,17 +29,17 @@ if ($_POST['submit'] === 'Delete') {
 
     $_POST = array_map('trim', $_POST);
     if (!$validator->validate($_POST)) {
-        error($validator->errorMessage());
+        Error400::error($validator->errorMessage());
     }
 
     $forumMan = new Manager\Forum();
     $source = $forumMan->findById((int)$_POST['source']);
     if (is_null($source)) {
-        error("no such source forum id: " . (int)$_POST['source']);
+        Error404::error("no such source forum id: " . (int)$_POST['source']);
     }
     $target = $forumMan->findById((int)$_POST['destination']);
     if (is_null($target)) {
-        error("no such target forum id: " . (int)$_POST['source']);
+        Error404::error("no such target forum id: " . (int)$_POST['source']);
     }
 
     if ($_POST['submit'] === 'Create') {
@@ -54,7 +54,7 @@ if ($_POST['submit'] === 'Delete') {
         );
     } elseif ($_POST['submit'] === 'Edit') {
         if (is_null($transition)) {
-            error(404);
+            Error404::error();
         }
         $transition
             ->setField('source',            $source->id())

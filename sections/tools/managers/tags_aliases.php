@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!($Viewer->permittedAny('users_mod', 'site_tag_aliases_read'))) {
-    error(403);
+    Error403::error();
 }
 
 $isAdmin = $Viewer->permitted('users_mod');

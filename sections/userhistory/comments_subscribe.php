@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!in_array($_GET['page'], ['artist', 'collages', 'requests', 'torrents']) || !(int)($_GET['pageid'] ?? 0)) {
-    error('Unknown comments subscription target');
+    Error400::error('Unknown comments subscription target');
 }
 authorize();
 

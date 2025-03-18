@@ -15,7 +15,7 @@ if (is_null($artist)) {
     if (defined('AJAX')) {
         json_die('failure', 'no such artist');
     } else {
-        error(404);
+        Error404::error('no such artist');
     }
 }
 $other = $artistMan->findByName(trim($_POST['artistname'] ?? ''));
@@ -25,7 +25,7 @@ if (is_null($other)) {
         if (defined('AJAX')) {
             json_die('failure', 'no such similar artist name');
         } else {
-            error('Unknown similar artist name.');
+            Error404::error('Unknown similar artist name.');
         }
     }
 }

@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_manage_referrals')) {
-    error(403);
+    Error403::error();
 }
 
 authorize();
@@ -16,7 +16,7 @@ $ReferralManager = new Manager\Referral();
 if ($_POST['submit'] == 'Delete') {
     $id = (int)$_POST['id'];
     if (!$id) {
-        error('No referral id for delete');
+        Error400::error('No referral id for delete');
     }
     $ReferralManager->deleteAccount($id);
 } else {
@@ -29,7 +29,7 @@ if ($_POST['submit'] == 'Delete') {
         ['active', true, 'checkbox', ''],
     ]);
     if (!$Val->validate($_POST)) {
-        error($Val->errorMessage());
+        Error400::error($Val->errorMessage());
     }
 
     if (!str_ends_with($_POST['url'], '/')) {
@@ -42,7 +42,7 @@ if ($_POST['submit'] == 'Delete') {
     } elseif ($_POST['submit'] === 'Edit') {
         $id = (int)$_POST['id'];
         if (!$ReferralManager->getAccount($id)) {
-            error('No referral id for edit');
+            Error400::error('No referral id for edit');
         }
 
         $ReferralManager->updateAccount($_POST['id'], $_POST['site'], $_POST['url'], $_POST['user'],

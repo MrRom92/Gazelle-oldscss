@@ -14,7 +14,7 @@ if (!empty($_POST['action'])) {
         'rename'          => include_once 'rename.php',
         'edit'            => include_once 'edit_handle.php',
         'takeeditrequest' => include_once 'edit_request_handle.php',
-        default           => error('Missing artist POST action'),
+        default           => Error400::error('Missing artist POST action'),
     };
 } elseif (!empty($_GET['action'])) {
     match ($_GET['action']) {
@@ -30,7 +30,7 @@ if (!empty($_POST['action'])) {
         'notifyremove'    => include_once 'notify_remove.php',
         'revert'          => include_once 'edit_handle.php',
         'vote_similar'    => include_once 'vote_similar.php',
-        default           => error('Missing artist action'),
+        default           => Error400::error('Missing artist action'),
     };
 } else {
     if (!empty($_GET['id'])) {

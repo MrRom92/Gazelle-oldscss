@@ -7,13 +7,13 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_manage_permissions')) {
-    error(403);
+    Error403::error();
 }
 
 $userMan = new Manager\User();
 $user = $userMan->findById((int)($_REQUEST['userid']));
 if (is_null($user)) {
-    error(404);
+    Error404::error();
 }
 
 if (isset($_POST['action'])) {

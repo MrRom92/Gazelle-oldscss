@@ -7,12 +7,12 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('users_mod')) {
-    error(403);
+    Error403::error();
 }
 
 $config = (new Manager\Torrent\ReportType())->findById((int)($_GET['id'] ?? 0));
 if (is_null($config)) {
-    error(404);
+    Error404::error();
 }
 
 if (isset($_POST['submit'])) {

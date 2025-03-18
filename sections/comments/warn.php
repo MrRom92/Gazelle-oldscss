@@ -7,12 +7,12 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('users_warn')) {
-    error(403);
+    Error403::error();
 }
 
 $comment = (new Manager\Comment())->findById((int)($_POST['postid'] ?? 0));
 if (is_null($comment)) {
-    error(404);
+    Error404::error();
 }
 
 echo $Twig->render('comment/warn.twig', [

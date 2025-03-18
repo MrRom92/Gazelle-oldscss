@@ -10,7 +10,7 @@ use Gazelle\Enum\SourceDB;
 use Gazelle\Util\Text;
 
 if (!$Viewer->permitted('admin_site_debug')) {
-    error(403);
+    Error403::error();
 }
 
 $src = ($_REQUEST['src'] ?? SourceDB::mysql->value) == SourceDB::mysql->value

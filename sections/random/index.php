@@ -10,7 +10,7 @@ $object = match ($_REQUEST['action'] ?? '') {
     default   => (new Manager\TGroup())->findRandom(),
 };
 if (is_null($object)) {
-    error(404); /* only likely to happen on a brand new installation */
+    Error404::error(); /* only likely to happen on a brand new installation */
 }
 
 header("Location: " . $object->location());

@@ -4,6 +4,7 @@
 namespace Gazelle\Search;
 
 use Gazelle\Enum\LeechType;
+use Gazelle\Error500;
 
 class Torrent {
     final protected const TAGS_ANY = 0;
@@ -199,7 +200,7 @@ class Torrent {
                 $ErrMsg,
                 86_400,
             );
-            error('-1');
+            Error500::error();
         }
         $this->Page = $searchMany ? $Page : min($Page, SPHINX_MAX_MATCHES / $PageSize); /** @phpstan-ignore-line sphinx must die */
 

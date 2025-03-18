@@ -9,7 +9,7 @@ use Gazelle\Enum\LeechType;
 use Gazelle\Enum\LeechReason;
 
 if (!$Viewer->permitted('site_edit_wiki')) {
-    error(403);
+    Error403::error();
 }
 
 authorize();
@@ -17,15 +17,15 @@ authorize();
 $collageMan = new Manager\Collage();
 $collage    = $collageMan->findById((int)($_POST['collageid'] ?? 0));
 if (is_null($collage)) {
-    error(404);
+    Error404::error();
 }
 if (!$collage->isPersonal()) {
     if (!$Viewer->permitted('site_collages_manage')) {
-        error(403);
+        Error403::error();
     }
 } elseif (!$collage->isOwner($Viewer) && !$Viewer->permitted('site_collages_delete')) {
     // only owner or mod+ can edit personal collages
-    error(403);
+    Error403::error();
 }
 
 if (isset($_POST['name'])) {
@@ -43,7 +43,7 @@ if (isset($_POST['name'])) {
     }
     if ($collage->isOwner($Viewer)) {
         if (!$Viewer->permitted('site_collages_renamepersonal') && !stristr($name, $Viewer->username())) {
-            error("Your personal collage's title must include your username.");
+            Error400::error("Your personal collage's title must include your username.");
         }
     }
 }
@@ -81,7 +81,7 @@ if (
 
 if (isset($_POST['category']) && isset(COLLAGE[$_POST['category']]) && (int)$_POST['category'] !== $collage->categoryId()) {
     if ($collage->isPersonal() && !$Viewer->permitted('site_collages_delete')) {
-        error(403);
+        Error403::error();
     }
     $collage->setField('CategoryID', (int)$_POST['category']);
 }

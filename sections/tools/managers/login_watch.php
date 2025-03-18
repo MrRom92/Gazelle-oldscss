@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permittedAny('admin_login_watch', 'admin_manage_ipbans')) {
-    error(403);
+    Error403::error();
 }
 
 if ($_POST) {

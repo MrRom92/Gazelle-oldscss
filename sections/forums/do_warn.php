@@ -11,34 +11,36 @@ function handleWarningRequest(\Gazelle\Manager\ForumPost|\Gazelle\Manager\Commen
     global $Viewer;
 
     if (!$Viewer->permitted('users_warn')) {
-        error(403);
+        Error403::error();
     }
     authorize();
 
     $postId = (int)($_POST['postid'] ?? 0);
     $post = $manager->findById($postId);
     if (is_null($post)) {
-        error(404);
+        Error404::error();
     }
 
     $userMan = new \Gazelle\Manager\User();
     $user = $userMan->findById($post->userId());
     if (is_null($user)) {
-        error(404);
+        Error404::error();
     }
     if ($user->classLevel() >= $Viewer->classLevel()) {
-        error(403);
+        Error403::error();
     }
 
     $body = trim($_POST['body'] ?? '');
     if (empty($body)) {
-        error("Post body cannot be left empty (you can leave a reason for others to see)");
+        Error400::error(
+            "Post body cannot be left empty (you can leave a reason for others to see)"
+        );
     }
     if (empty($_POST['reason'])) {
-        error("Reason for warning not provided");
+        Error400::error("Reason for warning not provided");
     }
     if (!isset($_POST['length']) || !strlen($_POST['length'])) {
-        error("Length of warning not provided");
+        Error400::error("Length of warning not provided");
     }
 
     $weeks = (int)$_POST['length'];

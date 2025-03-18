@@ -10,11 +10,11 @@ authorize();
 $alias = $_GET['alias'] ?? '';
 $article = (new Manager\Wiki())->findByAlias($alias);
 if (is_null($article)) {
-    error(404);
+    Error404::error();
 }
 
 if (!$article->editable($Viewer)) {
-    error(403);
+    Error403::error();
 }
 
 $article->removeAlias($alias);

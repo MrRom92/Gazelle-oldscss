@@ -35,7 +35,7 @@ switch ($_GET['type'] ?? '') {
         if ($enableRequest?->isDiscarded()) {
             $enableRequest->unresolve($Viewer);
         } else {
-            error(404);
+            json_error(404);
         }
         break;
 

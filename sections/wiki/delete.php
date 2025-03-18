@@ -8,18 +8,18 @@ namespace Gazelle;
 authorize();
 
 if (!$Viewer->permitted('admin_manage_wiki')) {
-    error(403);
+    Error403::error();
 }
 
 $article = (new Manager\Wiki())->findById((int)$_GET['id']);
 if (is_null($article)) {
-    error(404);
+    Error404::error();
 }
 if (!$article->editable($Viewer)) {
-    error(403);
+    Error403::error();
 }
 if ($article->id() == INDEX_WIKI_PAGE_ID) {
-    error('You cannot delete the main wiki article.');
+    Error403::error('You cannot delete the main wiki article.');
 }
 
 $article->logger()->general(

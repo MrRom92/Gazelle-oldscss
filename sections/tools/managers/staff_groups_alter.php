@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_manage_permissions')) {
-    error(403);
+    Error403::error();
 }
 
 authorize();
@@ -15,7 +15,7 @@ $staffGroup = $manager->findById((int)($_POST['id'] ?? 0));
 
 if ($_POST['submit'] == 'Delete') {
     if (is_null($staffGroup)) {
-        error('Staff Group not found for delete');
+        Error404::error('Staff Group not found for delete');
     }
     $staffGroup->remove();
 } else {
@@ -25,7 +25,7 @@ if ($_POST['submit'] == 'Delete') {
         ['name', true, 'string', 'Name must be set, and has a max length of 50 characters', ['maxlength' => 50]],
     ]);
     if (!$validator->validate($_POST)) {
-        error($validator->errorMessage());
+        Error400::error($validator->errorMessage());
     }
 
     if ($_POST['submit'] == 'Edit') {

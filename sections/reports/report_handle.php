@@ -11,13 +11,13 @@ authorize();
 
 $subjectId = (int)$_POST['id'];
 if (!$subjectId || empty($_POST['type']) || ($_POST['type'] !== 'request_update' && empty($_POST['reason']))) {
-    error(404);
+    Error404::error();
 }
 
 require_once 'array.php';
 /** @var array $Types */
 if (!array_key_exists($_POST['type'], $Types)) {
-    error(403);
+    Error403::error();
 }
 $subjectType = (string)$_POST['type'];
 
@@ -26,7 +26,7 @@ if ($subjectType !== 'request_update') {
 } else {
     $year = trim($_POST['year']);
     if (empty($year) || !is_number($year)) {
-        error('Year must be specified.');
+        Error400::error('Year must be specified.');
     }
     $reason = "[b]Year[/b]: {$year}.\n\n";
     // If the release type is somehow invalid, return "Not given"; otherwise, return the release type.
@@ -46,7 +46,7 @@ $location = match ($subjectType) {
     default          => null, // definitely a problem
 };
 if (is_null($location)) {
-    error("Cannot generate a link to the reported item");
+    Error400::error("Cannot generate a link to the reported item '$subjectType'");
 }
 
 $report = (new Manager\Report(new Manager\User()))->create($Viewer, $subjectId, $subjectType, $reason);

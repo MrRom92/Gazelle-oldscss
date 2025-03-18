@@ -6,21 +6,21 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_collages_create')) {
-    error(403);
+    Error403::error();
 }
 
 authorize();
 
 $artist = (new Manager\Artist())->findById((int)($_POST['artistid'] ?? 0));
 if (is_null($artist)) {
-    error(404);
+    Error404::error();
 }
 $collage = (new Manager\Collage())->findById((int)$_POST['collageid']);
 if (is_null($collage)) {
-    error(404);
+    Error404::error();
 }
 if (!$collage->isArtist()) {
-    error(403);
+    Error403::error();
 }
 
 if (isset($_POST['drag_drop_collage_sort_order'])) {
@@ -30,7 +30,7 @@ if (isset($_POST['drag_drop_collage_sort_order'])) {
 } else {
     $sequence = (int)$_POST['sort'];
     if (!$sequence) {
-        error(404);
+        Error404::error();
     }
     $collage->updateSequenceEntry($artist, $sequence);
 }

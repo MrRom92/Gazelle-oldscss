@@ -7,14 +7,14 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('users_view_ips')) {
-    error(403);
+    Error403::error();
 }
 
 
 $userMan = new Manager\User();
 $user = $userMan->findById((int)($_GET['userid'] ?? 0));
 if (is_null($user)) {
-    error(404);
+    Error404::error();
 }
 
 $column    = $_GET['col'] ?? 'first';

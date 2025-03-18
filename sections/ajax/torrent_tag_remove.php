@@ -8,7 +8,7 @@ namespace Gazelle;
 
 authorize();
 if ($Viewer->disableTagging() || !$Viewer->permitted('site_delete_tag')) {
-    error(403);
+    Error403::error();
 }
 $tagMan = new Manager\Tag();
 $tgMan = new Manager\TGroup();
@@ -16,7 +16,7 @@ $tgMan = new Manager\TGroup();
 $tag = $tagMan->findById((int)$_GET['tagid']);
 $tgroup = $tgMan->findById((int)$_GET['groupid']);
 if (is_null($tgroup) || is_null($tag)) {
-    error(404);
+    Error404::error();
 }
 $tagName = $tag->name();
 

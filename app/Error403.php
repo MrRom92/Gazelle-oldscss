@@ -1,0 +1,32 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Gazelle;
+
+class Error403 extends Error {
+    public static function error(string $message = ''): never {
+        $who     = static::$requestContext->viewer()->label();
+        $ipaddr  = static::$requestContext->viewer()->ipaddr();
+        $geoip   = new Util\GeoIP(new Util\Curl());
+        Util\Irc::sendMessage(
+            IRC_CHAN_STATUS,
+            "$who ($ipaddr [{$geoip->countryISO($ipaddr)}]) on {$_SERVER['REQUEST_METHOD']} {$_SERVER['REQUEST_URI']}"
+            . (!empty($_SERVER['HTTP_REFERER']) ? " from {$_SERVER['HTTP_REFERER']}" : '')
+            . (!empty($message) ? " message '$message'" : '')
+        );
+        parent::error($message);
+    }
+
+    public static function errorCode(): int {
+        return 403;
+    }
+
+    public static function errorLabel(): string {
+        return 'Forbidden';
+    }
+
+    public static function errorDescription(): string {
+        return "You cannot view something you are not allowed to view.";
+    }
+}

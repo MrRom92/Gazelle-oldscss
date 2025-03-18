@@ -6,9 +6,12 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
+if (!$Viewer->permitted('site_edit_wiki')) {
+    Error403::error();
+}
 $tgroup = (new Manager\TGroup())->findById((int)($_GET['id'] ?? 0));
 if (is_null($tgroup)) {
-    error(404);
+    Error404::error();
 }
 $torMan = new Manager\Torrent();
 

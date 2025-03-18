@@ -12,7 +12,7 @@ if (is_null($torrent)) {
     $torrent = $torMan->findDeletedById((int)$_GET['torrentid']);
 }
 if (is_null($torrent)) {
-    error(404);
+    Error404::error();
 }
 
 echo $Twig->render('torrent/riplog.twig', [

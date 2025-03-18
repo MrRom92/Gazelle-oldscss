@@ -18,19 +18,19 @@ use Gazelle\Util\Irc;
  */
 
 if ($Viewer->disablePosting()) {
-    error('Your posting privileges have been removed.');
+    Error403::error('Your posting privileges have been removed.');
 }
 authorize();
 
 if (!isset($_POST['forum'])) {
-    error('Forum ID not specified');
+    Error400::error('Forum ID not specified');
 }
 $forum = (new Manager\Forum())->findById((int)$_POST['forum']);
 if (is_null($forum)) {
-    error(404);
+    Error404::error();
 }
 if (!$Viewer->writeAccess($forum) || !$Viewer->createAccess($forum)) {
-    error(403);
+    Error403::error();
 }
 
 // If you're not sending anything, go back
@@ -57,10 +57,10 @@ if (empty($_POST['question']) || empty($_POST['answers']) || !$Viewer->permitted
     }
 
     if (count($answerList) < 2) {
-        error('You cannot create a poll with only one answer.');
+        Error400::error('You cannot create a poll with only one answer.');
     }
     if (count($answerList) > 25) {
-        error('You cannot create a poll with more than 25 answers.');
+        Error400::error('You cannot create a poll with more than 25 answers.');
     }
 }
 

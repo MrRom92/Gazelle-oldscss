@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_bp_history')) {
-    error(403);
+    Error403::error();
 }
 
 $bonus = new Stats\Bonus();

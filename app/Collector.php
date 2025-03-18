@@ -117,7 +117,7 @@ abstract class Collector extends Base  {
                     '44' => $sql .= "t.Format = 'AAC'  AND t.Encoding = 'q5.5'",
                     '45' => $sql .= "t.Format = 'AAC'  AND t.Encoding = 'q5'",
                     '46' => $sql .= "t.Format = 'AAC'  AND t.Encoding = '192'",
-                    default => error('Unknown collector selector'),
+                    default => Error400::error('Unknown collector selector'),
                 };
                 $sql .= " THEN $Priority ";
             }

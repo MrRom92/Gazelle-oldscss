@@ -39,18 +39,20 @@ if (!empty($_POST)) {
     authorize();
     foreach (['action', 'flsubmit', 'fltype'] as $arg) {
         if (!isset($_POST[$arg])) {
-            error(403);
+            Error403::error();
         }
     }
     if ($_POST['action'] !== 'fltoken' || $_POST['flsubmit'] !== 'Send') {
-        error(403);
+        Error403::error();
     }
     if (!preg_match('/^fl-(other-[1-4])$/', $_POST['fltype'], $match)) {
-        error(403);
+        Error403::error();
     }
     $FL_OTHER_tokens = $viewerBonus->purchaseTokenOther($user, $match[1], $_POST['message'] ?? '');
     if (!$FL_OTHER_tokens) {
-        error('Purchase of tokens not concluded. Either you lacked funds or they have chosen to decline FL tokens.');
+        Error400::error(
+            'Purchase of tokens not concluded. Either you lacked funds or they have chosen to decline FL tokens.'
+        );
     }
 }
 

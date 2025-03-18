@@ -11,10 +11,10 @@ if (!isset($_GET['userid'])) {
 } else {
     $user = (new Manager\User())->findById((int)$_GET['userid']);
     if (is_null($user)) {
-        error(404);
+        Error404::error();
     }
     if ($user->id() !== $Viewer->id() && !$Viewer->permitted('admin_fl_history')) {
-        error(403);
+        Error403::error();
     }
 }
 
@@ -23,11 +23,11 @@ $torMan->setViewer($Viewer);
 
 if ($_GET['expire'] ?? 0) {
     if (!$Viewer->permitted('admin_fl_history')) {
-        error(403);
+        Error403::error();
     }
     $torrent = $torMan->findById((int)$_GET['torrentid']);
     if (is_null($torrent)) {
-        error(404);
+        Error404::error();
     }
     $torrent->expireToken($user);
     header("Location: userhistory.php?action=token_history&userid=" . $user->id());

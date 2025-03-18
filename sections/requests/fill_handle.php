@@ -22,7 +22,7 @@ if (!defined('AJAX')) {
 
 $request = (new Manager\Request())->findById((int)$_REQUEST['requestid']);
 if (is_null($request)) {
-    error(404);
+    Error404::error();
 }
 
 $error   = [];

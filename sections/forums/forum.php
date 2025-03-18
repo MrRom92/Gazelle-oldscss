@@ -17,11 +17,11 @@ Things to expect in $_GET:
 
 $forum = (new Manager\Forum())->findById((int)$_GET['forumid']);
 if (!$forum) {
-    error(404);
+    Error404::error();
 }
 $forumId = $forum->id();
 if (!$Viewer->readAccess($forum)) {
-    error(403);
+    Error403::error();
 }
 
 $paginator = new Util\Paginator(TOPICS_PER_PAGE, (int)($_GET['page'] ?? 1));

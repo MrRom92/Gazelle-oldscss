@@ -343,7 +343,7 @@ function authKey(): string {
  * Make sure $_GET['auth'] is the same as the user's authorization key
  * Should be used for any user action that relies solely on GET.
  */
-function authorize(bool $Ajax = false): void {
+function authorize(bool $ajax = false): void {
     global $Viewer;
     foreach (['auth', 'authkey'] as $auth) {
         if (isset($_REQUEST[$auth]) && $Viewer->auth() === $_REQUEST[$auth]) {
@@ -354,7 +354,13 @@ function authorize(bool $Ajax = false): void {
         "{$Viewer->username()} authorize failed on {$_SERVER['REQUEST_URI']}"
         . (!empty($_SERVER['HTTP_REFERER']) ? " coming from " . $_SERVER['HTTP_REFERER'] : "")
     );
-    error('Invalid authorization key. Go back, refresh, and try again.', $Ajax);
+    if ($ajax) {
+        json_die('Invalid authorization key. Go back, refresh, and try again.');
+    } else {
+        Gazelle\Error400::error(
+            'Invalid authorization key. Go back, refresh, and try again.'
+        );
+    }
 }
 
 function parse_user_agent(string $useragent): array {
@@ -411,25 +417,6 @@ function parse_user_agent(string $useragent): array {
     return $browserUserAgent;
 }
 
-/**
- * Display a critical error and kills the page.
- *
- * $Error Error type. Automatically supported:
- *    403, 404, 0 (invalid input), -1 (invalid request)
- *    If you use your own string for Error, it becomes the error description.
- * $NoHTML If true, the header/footer won't be shown, just the description.
- * $Log If true, the user is given a link to search $Log in the site log.
- */
-// phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
-function error(int|string $Error, bool $NoHTML = false, bool $Log = false): never {
-    global $Debug, $Viewer, $Twig;
-    include_once __DIR__ . '/../sections/error/index.php';
-    if (isset($Viewer)) {
-        $Debug->profile($Viewer, $Viewer->requestContext()->module());
-    }
-    exit;
-}
-
 // phpcs:enable Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 
 /**
@@ -460,11 +447,11 @@ function json_error(int|string $code): never {
     exit;
 }
 
-function json_or_error(mixed $JsonError, mixed $Error = null, bool $NoHTML = false): never {
+function json_or_error(mixed $JsonError, mixed $Error = null): never {
     if (defined('AJAX')) {
         json_error($JsonError);
     } else {
-        error($Error ?? $JsonError, $NoHTML);
+        Gazelle\Error400::error($Error ?? $JsonError);
     }
 }
 

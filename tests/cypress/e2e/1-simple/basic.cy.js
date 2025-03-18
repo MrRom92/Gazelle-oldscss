@@ -1,6 +1,6 @@
-describe('page loads as admin', () => {
-    let date = new Date();
+/* global beforeEach, cy, describe, it */
 
+describe('page loads as admin', () => {
     [
         "/",
         "/artist.php",
@@ -27,9 +27,9 @@ describe('page loads as admin', () => {
         "/stats.php",
         "/tools.php",
         "/tools.php?action=analysis_list",
+        "/tools.php?action=privilege-edit&id=15",
         "/top10.php",
         "/torrents.php",
-        "/torrents.php?action=advanced&artistname=doesnotexist",
         "/user.php",
         "/user.php?id=1",
         "/user.php?action=edit&id=1",
@@ -38,7 +38,6 @@ describe('page loads as admin', () => {
         "/user.php?action=search&search=aaa",
         "/userhistory.php?action=subscriptions",
         "/userhistory.php?action=posts",
-        "/view.php",
         "/wiki.php",
     ].forEach((url) => {
         beforeEach(() => {

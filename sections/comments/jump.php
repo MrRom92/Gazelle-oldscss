@@ -6,6 +6,6 @@ namespace Gazelle;
 
 $comment = (new Manager\Comment())->findById((int)($_REQUEST['postid'] ?? 0));
 if (is_null($comment)) {
-    error(404);
+    Error404::error();
 }
 header('Location: ' . $comment->location());

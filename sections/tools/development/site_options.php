@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permittedAny('admin_manage_permissions', 'users_mod')) {
-    error(403);
+    Error403::error();
 }
 
 $siteOption = new Manager\SiteOption();
@@ -29,7 +29,7 @@ if ($Viewer->permitted('admin_manage_permissions') && isset($_POST['submit'])) {
             ['comment', true, 'string', 'You must specify a comment for the option.'],
         ]);
         if (!$Val->validate($_POST)) {
-            error($Val->errorMessage());
+            Error400::error($Val->errorMessage());
         }
 
         if ($_POST['submit'] == 'Edit') {

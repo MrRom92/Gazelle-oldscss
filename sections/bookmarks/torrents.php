@@ -19,11 +19,11 @@ if (empty($_GET['userid'])) {
     $ownProfile = true;
 } else {
     if (!$Viewer->permitted('users_override_paranoia')) {
-        error(403);
+        Error403::error();
     }
     $user = $userMan->findById((int)($_GET['userid'] ?? 0));
     if (is_null($user)) {
-        error(404);
+        Error404::error();
     }
     $ownProfile = ($user->id() === $Viewer->id());
 }

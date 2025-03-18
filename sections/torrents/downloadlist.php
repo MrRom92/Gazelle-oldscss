@@ -7,11 +7,11 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_view_torrent_snatchlist')) {
-    error(403);
+    Error403::error();
 }
 $torrent = (new Manager\Torrent())->findById((int)$_GET['torrentid']);
 if (is_null($torrent)) {
-    error(404);
+    Error404::error();
 }
 
 $paginator = new Util\Paginator(PEERS_PER_PAGE, (int)($_GET['page'] ?? 1));

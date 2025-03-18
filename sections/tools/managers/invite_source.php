@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_manage_invite_source')) {
-    error(403);
+    Error403::error();
 }
 
 $user = (new Manager\User())->find(trim($_POST['user'] ?? ''));

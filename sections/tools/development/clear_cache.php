@@ -8,7 +8,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_clear_cache')) {
-    error(403);
+    Error403::error();
 }
 
 $result = [];
@@ -33,7 +33,7 @@ if (!empty($_REQUEST['key'])) {
         foreach ($Keys as $Key) {
             foreach (CACHE_PERMISSION as $name => $permission) {
                 if (str_contains($Key, $name) && !$Viewer->permitted($permission)) {
-                    error(403);
+                    Error403::error();
                 }
             }
             $result[$Key] = $Cache->get_value($Key);

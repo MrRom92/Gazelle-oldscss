@@ -10,11 +10,11 @@ authorize();
 $requestMan = new Manager\Request();
 $request = $requestMan->findById((int)($_POST['requestid'] ?? 0));
 if (is_null($request)) {
-    error(404);
+    Error404::error();
 }
 
 if (!$request->canEdit($Viewer)) {
-    error(403);
+    Error403::error();
 }
 
 if (!isset($_POST['type'])) {
@@ -24,7 +24,7 @@ if (!isset($_POST['type'])) {
     $categoryName = $_POST['type'];
     $categoryId   = array_search($categoryName, CATEGORY);
     if ($categoryId === false) {
-        error('The upload category is corrupt');
+        Error400::error('The upload category is corrupt');
     }
     $categoryId++; // array offset to id
     if ($categoryId != $request->categoryId()) {

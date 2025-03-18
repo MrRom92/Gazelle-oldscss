@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permittedAny('users_view_ips', 'users_view_email')) {
-    error(403);
+    Error403::error();
 }
 
 $registration = new Manager\Registration();

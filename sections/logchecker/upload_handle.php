@@ -12,20 +12,20 @@ ini_set('upload_max_filesize', 1_000_000);
 
 $torrent = (new Manager\Torrent())->findById((int)$_POST['torrentid']);
 if (is_null($torrent)) {
-    error('No torrent is selected.');
+    Error404::error('No torrent is selected.');
 }
 if ($torrent->media() !== 'CD') {
-    error('Media of torrent precludes adding a log.');
+    Error400::error('Media of torrent precludes adding a log.');
 }
 if ($torrent->uploaderId() != $Viewer->id() && !$Viewer->permitted('admin_add_log')) {
-    error('Not your upload.');
+    Error403::error('Not your upload.');
 }
 
 $action = in_array($_POST['from_action'], ['upload', 'update']) ? $_POST['from_action'] : 'upload';
 $logfileSummary = new LogfileSummary($_FILES['logfiles']);
 
 if (!$logfileSummary->total()) {
-    error("No logfiles uploaded.");
+    Error400::error("No logfiles uploaded.");
 } else {
     $ripFiler = new File\RipLog();
     $htmlFiler = new File\RipLogHTML();

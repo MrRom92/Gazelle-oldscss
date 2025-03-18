@@ -11,7 +11,7 @@ use Gazelle\Enum\MysqlInfoOrderBy;
 use Gazelle\Enum\MysqlTableMode;
 
 if (!$Viewer->permitted('site_database_specifics')) {
-    error(403);
+    Error403::error();
 }
 
 // View table definition
@@ -20,7 +20,7 @@ if (!empty($_GET['table']) && preg_match('/([\w-]+)/', $_GET['table'], $match)) 
     $tableName = $match[1];
     $siteInfo = new SiteInfo();
     if (!$siteInfo->tableExists($tableName)) {
-        error("No such table");
+        Error404::error("No such table");
     }
     echo $Twig->render('admin/mysql-table.twig', [
         'definition' => $db->row('SHOW CREATE TABLE ' . $tableName)[1],

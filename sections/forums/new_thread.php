@@ -8,10 +8,10 @@ namespace Gazelle;
 
 $forum = (new Manager\Forum())->findById((int)($_GET['forumid'] ?? 0));
 if (!$forum) {
-    error(404);
+    Error404::error();
 }
 if (!$Viewer->writeAccess($forum) || !$Viewer->createAccess($forum)) {
-    error(403);
+    Error403::error();
 }
 
 echo $Twig->render('forum/new-thread.twig', [

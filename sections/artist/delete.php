@@ -7,13 +7,13 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!($Viewer->permitted('site_delete_artist') && $Viewer->permitted('torrents_delete'))) {
-    error(403);
+    Error403::error();
 }
 authorize();
 
 $artist = (new Manager\Artist())->findById((int)($_GET['artistid'] ?? 0));
 if (is_null($artist)) {
-    error(404);
+    Error404::error();
 }
 
 $tgMan = new Manager\TGroup();

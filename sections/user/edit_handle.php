@@ -19,12 +19,12 @@ if (!isset($_REQUEST['id'])) {
 } else {
     $user = $userMan->findById((int)$_REQUEST['id']);
     if (is_null($user)) {
-        error(404);
+        Error404::error();
     }
     $ownProfile = ($user->id() === $Viewer->id());
     if (!$ownProfile && !$Viewer->permitted('users_edit_profiles')) {
         $irc::sendMessage(IRC_CHAN_MOD, "User {$Viewer->label()} tried to edit {$user->publicLocation()}");
-        error(403);
+        Error403::error();
     }
 }
 
@@ -44,7 +44,7 @@ $validator->setFields([
     ['new_pass_2', true, "compare", "Your passwords do not match.", ['comparefield' => 'new_pass_1']],
 ]);
 if (!$validator->validate($_POST)) {
-    error($validator->errorMessage());
+    Error400::error($validator->errorMessage());
 }
 
 // Begin building $Paranoia
@@ -125,7 +125,7 @@ $newEmail = false;
 $emailClean = trim($_POST['email']);
 if ($user->email() != $emailClean) {
     if (!$Viewer->permitted('users_edit_profiles') && !$user->validatePassword($_POST['password'])) {
-        error('You must enter your current password when changing your email address.');
+        Error400::error('You must enter your current password when changing your email address.');
     }
     if ($ownProfile && !Util\PasswordCheck::checkPasswordStrength($_POST['password'], $user)) {
         // same corner case as with changing passwords, see comment there
@@ -144,11 +144,11 @@ if ($user->email() != $emailClean) {
 $avatar = trim($_POST['avatar']);
 if ($avatar != $user->avatar()) {
     if ($ownProfile && $user->disableAvatar()) {
-        error('Your avatar privileges have been revoked.');
+        Error403::error('Your avatar privileges have been revoked.');
     }
     $len = strlen($avatar);
     if ($len > 255) {
-        error('Your avatar link is too long ($len characters, maximum allowed is 255).');
+        Error400::error('Your avatar link is too long ($len characters, maximum allowed is 255).');
     }
     $user->setField('Avatar', $avatar);
 }
@@ -156,7 +156,7 @@ if ($avatar != $user->avatar()) {
 $ResetPassword = false;
 if (!empty($_POST['password']) && !empty($_POST['new_pass_1']) && !empty($_POST['new_pass_2'])) {
     if (!$user->validatePassword($_POST['password'])) {
-        error('You did not enter the correct password.');
+        Error400::error('You did not enter the correct password.');
     } elseif (!Util\PasswordCheck::checkPasswordStrength($_POST['password'], $user)) {
         // This is a corner case: the user already has an active session and is trying to change their password.
         // They would not have been able to log in with this password and since it is weak it might as well be
@@ -168,12 +168,12 @@ if (!empty($_POST['password']) && !empty($_POST['new_pass_1']) && !empty($_POST[
         exit;
     } else {
         if (!Util\PasswordCheck::checkPasswordStrength($_POST['new_pass_1'], $user)) {
-            error(Util\PasswordCheck::ERROR_MSG);
+            Error400::error(Util\PasswordCheck::ERROR_MSG);
         }
         if ($_POST['password'] == $_POST['new_pass_1']) {
-            error('Your new password cannot be the same as your old password.');
+            Error400::error('Your new password cannot be the same as your old password.');
         } elseif ($_POST['new_pass_1'] !== $_POST['new_pass_2']) {
-            error('You did not enter the same password twice.');
+            Error400::error('You did not enter the same password twice.');
         }
         $user->updatePassword($_POST['new_pass_1'], true);
         $ResetPassword = true;

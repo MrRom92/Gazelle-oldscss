@@ -6,17 +6,17 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_moderate_forums')) {
-    error(403);
+    Error403::error();
 }
 authorize();
 
 $thread = (new Manager\ForumThread())->findById((int)($_POST['threadid'] ?? 0));
 if (is_null($thread)) {
-    error(404);
+    Error404::error();
 }
 $body = trim($_POST['body'] ?? '');
 if (!strlen($body)) {
-    error("Thread note cannot be empty");
+    Error400::error("Thread note cannot be empty");
 }
 
 $thread->addThreadNote($Viewer, $body);

@@ -8,7 +8,7 @@ namespace Gazelle;
 
 $artist = (new Manager\Artist())->findById((int)($_GET['artistid'] ?? 0));
 if (is_null($artist)) {
-    error(404);
+    Error404::error();
 }
 
 echo $Twig->render('artist/request-edit.twig', [

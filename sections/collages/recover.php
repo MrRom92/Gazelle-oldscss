@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_collages_recover')) {
-    error(403);
+    Error403::error();
 }
 
 $_POST['id'] = (int)($_POST['id'] ?? 0);
@@ -25,7 +25,7 @@ if (!empty($_POST['id']) || $_POST['name'] !== '') {
         $collage = $collageMan->recoverByName($_POST['name']);
     }
     if (!$collage) {
-        error('Collage is completely deleted');
+        Error404::error('Collage is completely deleted');
     } else {
         $collageId = $collage->flush()->id();
         $collage->logger()->general("Collage $collageId was recovered by " . $Viewer->username());

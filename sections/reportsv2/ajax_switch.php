@@ -17,7 +17,7 @@ namespace Gazelle;
  */
 
 if (!$Viewer->permitted('admin_reports')) {
-    error(403);
+    Error403::error();
 }
 
 authorize();

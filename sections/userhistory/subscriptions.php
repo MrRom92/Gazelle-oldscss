@@ -75,7 +75,7 @@ foreach ($Results as &$result) {
             }
             break;
         default:
-            error('Unknown comment history target');
+            Error400::error('Unknown comment history target');
     }
     if (!empty($result['LastReadBody'])) {
         $result['avatar'] = $avatarFilter->render(['user' => new User($result['LastReadUserID']), 'viewer' => $Viewer]);

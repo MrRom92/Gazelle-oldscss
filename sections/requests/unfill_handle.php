@@ -9,7 +9,7 @@ authorize();
 
 $request = (new Manager\Request())->findById((int)$_REQUEST['id']);
 if (is_null($request)) {
-    error(404);
+    Error404::error();
 }
 if (
     $request->fillerId() === 0
@@ -18,7 +18,7 @@ if (
         && !$Viewer->permitted('site_moderate_requests')
     )
 ) {
-    error(403);
+    Error403::error();
 }
 
 $request->unfill($Viewer, trim($_POST['reason']), new Manager\Torrent());

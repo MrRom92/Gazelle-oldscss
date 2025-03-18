@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_manage_ipbans')) {
-    error(403);
+    Error403::error();
 }
 
 if (isset($_GET['perform'])) {
@@ -16,6 +16,6 @@ if (isset($_GET['perform'])) {
     } elseif ($_GET['perform'] == 'create') {
         $IPv4Man->createBan($Viewer, $_GET['ip'], $_GET['ip'], trim($_GET['notes']));
     } else {
-        error(403);
+        Error403::error();
     }
 }

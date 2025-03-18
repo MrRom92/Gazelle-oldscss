@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_periodic_task_view')) {
-    error(403);
+    Error403::error();
 }
 
 $scheduler = new TaskScheduler();
@@ -15,7 +15,7 @@ $taskId = (int)($_REQUEST['id'] ?? 0);
 
 if ($taskId && $_REQUEST['mode'] === 'run_now') {
     if (!$Viewer->permitted('admin_schedule')) {
-        error(403);
+        Error403::error();
     }
     authorize();
     $scheduler->runNow($taskId);

@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('torrents_edit')) {
-    error(403);
+    Error403::error();
 }
 authorize();
 
@@ -15,16 +15,16 @@ $artMan = new Manager\Artist();
 $aliasId = (int)$_GET['aliasid'];
 $artist  = $artMan->findByAliasId($aliasId);
 if (is_null($artist)) {
-    error(404);
+    Error404::error();
 } elseif ($artist->isLocked() && !$Viewer->permitted('users_mod')) {
-    error('This artist is locked.');
+    Error400::error('This artist is locked.');
 }
 
 if ($artist->primaryAliasId() === $aliasId) {
-    error("You cannot delete the primary alias.");
+    Error400::error("You cannot delete the primary alias.");
 }
 if (!empty($artist->aliasInfo()[$aliasId]['alias'])) {
-    error("This alias has redirecting aliases attached.");
+    Error400::error("This alias has redirecting aliases attached.");
 }
 
 $tgroupList = $artMan->tgroupList($aliasId, new Manager\TGroup());

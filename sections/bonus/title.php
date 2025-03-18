@@ -30,17 +30,19 @@ if ($Label === 'title-bb-y') {
 } elseif ($Label === 'title-bb-n') {
     $BBCode = 'false';
 } else {
-    error(403);
+    Error403::error();
 }
 
 if (isset($_POST['confirm'])) {
     authorize();
     if (!isset($_POST['title'])) {
-        error(403);
+        Error403::error();
     }
     $viewerBonus = new \Gazelle\User\Bonus($Viewer);
     if (!$viewerBonus->purchaseTitle($Label, $_POST['title'])) {
-        error('This title is too long, you must reduce the length (or you do not have enough bonus points).');
+        Error400::error(
+            'This title is too long, you must reduce the length (or you do not have enough bonus points).'
+        );
     }
     header('Location: bonus.php?complete=' . urlencode($Label));
     exit;

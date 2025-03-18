@@ -8,12 +8,12 @@ namespace Gazelle;
 authorize();
 
 if (!$Viewer->permitted('site_admin_requests')) {
-    error(403);
+    Error403::error();
 }
 
 $request = (new Manager\Request())->findById((int)$_POST['id']);
 if (is_null($request)) {
-    error(404);
+    Error404::error();
 }
 
 $action = [];
@@ -34,11 +34,11 @@ foreach ($_POST as $k => $v) {
                 continue;
             }
             if (!in_array($v, ['refund', 'remove'])) {
-                error('Unknown bounty action');
+                Error400::error('Unknown bounty action');
             }
             $action[(int)$match[2]] = $v;
         } else {
-            error('Unknown bounty edit requested');
+            Error400::error('Unknown bounty edit requested');
         }
     }
 }

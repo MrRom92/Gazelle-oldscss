@@ -13,7 +13,7 @@ if (!isset($Viewer)) {
     } else {
         match ($_REQUEST['action']) {
             'poll'  => include __DIR__ . '/../forums/poll_vote.php',
-            default => error('Unknown action requested'),
+            default => Error400::error('Unknown action requested'),
         };
     }
 }

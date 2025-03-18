@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->hasAttr('feature-seedbox') && !$Viewer->permitted('users_view_ips')) {
-    error(403);
+    Error403::error();
 }
 
 if (!isset($_POST['action'])) {
@@ -18,10 +18,10 @@ if (!isset($_POST['action'])) {
 }
 $user = (new Manager\User())->findById($userId);
 if (!$user) {
-    error(404);
+    Error404::error();
 }
 if ($Viewer->id() != $userId && !$Viewer->permitted('users_view_ips')) {
-    error(403);
+    Error403::error();
 }
 
 $seedbox = new User\Seedbox($user);
@@ -35,18 +35,18 @@ if (isset($_POST['mode'])) {
             $sigList  = array_key_filter_and_map('sig-', $_POST);
             $uaList   = array_key_filter_and_map('ua-', $_POST);
             if (count($idList) != count($ipList)) {
-                error("id/ip mismatch");
+                Error400::error("id/ip mismatch");
             } elseif (count($idList) != count($nameList)) {
-                error("id/name mismatch");
+                Error400::error("id/name mismatch");
             } elseif (count($idList) != count($sigList)) {
-                error("id/sig mismatch");
+                Error400::error("id/sig mismatch");
             } elseif (count($idList) != count($uaList)) {
-                error("id/ua mismatch");
+                Error400::error("id/ua mismatch");
             }
             $update = [];
             foreach (array_keys($idList) as $i) {
                 if ($sigList[$i] != signature("{$ipList[$i]}/{$uaList[$i]}}", SEEDBOX_SALT)) {
-                    error("ip/ua signature failed");
+                    Error400::error("ip/ua signature failed");
                 }
                 $update[] = [
                     'id'   => $idList[$i],
@@ -62,7 +62,7 @@ if (isset($_POST['mode'])) {
             $seedbox->removeNames($remove);
             break;
         default:
-            error(403);
+            Error403::error();
     }
 }
 

@@ -6,12 +6,12 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_moderate_forums')) {
-    error(403);
+    Error403::error();
 }
 authorize();
 
 $comment = (new Manager\Comment())->findById((int)($_REQUEST['postid'] ?? 0));
 if (is_null($comment)) {
-    error(404);
+    Error404::error();
 }
 $comment->remove();

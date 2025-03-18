@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if ($Viewer->disableBonusPoints()) {
-    error('Your bonus points have been deactivated.');
+    Error403::error('Your bonus points have been deactivated.');
 }
 
 const DEFAULT_PAGE = 'store.php';
@@ -24,7 +24,7 @@ switch ($_GET['action'] ?? '') {
             }
             $Price = $viewerBonus->effectivePrice($Label);
             if ($Price > $Viewer->bonusPointsTotal()) {
-                error('You cannot afford this item.');
+                Error400::error('You cannot afford this item.');
             }
             include_once match ($Label) {
                 'invite'                                   => 'invite.php',

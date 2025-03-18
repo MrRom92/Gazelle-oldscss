@@ -68,16 +68,16 @@ function diff(string $OldText, string $NewText): array {
 $old = (int)($_GET['old'] ?? 0);
 $new = (int)($_GET['new'] ?? 0);
 if ($old >= $new) {
-    error("Selected older revision is more recent than selected newer revision.");
+    Error400::error("Selected older revision is more recent than selected newer revision.");
 }
 
 $wikiMan = new Manager\Wiki();
 $article = $wikiMan->findById((int)$_GET['id']);
 if (is_null($article)) {
-    error(404);
+    Error404::error();
 }
 if (!$article->readable($Viewer)) {
-    error(403);
+    Error403::error();
 }
 
 View::show_header("Compare Article Revisions $old versus $new");

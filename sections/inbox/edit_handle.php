@@ -9,10 +9,10 @@ authorize();
 
 $pm = (new Manager\PM($Viewer))->findById((int)$_POST['convid']);
 if (is_null($pm)) {
-    error(404);
+    Error404::error();
 }
 if (!$pm->isReadable()) {
-    error(403);
+    Error403::error();
 }
 
 if (isset($_POST['delete'])) {

@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_reports')) {
-    error(403);
+    Error403::error();
 }
 
 echo (new Manager\Torrent\Report(new Manager\Torrent()))

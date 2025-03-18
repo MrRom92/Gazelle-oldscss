@@ -4,15 +4,17 @@
 
 declare(strict_types=1);
 
+namespace Gazelle;
+
 if (!$Viewer->permitted('admin_audit_edit')) {
-    error(403);
+    Error403::error();
 }
 authorize();
 
-$userMan = new Gazelle\Manager\User();
+$userMan = new Manager\User();
 $user = $userMan->findById((int)($_REQUEST['id'] ?? 0));
 if (is_null($user)) {
-    error(404);
+    Error404::error();
 }
 
 $idList = $_REQUEST['id_list'] ?? '';
@@ -21,7 +23,7 @@ if (!$idList) {
     exit;
 }
 if ($Viewer->hashHmac('audit', $idList) !== $_REQUEST['sig']) {
-    error('bad signature');
+    Error400::error('bad signature');
 }
 $user->auditTrail()->modifyEventList(
     array_map('intval', explode(',', $idList)),

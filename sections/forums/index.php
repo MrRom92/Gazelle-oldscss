@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if ($Viewer->disableForums()) {
-    error(403);
+    Error403::error();
 }
 
 require_once match ($_REQUEST['action'] ?? '') {

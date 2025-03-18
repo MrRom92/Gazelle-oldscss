@@ -11,7 +11,7 @@ $tag    = (new Manager\Tag())->findById((int)$_GET['tagid']);
 $way    = $_GET['way'];
 
 if (is_null($tgroup) || is_null($tag) || !in_array($way, ['up', 'down'])) {
-    error(404);
+    Error404::error();
 }
 if (!$tag->hasVoteTGroup($tgroup, $Viewer)) {
     $tag->voteTGroup($tgroup, $Viewer, $way);

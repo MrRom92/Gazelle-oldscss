@@ -6,12 +6,7 @@ namespace Gazelle;
 
 authorize(true);
 
-print
-    json_encode(
-        [
-            'status' => 'success',
-            'response' => [
-                'loadAverage' => sys_getloadavg()
-            ]
-        ]
-    );
+print json_encode([
+    'status'   => 'success',
+    'response' => ['loadAverage' => sys_getloadavg()]
+]);

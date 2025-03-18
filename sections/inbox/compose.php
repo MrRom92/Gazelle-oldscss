@@ -8,13 +8,13 @@ namespace Gazelle;
 
 $recipient = (new Manager\User())->findById((int)$_GET['toid']);
 if (is_null($recipient)) {
-    error(404);
+    Error404::error();
 }
 if ($Viewer->disablePm() && !$recipient->isStaff()) {
-    error(403);
+    Error403::error();
 }
 if ($recipient->id() == $Viewer->id()) {
-    error('You cannot start a conversation with yourself!');
+    Error400::error('You cannot start a conversation with yourself!');
 }
 
 echo $Twig->render('inbox/compose.twig', [

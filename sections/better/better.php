@@ -10,7 +10,7 @@ $userMan = new Manager\User();
 if (isset($_GET['userid']) && $Viewer->permitted('users_override_paranoia')) {
     $user = $userMan->findById((int)$_GET['userid']);
     if (is_null($user)) {
-        error(404);
+        Error404::error();
     }
 } else {
     $user = $Viewer;
@@ -34,7 +34,7 @@ $better = match ($type) {
     'single'        => new Better\SingleSeeded($user, $filter, (new Manager\Torrent())->setViewer($Viewer)),
     'files', 'folders', 'lineage', 'tags', 'trumpable'
                     => (new Better\Bad($user, $filter, new Manager\Torrent()))->setBadType($type),
-    default         => error(404),
+    default         => Error404::error(),
 };
 
 if (isset($_GET['remove']) && $better instanceof Better\Bad && $Viewer->permitted('admin_reports')) {

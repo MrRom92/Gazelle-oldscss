@@ -10,10 +10,10 @@ authorize();
 $inviteKey = trim($_GET['invite'] ?? '');
 $user = (new Manager\Invite())->findUserByKey($inviteKey, new Manager\User());
 if (is_null($user)) {
-    error(404);
+    Error404::error();
 }
 if ($user->id() != $Viewer->id()) {
-    error(403);
+    Error403::error();
 }
 
 $user->invite()->revoke($inviteKey);

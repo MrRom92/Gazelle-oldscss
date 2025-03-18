@@ -6,12 +6,12 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('users_mod')) {
-    error(403);
+    Error403::error();
 }
 
 $torrent = (new Manager\Torrent())->findById((int)($_REQUEST['torrentid'] ?? 0));
 if (is_null($torrent)) {
-    error(404);
+    Error404::error();
 }
 $torrent->regenerateFilelist(
     new File\Torrent(),

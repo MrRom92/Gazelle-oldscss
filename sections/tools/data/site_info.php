@@ -8,7 +8,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_site_debug')) {
-    error(403);
+    Error403::error();
 }
 
 function uid(int $id): string {

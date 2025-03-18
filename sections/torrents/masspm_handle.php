@@ -8,11 +8,11 @@ namespace Gazelle;
 authorize();
 
 if (!$Viewer->permitted('site_moderate_requests')) {
-    error(403);
+    Error403::error();
 }
 $torrent = (new Manager\Torrent())->findById((int)$_POST['torrentid']);
 if (is_null($torrent)) {
-    error(404);
+    Error404::error();
 }
 
 $subject = trim($_POST['subject']);
@@ -24,7 +24,7 @@ $validator->setFields([
     ['message', false, 'string', 'Invalid message.', ['maxlength' => 10000]],
 ]);
 if (!$validator->validate($_POST)) {
-    error($validator->errorMessage());
+    Error400::error($validator->errorMessage());
 }
 
 (new Manager\User())->sendSnatchPm($Viewer, $torrent, $subject, $message);

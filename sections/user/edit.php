@@ -10,11 +10,11 @@ $userMan = new Manager\User();
 
 $user = $userMan->findById(($_REQUEST['id'] ?? '') === 'me' ? $Viewer->id() : (int)($_REQUEST['id'] ?? 0));
 if (is_null($user)) {
-    error(404);
+    Error404::error();
 }
 $UserID = $user->id();
 if ($UserID != $Viewer->id() && !$Viewer->permitted('users_edit_profiles')) {
-    error(403);
+    Error403::error();
 }
 
 $donor    = new User\Donor($user);

@@ -8,7 +8,7 @@ namespace Gazelle;
 
 $request = (new Manager\Request())->findById((int)($_GET['id'] ?? 0));
 if (is_null($request)) {
-    error(404);
+    Error404::error();
 }
 
 $commentPage = new Comment\Request($request->id(), (int)($_GET['page'] ?? 0), (int)($_GET['postid'] ?? 0));

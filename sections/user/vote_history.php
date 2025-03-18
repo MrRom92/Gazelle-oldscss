@@ -10,11 +10,11 @@ use Gazelle\User\Vote;
 
 $user = (new Manager\User())->findById((int)$_GET['id']);
 if (is_null($user)) {
-    error(404);
+    Error404::error();
 }
 $ownProfile = $user->id() === $Viewer->id();
 if (!$Viewer->permitted('view-release-votes') && !$ownProfile) {
-    error(403);
+    Error403::error();
 }
 
 if (isset($_GET['up'])) {

@@ -179,7 +179,7 @@ if (empty($_GET)) {
         ['way', false, 'inarray', 'Invalid way', $WayVals],
     ]);
     if (!$validator->validate($_GET)) {
-        error($validator->errorMessage());
+        Error400::error($validator->errorMessage());
     }
 
     $m = new SQLMatcher($matchMode);

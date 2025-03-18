@@ -7,10 +7,10 @@ namespace Gazelle;
 
 $post = (new Manager\ForumPost())->findById((int)($_GET['post'] ?? 0));
 if (is_null($post)) {
-    error(404);
+    Error404::error();
 }
 if (!$Viewer->readAccess($post->thread()->forum())) {
-    error(403);
+    Error403::error();
 }
 header('Content-type: text/plain');
 echo $post->body();

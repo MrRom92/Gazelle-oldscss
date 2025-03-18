@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_recovery')) {
-    error(403);
+    Error403::error();
 }
 $recovery = new Manager\Recovery();
 
@@ -17,7 +17,7 @@ if (isset($_GET['id']) && (int)$_GET['id'] > 0) {
 } elseif (isset($_GET['action']) && $_GET['action'] == 'search') {
     $search = true;
 } else {
-    error(404);
+    Error404::error();
 }
 
 $terms = [];

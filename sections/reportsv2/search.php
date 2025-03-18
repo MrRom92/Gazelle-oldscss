@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_reports')) {
-    error(403);
+    Error403::error();
 }
 
 $userMan       = new Manager\User();
@@ -29,7 +29,7 @@ foreach (['reporter', 'handler', 'uploader'] as $role) {
     if (isset($_GET[$role]) && preg_match('/(@?[\w.-]+)/', $_GET[$role], $match)) {
         $user = $userMan->find($match[1]);
         if (is_null($user)) {
-            error("No such $role: {$_GET[$role]} (numeric id or @username expected).");
+            Error404::error("No such $role: {$_GET[$role]} (numeric id or @username expected).");
         }
         $filter[$role] = $user;
     }

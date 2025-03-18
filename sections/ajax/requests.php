@@ -58,7 +58,7 @@ switch ($type) {
     case 'bookmarks':
         $Title = 'Your bookmarked requests';
         if (is_null($user)) {
-            error("No user id given");
+            json_die("No user id given");
         }
         $search->setBookmarker($user);
         $BookmarkView = true;
@@ -99,7 +99,7 @@ if (isset($_GET['requestor'])) {
     if ($requestor) {
         $search->setRequestor($requestor);
     } else {
-        error(404);
+        json_die('requestor not found');
     }
 }
 

@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permittedAny('admin_reports', 'site_moderate_forums')) {
-    error(403);
+    Error403::error();
 }
 
 echo $Twig->render('report/stats.twig', [

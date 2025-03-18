@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_manage_stylesheets')) {
-    error(403);
+    Error403::error();
 }
 
 $heading = new Util\SortableTableHeader('id', [

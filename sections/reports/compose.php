@@ -7,14 +7,14 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_moderate_forums')) {
-    error(403);
+    Error403::error();
 }
 
 $reportId = (int)($_GET['reportid'] ?? 0);
 $id       = (int)($_GET['thingid'] ?? 0);
 $type     = $_GET['type'] ?? null;
 if (!$reportId || !$id || is_null($type)) {
-    error(403);
+    Error403::error();
 }
 
 require_once 'array.php';
@@ -25,10 +25,10 @@ $user = null;
 if (!isset($Return)) {
     $user = (new Manager\User())->findById((int)($_GET['toid'] ?? 0));
     if (is_null($user)) {
-        error(404);
+        Error404::error();
     }
     if ($user->id() === $Viewer->id()) {
-        error("You cannot start a conversation with yourself!");
+        Error400::error("You cannot start a conversation with yourself!");
     }
 }
 
@@ -36,7 +36,7 @@ switch ($type) {
     case 'user':
         $reported = (new Manager\User())->findById($id);
         if (is_null($reported)) {
-            error(404);
+            Error404::error();
         }
         $report = new Report\User($reportId, $reported);
         break;
@@ -45,7 +45,7 @@ switch ($type) {
     case 'request_update':
         $request = (new Manager\Request())->findById($id);
         if (is_null($request)) {
-            error(404);
+            Error404::error();
         }
         $report = new Report\Request($reportId, $request);
         break;
@@ -53,7 +53,7 @@ switch ($type) {
     case 'collage':
         $collage = (new Manager\Collage())->findById($id);
         if (is_null($collage)) {
-            error(404);
+            Error404::error();
         }
         $report = new Report\Collage($reportId, $collage);
         break;
@@ -61,10 +61,10 @@ switch ($type) {
     case 'thread':
         $thread = (new Manager\ForumThread())->findById($id);
         if (is_null($thread)) {
-            error(404);
+            Error404::error();
         }
         if (!$Viewer->readAccess($thread->forum())) {
-            error(403);
+            Error403::error();
         }
         $report = new Report\ForumThread($reportId, $thread);
         break;
@@ -72,10 +72,10 @@ switch ($type) {
     case 'post':
         $post = (new Manager\ForumPost())->findById($id);
         if (is_null($post)) {
-            error(404);
+            Error404::error();
         }
         if (!$Viewer->readAccess($post->thread()->forum())) {
-            error(403);
+            Error403::error();
         }
         $report = new Report\ForumPost($reportId, $post);
         break;
@@ -83,13 +83,13 @@ switch ($type) {
     case 'comment':
         $comment = (new Manager\Comment())->findById($id);
         if (is_null($comment)) {
-            error(404);
+            Error404::error();
         }
         $report = (new Report\Comment($reportId, $comment))->setContext($reportType['title']);
         break;
 
     default:
-        error('Incorrect type');
+        Error400::error('Incorrect type');
 }
 
 echo $Twig->render('report/compose-reply.twig', [

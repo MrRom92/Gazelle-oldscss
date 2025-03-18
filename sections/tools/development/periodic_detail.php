@@ -7,13 +7,13 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('admin_periodic_task_view')) {
-    error(403);
+    Error403::error();
 }
 
 $scheduler = new TaskScheduler();
 $id = (int)($_GET['id'] ?? 0);
 if (!$scheduler->getTask($id)) {
-    error(404);
+    Error404::error();
 }
 
 $header = new Util\SortableTableHeader('launchtime', [
