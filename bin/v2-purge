@@ -30,7 +30,7 @@ foreach ($db->collect(0, false) as $id) {
     $location = $torrent->group()->publicLocation();
 
     // tracker message BAD_FORMAT, no bonus point change
-    [$success, $message] = $torrent->remove(null, "The Great V2 Purge", 5, false);
+    [$success, $message] = $torrent->removeTorrent(null, "The Great V2 Purge", 5, false);
     $success = (int)$success;
     echo "$id removed $message ($success) $location\n";
 }

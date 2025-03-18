@@ -119,17 +119,11 @@ class ForumTransition extends BaseObject {
     }
 
     public function remove(): int {
-        $id = $this->id;
-        self::$db->prepared_query("
-            DELETE FROM forums_transitions WHERE forums_transitions_id = ?
-            ", $id
-        );
-        $affected = self::$db->affected_rows();
+        $affected = parent::remove();
         self::$cache->delete_multi([
             Manager\ForumTransition::LIST_KEY,
-            sprintf(Manager\ForumTransition::ID_KEY, $id),
+            sprintf(Manager\ForumTransition::ID_KEY, $this->id),
         ]);
-        $this->flush();
         return $affected;
     }
 }

@@ -60,7 +60,7 @@ class CollageFreeleechTest extends TestCase {
         foreach ($this->tgroupList as $tgroup) {
             $this->collage->removeEntry($tgroup);
             foreach ($tgroup->torrentIdList() as $torrentId) {
-                $torMan->findById($torrentId)->remove($this->user, 'collfree unit test');
+                $torMan->findById($torrentId)->removeTorrent($this->user, 'collfree unit test');
             }
             $tgroup->remove($this->user);
         }

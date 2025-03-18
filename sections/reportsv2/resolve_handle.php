@@ -134,7 +134,7 @@ if (!isset($_POST['delete'])) {
 } elseif ($torrent->isDeleted()) {
     $Log = $logMessage ?? "No log message (torrent was already deleted).";
 } else {
-    [$ok, $message] = $torrent->remove( /** @phpstan-ignore-line */
+    [$ok, $message] = $torrent->removeTorrent( /** @phpstan-ignore-line TorrentAbstract vs Torrent confusion */
         $Viewer,
         sprintf('%s (%s)', $reportTypeName, $logMessage ?? 'none'),
         $report->reportType()->trackerReason()

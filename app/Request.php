@@ -893,7 +893,7 @@ class Request extends BaseObject implements CategoryHasArtist {
         return $affected;
     }
 
-    public function remove(): bool {
+    public function remove(): int {
         self::$db->begin_transaction();
         self::$db->prepared_query("DELETE FROM requests_votes WHERE RequestID = ?", $this->id);
         self::$db->prepared_query("DELETE FROM requests_tags WHERE RequestID = ?", $this->id);
@@ -922,6 +922,6 @@ class Request extends BaseObject implements CategoryHasArtist {
         }
         self::$cache->delete_value(sprintf(Manager\Request::ID_KEY, $this->id));
         $this->flush();
-        return $affected != 0;
+        return $affected;
     }
 }

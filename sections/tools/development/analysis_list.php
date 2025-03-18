@@ -13,7 +13,7 @@ if (!$Viewer->permitted('site_analysis')) {
 $errMan = new Manager\ErrorLog();
 $remove = array_key_extract_suffix('clear-', $_POST);
 if ($remove) {
-    $removed = $errMan->remove($remove);
+    $removed = $errMan->removeList($remove);
 } elseif (isset($_POST['slow-clear'])) {
     $removed = $errMan->removeSlow((float)($_POST['slow'] ?? 60.0));
 } else {

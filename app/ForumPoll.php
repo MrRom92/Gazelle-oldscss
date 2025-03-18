@@ -250,4 +250,17 @@ class ForumPoll extends BaseObject {
         }
         return $vote;
     }
+
+    public function remove(): int {
+        self::$db->prepared_query("
+            DELET fp, fpv
+            FROM forums_polls fp
+            LEFT JOIN forums_polls_votes vpv USING (TopicID)
+            WHERE fp.TopicID = ?
+            ", $this->id
+        );
+        $affected = self::$db->affected_rows();
+        $this->flush();
+        return $affected;
+    }
 }

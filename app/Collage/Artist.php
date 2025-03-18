@@ -112,7 +112,6 @@ class Artist extends AbstractCollage {
                 self::$db->collect(0, false)
             ))
         );
-        $rows = parent::remove(); // soft remove
-        return $rows;
+        return parent::remove(); // soft remove in AbstractCollage
     }
 }

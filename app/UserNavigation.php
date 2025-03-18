@@ -83,16 +83,10 @@ class UserNavigation extends BaseObject {
     }
 
     public function remove(): int {
-        $id = $this->id;
-        $this->flush();
-        self::$db->prepared_query("
-            DELETE FROM nav_items WHERE id = ?
-            ", $this->id
-        );
-        $affected = self::$db->affected_rows();
+        $affected = parent::remove();
         if ($affected) {
             self::$cache->delete_multi([
-                sprintf(Manager\UserNavigation::ID_KEY, $id),
+                sprintf(Manager\UserNavigation::ID_KEY, $this->id),
                 Manager\UserNavigation::LIST_KEY,
             ]);
         }

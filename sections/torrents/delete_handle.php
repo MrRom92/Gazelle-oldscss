@@ -36,7 +36,7 @@ $infohash = $torrent->infohash();
 $size     = $torrent->size();
 $reason   = implode(' ', array_map('trim', [$_POST['reason'], $_POST['extra']]));
 
-[$success, $message] = $torrent->remove($Viewer, $reason);
+[$success, $message] = $torrent->removeTorrent($Viewer, $reason);
 if (!$success) {
     Error400::error($message);
 }

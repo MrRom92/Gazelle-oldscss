@@ -19,7 +19,7 @@ class ExternalProfile extends \Gazelle\BaseUser {
         }
         $this->info['profile'] = (string)$this->pg()->scalar("
             select profile from user_external_profile where id_user = ?
-            ", $this->id()
+            ", $this->user->id
         );
         return $this->info;
     }
@@ -34,7 +34,7 @@ class ExternalProfile extends \Gazelle\BaseUser {
                    (id_user, profile)
             values (?,       ?)
             on conflict (id_user) do update set profile = ?
-            ", $this->id(), $profile, $profile
+            ", $this->user->id, $profile, $profile
         );
         $this->flush();
         return $affected;
@@ -43,7 +43,7 @@ class ExternalProfile extends \Gazelle\BaseUser {
     public function remove(): int {
         $affected = $this->pg()->prepared_query("
             delete from user_external_profile where id_user = ?
-            ", $this->id()
+            ", $this->user->id
         );
         $this->flush();
         return $affected;

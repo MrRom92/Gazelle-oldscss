@@ -143,7 +143,7 @@ class TGroup extends AbstractCollage {
             self::$db->collect(0, false)
         )));
         if (!$this->holder->isPersonal()) {
-            $rows = parent::remove();
+            $rows = parent::remove(); // soft remove in AbstractCollage
         } else {
             // personal collages are nuked hard, no undo
             (new \Gazelle\Manager\Comment())->remove('collages', $this->id);

@@ -3,7 +3,7 @@
 namespace Gazelle\Manager;
 
 class Applicant extends \Gazelle\Base {
-    final protected const ID_KEY   = 'zz_appl_%d';
+    final public const    ID_KEY   = 'zz_appl_%d';
     final protected const LIST_KEY = 'applicant_list';
     final protected const RESOLVED_KEY = 'applicant_resolved';
 

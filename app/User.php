@@ -902,24 +902,6 @@ class User extends BaseObject {
         return self::$cache->delete_value(sprintf(self::USER_RECENT_UPLOAD, $this->id));
     }
 
-    public function remove(): int {
-        $id       = $this->id;
-        $username = $this->username();
-        // Many, but not all, of the associated user tables will drop their entries via foreign key cascades.
-        // But some won't. If this call fails, you will need to decide what to do about the tables in question.
-        self::$db->prepared_query("
-            DELETE FROM users_main WHERE ID = ?
-            ", $id
-        );
-        $affected = self::$db->affected_rows();
-        $this->flush();
-        self::$cache->delete_multi([
-            sprintf(Manager\User::ID_KEY, $id),
-            sprintf(Manager\User::USERNAME_KEY, $username),
-        ]);
-        return $affected;
-    }
-
     /**
      * Record a forum warning for this user
      */
@@ -2071,5 +2053,17 @@ class User extends BaseObject {
      */
     public function canPurchaseInvite(): bool {
         return !$this->disableInvites() && $this->privilege()->effectiveClassLevel() >= MIN_INVITE_CLASS;
+    }
+
+    public function remove(): int {
+        $username = $this->username();
+        // Many, but not all, of the associated user tables will drop their entries via foreign key cascades.
+        // But some won't. If this call fails, you will need to decide what to do about the tables in question.
+        $affected = parent::remove();
+        self::$cache->delete_multi([
+            sprintf(Manager\User::ID_KEY, $this->id),
+            sprintf(Manager\User::USERNAME_KEY, $username),
+        ]);
+        return $affected;
     }
 }

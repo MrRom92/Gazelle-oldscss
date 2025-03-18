@@ -110,7 +110,7 @@ class CategoryTest extends TestCase {
 
         // clean up
         foreach ($torrentList as $torrent) {
-            $torrent->remove($user, 'phpunit');
+            $torrent->removeTorrent($user, 'phpunit');
         }
         $tgroup->remove();
         $this->assertEquals(0, (int)DB::DB()->scalar("

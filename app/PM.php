@@ -186,20 +186,6 @@ class PM extends Base {
         return self::$db->affected_rows();
     }
 
-    public function remove(): int {
-        self::$db->prepared_query("
-            UPDATE pm_conversations_users SET
-                InInbox   = '0',
-                InSentbox = '0',
-                Sticky    = '0'
-            WHERE ConvID = ?
-                AND UserID = ?
-            ", $this->id, $this->user->id()
-        );
-        $this->flush();
-        return self::$db->affected_rows();
-    }
-
     public function setForwardedTo(int $userId): int {
         self::$db->begin_transaction();
         self::$db->prepared_query("
@@ -256,5 +242,20 @@ class PM extends Base {
             ", $this->id, $limit, $offset
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
+    }
+
+    public function remove(): int {
+        self::$db->prepared_query("
+            UPDATE pm_conversations_users SET
+                InInbox   = '0',
+                InSentbox = '0',
+                Sticky    = '0'
+            WHERE ConvID = ?
+                AND UserID = ?
+            ", $this->id, $this->user->id()
+        );
+        $affected = self::$db->affected_rows();
+        $this->flush();
+        return $affected;
     }
 }

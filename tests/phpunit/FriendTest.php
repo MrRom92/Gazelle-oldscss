@@ -50,7 +50,7 @@ class FriendTest extends TestCase {
         $page = $this->friend[0]->page($manager, 10, 0);
         $this->assertEquals(1, $page[$this->friend[1]->user()->id()]['mutual'], 'friend-the-feeling-is-mutual');
 
-        if (getenv('CI') === false) {
+        // if (getenv('CI') === false) {
             // FIXME: figure out why causes Twig footer() to fail when running in CI
             // FIXME
             $current = (new User\Session($this->friend[0]->user()))->create([
@@ -74,11 +74,15 @@ class FriendTest extends TestCase {
             ]);
             $this->assertStringContainsString($comment, $html, 'friend-page-comment');
             $this->assertStringContainsString($this->friend[1]->user()->username(), $html, 'friend-page-username');
-        }
+        // }
 
         // remove
         $this->friend[0]->add($this->friend[2]->user());
         $this->assertEquals(2, $this->friend[0]->total(), 'friend-has-friends');
-        $this->assertEquals(1, $this->friend[0]->remove($this->friend[1]->user()), 'friend-unfriend');
+        $this->assertEquals(
+            1,
+            $this->friend[0]->removeFriend($this->friend[1]->user()),
+            'friend-unfriend'
+        );
     }
 }

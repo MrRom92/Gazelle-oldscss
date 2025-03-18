@@ -230,6 +230,20 @@ class ReportType extends \Gazelle\BaseObject {
                 ", $userId, json_encode($changeset), $this->id
             );
         }
-        return $affected && self::$db->affected_rows() === 1;
+        return $affected != 0;
+    }
+
+    public function remove(): int {
+        self::$db->prepared_query("
+            DELETE trc, trcl
+            FROM torrent_report_configuration trc
+            LEFT JOIN torrent_report_configuration_log trcl
+                USING (torrent_report_configuration_id)
+            WHERE trc.torrent_report_configuration_id = ?
+            ", $this->id
+        );
+        $affected = self::$db->affected_rows();
+        $this->flush();
+        return $affected;
     }
 }

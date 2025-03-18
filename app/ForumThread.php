@@ -305,44 +305,6 @@ class ForumThread extends BaseObject {
         return $affected;
     }
 
-    public function remove(): int {
-        $this->flushCatalogue();
-
-        // LastPostID is a chicken and egg situation when removing a thread,
-        // so foreign key constraints must be suspended temporarily.
-        $db = new DB();
-        $db->relaxConstraints(true);
-        self::$db->prepared_query("
-            DELETE ft, fp, unq
-            FROM forums_topics AS ft
-            LEFT JOIN forums_posts AS fp ON (fp.TopicID = ft.ID)
-            LEFT JOIN users_notify_quoted as unq ON (unq.PageID = ft.ID AND unq.Page = 'forums')
-            WHERE TopicID = ?
-            ", $this->id
-        );
-        $affected = self::$db->affected_rows();
-        $db->relaxConstraints(false);
-        $this->forum()->adjust();
-        (new Manager\Subscription())->moveThread($this, null);
-
-        $previousPost = self::$db->rowAssoc("
-            SELECT AuthorID AS user_id,
-                ID AS post_id
-            FROM forums_posts
-            WHERE TopicID = ?
-            ORDER BY ID DESC
-            LIMIT 1
-            ", $this->id
-        );
-        if ($previousPost) {
-            // there will be no posts when the last thread is removed
-            $this->updateRoot($previousPost['user_id'], $previousPost['post_id']);
-        }
-        $this->flush();
-        self::$cache->delete_value(sprintf(self::ID_THREAD_KEY, $this->id));
-        return $affected;
-    }
-
     public function addThreadNote(?User $user, string $notes): int {
         self::$db->prepared_query("
             INSERT INTO forums_topic_notes
@@ -476,5 +438,43 @@ class ForumThread extends BaseObject {
             SELECT PostID FROM forums_last_read_topics WHERE UserID = ? AND TopicID = ?
             ", $user->id(), $this->id
         );
+    }
+
+    public function remove(): int {
+        $this->flushCatalogue();
+
+        // LastPostID is a chicken and egg situation when removing a thread,
+        // so foreign key constraints must be suspended temporarily.
+        $db = new DB();
+        $db->relaxConstraints(true);
+        self::$db->prepared_query("
+            DELETE ft, fp, unq
+            FROM forums_topics AS ft
+            LEFT JOIN forums_posts AS fp ON (fp.TopicID = ft.ID)
+            LEFT JOIN users_notify_quoted as unq ON (unq.PageID = ft.ID AND unq.Page = 'forums')
+            WHERE TopicID = ?
+            ", $this->id
+        );
+        $affected = self::$db->affected_rows();
+        $db->relaxConstraints(false);
+        $this->forum()->adjust();
+        (new Manager\Subscription())->moveThread($this, null);
+
+        $previousPost = self::$db->rowAssoc("
+            SELECT AuthorID AS user_id,
+                ID AS post_id
+            FROM forums_posts
+            WHERE TopicID = ?
+            ORDER BY ID DESC
+            LIMIT 1
+            ", $this->id
+        );
+        if ($previousPost) {
+            // there will be no posts when the last thread is removed
+            $this->updateRoot($previousPost['user_id'], $previousPost['post_id']);
+        }
+        $this->flush();
+        self::$cache->delete_value(sprintf(self::ID_THREAD_KEY, $this->id));
+        return $affected;
     }
 }

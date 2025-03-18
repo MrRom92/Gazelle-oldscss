@@ -251,7 +251,7 @@ class Helper {
             return;
         }
         foreach ($tgroup->torrentIdList() as $torrentId) {
-            $torMan->findById($torrentId)?->remove($user, 'phpunit teardown');
+            $torMan->findById($torrentId)?->removeTorrent($user, 'phpunit teardown');
         }
         $tgroup->remove();
     }

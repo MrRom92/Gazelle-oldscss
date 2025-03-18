@@ -48,4 +48,9 @@ class PM extends \Gazelle\BaseUser {
         );
         return $id ? new \Gazelle\PM($id, $this->user) : null;
     }
+
+    public function remove(): int {
+        // this class should probably not inherit from BaseUser...
+        return 0;
+    }
 }

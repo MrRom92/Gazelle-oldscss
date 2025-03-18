@@ -124,7 +124,7 @@ class ErrorLog extends \Gazelle\BaseManager {
         return $list;
     }
 
-    public function remove(array $list): int {
+    public function removeList(array $list): int {
         self::$db->prepared_query("
             DELETE FROM error_log WHERE error_log_id IN (
             " . placeholders($list) . ")", ...$list

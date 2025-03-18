@@ -270,7 +270,7 @@ abstract class AbstractComment extends \Gazelle\BaseObject {
         return true;
     }
 
-    public function remove(): bool {
+    public function remove(): int {
         $page = $this->page();
         [$commentPages, $commentPage] = self::$db->row("
             SELECT
@@ -282,7 +282,7 @@ abstract class AbstractComment extends \Gazelle\BaseObject {
             ", TORRENT_COMMENTS_PER_PAGE, $this->id, TORRENT_COMMENTS_PER_PAGE, $page, $this->pageId
         );
         if (is_null($commentPages)) {
-            return false;
+            return 0;
         }
 
         self::$db->begin_transaction();
@@ -290,14 +290,17 @@ abstract class AbstractComment extends \Gazelle\BaseObject {
             DELETE FROM comments WHERE ID = ?
             ", $this->id
         );
+        $affected = self::$db->affected_rows();
         self::$db->prepared_query("
             DELETE FROM comments_edits WHERE Page = ? AND PostID = ?
             ", $page, $this->id
         );
+        $affected += self::$db->affected_rows();
         self::$db->prepared_query("
             DELETE FROM users_notify_quoted WHERE Page = ? AND PostID = ?
             ", $page, $this->id
         );
+        $affected += self::$db->affected_rows();
         self::$db->commit();
 
         (new \Gazelle\Manager\Subscription())->flushPage($page, $this->pageId);
@@ -318,6 +321,6 @@ abstract class AbstractComment extends \Gazelle\BaseObject {
             // On collages, we also need to clear the collage key (collage_$CollageID), because it has the comments in it... (why??)
             self::$cache->delete_value(sprintf(\Gazelle\Collage::CACHE_KEY, $this->id));
         }
-        return true;
+        return $affected;
     }
 }

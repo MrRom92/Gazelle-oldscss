@@ -5,7 +5,15 @@ namespace Gazelle;
 class RipLog extends BaseObject {
     final public const tableName = 'torrents_logs';
 
+    public function __construct(
+        protected int $torrentId,
+        protected int $logId,
+    ) {
+        parent::__construct($logId);
+    }
+
     public function flush(): static {
+        unset($this->info);
         return $this;
     }
 
@@ -15,13 +23,6 @@ class RipLog extends BaseObject {
 
     public function link(): string {
         return "<a href=\"{$this->url()}\">Log #{$this->id}</a>";
-    }
-
-    public function __construct(
-        protected int $torrentId,
-        protected int $logId,
-    ) {
-        parent::__construct($logId);
     }
 
     public function info(): array {
@@ -103,5 +104,15 @@ class RipLog extends BaseObject {
 
     public function checkerVersion(): ?string {
         return $this->info()['checker_version'] === '' ? null : $this->info()['checker_version'];
+    }
+
+    public function remove(): int {
+        self::$db->prepared_query("
+            DELETE FROM torrents_logs WHERE TorrentID = ? AND LogID = ?
+            ", $this->torrentId(), $this->logId()
+        );
+        $affected = self::$db->affected_rows();
+        $this->flush();
+        return $affected;
     }
 }

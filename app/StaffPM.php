@@ -6,7 +6,7 @@ class StaffPM extends BaseObject {
     final public const tableName = 'staff_pm_conversations';
 
     public function flush(): static {
-        $this->info = [];
+        unset($this->info);
         return $this;
     }
 
@@ -27,22 +27,22 @@ class StaffPM extends BaseObject {
     }
 
     public function info(): array {
-        if (isset($this->info) && !empty($this->info)) {
+        if (isset($this->info)) {
             return $this->info;
         }
         $this->info = self::$db->rowAssoc("
-            SELECT spm.Subject     AS subject,
-                spm.UserID         AS user_id,
-                spm.Level          AS class_level,
-                coalesce(p.Name, concat('Level ', spm.Level))
+            SELECT spc.Subject     AS subject,
+                spc.UserID         AS user_id,
+                spc.Level          AS class_level,
+                coalesce(p.Name, concat('Level ', spc.Level))
                                    AS userclass_name,
-                spm.AssignedToUser AS assigned_user_id,
-                spm.Unread         AS unread,
-                spm.Status         AS status,
-                spm.Date           AS date
-            FROM staff_pm_conversations spm
+                spc.AssignedToUser AS assigned_user_id,
+                spc.Unread         AS unread,
+                spc.Status         AS status,
+                spc.Date           AS date
+            FROM staff_pm_conversations spc
             LEFT JOIN permissions p USING (Level)
-            WHERE spm.ID = ?
+            WHERE spc.ID = ?
             ", $this->id
         );
         return $this->info;
@@ -120,10 +120,10 @@ class StaffPM extends BaseObject {
 
     public function assignClass(int $level, User $viewer): int {
         self::$db->prepared_query("
-            UPDATE staff_pm_conversations
-            SET Status = 'Unanswered',
-                Level = ?,
-                AssignedToUser = NULL
+            UPDATE staff_pm_conversations SET
+                Status = 'Unanswered',
+                AssignedToUser = NULL,
+                Level = ?
             WHERE ID = ?",
             $level, $this->id
         );
@@ -230,5 +230,18 @@ class StaffPM extends BaseObject {
             }
         }
         return null;
+    }
+
+    public function remove(): int {
+        self::$db->prepared_query("
+            DELETE spc, spm
+            FROM staff_pm_conversations spc
+            LEFT JOIN staff_pm_messages spm ON (spm.ConvID = spc.ID)
+            WHERE spc.ID = ?
+            ", $this->id
+        );
+        $affected = self::$db->affected_rows();
+        $this->flush();
+        return $affected;
     }
 }

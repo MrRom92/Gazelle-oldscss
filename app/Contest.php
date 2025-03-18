@@ -16,8 +16,7 @@ class Contest extends BaseObject {
             sprintf(self::CACHE_CONTEST, $this->id),
             sprintf(self::CACHE_STATS, $this->id),
         ]);
-        unset($this->info);
-        unset($this->stats);
+        unset($this->info, $this->stats);
         return $this;
     }
 

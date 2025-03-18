@@ -216,17 +216,6 @@ abstract class AbstractCollage extends \Gazelle\Base {
         return $affected;
     }
 
-    public function remove(): int {
-        self::$db->prepared_query("
-            UPDATE collages SET
-                Deleted = '1'
-            WHERE Deleted = '0'
-                AND ID = ?
-            ", $this->id
-        );
-        return self::$db->affected_rows();
-    }
-
     /**
      * Hydrate an array from a query string (everything that follow '?')
      * This reimplements parse_str() and side-steps the issue of max_input_vars limits.
@@ -258,5 +247,16 @@ abstract class AbstractCollage extends \Gazelle\Base {
             }
         }
         return array_key_exists($param, $list) ? $list[$param] : []; /** @phpstan-ignore-line */
+    }
+
+    public function remove(): int {
+        self::$db->prepared_query("
+            UPDATE collages SET
+                Deleted = '1'
+            WHERE Deleted = '0'
+                AND ID = ?
+            ", $this->id
+        );
+        return self::$db->affected_rows();
     }
 }

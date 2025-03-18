@@ -6,7 +6,7 @@ class StaffBlog extends BaseObject {
     final public const tableName = 'staff_blog';
 
     public function flush(): static {
-        $this->info = [];
+        unset($this->info);
         return $this;
     }
 
@@ -19,7 +19,7 @@ class StaffBlog extends BaseObject {
     }
 
     public function info(): array {
-        if (isset($this->info) && !empty($this->info)) {
+        if (isset($this->info)) {
             return $this->info;
         }
         $this->info = self::$db->rowAssoc("
@@ -56,12 +56,11 @@ class StaffBlog extends BaseObject {
     }
 
     public function remove(): int {
-        self::$db->prepared_query("
-            DELETE FROM staff_blog WHERE ID = ?
-            ", $this->id
+        $affected = parent::remove();
+        self::$cache->delete_multi([
+            'staff_feed_blog',
+            Manager\StaffBlog::CACHE_KEY]
         );
-        $affected = self::$db->affected_rows();
-        self::$cache->delete_multi(['staff_feed_blog', Manager\StaffBlog::CACHE_KEY]);
         return $affected;
     }
 }

@@ -96,4 +96,9 @@ class TGroup extends \Gazelle\BaseObject {
     public function snatchTotal(): int {
         return $this->info()['snatch_total'];
     }
+
+    public function remove(): int {
+        // the object is a composition of info from other tables
+        return 0;
+    }
 }

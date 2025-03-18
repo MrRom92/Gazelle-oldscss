@@ -350,7 +350,7 @@ class Reaper extends \Gazelle\Base {
                     'name'     => $torrent->name(),
                     'tgroup'   => $torrent->group(),
                 ];
-                [$success, /* $message */] = $torrent->remove(null, $reason, -1);
+                [$success, /* $message */] = $torrent->removeTorrent(null, $reason, -1);
                 if ($success) {
                     $removed++;
                     $notes[]   = $note;

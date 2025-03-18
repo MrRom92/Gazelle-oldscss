@@ -80,7 +80,7 @@ class Ordinal extends \Gazelle\BaseUser {
             // the default value will be returned.
             // This avoids storing rows for all the users who
             // remain at the default.
-            return $this->remove($name);
+            return $this->removeOrdinal($name);
         }
 
         // have to create or modify the existing row
@@ -98,7 +98,7 @@ class Ordinal extends \Gazelle\BaseUser {
         return $affected;
     }
 
-    public function remove($name): int {
+    public function removeOrdinal($name): int {
         self::$db->prepared_query("
             DELETE FROM user_has_ordinal
             WHERE user_id = ?

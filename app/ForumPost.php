@@ -157,10 +157,15 @@ class ForumPost extends BaseObject {
         );
     }
 
+    public function modify(): bool {
+        $this->thread()->flushPostCatalogue($this);
+        return parent::modify();
+    }
+
     /**
      * Remove a post from a thread
      */
-    public function remove(): bool {
+    public function remove(): int {
         self::$db->begin_transaction();
         $db = new DB();
         $db->relaxConstraints(true);
@@ -171,10 +176,11 @@ class ForumPost extends BaseObject {
             WHERE fp.ID = ?
             ", $this->id
         );
-        if (self::$db->affected_rows() === 0) {
+        $affected = self::$db->affected_rows();
+        if ($affected === 0) {
             $db->relaxConstraints(false);
             self::$db->rollback();
-            return false;
+            return 0;
         }
 
         $thread = $this->thread();
@@ -205,6 +211,7 @@ class ForumPost extends BaseObject {
             WHERE t.ID = ?
             ", $this->id, $thread->id, $thread->id, $thread->id
         );
+        $affected += self::$db->affected_rows();
         $db->relaxConstraints(false);
         self::$db->commit();
 
@@ -213,11 +220,6 @@ class ForumPost extends BaseObject {
 
         $thread->flushPostCatalogue($this);
         $thread->flush();
-        return true;
-    }
-
-    public function modify(): bool {
-        $this->thread()->flushPostCatalogue($this);
-        return parent::modify();
+        return $affected;
     }
 }

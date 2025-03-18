@@ -22,13 +22,13 @@ class Forum extends BaseObject {
     }
 
     public function flush(): static {
-        $this->info = [];
         (new Manager\Forum())->flushToc();
         self::$cache->delete_multi([
             sprintf(self::CACHE_FORUM, $this->id),
             sprintf(self::CACHE_TOC_FORUM, $this->id),
             sprintf(self::CACHE_TOCV2_FORUM, $this->id),
         ]);
+        unset($this->info);
         return $this;
     }
 
@@ -56,15 +56,6 @@ class Forum extends BaseObject {
         return $changed == 1;
     }
 
-    public function remove(): int {
-        self::$db->prepared_query("
-            DELETE FROM forums WHERE ID = ?
-            ", $this->id
-        );
-        $this->flush();
-        return self::$db->affected_rows();
-    }
-
     /**
      * Basic information about a forum
      *
@@ -72,7 +63,7 @@ class Forum extends BaseObject {
      *      min_class_read, min_class_write, min_class_create, sequence, auto_lock, auto_lock_weeks]
      */
     public function info(): array {
-        if (isset($this->info) && !empty($this->info)) {
+        if (isset($this->info)) {
             return $this->info;
         }
         $key = sprintf(self::CACHE_FORUM, $this->id);

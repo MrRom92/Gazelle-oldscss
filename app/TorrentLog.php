@@ -12,6 +12,7 @@ class TorrentLog extends BaseObject {
 
     public function flush(): static {
         $this->torrent->flush();
+        unset($this->info);
         return $this;
     }
 
@@ -33,7 +34,7 @@ class TorrentLog extends BaseObject {
      * @return array of many things
      */
     public function info(): array {
-        if (isset($this->info) && !empty($this->info)) {
+        if (isset($this->info)) {
             return $this->info;
         }
         $info = self::$db->rowAssoc("

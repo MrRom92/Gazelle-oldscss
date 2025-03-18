@@ -12,11 +12,16 @@ class MultiFactorAuth extends \Gazelle\BaseUser {
 
     private string|false $secret;
 
+    public function flush(): static {
+        unset($this->secret);
+        return $this;
+    }
+
     protected function secret(): string|false {
         if (!isset($this->secret)) {
             $this->secret = $this->pg()->scalar('
                 select secret from multi_factor_auth where id_user = ?
-                ', $this->id()
+                ', $this->user->id
             ) ?? false;
         }
         return $this->secret;
@@ -29,7 +34,7 @@ class MultiFactorAuth extends \Gazelle\BaseUser {
     public function details(): ?array {
         return $this->pg()->rowAssoc('
             select ip, created from multi_factor_auth where id_user = ?
-            ', $this->id()
+            ', $this->user->id
         );
     }
 
@@ -41,7 +46,7 @@ class MultiFactorAuth extends \Gazelle\BaseUser {
             insert into multi_factor_auth
                    (id_user, secret, ip)
             values (?,       ?,      ?)
-            ", $this->id(), $key, $this->requestContext()->remoteAddr()
+            ", $this->user->id, $key, $this->requestContext()->remoteAddr()
         );
         if ($affectedRows < 1) {
             return null;
@@ -57,7 +62,7 @@ class MultiFactorAuth extends \Gazelle\BaseUser {
         }
 
         $msg = 'configured';
-        if (!$editor || $editor->id() === $this->id()) {
+        if ($editor?->id === $this->user->id) {
             $msg .= ' from ' . $this->requestContext()->remoteAddr();
         }
         $this->user->auditTrail()->addEvent(UserAuditEvent::mfa, $msg, $editor ?? $this->user);
@@ -77,7 +82,7 @@ class MultiFactorAuth extends \Gazelle\BaseUser {
         $userToken = (new Manager\UserToken())->findByToken($token);
         if (
             $userToken
-            && $userToken->user->id() === $this->id()
+            && $userToken->user->id === $this->user->id
             && $userToken->type() === UserTokenType::mfa
             && $userToken->consume()
         ) {
@@ -85,20 +90,6 @@ class MultiFactorAuth extends \Gazelle\BaseUser {
             return true;
         }
         return false;
-    }
-
-    public function remove(?User $editor = null): static {
-        $msg = 'removed';
-        if (!$editor || $editor->id() === $this->id()) {
-            $msg .= ' from ' . $this->requestContext()->remoteAddr();
-        }
-        $this->user->auditTrail()->addEvent(UserAuditEvent::mfa, $msg, $editor ?? $this->user);
-        $this->pg()->prepared_query('
-            delete from multi_factor_auth where id_user = ?
-            ', $this->id()
-        );
-        (new Manager\UserToken())->removeTokens($this->user, UserTokenType::mfa);
-        return $this->flush();
     }
 
     public function verify(string $token): bool {
@@ -114,8 +105,18 @@ class MultiFactorAuth extends \Gazelle\BaseUser {
         return true;
     }
 
-    public function flush(): static {
-        unset($this->secret);
-        return $this;
+    public function remove(): int {
+        $this->user->auditTrail()->addEvent(
+            UserAuditEvent::mfa,
+            "removed via {$this->requestContext()->remoteAddr()}",
+            $this->requestContext()->viewer(),
+        );
+        $affected = $this->pg()->prepared_query("
+            delete from multi_factor_auth where id_user = ?
+            ", $this->user->id
+        );
+        (new Manager\UserToken())->removeTokens($this->user, UserTokenType::mfa);
+        $this->flush();
+        return $affected;
     }
 }

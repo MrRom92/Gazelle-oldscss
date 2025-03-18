@@ -26,6 +26,6 @@ if (!$Viewer->permitted('users_edit_password')) {
         exit;
     }
 }
-$user->MFA()->remove($Viewer);
+$user->MFA()->remove();
 
 header("Location: {$user->location()}");

@@ -12,6 +12,6 @@ if (!$friend) {
     Error404::error("no such user found");
 }
 
-(new User\Friend($Viewer))->remove($friend);
+(new User\Friend($Viewer))->removeFriend($friend);
 
 header('Location: friends.php');

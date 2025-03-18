@@ -116,12 +116,7 @@ class Privilege extends BaseObject {
                 ", $this->id
             );
         }
-
-        self::$db->prepared_query("
-            DELETE FROM permissions WHERE ID = ?
-            ", $this->id
-        );
-        $affected = self::$db->affected_rows();
+        $affected = parent::remove();
         self::$cache->delete_value('classes');
         return $affected;
     }

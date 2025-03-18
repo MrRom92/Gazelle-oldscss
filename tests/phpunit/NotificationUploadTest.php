@@ -430,7 +430,7 @@ class NotificationUploadTest extends TestCase {
         $this->assertEquals(0, $stats['removed']['total'], 'notifier-ticket-stats-removed');
         $this->assertEquals(0, $stats['stale']['total'], 'notifier-ticket-stats-stale');
 
-        $newTorrent->remove($this->torrent->uploader(), 'notify second unit test');
+        $newTorrent->removeTorrent($this->torrent->uploader(), 'notify second unit test');
     }
 
     public function testNotificationSearch(): void {

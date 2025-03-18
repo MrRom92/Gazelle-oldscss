@@ -37,13 +37,8 @@ class TorrentFreeleechTest extends TestCase {
     }
 
     public function tearDown(): void {
-        $tgroup = $this->torrentList[0]->group();
-        $user   = $this->torrentList[0]->uploader();
-        $torMan = new Manager\Torrent();
-        foreach ($this->torrentList as $torrent) {
-            $torrent->remove($user, 'torman unit test');
-        }
-        $tgroup->remove($user);
+        $user = $this->torrentList[0]->uploader();
+        Helper::removeTGroup($this->torrentList[0]->group(), $user);
         $user->remove();
     }
 

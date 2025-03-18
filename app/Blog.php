@@ -104,20 +104,6 @@ class Blog extends BaseObject {
     }
 
     /**
-     * Remove an existing blog article, and thread if it exists
-     */
-    public function remove(): int {
-        $affected = $this->thread()?->remove();
-        self::$db->prepared_query("
-            DELETE FROM blog WHERE ID = ?
-            ", $this->id
-        );
-        $affected += self::$db->affected_rows();
-        $this->flush();
-        return $affected;
-    }
-
-    /**
      * Remove an the link to the forum topic of the blog article
      */
     public function removeThread(): int {
@@ -129,5 +115,12 @@ class Blog extends BaseObject {
         );
         $this->flush();
         return self::$db->affected_rows();
+    }
+
+    /**
+     * Remove an existing blog article, and thread if it exists
+     */
+    public function remove(): int {
+        return $this->thread()?->remove() + parent::remove();
     }
 }

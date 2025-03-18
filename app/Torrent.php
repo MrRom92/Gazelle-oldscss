@@ -301,125 +301,6 @@ class Torrent extends TorrentAbstract {
         return count($notify);
     }
 
-    /**
-     * Remove a torrent.
-     */
-    public function remove(?User $user, string $reason, int $trackerReason = -1, bool $removePoints = true): array {
-        $qid = self::$db->get_query_id();
-        self::$db->begin_transaction();
-        $this->info();
-        if ($this->id > MAX_PREV_TORRENT_ID && $removePoints) {
-            (new User\Bonus($this->uploader()))->removePointsForUpload($this);
-        }
-
-        $edition  = $this->edition();
-        $groupId  = $this->group()->id();
-        $infohash = $this->infohash();
-        $sizeMB   = number_format($this->size() / (1024 * 1024), 2) . ' MiB';
-        $name     = $this->name();
-        $media    = $this->media();
-        $format   = $this->format();
-        $encoding = $this->encoding();
-        (new Tracker())->update('delete_torrent', [
-            'id'        => $this->id,
-            'info_hash' => $this->infohashEncoded(),
-            'reason'    => $trackerReason,
-        ]);
-
-        $manager = new DB();
-        $manager->relaxConstraints(true);
-        [$ok, $message] = $manager->softDelete(MYSQL_DB, 'torrents_leech_stats', [['TorrentID', $this->id]], false);
-        if (!$ok) {
-            self::$db->rollback();
-            return [false, $message];
-        }
-        $manager->softDelete(MYSQL_DB, 'torrent_has_attr', [['TorrentID', $this->id]]);
-        $manager->softDelete(MYSQL_DB, 'torrents', [['ID', $this->id]]);
-        $manager->relaxConstraints(false);
-
-        self::$db->prepared_query("
-            DELETE FROM torrent_unseeded WHERE torrent_id = ?
-            ", $this->id
-        );
-
-        self::$db->prepared_query("
-            DELETE FROM torrent_unseeded_claim WHERE torrent_id = ?
-            ", $this->id
-        );
-
-        // Tells Sphinx that the group is removed
-        self::$db->prepared_query("
-            REPLACE INTO sphinx_delta
-                (ID, Time)
-            VALUES (?, now())
-            ", $this->id
-        );
-
-        self::$db->prepared_query("
-            UPDATE reportsv2 SET
-                Status = 'Resolved',
-                LastChangeTime = now(),
-                ModComment = 'Report already dealt with (torrent deleted)'
-            WHERE Status != 'Resolved'
-                AND TorrentID = ?
-            ", $this->id
-        );
-        $count = self::$db->affected_rows();
-        if ($count) {
-            self::$cache->decrement('num_torrent_reportsv2', $count);
-        }
-
-        // Torrent notifications
-        $this->pg()->prepared_query("
-            DELETE FROM notification_ticket WHERE id_torrent = ?
-            ", $this->id
-        );
-        self::$db->prepared_query("
-            SELECT concat('user_notify_upload_', UserID) as ck
-            FROM users_notify_torrents
-            WHERE TorrentID = ?
-            ", $this->id
-        );
-        $deleteKeys = self::$db->collect('ck', false);
-        $manager->softDelete(MYSQL_DB, 'users_notify_torrents', [['TorrentID', $this->id]]);
-
-        if (!is_null($user)) {
-            $key = sprintf(self::USER_RECENT_UPLOAD, $user->id());
-            $recent = self::$cache->get_value($key);
-            if (is_array($recent) && in_array($groupId, $recent)) {
-                $deleteKeys[] = $key;
-            }
-
-            self::$db->prepared_query("
-                INSERT INTO user_torrent_remove
-                       (user_id, torrent_id)
-                VALUES (?,       ?)
-                ", $user->id(), $this->id
-            );
-        }
-
-        $userInfo = $user ? " by " . $user->username() : '';
-        $this->logger()
-            ->torrent(
-                $this,
-                $user,
-                "deleted torrent [$edition] ($media/$format/$encoding $sizeMB $infohash) for reason: $reason"
-            )
-            ->general(
-                "Torrent {$this->id} ($name) [$edition] ($sizeMB $infohash) was deleted$userInfo for reason: $reason"
-            );
-        self::$db->commit();
-
-        array_push($deleteKeys, "zz_t_" . $this->id, sprintf(self::CACHE_KEY, $this->id), "torrent_group_" . $groupId);
-        self::$cache->delete_multi($deleteKeys);
-        self::$cache->decrement('stats_torrent_count');
-        $this->group()->refresh();
-        $this->flush();
-
-        self::$db->set_query_id($qid);
-        return [true, "torrent " . $this->id . " removed"];
-    }
-
     public function expireToken(User $user): int {
         $hash = (string)self::$db->scalar("
             SELECT info_hash FROM torrents WHERE ID = ?
@@ -590,5 +471,125 @@ class Torrent extends TorrentAbstract {
             ->modify();
         $this->flushFoldernameCache();
         return count($fileList);
+    }
+
+    /**
+     * Remove a torrent. There is additional context required that prevents the standard
+     * mechanism from being used.
+     */
+    public function removeTorrent(?User $user, string $reason, int $trackerReason = -1, bool $removePoints = true): array {
+        $qid = self::$db->get_query_id();
+        self::$db->begin_transaction();
+        $this->info();
+        if ($this->id > MAX_PREV_TORRENT_ID && $removePoints) {
+            (new User\Bonus($this->uploader()))->removePointsForUpload($this);
+        }
+
+        $edition  = $this->edition();
+        $groupId  = $this->group()->id();
+        $infohash = $this->infohash();
+        $sizeMB   = number_format($this->size() / (1024 * 1024), 2) . ' MiB';
+        $name     = $this->name();
+        $media    = $this->media();
+        $format   = $this->format();
+        $encoding = $this->encoding();
+        (new Tracker())->update('delete_torrent', [
+            'id'        => $this->id,
+            'info_hash' => $this->infohashEncoded(),
+            'reason'    => $trackerReason,
+        ]);
+
+        $manager = new DB();
+        $manager->relaxConstraints(true);
+        [$ok, $message] = $manager->softDelete(MYSQL_DB, 'torrents_leech_stats', [['TorrentID', $this->id]], false);
+        if (!$ok) {
+            self::$db->rollback();
+            return [false, $message];
+        }
+        $manager->softDelete(MYSQL_DB, 'torrent_has_attr', [['TorrentID', $this->id]]);
+        $manager->softDelete(MYSQL_DB, 'torrents', [['ID', $this->id]]);
+        $manager->relaxConstraints(false);
+
+        self::$db->prepared_query("
+            DELETE FROM torrent_unseeded WHERE torrent_id = ?
+            ", $this->id
+        );
+
+        self::$db->prepared_query("
+            DELETE FROM torrent_unseeded_claim WHERE torrent_id = ?
+            ", $this->id
+        );
+
+        // Tells Sphinx that the group is removed
+        self::$db->prepared_query("
+            REPLACE INTO sphinx_delta
+                (ID, Time)
+            VALUES (?, now())
+            ", $this->id
+        );
+
+        self::$db->prepared_query("
+            UPDATE reportsv2 SET
+                Status = 'Resolved',
+                LastChangeTime = now(),
+                ModComment = 'Report already dealt with (torrent deleted)'
+            WHERE Status != 'Resolved'
+                AND TorrentID = ?
+            ", $this->id
+        );
+        $count = self::$db->affected_rows();
+        if ($count) {
+            self::$cache->decrement('num_torrent_reportsv2', $count);
+        }
+
+        // Torrent notifications
+        $this->pg()->prepared_query("
+            DELETE FROM notification_ticket WHERE id_torrent = ?
+            ", $this->id
+        );
+        self::$db->prepared_query("
+            SELECT concat('user_notify_upload_', UserID) as ck
+            FROM users_notify_torrents
+            WHERE TorrentID = ?
+            ", $this->id
+        );
+        $deleteKeys = self::$db->collect('ck', false);
+        $manager->softDelete(MYSQL_DB, 'users_notify_torrents', [['TorrentID', $this->id]]);
+
+        if (!is_null($user)) {
+            $key = sprintf(self::USER_RECENT_UPLOAD, $user->id());
+            $recent = self::$cache->get_value($key);
+            if (is_array($recent) && in_array($groupId, $recent)) {
+                $deleteKeys[] = $key;
+            }
+
+            self::$db->prepared_query("
+                INSERT INTO user_torrent_remove
+                       (user_id, torrent_id)
+                VALUES (?,       ?)
+                ", $user->id(), $this->id
+            );
+        }
+
+        $userInfo = $user ? " by " . $user->username() : '';
+        $this->logger()
+            ->torrent(
+                $this,
+                $user,
+                "deleted torrent [$edition] ($media/$format/$encoding $sizeMB $infohash) for reason: $reason"
+            )
+            ->general(
+                "Torrent {$this->id} ($name) [$edition] ($sizeMB $infohash) was deleted$userInfo for reason: $reason"
+            );
+        self::$db->commit();
+
+        array_push($deleteKeys, "zz_t_" . $this->id, sprintf(self::CACHE_KEY, $this->id), "torrent_group_" . $groupId);
+        self::$cache->delete_multi($deleteKeys);
+        self::$cache->decrement('stats_torrent_count');
+        $this->group()->refresh();
+        $this->flush();
+
+        self::$db->set_query_id($qid);
+        return [true, "torrent " . $this->id . " removed"];
     }
 }

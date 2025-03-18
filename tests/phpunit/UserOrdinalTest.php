@@ -29,7 +29,7 @@ class UserOrdinalTest extends TestCase {
         $this->assertEquals(2, $this->user->ordinal()->increment($name, 300), 'ordinal-increment');
         $this->assertEquals(500, $this->user->ordinal()->value($name), 'ordinal-new-value');
 
-        $this->assertEquals(1, $this->user->ordinal()->remove($name), 'ordinal-remove');
+        $this->assertEquals(1, $this->user->ordinal()->removeOrdinal($name), 'ordinal-remove');
         $this->assertEquals(
             $this->user->ordinal()->defaultValue($name),
             $this->user->ordinal()->value($name),

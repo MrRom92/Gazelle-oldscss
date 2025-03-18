@@ -208,17 +208,17 @@ class Tag extends BaseObject {
     }
 
     public function removeTGroup(TGroup $tgroup): bool {
-        $tgroupId = $tgroup->id();
         self::$db->begin_transaction();
         self::$db->prepared_query("
             DELETE FROM torrents_tags_votes WHERE GroupID = ? AND TagID = ?
-            ", $tgroupId, $this->id
+            ", $tgroup->id, $this->id
         );
         self::$db->prepared_query("
             DELETE FROM torrents_tags WHERE GroupID = ? AND TagID = ?
-            ", $tgroupId, $this->id
+            ", $tgroup->id, $this->id
         );
-        if (!self::$db->affected_rows()) {
+        $affected = self::$db->affected_rows();
+        if (!$affected) {
             return false;
         }
 
@@ -230,19 +230,14 @@ class Tag extends BaseObject {
             SELECT count(*)
             FROM requests_tags rt
             INNER JOIN requests r ON (r.ID = rt.RequestID)
-            WHERE r.FillerID = 0 /* TODO: change to DEFAULT NULL */
+            WHERE r.FillerID = 0
                 AND rt.TagID = ?
             ", $this->id
         );
-        if (!$inUse) {
-            self::$db->prepared_query("
-                DELETE FROM tags WHERE ID = ?
-                ", $this->id
-            );
-        }
+        $affected += $inUse ? 0 : $this->remove();
 
         self::$db->commit();
         $tgroup->refresh();
-        return true;
+        return $affected != 0;
     }
 }

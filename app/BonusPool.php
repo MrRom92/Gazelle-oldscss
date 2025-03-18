@@ -12,8 +12,10 @@ class BonusPool extends BaseObject {
     ) {}
 
     public function flush(): static {
-        self::$cache->delete(Manager\Bonus::CACHE_OPEN_POOL);
-        self::$cache->delete_value(sprintf(self::CACHE_SENT, $this->id));
+        self::$cache->delete_multi([
+            sprintf(self::CACHE_SENT, $this->id),
+            Manager\Bonus::CACHE_OPEN_POOL,
+        ]);
         unset($this->info);
         return $this;
     }
@@ -56,5 +58,18 @@ class BonusPool extends BaseObject {
             self::$cache->cache_value($key, $total, 6 * 3600);
         }
         return $total;
+    }
+
+    public function remove(): int {
+        self::$db->prepared_query("
+            DELETE bp, bpc
+            FROM bonus_pool bp
+            LEFT JOIN bonus_pool_contrib bpc USING (bonus_pool_id)
+            WHERE bp.bonus_pool_id = ?
+            ", $this->id
+        );
+        $affected = self::$db->affected_rows();
+        $this->flush();
+        return $affected;
     }
 }

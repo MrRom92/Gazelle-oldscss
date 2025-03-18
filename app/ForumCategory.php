@@ -61,11 +61,8 @@ class ForumCategory extends BaseObject {
             // still in use
             return 0;
         }
-        self::$db->prepared_query("
-            DELETE FROM forums_categories WHERE ID = ?
-            ", $this->id
-        );
+        $affected = parent::remove();
         self::$cache->delete_value(Manager\ForumCategory::LIST_KEY);
-        return self::$db->affected_rows();
+        return $affected;
     }
 }

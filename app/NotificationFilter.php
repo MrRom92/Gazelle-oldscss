@@ -9,6 +9,7 @@ class NotificationFilter extends BaseObject {
     ];
 
     public function flush(): static {
+        unset($this->info);
         return $this;
     }
 
@@ -21,7 +22,7 @@ class NotificationFilter extends BaseObject {
     }
 
     public function info(): array {
-        if (isset($this->info) && !empty($this->info)) {
+        if (isset($this->info)) {
             return $this->info;
         }
         $info = self::$db->rowAssoc("

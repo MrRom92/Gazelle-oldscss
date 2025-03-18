@@ -445,13 +445,6 @@ class Collage extends BaseObject {
         return $this->collage->updateSequenceEntry($entry, $sequence);
     }
 
-    public function remove(): int {
-        self::$db->begin_transaction();
-        $rows = $this->collage->remove();
-        self::$db->commit();
-        return $rows;
-    }
-
     public function toggleLocked(): static {
         return $this->setField('Locked', $this->isLocked() ? '0' : '1');
     }
@@ -519,5 +512,9 @@ class Collage extends BaseObject {
             sprintf(Manager\Collage::ID_KEY, $this->id),
         ]);
         return $affected;
+    }
+
+    public function remove(): int {
+        return $this->collage->remove();
     }
 }

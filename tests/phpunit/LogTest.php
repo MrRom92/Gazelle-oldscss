@@ -118,7 +118,7 @@ class LogTest extends TestCase {
         $siteLog = new Manager\SiteLog(new Manager\User());
         $this->assertCount(2, $siteLog->tgroupLogList($this->tgroup->id()), 'torrentlog-has-log');
 
-        $torrent->remove($this->user, 'phpunit log delete');
+        $torrent->removeTorrent($this->user, 'phpunit log delete');
         $result = $siteLog->tgroupLogList($this->tgroup->id());
         $latest = current($result);
         $this->assertEquals(1, $latest['deleted'], 'torrentlog-latest-is-deleted');

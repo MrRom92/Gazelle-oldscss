@@ -30,14 +30,8 @@ class StaffGroup extends BaseObject {
     }
 
     public function remove(): int {
-        $id = $this->id;
-        self::$db->prepared_query("
-            DELETE FROM staff_groups WHERE ID = ?
-            ", $id
-        );
-        $affected = self::$db->affected_rows();
-        $this->flush();
-        self::$cache->delete_value(sprintf(Manager\StaffGroup::ID_KEY, $id));
+        $affected = parent::remove();
+        self::$cache->delete_value(sprintf(Manager\StaffGroup::ID_KEY, $this->id));
         return $affected;
     }
 }

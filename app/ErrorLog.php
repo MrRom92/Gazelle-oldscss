@@ -4,8 +4,10 @@ namespace Gazelle;
 
 class ErrorLog extends BaseObject {
     final public const tableName = 'error_log';
+    final public const pkName    = 'error_log_id';
 
     public function flush(): static {
+        unset($this->info);
         return $this;
     }
 
@@ -18,7 +20,7 @@ class ErrorLog extends BaseObject {
     }
 
     public function info(): array {
-        if (isset($this->info) && !empty($this->info)) {
+        if (isset($this->info)) {
             return $this->info;
         }
         $info = self::$db->rowAssoc("
@@ -44,15 +46,6 @@ class ErrorLog extends BaseObject {
         $info['error_list'] = json_decode($info['error_list'], true) ?? [];
         $this->info = $info;
         return $this->info;
-    }
-
-    public function remove(): int {
-        self::$db->prepared_query("
-            DELETE FROM error_log WHERE error_log_id = ?
-            ", $this->id
-        );
-        $this->info = [];
-        return self::$db->affected_rows();
     }
 
     public function created(): string {

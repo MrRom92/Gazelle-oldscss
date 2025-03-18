@@ -142,14 +142,9 @@ class ApplicantRole extends BaseObject {
             DELETE FROM applicant_role_has_user WHERE applicant_role_id = ?
             ", $this->id
         );
-        self::$db->prepared_query("
-            DELETE FROM applicant_role WHERE ID = ?
-            ", $this->id
-        );
-        $affected = self::$db->affected_rows();
+        $affected = self::$db->affected_rows() + parent::remove();
         (new Manager\Applicant())->flush();
         (new Manager\ApplicantRole())->flush();
-        $this->flush();
         return $affected;
     }
 }

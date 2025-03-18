@@ -302,4 +302,9 @@ class User extends \Gazelle\BaseObject {
             ", $this->id
         );
     }
+
+    public function remove(): int {
+        // the object is a composition of info from other tables
+        return 0;
+    }
 }

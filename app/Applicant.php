@@ -133,4 +133,10 @@ class Applicant extends BaseObject {
             ? $this->thread()->story()
             : array_filter($this->thread()->story(), fn($note) => $note['visibility'] == 'public');
     }
+
+    public function remove(): int {
+        $affected = parent::remove();
+        self::$cache->delete_value(sprintf(Manager\Applicant::ID_KEY, $this->id));
+        return $affected;
+    }
 }

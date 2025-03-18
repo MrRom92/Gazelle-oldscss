@@ -140,7 +140,7 @@ foreach ($torrentList as $torrentId) {
     $torrent = $torMan->findById((int)$torrentId);
     if ($torrent) {
         echo "torrent $torrentId\n";
-        $torrent->remove(null, 'garbage collection', -1);
+        $torrent->removeTorrent(null, 'garbage collection', -1);
     }
 }
 $tgMan = new Manager\TGroup();

@@ -55,7 +55,7 @@ class Friend extends \Gazelle\BaseUser {
         return self::$db->affected_rows();
     }
 
-    public function remove(\Gazelle\User $friend): int {
+    public function removeFriend(\Gazelle\User $friend): int {
         self::$db->prepared_query("
             DELETE FROM friends
             WHERE UserID = ?

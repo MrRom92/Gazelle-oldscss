@@ -55,6 +55,7 @@ class UserMultiFactorAuthTest extends TestCase {
         $this->assertTrue($mfa->verify($auth->getCode($secret)), 'utest-verify-good-mfa');
         $this->assertTrue($mfa->enabled(), 'utest-has-mfa-key');
 
+        $mfa->requestContext()->setViewer(($this->user));
         $mfa->remove();
         $this->assertEquals(0, $this->countTokens(), 'utest-remove-mfa');
         $mfaList = array_filter(

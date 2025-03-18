@@ -886,7 +886,47 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
         return $affected;
     }
 
-    public function remove(): bool {
+    public function rename(string $name): bool {
+        $oldName = $this->name();
+        $success = $this->setField('Name', $name)->modify();
+        if ($success) {
+            $this->refresh();
+            $this->logger()
+                ->group(
+                    $this, $this->viewer(), "renamed to \"$name\" from \"$oldName\""
+                )
+                ->general(
+                    "Torrent Group {$this->id} was renamed to \"$name\" from \"$oldName\" by {$this->viewer()->username()}"
+                );
+        }
+        return $success;
+    }
+
+    /**
+     * Return info about the deleted masterings of a torrent group.
+     *
+     * @return array of strings imploded by '!!'
+     *  [torrent_id, remastered, title, year, record_label, catalogue_number]
+     */
+    public function deletedMasteringList(): array {
+        self::$db->prepared_query("
+            SELECT d.Media                                                            AS media,
+                d.Remastered = '1'                                                    AS remastered,
+                d.RemasterTitle                                                       AS title,
+                if(d.Remastered = '1', d.RemasterYear, tg.Year)                       AS year,
+                if(d.Remastered = '1', d.RemasterRecordLabel, tg.RecordLabel)         AS record_label,
+                if(d.Remastered = '1', d.RemasterCatalogueNumber, tg.CatalogueNumber) AS catalogue_number
+            FROM deleted_torrents d
+            LEFT JOIN torrents_group tg ON (tg.ID = d.GroupID)
+            WHERE d.GroupID = ?
+            GROUP BY remastered, year, title, record_label, catalogue_number, media
+            ORDER BY remastered, year, title, record_label, catalogue_number, media
+            ", $this->id
+        );
+        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+    }
+
+    public function remove(): int {
         $isMusic = ($this->categoryName() === 'Music');
 
         // Artists
@@ -979,7 +1019,7 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
         $manager = new DB();
         [$ok, $message] = $manager->softDelete(MYSQL_DB, 'torrents_group', [['ID', $this->id]]);
         if (!$ok) {
-            return false;
+            return 0;
         }
 
         if ($isMusic) {
@@ -995,46 +1035,6 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
             sprintf(Manager\TGroup::ID_KEY, $this->id),
             sprintf(Manager\Torrent::CACHE_KEY_LATEST_UPLOADS, 5),
         ]);
-        return true;
-    }
-
-    public function rename(string $name): bool {
-        $oldName = $this->name();
-        $success = $this->setField('Name', $name)->modify();
-        if ($success) {
-            $this->refresh();
-            $this->logger()
-                ->group(
-                    $this, $this->viewer(), "renamed to \"$name\" from \"$oldName\""
-                )
-                ->general(
-                    "Torrent Group {$this->id} was renamed to \"$name\" from \"$oldName\" by {$this->viewer()->username()}"
-                );
-        }
-        return $success;
-    }
-
-    /**
-     * Return info about the deleted masterings of a torrent group.
-     *
-     * @return array of strings imploded by '!!'
-     *  [torrent_id, remastered, title, year, record_label, catalogue_number]
-     */
-    public function deletedMasteringList(): array {
-        self::$db->prepared_query("
-            SELECT d.Media                                                            AS media,
-                d.Remastered = '1'                                                    AS remastered,
-                d.RemasterTitle                                                       AS title,
-                if(d.Remastered = '1', d.RemasterYear, tg.Year)                       AS year,
-                if(d.Remastered = '1', d.RemasterRecordLabel, tg.RecordLabel)         AS record_label,
-                if(d.Remastered = '1', d.RemasterCatalogueNumber, tg.CatalogueNumber) AS catalogue_number
-            FROM deleted_torrents d
-            LEFT JOIN torrents_group tg ON (tg.ID = d.GroupID)
-            WHERE d.GroupID = ?
-            GROUP BY remastered, year, title, record_label, catalogue_number, media
-            ORDER BY remastered, year, title, record_label, catalogue_number, media
-            ", $this->id
-        );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return (int)$ok;
     }
 }

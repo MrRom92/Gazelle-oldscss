@@ -138,7 +138,7 @@ abstract class BaseObject extends Base {
         }
         $args[] = $this->id();
         self::$db->prepared_query(
-            "UPDATE " . static::tableName . " SET " . implode(', ', $set) . " WHERE " . static::pkName . " = ?",
+            "UPDATE /* BaseObject */ " . static::tableName . " SET " . implode(', ', $set) . " WHERE " . static::pkName . " = ?",
             ...$args
         );
         $success = (self::$db->affected_rows() === 1);
@@ -148,5 +148,25 @@ abstract class BaseObject extends Base {
             $this->flush();
         }
         return $success;
+    }
+
+    /**
+     * Remove an object. If there is no caching, this is all you need.
+     * It will blow up if there are non-cascading foreign keys still present,
+     * but that is probably what you want. Clean those first explicitly
+     * before calling this.
+     */
+    public function remove(): int {
+        self::$db->prepared_query(
+            "DELETE /* BaseObject */ FROM "
+                . static::tableName
+                . " WHERE "
+                . static::pkName
+                . " = ?",
+            $this->id
+        );
+        $affected = self::$db->affected_rows();
+        $this->flush();
+        return $affected;
     }
 }

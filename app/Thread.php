@@ -9,8 +9,9 @@ namespace Gazelle;
  */
 
 class Thread extends BaseObject {
-    final public const tableName     = 'thread';
-    protected const CACHE_KEY = "threadv2_%d";
+    final public const tableName = 'thread';
+    final public const pkName = 'ThreadID';
+    protected const CACHE_KEY    = "threadv2_%d";
 
     public function flush(): static {
         self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->id));

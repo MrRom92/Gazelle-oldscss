@@ -184,7 +184,7 @@ class RequestTest extends TestCase {
         $this->assertFalse($this->request->canEditOwn($user), 'request-edit-own-other');
         $this->assertFalse($this->request->canEdit($user), 'request-edit-other');
 
-        $this->assertTrue($this->request->remove(), 'request-remove');
+        $this->assertEquals(1, $this->request->remove(), 'request-remove');
         unset($this->request); // success, no need to tidy up
         $this->assertNull($manager->findById($id), 'request-gone');
     }

@@ -6,6 +6,7 @@ use Gazelle\Enum\FeaturedAlbumType;
 
 class FeaturedAlbum extends BaseObject {
     final public const tableName = 'featured_albums';
+    final public const pkName    = 'GroupID';
     final public const FEATURED  = 'feat_%s_%d';
 
     public function __construct(
@@ -83,16 +84,6 @@ class FeaturedAlbum extends BaseObject {
                 Ended = now()
             WHERE Ended IS NULL
                 AND GroupID = ?
-            ", $this->tgroupId()
-        );
-        $affected = self::$db->affected_rows();
-        $this->flush();
-        return $affected;
-    }
-
-    public function remove(): int {
-        self::$db->prepared_query("
-            DELETE FROM featured_albums WHERE GroupID = ?
             ", $this->tgroupId()
         );
         $affected = self::$db->affected_rows();

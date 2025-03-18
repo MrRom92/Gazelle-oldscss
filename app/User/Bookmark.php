@@ -3,7 +3,7 @@
 namespace Gazelle\User;
 
 class Bookmark extends \Gazelle\BaseUser {
-    final public const tableName = 'pm_conversations_users';
+    final public const tableName = 'pm_conversations_users'; // not really
 
     protected array $all;
 
@@ -301,7 +301,7 @@ class Bookmark extends \Gazelle\BaseUser {
     /**
      * Remove a bookmark of an object by a user
      */
-    public function remove(string $type, int $id): int {
+    public function removeObject(string $type, int $id): int {
         [$table, $column] = $this->schema($type);
         self::$db->prepared_query("
             DELETE FROM $table WHERE UserID = ?  AND $column = ?
@@ -313,6 +313,25 @@ class Bookmark extends \Gazelle\BaseUser {
         if ($type === 'torrent' && self::$db->affected_rows()) {
             self::$cache->delete_value("bookmarks_group_ids_" . $this->user->id());
             (new \Gazelle\TGroup($id))->stats()->increment('bookmark_total', -1);
+        }
+        return $affected;
+    }
+
+    public function remove(): int {
+        $affected = 0;
+        foreach (
+            [
+                'bookmarks_artists',
+                'bookmarks_collages',
+                'bookmarks_requests',
+                'bookmarks_torrents',
+            ] as $table
+        ) {
+            self::$db->prepared_query("
+                DELETE FROM $table WHERE UserID = ?
+                ", $this->id
+            );
+            $affected += self::$db->affected_rows();
         }
         return $affected;
     }

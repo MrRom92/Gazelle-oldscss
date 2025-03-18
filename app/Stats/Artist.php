@@ -65,4 +65,9 @@ class Artist extends \Gazelle\BaseObject {
     public function torrentTotal(): int {
         return $this->info()['torrent_total'];
     }
+
+    public function remove(): int {
+        // the object is a composition of info from other tables
+        return 0;
+    }
 }
