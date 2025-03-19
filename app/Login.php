@@ -5,8 +5,6 @@ namespace Gazelle;
 use Gazelle\Enum\UserAuditEvent;
 
 class Login extends Base {
-    use Pg;
-
     final public const NO_ERROR = 0;
     final public const ERR_CREDENTIALS = 1;
     final public const ERR_UNCONFIRMED = 2;

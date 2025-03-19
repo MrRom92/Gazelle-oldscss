@@ -3,6 +3,8 @@
 namespace Gazelle;
 
 abstract class Base {
+    use Pg;
+
     protected static DB\Mysql $db;
     protected static Cache $cache;
     protected static BaseRequestContext $requestContext;

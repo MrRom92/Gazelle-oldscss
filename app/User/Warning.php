@@ -3,8 +3,6 @@
 namespace Gazelle\User;
 
 class Warning extends \Gazelle\BaseUser {
-    use \Gazelle\Pg;
-
     final public const tableName = 'user_warning';
 
     protected array $info;

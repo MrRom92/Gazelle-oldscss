@@ -8,8 +8,6 @@ namespace Gazelle\Manager;
  */
 
 class IPv4 extends \Gazelle\Base {
-    use \Gazelle\Pg;
-
     final protected const CACHE_KEY = 'ipv4_bans_';
 
     protected string $filterNotes;

@@ -5,8 +5,6 @@ namespace Gazelle\Stats;
 use Gazelle\Enum\UserStatus;
 
 class Economic extends \Gazelle\Base {
-    use \Gazelle\Pg;
-
     final public const CACHE_KEY = 'stats_eco';
 
     protected array $info;

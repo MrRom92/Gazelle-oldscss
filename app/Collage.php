@@ -6,7 +6,6 @@ use Gazelle\Enum\CollageType;
 use Gazelle\Enum\LeechType;
 use Gazelle\Enum\LeechReason;
 use Gazelle\Intf\CollageEntry;
-use Pg;
 
 class Collage extends BaseObject {
     /**

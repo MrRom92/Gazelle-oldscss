@@ -3,8 +3,6 @@
 namespace Gazelle\Search;
 
 class IPv4 extends \Gazelle\Base {
-    use \Gazelle\Pg;
-
     final public const ASC = 0;
     final public const DESC = 1;
 

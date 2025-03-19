@@ -8,8 +8,6 @@ namespace Gazelle\Manager;
  */
 
 class EmailBlacklist extends \Gazelle\Base {
-    use \Gazelle\Pg;
-
     protected string $filterComment;
     protected string $filterEmail;
 

@@ -6,8 +6,6 @@ namespace Gazelle\ReportAuto;
  * A ReportAuto\Type is a type for some report. This Type can belong to a category.
  */
 class Type extends \Gazelle\Base {
-    use \Gazelle\Pg;
-
     protected array $info;
 
     public function __construct(

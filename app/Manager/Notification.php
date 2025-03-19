@@ -6,8 +6,6 @@ use Gazelle\Enum\NotificationTicketState;
 use Gazelle\Enum\NotificationType;
 
 class Notification extends \Gazelle\Base {
-    use \Gazelle\Pg;
-
     // Option types
     final public const OPT_PUSH             = 3;
     final public const OPT_POPUP_PUSH       = 4;

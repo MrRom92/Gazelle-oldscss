@@ -3,8 +3,6 @@
 namespace Gazelle\User;
 
 class Notification extends \Gazelle\BaseUser {
-    use \Gazelle\Pg;
-
     final public const tableName    = 'users_notifications_settings';
     final protected const CACHE_KEY = 'u_notif2_%d';
 

@@ -3,8 +3,6 @@
 namespace Gazelle;
 
 class Forum extends BaseObject {
-    use Pg;
-
     final public const tableName         = 'forums';
     final public const CACHE_FORUM       = 'forum_%d';
     final public const CACHE_THREAD_INFO = 'thread_%d_info';

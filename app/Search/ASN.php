@@ -3,20 +3,16 @@
 namespace Gazelle\Search;
 
 class ASN extends \Gazelle\Base {
-    public function __construct(
-        protected \Gazelle\DB\Pg $pg = new \Gazelle\DB\Pg(PG_RW_DSN)
-    ) { }
-
     public function findByASN(int $asn): array {
         return [
-            'info' => $this->pg->rowAssoc("
+            'info' => $this->pg()->rowAssoc("
                 SELECT a.name,
                     a.cc
                 FROM geo.asn a
                 WHERE a.id_asn = ?
                 ", $asn
             ),
-            'network' => $this->pg->all("
+            'network' => $this->pg()->all("
                 SELECT an.network
                 FROM geo.asn_network an
                 WHERE an.id_asn = ?
@@ -32,7 +28,7 @@ class ASN extends \Gazelle\Base {
         }
         $ipList = array_map(fn ($ip) => $ip === '' ? '0.0.0.0' : $ip, $ipList);
         $ipList = array_map(fn ($ip) => str_contains($ip, '%3A') ? '0.0.0.0' : $ip, $ipList); // filter truncated IPv6 addresses from ocelot
-        $result = $this->pg->all("
+        $result = $this->pg()->all("
             SELECT lu.ip,
                 an.network,
                 coalesce(a.cc, 'XX')        AS cc,
@@ -54,7 +50,7 @@ class ASN extends \Gazelle\Base {
     }
 
     public function searchName(string $text): array {
-        return $this->pg->all("
+        return $this->pg()->all("
             SELECT id_asn,
                 cc,
                 name,
@@ -70,7 +66,7 @@ class ASN extends \Gazelle\Base {
     }
 
     public function similarName(string $text): array {
-        return $this->pg->all("
+        return $this->pg()->all("
             SELECT word,
                 similarity(word, ?) as similarity
             FROM geo.asn_trg

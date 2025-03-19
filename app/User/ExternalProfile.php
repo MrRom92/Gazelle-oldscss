@@ -3,8 +3,6 @@
 namespace Gazelle\User;
 
 class ExternalProfile extends \Gazelle\BaseUser {
-    use \Gazelle\Pg;
-
     final public const tableName = 'user_external_profile';
     final public const pkName    = 'id_user';
 

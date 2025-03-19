@@ -3,8 +3,6 @@
 namespace Gazelle\Manager;
 
 class SSLHost extends \Gazelle\Base {
-    use \Gazelle\Pg;
-
     public function lookup(string $hostname, int $port): array {
         if (!preg_match('/^(?:[\w-]+)(?:\.[\w-]+)+$/', $hostname)) {
             return [];

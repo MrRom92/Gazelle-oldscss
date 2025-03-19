@@ -3,8 +3,6 @@
 namespace Gazelle\Manager;
 
 class DNU extends \Gazelle\Base {
-    use \Gazelle\Pg;
-
     public function create(
         string        $name,
         string        $description,

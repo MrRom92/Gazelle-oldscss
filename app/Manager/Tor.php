@@ -3,28 +3,24 @@
 namespace Gazelle\Manager;
 
 class Tor extends \Gazelle\Base {
-    public function __construct(
-        protected \Gazelle\DB\Pg $pg = new \Gazelle\DB\Pg(PG_RW_DSN)
-    ) { }
-
     public function add(string $text): int {
         if (!preg_match_all('/(\d{1,3}(?:\.\d{1,3}){3})/', $text, $match)) {
             return 0;
         }
         $quad = array_unique($match[0]);
 
-        $this->pg->pdo()->beginTransaction();
-        $this->pg->pdo()->query("
+        $this->pg()->pdo()->beginTransaction();
+        $this->pg()->pdo()->query("
             CREATE TEMPORARY TABLE tor_node_new (ipv4 inet)
         ");
-        $this->pg->prepared_query(
+        $this->pg()->prepared_query(
             sprintf("
                 INSERT INTO tor_node_new (ipv4) VALUES %s
                 ", placeholders($quad, '(?)')
             ), ...$quad
         );
 
-        $st = $this->pg->pdo()->query("
+        $st = $this->pg()->pdo()->query("
             DELETE FROM tor_node
             WHERE ipv4 NOT IN (
                 SELECT ipv4 FROM tor_node_new
@@ -34,29 +30,29 @@ class Tor extends \Gazelle\Base {
         if ($st) {
             $changed = -$st->rowCount();
         }
-        $this->pg->pdo()->query("
+        $this->pg()->pdo()->query("
             DELETE FROM tor_node_new
             WHERE ipv4 IN (
                 SELECT ipv4 FROM tor_node
             )
         ");
-        $st = $this->pg->pdo()->query("
+        $st = $this->pg()->pdo()->query("
             INSERT INTO tor_node (ipv4)
                 SELECT ipv4 FROM tor_node_new
         ");
         if ($st) {
             $changed += $st->rowCount();
         }
-        $this->pg->pdo()->query("
+        $this->pg()->pdo()->query("
             DROP TABLE tor_node_new
         ");
-        $this->pg->pdo()->commit();
+        $this->pg()->pdo()->commit();
 
         return $changed;
     }
 
     public function exitNodeList(): array {
-        return $this->pg->all("
+        return $this->pg()->all("
             SELECT t.ipv4,
                 t.created,
                 coalesce(a.cc, 'XX') as cc,
@@ -70,7 +66,7 @@ class Tor extends \Gazelle\Base {
     }
 
     public function isExitNode(string $ip): bool {
-        return BLOCK_TOR ? (bool)$this->pg->scalar("
+        return BLOCK_TOR ? (bool)$this->pg()->scalar("
             SELECT 1 FROM tor_node WHERE ipv4 = ?
             ", $ip
         ) : false;

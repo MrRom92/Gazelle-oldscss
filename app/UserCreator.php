@@ -9,8 +9,6 @@ use Gazelle\Exception\UserCreatorException;
 use Gazelle\Util\Time;
 
 class UserCreator extends Base {
-    use Pg;
-
     protected bool   $newInstall;
     protected array  $note = [];
     protected array  $email = [];

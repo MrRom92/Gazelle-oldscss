@@ -8,8 +8,6 @@ use Gazelle\Manager;
 use Gazelle\User;
 
 class MultiFactorAuth extends \Gazelle\BaseUser {
-    use \Gazelle\Pg;
-
     protected const RECOVERY_KEY_LEN = 20;
 
     private string|false $secret;

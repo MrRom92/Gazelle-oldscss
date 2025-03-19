@@ -3,8 +3,6 @@
 namespace Gazelle;
 
 class LoginWatch extends Base {
-    use Pg;
-
     protected int $id;
     protected int $userId = 0;
 

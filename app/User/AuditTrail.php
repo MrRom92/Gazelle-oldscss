@@ -6,8 +6,6 @@ use Gazelle\Enum\UserAuditEvent;
 use Gazelle\Enum\UserAuditOrder;
 
 class AuditTrail extends \Gazelle\BaseUser {
-    use \Gazelle\Pg;
-
     public function flush(): static {
         return $this;
     }

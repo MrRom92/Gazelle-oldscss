@@ -3,8 +3,6 @@
 namespace Gazelle\Manager;
 
 class SiteLog extends \Gazelle\Base {
-    use \Gazelle\Pg;
-
     final protected const CACHE_TERM  = 'site_log_';
 
     protected array $usernames  = [];

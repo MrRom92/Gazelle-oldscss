@@ -3,10 +3,8 @@
 namespace Gazelle\Manager;
 
 class InviteSource extends \Gazelle\Base {
-    use \Gazelle\Pg;
-
     /**
-     * Create an invitation source name (usually the initials or acronym of a tracker
+     * Create an invitation source name (usually the initials or acronym of a tracker)
      */
     public function create(string $name): int {
         self::$db->prepared_query("

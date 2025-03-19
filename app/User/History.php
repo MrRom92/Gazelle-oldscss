@@ -3,8 +3,6 @@
 namespace Gazelle\User;
 
 class History extends \Gazelle\BaseUser {
-    use \Gazelle\Pg;
-
     public function __construct(
         \Gazelle\User $user,
         protected string $column = 'ip',

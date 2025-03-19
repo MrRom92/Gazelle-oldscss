@@ -5,8 +5,6 @@ namespace Gazelle\User;
 use Gazelle\Enum\UserTokenType;
 
 class Token extends \Gazelle\BaseUser {
-    use \Gazelle\Pg;
-
     final public const tableName = 'user_token';
 
     public function flush(): static {

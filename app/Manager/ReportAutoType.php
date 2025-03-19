@@ -3,8 +3,6 @@
 namespace Gazelle\Manager;
 
 class ReportAutoType extends \Gazelle\BaseManager {
-    use \Gazelle\Pg;
-
     protected array $reportTypes = [];
 
     public function findById(int $id): ?\Gazelle\ReportAuto\Type {

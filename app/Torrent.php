@@ -3,8 +3,6 @@
 namespace Gazelle;
 
 class Torrent extends TorrentAbstract {
-    use Pg;
-
     final public const tableName               = 'torrents';
     final public const CACHE_KEY               = 't2_%d';
     final public const CACHE_FOLDERNAME        = 'foldername_%s';

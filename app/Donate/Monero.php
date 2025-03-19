@@ -2,11 +2,10 @@
 
 namespace Gazelle\Donate;
 
-use Gazelle\Pg;
 use MoneroIntegrations\MoneroPhp;
 
 class Monero {
-    use Pg;
+    use \Gazelle\Pg;
 
     private readonly string $spendKey;
     private readonly string $viewKey;
