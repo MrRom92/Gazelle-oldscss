@@ -56,7 +56,7 @@ $bookmark = new User\Bookmark($Viewer);
 $imgProxy = new Util\ImageProxy($Viewer);
 $snatcher = $Viewer->snatch();
 
-\View::show_header(($ownProfile ? 'My' : $user->username() . "'s") . ' notifications', ['js' => 'notifications']);
+View::show_header(($ownProfile ? 'My' : $user->username() . "'s") . ' notifications', ['js' => 'notifications']);
 ?>
 <div class="thin widethin">
 <div class="header">
@@ -174,4 +174,4 @@ $snatcher = $Viewer->snatch();
     }
     echo $paginator->linkbox();
 }
-\View::show_footer();
+View::show_footer();

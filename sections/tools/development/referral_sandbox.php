@@ -56,7 +56,7 @@ if (isset($_POST['url'])) {
     }
 }
 
-\View::show_header("Referral Sandbox");
+View::show_header("Referral Sandbox");
 ?>
 <style type="text/css">
 div#preview {display: none;}
@@ -196,5 +196,5 @@ var_dump($response)
 <?php } ?>
 </div>
 <?php
-\View::show_footer();
+View::show_footer();
 

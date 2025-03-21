@@ -31,7 +31,7 @@ if (!$Viewer->permitted('admin_manage_referrals')) {
 $ReferralManager = new Manager\Referral();
 $ReferralAccounts = $ReferralManager->getFullAccounts();
 
-\View::show_header('Referral Accounts');
+View::show_header('Referral Accounts');
 ?>
 <div class="header">
     <h2>Referral account manager</h2>
@@ -137,5 +137,5 @@ if (!$ReferralManager->readOnly) {
 } ?>
 </table>
 <?php
-    \View::show_footer();
+    View::show_footer();
 

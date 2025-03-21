@@ -86,7 +86,7 @@ $transitions = (new Manager\ForumTransition())->threadTransitionList($Viewer, $t
 $department = $forum->departmentList($Viewer);
 $auth = $Viewer->auth();
 
-\View::show_header("Forums › $ForumName › {$thread->title()}",
+View::show_header("Forums › $ForumName › {$thread->title()}",
      ['js' => 'comments,subscriptions,bbcode' . ($IsDonorForum ? ',donor_titles' : '')]
 );
 echo $Twig->render('forum/thread-header.twig', [

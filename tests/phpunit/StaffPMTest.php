@@ -3,6 +3,8 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
+use Gazelle\Util\Textarea;
 
 class StaffPMTest extends TestCase {
     protected Manager\StaffPM $spMan;
@@ -14,10 +16,10 @@ class StaffPMTest extends TestCase {
 
     public function setUp(): void {
         $this->spMan = new Manager\StaffPM();
-        $this->fls   = \GazelleUnitTest\Helper::makeUser('spm_fls_' . randomString(10), 'staffpm');
-        $this->mod   = \GazelleUnitTest\Helper::makeUser('spm_mod_' . randomString(10), 'staffpm');
-        $this->sysop = \GazelleUnitTest\Helper::makeUser('spm_sysop_' . randomString(10), 'staffpm');
-        $this->user  = \GazelleUnitTest\Helper::makeUser('spm_user_' . randomString(10), 'staffpm');
+        $this->fls   = Helper::makeUser('spm_fls_' . randomString(10), 'staffpm');
+        $this->mod   = Helper::makeUser('spm_mod_' . randomString(10), 'staffpm');
+        $this->sysop = Helper::makeUser('spm_sysop_' . randomString(10), 'staffpm');
+        $this->user  = Helper::makeUser('spm_user_' . randomString(10), 'staffpm');
 
         $this->fls->addClasses([FLS_TEAM]);
         $this->mod->setField('PermissionID', MOD)->modify();
@@ -228,5 +230,11 @@ class StaffPMTest extends TestCase {
         $this->assertCount($initial + 2, $this->spMan->commonAnswerList(), 'spm-common-list');
 
         $this->assertEquals(1, $this->spMan->removeCommonAnswer($third), 'spm-common-tidy');
+        // flush the context to play nicely with the CI
+        $this->assertStringStartsWith(
+            "TextareaPreview.factory([[0, 'answer-",
+            Textarea::factory(),
+            'spm-common-textarea',
+        );
     }
 }

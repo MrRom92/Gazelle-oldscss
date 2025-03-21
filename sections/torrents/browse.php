@@ -313,4 +313,4 @@ foreach ($Results as $Key => $GroupID) {
 <?= $paginator->linkbox() ?>
 </div>
 <?php
-\View::show_footer();
+View::show_footer();

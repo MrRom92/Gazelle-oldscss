@@ -333,4 +333,4 @@ echo $Twig->render('comment/thread.twig', [
 </div>
 </div>
 <?php
-\View::show_footer();
+View::show_footer();

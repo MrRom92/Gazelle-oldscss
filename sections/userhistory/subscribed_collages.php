@@ -25,7 +25,7 @@ $reportMan = new Manager\Report(new Manager\User());
 $snatcher  = $Viewer->snatch();
 $urlStem   = (new User\Stylesheet($Viewer))->imagePath();
 
-\View::show_header('Subscribed collages', ['js' => 'browse,collage']);
+View::show_header('Subscribed collages', ['js' => 'browse,collage']);
 ?>
 <div class="thin">
     <div class="header">

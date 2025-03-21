@@ -44,7 +44,7 @@ $artistLeaderboard = $bookmark->torrentArtistLeaderboard(new Manager\Artist());
 $tagLeaderboard    = $bookmark->torrentTagLeaderboard();
 $CollageCovers     = (int)($Viewer->option('CollageCovers') ?? 25);
 
-\View::show_header($user->username() . " › Bookmarked torrent groups", ['js' => 'browse,collage']);
+View::show_header($user->username() . " › Bookmarked torrent groups", ['js' => 'browse,collage']);
 ?>
 <div class="thin">
     <div class="header">
@@ -82,7 +82,7 @@ if (count($bookmarkList) === 0) { ?>
     </div>
 </div>
 <?php
-    \View::show_footer();
+    View::show_footer();
     die();
 } ?>
     <div class="sidebar">
@@ -298,4 +298,4 @@ foreach ($bookmarkList as $bm) {
 </div>
 
 <?php
-\View::show_footer();
+View::show_footer();

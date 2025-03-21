@@ -22,8 +22,6 @@ class RenderUserTest extends TestCase {
         $this->userList['admin']->setField('PermissionID', SYSOP)->modify();
         $this->userList['user'] = \GazelleUnitTest\Helper::makeUser('user.' . randomString(6), 'render');
 
-        global $Viewer;
-        $Viewer  = $this->userList['admin'];
         $limiter = new User\UserclassRateLimit($this->userList['user']);
         $userMan = new Manager\User();
         Util\Twig::setViewer($this->userList['user']);
@@ -41,8 +39,9 @@ class RenderUserTest extends TestCase {
             'user-sidebar-general'
         );
 
+        Util\Twig::setViewer($this->userList['admin']);
         $header = Util\Twig::factory($userMan)->render('user/header.twig', [
-            'badge_list' => $Viewer->privilege()->badgeList(),
+            'badge_list' => $this->userList['admin']->privilege()->badgeList(),
             'bonus'      => new User\Bonus($this->userList['user']),
             'donor'      => new User\Donor($this->userList['user']),
             'freeleech' => [
@@ -53,7 +52,7 @@ class RenderUserTest extends TestCase {
             'preview_user' => $this->userList['user'],
             'user'         => $this->userList['user'],
             'userMan'      => $userMan,
-            'viewer'       => $Viewer,
+            'viewer'       => $this->userList['admin'],
         ]);
         $this->assertStringContainsString('<div class="header">', $header, 'user-header-div-header');
         $this->assertStringContainsString('<div class="linkbox">', $header, 'user-header-div-linkbox');

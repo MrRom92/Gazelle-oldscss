@@ -52,9 +52,6 @@ class ApplicantTest extends TestCase {
 
         $this->userList['user'] = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'applicant');
         $manager = new Manager\Applicant();
-        // YUCK
-        global $Viewer;
-        $Viewer = $this->userList['user'];
         $apply  = $published->apply($this->userList['user'], 'application message');
 
         $this->assertInstanceOf(Applicant::class, $apply, 'applicant-instance');
@@ -127,8 +124,6 @@ class ApplicantTest extends TestCase {
             $roleManager->create('phpunit ' . randomString(6), 'this is a phpunit admin role', true, $this->userList['admin']);
 
         $this->userList['user'] = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'applicant');
-        global $Viewer;
-        $Viewer = $this->userList['user'];
         $applyBasic = $basic->apply($this->userList['user'], 'application message');
 
         $this->userList['another'] = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'applicant');

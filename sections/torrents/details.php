@@ -21,7 +21,7 @@ if (is_null($tgroup)) {
 $tgroupId = $tgroup->id();
 $RevisionID = (int)($_GET['revisionid'] ?? 0);
 
-// Comments (must be loaded before \View::show_header so that subscriptions and quote notifications are handled properly)
+// Comments (must be loaded before View::show_header so that subscriptions and quote notifications are handled properly)
 $commentPage = new Comment\Torrent($tgroupId, (int)($_GET['page'] ?? 0), (int)($_GET['postid'] ?? 0));
 $commentPage->load()->handleSubscription($Viewer);
 
@@ -242,4 +242,4 @@ echo $Twig->render('tgroup/similar.twig', [
     </div>
 </div>
 <?php
-\View::show_footer();
+View::show_footer();

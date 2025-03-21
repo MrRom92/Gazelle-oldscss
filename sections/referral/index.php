@@ -26,17 +26,17 @@ $ReferralManager = new Manager\Referral();
 $Accounts = $ReferralManager->getActiveAccounts();
 
 if (!OPEN_EXTERNAL_REFERRALS || !count($Accounts) || $ReferralManager->readOnly) {
-    \View::show_header("Referrals are closed");
+    View::show_header("Referrals are closed");
 ?>
 <div class="thin" style="text-align: center;">
     <strong class="important_text">Sorry, <?= SITE_NAME ?> is currently not accepting referrals.</strong>
 </div>
 <?php
-    \View::show_footer();
+    View::show_footer();
     exit;
 }
 
-\View::show_header('External Tracker Referrals');
+View::show_header('External Tracker Referrals');
 ?>
 
 <br />
@@ -157,4 +157,4 @@ if (!OPEN_EXTERNAL_REFERRALS || !count($Accounts) || $ReferralManager->readOnly)
 <?php
     }
 }
-\View::show_footer();
+View::show_footer();

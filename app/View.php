@@ -1,8 +1,10 @@
 <?php
 // phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
 
-class View {
-    use \Gazelle\Pg;
+namespace Gazelle;
+
+class View extends Base {
+    use Pg;
 
     /**
      * Display the page header
@@ -18,60 +20,58 @@ class View {
      */
     public static function header(string $pageTitle, array $option = []): string {
         $js = isset($option['js']) ? array_map(fn($s) => "$s.js", explode(',', $option['js'])) : [];
-        global $Viewer;
-        global $Twig;
-        if (!isset($Viewer)) {
-            return $Twig->render('index/public-header.twig', [
+        if (!Base::staticRequestContext()->hasViewer()) {
+            return self::$twig->render('index/public-header.twig', [
                 'page_title' => $pageTitle,
                 'script'     => $js,
             ]);
         }
+        $user = Base::staticRequestContext()->viewer();
 
-        $staffPmManager = new Gazelle\Manager\StaffPM();
-        $activity = new Gazelle\User\Activity($Viewer);
-        $activity->configure()
-            ->setStaffPM($staffPmManager);
+        $staffPmManager = new Manager\StaffPM();
+        $activity = new User\Activity($user);
+        $activity->configure()->setStaffPM($staffPmManager);
 
-        $notifier  = new Gazelle\User\Notification($Viewer);
-        $module    = $Viewer->requestContext()->module();
+        $notifier  = new User\Notification($user);
+        $module    = $user->requestContext()->module();
         $alertList = $notifier->setDocument($module, $_REQUEST['action'] ?? '')->alertList();
         foreach ($alertList as $alert) {
-            if (in_array($alert->display(), [Gazelle\User\Notification::DISPLAY_TRADITIONAL, Gazelle\User\Notification::DISPLAY_TRADITIONAL_PUSH])) {
+            if (in_array($alert->display(), [User\Notification::DISPLAY_TRADITIONAL, User\Notification::DISPLAY_TRADITIONAL_PUSH])) {
                 $activity->setAlert(sprintf('<a href="%s">%s</a>', $alert->notificationUrl(), $alert->title()));
             }
         }
 
-        $payMan = new Gazelle\Manager\Payment();
-        if ($Viewer->permitted('users_mod')) {
-            $raTypeMan = new Gazelle\Manager\ReportAutoType();
-            $activity->setStaff(new Gazelle\Staff($Viewer))
-                ->setReport(new Gazelle\Stats\Report())
+        $payMan = new Manager\Payment();
+        if ($user->permitted('users_mod')) {
+            $raTypeMan = new Manager\ReportAutoType();
+            $activity->setStaff(new Staff($user))
+                ->setReport(new Stats\Report())
                 ->setPayment($payMan)
-                ->setApplicant(new Gazelle\Manager\Applicant())
-                ->setDb(new Gazelle\DB())
-                ->setScheduler(new Gazelle\TaskScheduler())
-                ->setSSLHost(new Gazelle\Manager\SSLHost())
+                ->setApplicant(new Manager\Applicant())
+                ->setDb(new DB())
+                ->setScheduler(new TaskScheduler())
+                ->setSSLHost(new Manager\SSLHost())
                 ->setAutoReport(
-                    new Gazelle\Search\ReportAuto(
-                        new Gazelle\Manager\ReportAuto($raTypeMan),
+                    new Search\ReportAuto(
+                        new Manager\ReportAuto($raTypeMan),
                         $raTypeMan
                     )
                 );
 
-            $threshold = (new \Gazelle\Manager\SiteOption())
+            $threshold = (new Manager\SiteOption())
                 ->findValueByName('download-warning-threshold');
             if ($threshold) {
-                $activity->setStats((int)$threshold, new Gazelle\Stats\Torrent());
+                $activity->setStats((int)$threshold, new Stats\Torrent());
             }
 
             if (OPEN_EXTERNAL_REFERRALS) {
-                $activity->setReferral(new Gazelle\Manager\Referral());
+                $activity->setReferral(new Manager\Referral());
             }
         }
 
         $PageID = [$module, $_REQUEST['action'] ?? false, $_REQUEST['type'] ?? false];
         $navLinks = [];
-        foreach ((new Gazelle\Manager\UserNavigation())->userControlList($Viewer) as $n) {
+        foreach ((new Manager\UserNavigation())->userControlList($user) as $n) {
             [$ID, $Key, $Title, $Target, $Tests, $TestUser, $Mandatory] = array_values($n);
             if (str_contains($Tests, ':')) {
                 $testList = [];
@@ -83,20 +83,20 @@ class View {
             } else {
                 $testList = [$Tests];
             }
-            if ($Key === 'notifications' && !$Viewer->permitted('site_torrents_notify')) {
+            if ($Key === 'notifications' && !$user->permitted('site_torrents_notify')) {
                 continue;
             }
 
             $extraClass = [];
             if ($Key === 'inbox') {
                 $Target = 'inbox.php';
-                if ((new \Gazelle\User\Inbox($Viewer))->unreadTotal()) {
+                if ($user->inbox()->unreadTotal()) {
                     $extraClass[] = 'new-subscriptions';
                 }
             } elseif ($Key === 'subscriptions') {
                 if (
                     isset($alertList['Subscription'])
-                    && (new \Gazelle\User\Subscription($Viewer))->unread()
+                    && (new User\Subscription($user))->unread()
                 ) {
                     $extraClass[] = 'new-subscriptions';
                 }
@@ -106,7 +106,7 @@ class View {
             } elseif ($Key === 'staffinbox') {
                 if (
                     $activity->showStaffInbox()
-                    && $staffPmManager->countByStatus($Viewer, ['Unanswered'])
+                    && $staffPmManager->countByStatus($user, ['Unanswered'])
                 ) {
                     $extraClass[] = 'new-subscriptions';
                 }
@@ -115,7 +115,7 @@ class View {
                 }
             } elseif (
                 $TestUser
-                && $Viewer->id() != ($_REQUEST['userid'] ?? 0)
+                && $user->id() != ($_REQUEST['userid'] ?? 0)
                 && self::add_active($PageID, $testList)
             ) {
                 $extraClass[] = 'active';
@@ -125,24 +125,24 @@ class View {
                 . "><a href=\"{$Target}\">{$Title}</a></li>\n";
         }
 
-        return $Twig->render('index/private-header.twig', [
-            'page_title'   => $pageTitle,
-            'script'       => $js,
-            'scss_style'   => isset($option['css'])
+        return self::$twig->render('index/private-header.twig', [
+            'page_title' => $pageTitle,
+            'script'     => $js,
+            'scss_style' => isset($option['css'])
                 ? array_map(fn($s) => "$s/style.css", explode(',', $option['css'])) : [],
-            'stylesheet'   => new \Gazelle\User\Stylesheet($Viewer),
-            'use_noty'     => $notifier->useNoty(),
-            'viewer'       => $Viewer,
+            'stylesheet' => new User\Stylesheet($user),
+            'use_noty'   => $notifier->useNoty(),
+            'viewer'     => $user,
         ])
-        . $Twig->render('index/page-header.twig', [
+        . self::$twig->render('index/page-header.twig', [
             'action'      => $_REQUEST['action'] ?? null,
             'action_list' => $activity->actionList(),
             'alert_list'  => $activity->alertList(),
-            'bonus'       => new Gazelle\User\Bonus($Viewer),
+            'bonus'       => new User\Bonus($user),
             'document'    => $module,
-            'dono_target' => $payMan->monthlyPercent(new Gazelle\Manager\Donation()),
+            'dono_target' => $payMan->monthlyPercent(new Manager\Donation()),
             'nav_links'   => $navLinks,
-            'viewer'      => $Viewer,
+            'viewer'      => $user,
         ]);
     }
 
@@ -181,44 +181,44 @@ class View {
     }
 
     public static function footer(bool $showDisclaimer = false): string {
-        global $Twig, $Viewer;
-        if (!isset($Viewer)) {
-            return $Twig->render('index/public-footer.twig');
+        if (!Base::staticRequestContext()->hasViewer()) {
+            return self::$twig->render('index/public-footer.twig');
         }
+        $user = Base::staticRequestContext()->viewer();
 
         $launch = date('Y');
         if ($launch != SITE_LAUNCH_YEAR) {
             $launch = SITE_LAUNCH_YEAR . "-$launch";
         }
 
-        $alertList = (new Gazelle\User\Notification($Viewer))
+        $alertList = (new User\Notification($user))
             ->setDocument(
-                $Viewer->requestContext()->module(),
+                $user->requestContext()->module(),
                 $_REQUEST['action'] ?? ''
             )
             ->alertList();
         $notification = [];
         foreach ($alertList as $alert) {
-            if (in_array($alert->display(), [Gazelle\User\Notification::DISPLAY_POPUP, Gazelle\User\Notification::DISPLAY_POPUP_PUSH])) {
+            if (in_array($alert->display(), [User\Notification::DISPLAY_POPUP, User\Notification::DISPLAY_POPUP_PUSH])) {
                 $notification[] = $alert;
             }
         }
 
-        global $Cache, $Debug, $SessionID;
-        return $Twig->render('index/private-footer.twig', [
-            'cache'        => $Cache,
-            'db'           => Gazelle\DB::DB(),
+        global $Debug, $SessionID;
+        return self::$twig->render('index/private-footer.twig', [
+            'cache'        => self::$cache,
+            'db'           => self::$db,
             'debug'        => $Debug,
             'disclaimer'   => $showDisclaimer,
-            'last_active'  => (new Gazelle\User\Session($Viewer))->lastActive($SessionID),
+            'last_active'  => (new User\Session($user))->lastActive($SessionID),
             'launch'       => $launch,
             'load'         => sys_getloadavg(),
             'notification' => $notification,
             'memory'       => memory_get_usage(true),
             'pg'           => self::pgStatic()->stats(),
-            'textarea_js'  => Gazelle\Util\Textarea::activate(),
+            'textarea_js'  => Util\Textarea::activate(),
             'time_ms'      => $Debug->duration() * 1000,
-            'viewer'       => $Viewer,
+            'viewer'       => $user,
             'sphinxql'     => class_exists('Sphinxql') && !empty(\Sphinxql::$Queries)
                 ? ['list'  => \Sphinxql::$Queries, 'time' => \Sphinxql::$Time]
                 : [],

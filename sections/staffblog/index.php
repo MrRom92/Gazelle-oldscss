@@ -56,7 +56,7 @@ if ($Viewer->permitted('admin_manage_blog')) {
     }
 }
 
-\View::show_header('Staff Blog', ['js' => 'bbcode']);
+View::show_header('Staff Blog', ['js' => 'bbcode']);
 
 if (in_array($_REQUEST['action'] ?? '', ['', 'editblog'])) {
     echo $Twig->render('staffblog/edit.twig', [

@@ -23,8 +23,7 @@ class UploadTest extends TestCase {
         Base::setRequestContext(new BaseRequestContext('/upload.php', '127.0.0.1', ''));
         global $SessionID;
         $SessionID = '';
-        global $Viewer;
-        $Viewer = $this->user;
+        Util\Twig::setViewer($this->user);
         $this->assertStringContainsString(
             '<input id="post" type="submit" value="Upload torrent" />',
             $upload->foot(true),

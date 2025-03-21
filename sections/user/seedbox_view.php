@@ -50,7 +50,7 @@ if (isset($_POST['action']) || isset($_REQUEST['viewby'])) {
 $paginator = new Util\Paginator(TORRENTS_PER_PAGE, (int)($_REQUEST['page'] ?? 1));
 $paginator->setTotal($seedbox->total());
 
-\View::show_header($user->username() . ' › Seedboxes › View');
+View::show_header($user->username() . ' › Seedboxes › View');
 ?>
 <div class="thin">
     <div class="header">

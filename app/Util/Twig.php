@@ -3,6 +3,7 @@
 namespace Gazelle\Util;
 
 use Gazelle\Enum\CacheBucket;
+use Gazelle\View;
 
 class Twig {
     protected static \Gazelle\Manager\User $userMan;
@@ -212,13 +213,13 @@ class Twig {
             }
         ));
 
-        $twig->addFunction(new \Twig\TwigFunction('header', fn($title, $options = []) => new \Twig\Markup(
-            \View::header($title, $options),
+        $twig->addFunction(new \Twig\TwigFunction('header', fn ($title, $options = []) => new \Twig\Markup(
+            View::header($title, $options),
             'UTF-8'
         )));
 
-        $twig->addFunction(new \Twig\TwigFunction('footer', fn(bool $showDisclaimer = false) => new \Twig\Markup(
-            \View::footer($showDisclaimer),
+        $twig->addFunction(new \Twig\TwigFunction('footer', fn (bool $showDisclaimer = false) => new \Twig\Markup(
+            View::footer($showDisclaimer),
             'UTF-8'
         )));
 

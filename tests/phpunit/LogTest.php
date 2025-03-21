@@ -138,12 +138,10 @@ class LogTest extends TestCase {
         $page      = $siteLog->page($paginator->page(), $paginator->offset(), '');
         $paginator->setTotal($siteLog->total(''));
 
-        // FIXME: $Viewer should not be necessary
         Base::setRequestContext(new BaseRequestContext('/index.php', '127.0.0.1', ''));
-        global $Viewer;
-        $Viewer = $this->user;
         global $SessionID;
         $SessionID = 'phpunit';
+        Util\Twig::setViewer($this->user);
         $html = Util\Twig::factory(new Manager\User())->render('sitelog.twig', [
             'search'    => '',
             'paginator' => $paginator,

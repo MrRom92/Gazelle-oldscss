@@ -18,6 +18,10 @@ abstract class Base {
         static::$requestContext = $c;
     }
 
+    public static function staticRequestContext(): BaseRequestContext {
+        return static::$requestContext;
+    }
+
     public function requestContext(): BaseRequestContext {
         return static::$requestContext;
     }

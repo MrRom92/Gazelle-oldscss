@@ -47,7 +47,7 @@ $urlStem      = (new User\Stylesheet($Viewer))->imagePath();
 $topVotes     = $vote->topVotes();
 $number       = 0;
 
-\View::show_header(TOP_TEN_HEADING . " – Voted Groups", ['js' => 'browse,voting']);
+View::show_header(TOP_TEN_HEADING . " – Voted Groups", ['js' => 'browse,voting']);
 ?>
 <div class="thin">
     <div class="header">
@@ -248,4 +248,4 @@ echo ' [' . $tgroup->year() . ']'; } ?></strong>
 </table>
 </div>
 <?php
-\View::show_footer();
+View::show_footer();

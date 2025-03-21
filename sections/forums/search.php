@@ -73,7 +73,7 @@ if (isset($_GET['forums']) && is_array($_GET['forums'])) {
 $paginator = new Util\Paginator(POSTS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($search->totalHits());
 
-\View::show_header('Forums › Search', ['js' => 'bbcode,forum_search']);
+View::show_header('Forums › Search', ['js' => 'bbcode,forum_search']);
 ?>
 <div class="thin">
     <div class="header">
@@ -246,4 +246,4 @@ echo "&amp;postid=$PostID#post$PostID"; } ?>"></a></span>
     <?= $paginator->linkbox() ?>
 </div>
 <?php
-\View::show_footer();
+View::show_footer();

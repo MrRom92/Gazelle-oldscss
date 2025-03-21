@@ -37,7 +37,7 @@ $paginator->setTotal($search->total());
 
 $page = $search->page($reportMan, $paginator->limit(), $paginator->offset());
 
-\View::show_header('Torrent Reports', ['js' => 'reportsv2,bbcode,browse,torrent']);
+View::show_header('Torrent Reports', ['js' => 'reportsv2,bbcode,browse,torrent']);
 ?>
 <div class="header">
     <h2><?= $search->title() ?></h2>
@@ -396,4 +396,4 @@ if ($search->canUnclaim($Viewer)) {
 </div>
 <?php
 echo $paginator->linkbox();
-\View::show_footer();
+View::show_footer();

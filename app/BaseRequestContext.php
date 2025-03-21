@@ -70,6 +70,10 @@ class BaseRequestContext {
         return $this->viewer;
     }
 
+    public function hasViewer(): bool {
+        return isset($this->viewer);
+    }
+
     /**
      * Because we <3 our staff
      */

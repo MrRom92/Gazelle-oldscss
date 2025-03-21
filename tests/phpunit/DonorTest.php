@@ -2,15 +2,15 @@
 
 namespace Gazelle;
 
-use GazelleUnitTest\Helper;
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class DonorTest extends TestCase {
     protected User\Donor $donor;
 
     public function setUp(): void {
         $this->donor = new User\Donor(
-            \GazelleUnitTest\Helper::makeUser('donor.' . randomString(6), 'donor', clearInbox: true)
+            Helper::makeUser('donor.' . randomString(6), 'donor', clearInbox: true)
         );
     }
 
@@ -63,7 +63,7 @@ class DonorTest extends TestCase {
         $this->assertEquals(1, $inbox->messageTotal(), 'donor-inbox-small-total');
         $list = $inbox->messageList(new Manager\PM($donor->user()), 1, 0);
         $this->assertStringContainsString('Your contribution has been received and credited', $list[0]->subject(), 'inbox-pm-subject');
-        \GazelleUnitTest\Helper::clearInbox($donor->user());
+        Helper::clearInbox($donor->user());
 
         // second donation
         $this->assertEquals(
@@ -411,7 +411,7 @@ class DonorTest extends TestCase {
             'donor-manager-grand-total'
         );
 
-        Helper::flushDonationMonth(1);
+        Helper::flushDonationMonth(1); // can be required when testing locally
         $this->assertGreaterThan(0, $manager->topDonorList(100, $userMan), 'donor-top-donor');
         $this->assertGreaterThan($initial + DONOR_RANK_PRICE, $manager->totalMonth(1), 'donor-manager-month');
         $username = $this->donor->user()->username();
@@ -423,29 +423,14 @@ class DonorTest extends TestCase {
         $timeline = $manager->timeline();
         $last = end($timeline);
 
-        global $Cache;
-        $Cache->delete_value("donations_month_1"); // can be required when testing locally
+        Helper::flushDonationMonth(1);
         $this->assertLessThanOrEqual($manager->totalMonth(1), $last['Amount'], 'donor-manager-timeline');
 
-        global $Viewer;
-        $Viewer = $this->donor->user(); // sadness
-        $current = (new User\Session($Viewer))->create([
-            'keep-logged' => '0',
-            'browser'     => [
-               'Browser'                => 'phpunit',
-               'BrowserVersion'         => '1.0',
-               'OperatingSystem'        => 'phpunit/OS',
-               'OperatingSystemVersion' => '1.0',
-            ],
-            'ipaddr'      => '127.0.0.1',
-            'useragent'   => 'phpunit',
-        ]);
-        global $SessionID;
-        $SessionID = $current['SessionID']; // more sadness
-        Base::setRequestContext(new BaseRequestContext('/index.php', '127.0.0.1', ''));
-
         $paginator = (new Util\Paginator(USERS_PER_PAGE, 1))->setTotal($manager->rewardTotal());
-        Util\Twig::setViewer($Viewer);
+        Base::staticRequestContext()->setViewer($this->donor->user());
+        Util\Twig::setViewer($this->donor->user());
+        global $SessionID;
+        $SessionID = 'phpunit';
         $render = (Util\Twig::factory($userMan))->render('donation/reward-list.twig', [
             'paginator' => $paginator,
             'user'      => $manager->rewardPage(null, $paginator->limit(), $paginator->offset()),

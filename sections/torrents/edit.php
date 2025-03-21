@@ -22,7 +22,7 @@ $categoryName = $tgroup->categoryName();
 $isMusic      = $categoryName === 'Music';
 $artist       = $isMusic ? $tgroup->primaryArtist() : null;
 
-\View::show_header('Edit torrent', ['js' => 'upload,torrent']);
+View::show_header('Edit torrent', ['js' => 'upload,torrent']);
 
 if ($Viewer->permitted('torrents_edit') && ($Viewer->permitted('users_mod') || $isMusic)) {
     if ($isMusic) {

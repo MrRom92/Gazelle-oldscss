@@ -101,7 +101,7 @@ if (in_array($details, ['all', 'snatched'])) {
     ];
 }
 
-\View::show_header(TOP_TEN_HEADING . " – Torrents");
+View::show_header(TOP_TEN_HEADING . " – Torrents");
 ?>
 <div class="thin">
     <div class="header">
@@ -256,4 +256,4 @@ foreach ($context as $c) {
 <?php } ?>
 </div>
 <?php
-\View::show_footer();
+View::show_footer();

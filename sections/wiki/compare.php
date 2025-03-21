@@ -80,14 +80,14 @@ if (!$article->readable($Viewer)) {
     error(403);
 }
 
-\View::show_header("Compare Article Revisions $old versus $new");
+View::show_header("Compare Article Revisions $old versus $new");
 echo $Twig->render('wiki/compare.twig', [
     'article' => $article,
     'diff'    => diff($article->revisionBody($old), $article->revisionBody($new)),
     'new'     => $new,
     'old'     => $old,
 ]);
-\View::show_footer();
+View::show_footer();
 
 $Diff2 = $article->revisionBody($new);
 $Diff1 = $article->revisionBody($old);

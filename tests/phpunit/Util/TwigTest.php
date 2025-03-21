@@ -228,11 +228,10 @@ END;
 
     public function testFunction(): void {
         Base::setRequestContext(new BaseRequestContext('/index.php', '127.0.0.1', ''));
-        global $Viewer;
-        $Viewer = $this->user;
+        Util\Twig::setViewer($this->user);
         $this->assertStringStartsWith('<!DOCTYPE html>', self::twig('{{ header("page") }}')->render(), 'twig-function-header');
 
-        $current = (new User\Session($Viewer))->create([
+        $current = (new User\Session($this->user))->create([
             'keep-logged' => '0',
             'browser'     => [
                'Browser'                => 'phpunit',

@@ -60,9 +60,8 @@ class FriendTest extends TestCase {
                 'useragent'   => 'phpunit-browser',
             ]);
             Base::setRequestContext(new BaseRequestContext('/friends.php', '127.0.0.1', ''));
-            global $SessionID, $Viewer;
+            global $SessionID;
             $SessionID = $current['SessionID'];
-            $Viewer    = $this->friend[0]->user();
 
             // render
             $paginator = new Util\Paginator(FRIENDS_PER_PAGE, 1);

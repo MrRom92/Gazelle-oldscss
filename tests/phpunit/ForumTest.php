@@ -549,8 +549,7 @@ class ForumTest extends TestCase {
         Base::setRequestContext(new BaseRequestContext('/forum.php', '127.0.0.1', ''));
         global $SessionID; // to render header()
         $SessionID = 'phpunit';
-        global $Viewer;
-        $Viewer = $admin;
+        Util\Twig::setViewer($admin);
         $this->assertStringContainsString(
             "<a href=\"forums.php#$name\">$name</a>",
             (Util\Twig::factory(new Manager\User()))->render('forum/forum.twig', [

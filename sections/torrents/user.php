@@ -333,7 +333,7 @@ $torMan   = (new Manager\Torrent())->setViewer($Viewer);
 $imgProxy = new Util\ImageProxy($Viewer);
 $snatcher = $Viewer->snatch();
 
-\View::show_header($user->username() . "'s $action torrents", ['js' => 'voting']);
+View::show_header($user->username() . "'s $action torrents", ['js' => 'voting']);
 ?>
 <div class="thin">
     <div class="linkbox">
@@ -545,4 +545,4 @@ foreach (CATEGORY as $catKey => $catName) {
 } /* if ($torrentCount) */ ?>
 </div>
 <?php
-\View::show_footer();
+View::show_footer();

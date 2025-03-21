@@ -78,7 +78,7 @@ function check_paranoia_here(?string $Setting): int|false {
     }
 }
 
-\View::show_header($username, [
+View::show_header($username, [
     'js' => 'vendor/jquery.imagesloaded,vendor/jquery.wookmark,bbcode,comments,lastfm,requests,user'
         . ($Viewer->isStaff() ? ',info_paster' : '')
         . ($Viewer->permitted('users_view_ips') ? ',resolve-ip' : '')

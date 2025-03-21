@@ -243,7 +243,7 @@ if ($TypeLinks) {
     ));
 }
 
-\View::show_header(sprintf($Title, $Username), ['js' => 'bbcode,comments']);
+View::show_header(sprintf($Title, $Username), ['js' => 'bbcode,comments']);
 ?>
 <div class="thin">
     <div class="header">
@@ -287,4 +287,4 @@ if ($TypeLinks) {
 ?>
 </div>
 <?php
-\View::show_footer();
+View::show_footer();

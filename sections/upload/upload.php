@@ -88,7 +88,7 @@ $dnu     = new Manager\DNU();
 $dnuNew  = $dnu->hasNewForUser($Viewer);
 $dnuHide = !$dnuNew && $Viewer->permitted('torrents_hide_dnu');
 
-\View::show_header('Upload', ['js' => 'upload,validate_upload,musicbrainz,bbcode']);
+View::show_header('Upload', ['js' => 'upload,validate_upload,musicbrainz,bbcode']);
 ?>
 <div class="<?= $Viewer->permitted('torrents_hide_dnu') ? 'box pad' : '' ?> dnu_list" style="margin: 0px auto; width: 700px;">
     <h3 id="dnu_header">Do Not Upload List</h3>
