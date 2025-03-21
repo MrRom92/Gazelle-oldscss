@@ -77,6 +77,7 @@ async function quote(post) {
         dest   = 'quickpost';
         field  = 'post' + post_id;
         requrl = '/forums.php?action=get_post&post=' + post_id;
+        username += '|' + post_id;
     } else if (path == "/staffpm.php") {
         dest   = 'quickpost';
         field  = 'post' + post_id;
