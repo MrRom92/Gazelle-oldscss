@@ -196,7 +196,7 @@ if ($sections = $artist->sections()) {
 
     if ($requestList) {
 ?>
-    <a href="#requests" class="brackets">Requests</a>
+    <a href="#request_table" class="brackets">Requests</a>
 <?php } ?>
     </div>
     <table class="torrent_table grouped release_table m_table">
