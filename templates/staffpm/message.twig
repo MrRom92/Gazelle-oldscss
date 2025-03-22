@@ -41,9 +41,11 @@
     <div class="box pad" id="reply_box">
         <div id="buttons">
             <form class="manage_form" name="staff_messages" action="staffpm.php" method="post" id="messageform">
+{%  if pm.inProgress %}
                 {{ textarea.preview|raw }}
                 {{ textarea.field|raw }}
                 <br />
+{%  endif %}
 {% if viewer.isFLS %}
                 {{- dom.click('#to-staff', "location.href='staffpm.php?action=assign&to=staff&convid=" ~ pm.id ~ "';") -}}
                 {{- dom.click('#to-fmod', "location.href='staffpm.php?action=assign&to=forum&convid=" ~ pm.id ~ "';") -}}
