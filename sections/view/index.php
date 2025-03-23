@@ -1,23 +1,29 @@
 <?php
+/** @phpstan-var \Gazelle\User $Viewer */
 
 declare(strict_types=1);
 
 namespace Gazelle;
 
-if (!array_key_exists('type', $_GET) && !array_key_exists('id', $_GET)) {
-    Error404::error();
+if (!isset($_GET['type'], $_GET['id'])) {
+    Error400::error();
 }
 
 switch ($_GET['type']) {
     case 'riplog':
-        if (preg_match('/^(\d+)\D(\d+)$/', $_GET['id'], $m)) {
-            header('Content-type: text/plain');
-            header('Content-Disposition: inline; filename="' . $m[1] . '_' . $m[2] . '.txt"');
-            $file = new \Gazelle\File\RipLog();
-            echo $file->get([$m[1], $m[2]]);
-        } else {
+        if (!preg_match('/^(\d+)\D(\d+)$/', $_GET['id'], $match)) {
             Error404::error();
         }
+        if ($match[2] === '0') {
+            global $Cache;
+            $Cache->add('broken_scraper', 0);
+            $Cache->increment('broken_scraper');
+            (new User\Session($Viewer))->dropAll();
+            Error400::error('Your script is broken, fix it.');
+        }
+        header('Content-type: text/plain');
+        header("Content-Disposition: inline; filename=\"{$match[1]}_{$match[2]}.txt\"");
+        echo (new File\RipLog())->get([$match[1], $match[2]]);
         break;
     default:
         Error404::error();
