@@ -919,6 +919,13 @@ class User extends \Gazelle\BaseManager {
         }
         $this->flushEnabledUsersCount();
 
+        // Remove their torrent notifications
+        self::$db->prepared_query("
+            DELETE FROM users_notify_torrents
+            WHERE UserID IN (" . placeholders($idList) . ")
+            ", ...$idList
+        );
+
         // Remove the users from the tracker.
         self::$db->prepared_query("
             SELECT torrent_pass FROM users_main WHERE ID IN (" . placeholders($idList) . ")
