@@ -95,7 +95,7 @@ defined('PARANOIA_PREVIEW_USER') or define('PARANOIA_PREVIEW_USER', SYSTEM_USER_
 // This is important for BB code rendering to recognize our own urls as local,
 // regardless of which one is used (e.g. pasted in a forum).
 defined('ALT_SITE_HOST') or define('ALT_SITE_HOST', SITE_HOST);
-defined('ALT_SITE_URL') or define('ALT_SITE_URL', SITE_URL);
+defined('ALT_SITE_URL') or define('ALT_SITE_URL', 'https://' . ALT_SITE_HOST);
 
 // User to name on donate.php to direct donation inquiries to
 defined('DONATION_MANAGER_USER_ID') or define('DONATION_MANAGER_USER_ID', 0);
