@@ -19,7 +19,7 @@ $info = new DB\PgInfo(
 );
 
 echo $Twig->render('admin/pg-table-summary.twig', [
-    'header' => new \Gazelle\Util\SortableTableHeader(
+    'header' => new Util\SortableTableHeader(
         PgInfoOrderBy::tableName->value,
         DB\PgInfo::columnList()
     ),

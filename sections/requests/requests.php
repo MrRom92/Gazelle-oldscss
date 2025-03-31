@@ -108,14 +108,14 @@ $header = new Util\SortableTableHeader('created', [
 ]);
 
 $paginator = new Util\Paginator(REQUESTS_PER_PAGE, (int)($_GET['page'] ?? 1));
-if ($header->getOrderBy() === 'random') {
+if ($header->orderBy() === 'random') {
     $search->limit(0, REQUESTS_PER_PAGE, REQUESTS_PER_PAGE);
 } else {
     $offset = ($paginator->page() - 1) * REQUESTS_PER_PAGE;
     $search->limit($offset, REQUESTS_PER_PAGE, $offset + REQUESTS_PER_PAGE);
 }
 
-$search->execute($header->getOrderBy(), $header->getOrderDir());
+$search->execute($header->orderBy(), $header->dir());
 $paginator->setTotal($search->total());
 
 echo $Twig->render('request/index.twig', [

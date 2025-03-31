@@ -170,8 +170,8 @@ class Collage extends \Gazelle\Base {
         if (!$this->configured) {
             $this->configure();
         }
-        $orderBy = $this->header->getOrderBy();
-        $orderDir = $this->header->getOrderDir();
+        $orderBy = $this->header->orderBy();
+        $orderDir = $this->header->dir();
         self::$db->prepared_query("
             SELECT c.ID        AS id,
                 c.Name         AS name,

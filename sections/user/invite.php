@@ -65,7 +65,7 @@ if ($inviteSourceMan && isset($_GET['edit'])) {
     }
 }
 
-$heading = new \Gazelle\Util\SortableTableHeader('created', [
+$heading = new Util\SortableTableHeader('created', [
     // see User\Invite::page() for these table aliases
     'id'         => ['dbColumn' => 'um.ID',           'defaultSort' => 'desc'],
     'username'   => ['dbColumn' => 'um.Username',     'defaultSort' => 'desc', 'text' => 'Username'],
@@ -86,7 +86,7 @@ echo $Twig->render('user/invited.twig', [
     'invited'     => array_map(
         fn($id) => $userMan->findById($id),
         $user->invite()->page(
-            $heading->getOrderBy(), $heading->getOrderDir(), $paginator->limit(), $paginator->offset()
+            $heading->orderBy(), $heading->dir(), $paginator->limit(), $paginator->offset()
         )
     ),
     'invites_open'      => (new Stats\Users())->newUsersAllowed($user),

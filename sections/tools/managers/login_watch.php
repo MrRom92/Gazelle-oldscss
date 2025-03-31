@@ -47,14 +47,14 @@ $headerInfo = new Util\SortableTableHeader('last_attempt', [
 ]);
 
 $header = [];
-foreach ($headerInfo->getAllSortKeys() as $column) {
+foreach ($headerInfo->orderKeyList() as $column) {
     $header[$column] = $headerInfo->emit($column);
 }
 
 $paginator = new Util\Paginator(IPS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($watch->activeTotal());
 
-$list = $watch->activeList($headerInfo->getOrderBy(), $headerInfo->getOrderDir(), $paginator->limit(), $paginator->offset());
+$list = $watch->activeList($headerInfo->orderBy(), $headerInfo->dir(), $paginator->limit(), $paginator->offset());
 $resolve = isset($_REQUEST['resolve']);
 
 echo $Twig->render('admin/login-watch.twig', [

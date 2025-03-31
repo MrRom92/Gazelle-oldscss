@@ -8,8 +8,6 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-use Gazelle\Util\SortableTableHeader;
-
 if (!isset($_GET['userid'])) {
     header("Location: torrents.php?type={$_GET['type']}&userid=" . $Viewer->id());
     exit;
@@ -48,10 +46,10 @@ $headerMap = [
         'text'          => sprintf($imgTag, 'leechers', 'Leechers', 'Leechers'),
     ],
 ];
-$header = new SortableTableHeader('time', $headerMap);
+$header = new Util\SortableTableHeader('time', $headerMap);
 $secondarySort = $header->current()['secondarySort'] ?? '';
-$orderBy = $header->getOrderBy() . ' ' . $header->getOrderDir() . ($secondarySort ? ", $secondarySort" : '');
-$headerIcons = new SortableTableHeader('time', $headerMap, ['asc' => '', 'desc' => '']);
+$orderBy = $header->orderBy() . ' ' . $header->dir() . ($secondarySort ? ", $secondarySort" : '');
+$headerIcons = new Util\SortableTableHeader('time', $headerMap, ['asc' => '', 'desc' => '']);
 
 $cond = [];
 $args = [];

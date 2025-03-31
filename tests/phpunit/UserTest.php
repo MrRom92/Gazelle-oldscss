@@ -340,7 +340,7 @@ class UserTest extends TestCase {
         $Cache->delete_value('csslist');
         $list = $manager->list();
         $this->assertGreaterThan(5, $list, 'we-can-haz-stylesheets');
-        $this->assertEquals(count($list), count($manager->usageList('name', 'ASC')), 'stylesheet-list-usage');
+        $this->assertEquals(count($list), count($manager->usageList()), 'stylesheet-list-usage');
 
         $first = current($list);
         $url   = STATIC_SERVER . '/bogus.css';

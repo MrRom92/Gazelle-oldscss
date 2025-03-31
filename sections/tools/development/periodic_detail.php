@@ -35,7 +35,7 @@ echo $Twig->render('admin/scheduler/task.twig', [
     'stats'     => $scheduler->getTaskRuntimeStats($id),
     'duration'  => json_encode($stats[0]['data']),
     'processed' => json_encode($stats[1]['data']),
-    'task'      => $scheduler->getTaskHistory($id, $paginator->limit(), $paginator->offset(), $header->getSortKey(), $header->getOrderDir()),
+    'task'      => $scheduler->getTaskHistory($id, $paginator->limit(), $paginator->offset(), $header->orderKey(), $header->dir()),
     'paginator' => $paginator,
     'viewer'    => $Viewer,
 ]);

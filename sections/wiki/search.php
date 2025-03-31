@@ -16,7 +16,7 @@ if (empty($_GET['nojump'])) {
     }
 }
 
-$header = new \Gazelle\Util\SortableTableHeader('created', [
+$header = new Util\SortableTableHeader('created', [
     'created' => ['dbColumn' => 'ID',    'defaultSort' => 'desc'],
     'title'   => ['dbColumn' => 'Title', 'defaultSort' => 'asc',  'text' => 'Article'],
     'edited'  => ['dbColumn' => 'Date',  'defaultSort' => 'desc', 'text' => 'Last updated'],
@@ -29,7 +29,7 @@ $TypeMap = [
 $Type = $TypeMap[$_GET['type'] ?? 'title'];
 
 $search = new Search\Wiki($Viewer, $Type, $_GET['search'] ?? '');
-$search->setOrderBy($header->getOrderBy())->setOrderDir($header->getOrderDir());
+$search->setOrderBy($header->orderBy())->setOrderDir($header->dir());
 
 $paginator = new Util\Paginator(WIKI_ARTICLES_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($search->total());

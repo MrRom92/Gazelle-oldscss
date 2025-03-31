@@ -8,8 +8,6 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-use Gazelle\Util\SortableTableHeader;
-
 if (!$Viewer->permitted('site_torrents_notify')) {
     Error403::error();
 }
@@ -35,14 +33,14 @@ $headerMap = [
     'seeders'  => ['dbColumn' => 'tls.Seeders',   'defaultSort' => 'desc', 'text' => sprintf($imgTag, 'seeders', 'Seeders', 'Seeders')],
     'leechers' => ['dbColumn' => 'tls.Leechers',  'defaultSort' => 'desc', 'text' => sprintf($imgTag, 'leechers', 'Leechers', 'Leechers')],
 ];
-$header = new SortableTableHeader('time', $headerMap);
-$headerIcons = new SortableTableHeader('time', $headerMap, ['asc' => '', 'desc' => '']);
+$header = new Util\SortableTableHeader('time', $headerMap);
+$headerIcons = new Util\SortableTableHeader('time', $headerMap, ['asc' => '', 'desc' => '']);
 
 $notifier = new User\NotificationSearch(
     $user,
     (new Manager\Torrent())->setViewer($Viewer),
-    $header->getOrderBy(),
-    $header->getOrderDir(),
+    $header->orderBy(),
+    $header->dir(),
 );
 if (isset($_GET['filterid'])) {
     $notifier->setFilter((int)$_GET['filterid']);

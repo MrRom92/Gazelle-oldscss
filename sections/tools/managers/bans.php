@@ -45,8 +45,8 @@ $header = new Util\SortableTableHeader('created', [
     'username'   => ['dbColumn' => 'um.Username', 'defaultSort' => 'asc',  'text' => 'Added By'],
     'created'    => ['dbColumn' => 'i.created',   'defaultSort' => 'desc', 'text' => 'Date'],
 ]);
-$OrderBy = $header->getOrderBy();
-$OrderDir = $header->getOrderDir();
+$OrderBy = $header->orderBy();
+$OrderDir = $header->dir();
 
 if (!empty($_REQUEST['notes'])) {
     $IPv4Man->setFilterNotes($_REQUEST['notes']);

@@ -45,8 +45,8 @@ $heading = new Util\SortableTableHeader('updated', [
 echo $Twig->render('debug/analysis-list.twig', [
     'heading'   => $heading,
     'list'      => $errMan->list(
-        $heading->getOrderBy(),
-        $heading->getOrderDir(),
+        $heading->orderBy(),
+        $heading->dir(),
         $paginator->limit(),
         $paginator->offset()
     ),

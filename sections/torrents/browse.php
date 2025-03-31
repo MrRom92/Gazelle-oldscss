@@ -8,8 +8,6 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-use Gazelle\Util\SortableTableHeader;
-
 $torMan    = (new Manager\Torrent())->setViewer($Viewer);
 $reportMan = new Manager\Torrent\Report($torMan);
 $tagMan    = new Manager\Tag();
@@ -33,8 +31,8 @@ $headerMap = [
     'seeders'  => ['defaultSort' => 'desc', 'text' => sprintf($imgTag, 'seeders', 'Seeders', 'Seeders')],
     'leechers' => ['defaultSort' => 'desc', 'text' => sprintf($imgTag, 'leechers', 'Leechers', 'Leechers')],
 ];
-$header = new SortableTableHeader('time', $headerMap);
-$headerIcons = new SortableTableHeader('time', $headerMap, ['asc' => '', 'desc' => '']);
+$header = new Util\SortableTableHeader('time', $headerMap);
+$headerIcons = new Util\SortableTableHeader('time', $headerMap, ['asc' => '', 'desc' => '']);
 
 if (isset($_GET['setdefault'])) {
     // Setting default search options, remove page and setdefault params
@@ -68,8 +66,8 @@ $Search = new Search\Torrent(
     new Manager\TGroup(),
     new Manager\Torrent(),
     $GroupResults,
-    $header->getSortKey(),
-    $header->getOrderDir(),
+    $header->orderKey(),
+    $header->dir(),
     $paginator->page(),
     TORRENTS_PER_PAGE,
     $Viewer->permitted('site_search_many')

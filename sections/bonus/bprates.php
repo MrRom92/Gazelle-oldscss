@@ -10,7 +10,7 @@ $page   = max(1, (int)($_GET['page'] ?? 1));
 $limit  = TORRENTS_PER_PAGE;
 $offset = TORRENTS_PER_PAGE * ($page - 1);
 
-$heading = new \Gazelle\Util\SortableTableHeader('hourlypoints', [
+$heading = new Util\SortableTableHeader('hourlypoints', [
     'size'          => ['dbColumn' => 'size',           'defaultSort' => 'desc', 'text' => 'Size'],
     'seeders'       => ['dbColumn' => 'seeders',        'defaultSort' => 'desc', 'text' => 'Seeders'],
     'seedtime'      => ['dbColumn' => 'seed_time',      'defaultSort' => 'desc', 'text' => 'Duration'],
@@ -44,7 +44,7 @@ $paginator->setTotal($total['total_torrents']);
 
 echo $Twig->render('user/bonus.twig', [
     'heading'   => $heading,
-    'list'      => $bonus->seedList($heading->getOrderBy(), $heading->getOrderDir(), $paginator->limit(), $paginator->offset()),
+    'list'      => $bonus->seedList($heading->orderBy(), $heading->dir(), $paginator->limit(), $paginator->offset()),
     'paginator' => $paginator,
     'title'     => $ownProfile ? 'Your Bonus Points Rate' : ($user->username() . "'s Bonus Point Rate"),
     'total'     => $total,

@@ -47,7 +47,7 @@ foreach ($list as $t) {
 }
 
 echo $Twig->render('admin/mysql-table-summary.twig', [
-    'header' => new \Gazelle\Util\SortableTableHeader(
+    'header' => new Util\SortableTableHeader(
         MysqlInfoOrderBy::tableName->value,
         DB\MysqlInfo::columnList(),
     ),

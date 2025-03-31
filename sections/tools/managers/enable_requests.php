@@ -36,8 +36,8 @@ $heading = new Util\SortableTableHeader('submitted_timestamp', [
     'handled_timestamp'   => ['dbColumn' => 'uer.Outcome',   'defaultSort' => 'desc', 'text' => 'Checked Date'],
     'outcome'             => ['dbColumn' => 'uer.HandledTimestamp', 'defaultSort' => 'desc', 'text' => 'Outcome'],
 ]);
-$orderBy = $heading->getOrderBy();
-$dir = $heading->getOrderDir();
+$orderBy = $heading->orderBy();
+$dir = $heading->dir();
 
 $paginator = new Util\Paginator(ITEMS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($enableMan->total());

@@ -78,19 +78,19 @@ class SortableTableHeader {
         return $this->labelMap[$sortKey] ?? null;
     }
 
-    public function getAllSortKeys(): array {
+    public function orderKeyList(): array {
         return array_keys($this->labelMap);
     }
 
-    public function getOrderBy(): ?string {
+    public function orderBy(): ?string {
         return $this->current()['dbColumn'] ?? null;
     }
 
-    public function getOrderDir(): string {
+    public function dir(): string {
         return $this->currentSortDir;
     }
 
-    public function getSortKey(): string {
+    public function orderKey(): string {
         return $this->currentSortKey;
     }
 }

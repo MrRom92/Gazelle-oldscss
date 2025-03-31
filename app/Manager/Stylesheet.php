@@ -3,11 +3,24 @@
 namespace Gazelle\Manager;
 
 use Gazelle\Enum\UserStatus;
+use Gazelle\Util\SortableTableHeader;
 
 class Stylesheet extends \Gazelle\Base {
     final protected const CACHE_KEY = 'csslist';
 
     protected array $info;
+
+    public function heading(): SortableTableHeader {
+        return new SortableTableHeader(
+            'id',
+            [
+                'id'      => ['dbColumn' => 's.ID',          'defaultSort' => 'asc'],
+                'name'    => ['dbColumn' => 's.Name',        'defaultSort' => 'asc',  'text' => 'Name'],
+                'enabled' => ['dbColumn' => 'total_enabled', 'defaultSort' => 'desc', 'text' => 'Enabled Users'],
+                'total'   => ['dbColumn' => 'total',         'defaultSort' => 'desc', 'text' => 'Total Users'],
+            ]
+        );
+    }
 
     public function list(): array {
         if (!isset($this->info)) {
@@ -29,7 +42,7 @@ class Stylesheet extends \Gazelle\Base {
         return $this->info;
     }
 
-    public function usageList(string $orderBy, string $direction): array {
+    public function usageList(): array {
         self::$db->prepared_query("
             SELECT s.ID                       AS id,
                 s.Name                        AS name,
@@ -41,7 +54,7 @@ class Stylesheet extends \Gazelle\Base {
             FROM stylesheets s
             LEFT JOIN users_main um ON (um.stylesheet_id = s.ID)
             GROUP BY s.ID, s.Name, s.Description, s.theme
-            ORDER BY $orderBy $direction
+            ORDER BY {$this->heading()->orderBy()} {$this->heading()->dir()}
             ", UserStatus::enabled->value
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
