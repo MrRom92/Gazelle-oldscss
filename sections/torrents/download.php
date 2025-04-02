@@ -2,11 +2,14 @@
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Gazelle\Cache $Cache */
 
+declare(strict_types=1);
+
+namespace Gazelle;
+
 use Gazelle\Enum\DownloadStatus;
 use Gazelle\Util\Irc;
 
-$torrentId = (int)($_REQUEST['id'] ?? 0);
-$torrent = (new Gazelle\Manager\Torrent())->findById($torrentId);
+$torrent = (new Manager\Torrent())->findById((int)($_REQUEST['id'] ?? 0));
 if (is_null($torrent)) {
     json_or_error('could not find torrent', 404);
 }
@@ -17,7 +20,7 @@ if (
         BT_BROKEN_USERAGENT_REGEXP,
         $torrent->requestContext()->useragent(),
     )
-    && $Viewer->torrentDownloadCount($torrentId) > BT_BROKEN_USERAGENT_DOWNLOAD
+    && $Viewer->torrentDownloadCount($torrent->id) > BT_BROKEN_USERAGENT_DOWNLOAD
 ) {
     json_or_error('You have downloaded this torrent file more than '
         . BT_BROKEN_USERAGENT_DOWNLOAD
@@ -25,7 +28,7 @@ if (
     );
 }
 
-$download = new Gazelle\Download($torrent, new Gazelle\User\UserclassRateLimit($Viewer), isset($_REQUEST['usetoken']));
+$download = new Download($torrent, new User\UserclassRateLimit($Viewer), isset($_REQUEST['usetoken']));
 $status = $download->status();
 
 if ($status == DownloadStatus::ok) {

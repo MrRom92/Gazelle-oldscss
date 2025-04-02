@@ -1,7 +1,15 @@
 <?php
 /** @phpstan-var \Gazelle\User $Viewer */
-use Gazelle\Enum\NotificationType;
 
-$notifMan = new Gazelle\Manager\Notification();
-$pushTokens = [(new Gazelle\User\Notification($Viewer))->pushToken()];
-$notifMan->push($pushTokens, "Notification Test", "Hello " . $Viewer->username() . ". If you can read this, you have set up your push notifications correctly.", "");
+declare(strict_types=1);
+
+namespace Gazelle;
+
+use Enum\NotificationType;
+
+(new Manager\Notification())->push(
+    [(new User\Notification($Viewer))->pushToken()],
+    "Notification Test",
+    "Hello {$Viewer->username()}. If you can read this, you have set up your push notifications correctly.",
+    ""
+);
