@@ -8,7 +8,7 @@ class UserRecent extends \Gazelle\Json {
     public function __construct(
         protected \Gazelle\User $user,
         protected \Gazelle\User $viewer,
-        protected \Gazelle\Manager\TGroup $tgMan,
+        protected \Gazelle\Manager\TGroup $tgMan = new \Gazelle\Manager\TGroup(),
     ) {}
 
     public function setLimit(int $limit): static {

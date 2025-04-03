@@ -208,6 +208,20 @@ class Helper {
         return $db->affected_rows();
     }
 
+    public static function removeTGroup(\Gazelle\TGroup $tgroup, \Gazelle\User $user): void {
+        $torMan = new \Gazelle\Manager\Torrent();
+        if (!(new \Gazelle\Manager\TGroup())->findById($tgroup->id)) {
+            // Already deleted. This can occur when removing two
+            // torrents separately that belong to the same group.
+            // See TestContest for an example.
+            return;
+        }
+        foreach ($tgroup->torrentIdList() as $torrentId) {
+            $torMan->findById($torrentId)?->removeTorrent($user, 'phpunit teardown');
+        }
+        $tgroup->remove();
+    }
+
     public static function makeUser(string $username, string $tag, bool $enable = false, bool $clearInbox = false): \Gazelle\User {
         $user = (new \Gazelle\UserCreator())
             ->setUsername($username)
@@ -224,14 +238,6 @@ class Helper {
         return $user;
     }
 
-    public static function clearInbox(\Gazelle\User $user): \Gazelle\User {
-        $pmMan = new \Gazelle\Manager\PM($user);
-        foreach ($user->inbox()->messageList($pmMan, 1, 0) as $pm) {
-            $pm->remove();
-        }
-        return $user;
-    }
-
     public static function makeUserByInvite(string $username, string $key): \Gazelle\User {
         return (new \Gazelle\UserCreator())
             ->setUsername($username)
@@ -242,18 +248,23 @@ class Helper {
             ->create();
     }
 
-    public static function removeTGroup(\Gazelle\TGroup $tgroup, \Gazelle\User $user): void {
-        $torMan = new \Gazelle\Manager\Torrent();
-        if (!(new \Gazelle\Manager\TGroup())->findById($tgroup->id)) {
-            // Already deleted. This can occur when removing two
-            // torrents separately that belong to the same group.
-            // See TestContest for an example.
-            return;
+    public static function clearInbox(\Gazelle\User $user): \Gazelle\User {
+        $pmMan = new \Gazelle\Manager\PM($user);
+        foreach ($user->inbox()->messageList($pmMan, 1, 0) as $pm) {
+            $pm->remove();
         }
-        foreach ($tgroup->torrentIdList() as $torrentId) {
-            $torMan->findById($torrentId)?->removeTorrent($user, 'phpunit teardown');
+        return $user;
+    }
+
+    public static function removeUser(\Gazelle\User $user): void {
+        $tgMan = new \Gazelle\Manager\TGroup();
+        foreach ($user->recentUploadList(100, true) as $tgroupId) {
+            $tgroup = $tgMan->findById($tgroupId);
+            if ($tgroup) {
+                self::removeTGroup($tgroup, $user);
+            }
         }
-        $tgroup->remove();
+        $user->remove();
     }
 
     /**

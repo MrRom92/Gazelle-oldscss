@@ -14,7 +14,7 @@ if ($limit < 1 || $limit > 50) {
     json_error("bad limit");
 }
 
-echo (new Json\UserRecent($user, $Viewer, new Manager\TGroup()))
+echo (new Json\UserRecent($user, $Viewer))
     ->setLimit($limit)
     ->setVersion(2)
     ->response();
