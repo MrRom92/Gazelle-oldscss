@@ -4,6 +4,6 @@
 require_once(__DIR__ . '/../lib/bootstrap.php');
 
 Gazelle\Base::setRequestContext(
-    new Gazelle\BaseRequestContext('cli', '127.0.0.1', 'scheduler')
+    new Gazelle\RequestContext('cli', '127.0.0.1', 'scheduler')
 );
 (new Gazelle\TaskScheduler)->run();

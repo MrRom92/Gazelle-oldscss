@@ -29,7 +29,7 @@ if (
 ) {
     $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
 }
-$context = new Gazelle\BaseRequestContext(
+$context = new Gazelle\RequestContext(
     $_SERVER['SCRIPT_NAME'],
     $_SERVER['REMOTE_ADDR'],
     $_SERVER['HTTP_USER_AGENT'] ?? '[no-useragent]',

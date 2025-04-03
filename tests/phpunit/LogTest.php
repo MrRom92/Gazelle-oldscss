@@ -138,7 +138,7 @@ class LogTest extends TestCase {
         $page      = $siteLog->page($paginator->page(), $paginator->offset(), '');
         $paginator->setTotal($siteLog->total(''));
 
-        Base::setRequestContext(new BaseRequestContext('/index.php', '127.0.0.1', ''));
+        Base::setRequestContext(new RequestContext('/index.php', '127.0.0.1', ''));
         global $SessionID;
         $SessionID = 'phpunit';
         Util\Twig::setViewer($this->user);

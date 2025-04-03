@@ -59,7 +59,7 @@ class FriendTest extends TestCase {
                 'ipaddr'      => '127.0.0.1',
                 'useragent'   => 'phpunit-browser',
             ]);
-            Base::setRequestContext(new BaseRequestContext('/friends.php', '127.0.0.1', ''));
+            Base::setRequestContext(new RequestContext('/friends.php', '127.0.0.1', ''));
             global $SessionID;
             $SessionID = $current['SessionID'];
 

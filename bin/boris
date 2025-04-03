@@ -27,7 +27,7 @@ if ($remove) {
 define('BORIS', 1);
 $_SERVER['HTTP_USER_AGENT'] = 'boris';
 $_SERVER['REMOTE_ADDR']     = '127.0.0.1';
-Base::setRequestContext(new BaseRequestContext(
+Base::setRequestContext(new RequestContext(
     'boris', $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT']
 ));
 

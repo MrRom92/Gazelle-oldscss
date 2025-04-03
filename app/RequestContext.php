@@ -2,7 +2,7 @@
 
 namespace Gazelle;
 
-class BaseRequestContext {
+class RequestContext {
     protected string $module; // previously known as global $Document
     protected bool   $isValid;
     protected array  $ua;

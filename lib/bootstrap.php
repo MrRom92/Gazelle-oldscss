@@ -28,7 +28,7 @@ $Twig  = Gazelle\Util\Twig::factory(new Gazelle\Manager\User());
 
 Gazelle\Base::initialize($Cache, Gazelle\DB::DB(), $Twig);
 
-Gazelle\Base::setRequestContext(new Gazelle\BaseRequestContext(
+Gazelle\Base::setRequestContext(new Gazelle\RequestContext(
     scriptName: 'none',
     remoteAddr: '127.0.0.1',
     useragent:  'none',

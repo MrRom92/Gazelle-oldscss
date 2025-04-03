@@ -7,7 +7,7 @@ abstract class Base {
 
     protected static DB\Mysql $db;
     protected static Cache $cache;
-    protected static BaseRequestContext $requestContext;
+    protected static RequestContext $requestContext;
     protected static \Twig\Environment $twig;
 
     public static function initialize(Cache $cache, DB\Mysql $db, \Twig\Environment $twig): void {
@@ -16,15 +16,15 @@ abstract class Base {
         static::$twig  = $twig;
     }
 
-    public static function setRequestContext(BaseRequestContext $c): void {
+    public static function setRequestContext(RequestContext $c): void {
         static::$requestContext = $c;
     }
 
-    public static function staticRequestContext(): BaseRequestContext {
+    public static function staticRequestContext(): RequestContext {
         return static::$requestContext;
     }
 
-    public function requestContext(): BaseRequestContext {
+    public function requestContext(): RequestContext {
         return static::$requestContext;
     }
 

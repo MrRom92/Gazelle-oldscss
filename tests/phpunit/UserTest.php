@@ -380,7 +380,7 @@ class UserTest extends TestCase {
 
     public function testLogin(): void {
         $_SERVER['REMOTE_ADDR'] = '127.0.0.255';
-        Base::setRequestContext(new BaseRequestContext(
+        Base::setRequestContext(new RequestContext(
             'phpunit', $_SERVER['REMOTE_ADDR'], 'whatever'
         ));
         $login  = new Login();

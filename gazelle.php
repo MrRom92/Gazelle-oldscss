@@ -20,7 +20,7 @@ if (
     $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
 }
 
-$context = new BaseRequestContext(
+$context = new RequestContext(
     $_SERVER['SCRIPT_NAME'],
     $_SERVER['REMOTE_ADDR'],
     $_SERVER['HTTP_USER_AGENT'] ?? '[no-useragent]',
@@ -130,7 +130,7 @@ if ($Viewer) {
     }
     if ($Viewer->ipaddr() != $context->remoteAddr() && !$Viewer->permitted('site_disable_ip_history')) {
         if ($ipv4Man->isBanned($context->remoteAddr())) {
-            error('Your IP address has been banned.');
+            Error403::error('Your IP address has been banned.');
         }
         $ipv4Man->register($Viewer, $context->remoteAddr());
     }

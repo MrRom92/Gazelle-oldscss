@@ -4,7 +4,7 @@ namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
 
-class BaseRequestContextTest extends TestCase {
+class RequestContextTest extends TestCase {
     protected User $user;
 
     public function tearDown(): void {
@@ -13,8 +13,8 @@ class BaseRequestContextTest extends TestCase {
         }
     }
 
-    public function testBaseRequestContext(): void {
-        $context = new BaseRequestContext(
+    public function testRequestContext(): void {
+        $context = new RequestContext(
             '/phpunit.php',
             '224.0.0.1',
             'Lidarr/3.5.8 (windows 98)',
@@ -38,7 +38,7 @@ class BaseRequestContextTest extends TestCase {
     }
 
     public function testBadRequest(): void {
-        $context = new BaseRequestContext('', '', '');
+        $context = new RequestContext('', '', '');
         $this->assertFalse($context->isValid(), 'context-not-valid');
         $this->assertEquals('', $context->browser(), 'context-invalid-browser');
     }
@@ -46,7 +46,7 @@ class BaseRequestContextTest extends TestCase {
     // Any object that derives from Base has access to the request context
     public function testObject(): void {
         Base::setRequestContext(
-            new BaseRequestContext(
+            new RequestContext(
                 '/phpunit.php',
                 '225.0.0.1',
                 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.3',

@@ -20,7 +20,7 @@ class UploadTest extends TestCase {
 
         $this->assertStringContainsString($this->user->auth(), $upload->head(0), 'upload-head');
 
-        Base::setRequestContext(new BaseRequestContext('/upload.php', '127.0.0.1', ''));
+        Base::setRequestContext(new RequestContext('/upload.php', '127.0.0.1', ''));
         global $SessionID;
         $SessionID = '';
         Util\Twig::setViewer($this->user);

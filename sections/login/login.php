@@ -46,7 +46,7 @@ if (!empty($_POST['username']) && !empty($_POST['password'])) {
                 exit;
             }
             $useragent = $_SERVER['HTTP_USER_AGENT'] ?? '[no-useragent]';
-            $context = new BaseRequestContext(
+            $context = new RequestContext(
                 $_SERVER['SCRIPT_NAME'],
                 $_SERVER['REMOTE_ADDR'],
                 $useragent,

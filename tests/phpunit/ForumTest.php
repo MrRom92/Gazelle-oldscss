@@ -547,7 +547,7 @@ class ForumTest extends TestCase {
             description:    'This is where it renders',
         );
         $paginator = (new Util\Paginator(TOPICS_PER_PAGE, 1))->setTotal(1);
-        Base::setRequestContext(new BaseRequestContext('/forum.php', '127.0.0.1', ''));
+        Base::setRequestContext(new RequestContext('/forum.php', '127.0.0.1', ''));
         global $SessionID; // to render header()
         $SessionID = 'phpunit';
         Util\Twig::setViewer($admin);

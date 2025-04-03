@@ -227,7 +227,7 @@ END;
     }
 
     public function testFunction(): void {
-        Base::setRequestContext(new BaseRequestContext('/index.php', '127.0.0.1', ''));
+        Base::setRequestContext(new RequestContext('/index.php', '127.0.0.1', ''));
         Util\Twig::setViewer($this->user);
         $this->assertStringStartsWith('<!DOCTYPE html>', self::twig('{{ header("page") }}')->render(), 'twig-function-header');
 
