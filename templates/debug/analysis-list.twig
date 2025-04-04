@@ -28,13 +28,13 @@
         <td class="nobr">{{ heading|column('seen') }}</td>
         <td class="nobr">{{ heading|column('created') }}</td>
         <td class="nobr">{{ heading|column('updated') }}</td>
-        <td>URI</td>
+        <td class="nobr">{{ heading|column('uri') }}</td>
         <td style="text-align: center">Toggle<br /><input type="checkbox" id="clear-all" name="clear-all" /></td>
     </tr>
 {% for item in list %}
     <tr class="row{{ cycle(['a', 'b'], loop.index0) }}">
-        <td style="text-align: right"><a href="tools.php?action=analysis&amp;case={{ item.error_log_id }}">{{ item.error_log_id }}</a></td>
-        <td style="text-align: right">{{ item.duration }}</td>
+        <td style="text-align: right"><a href="tools.php?action=analysis&amp;case={{ item.id }}">{{ item.id }}</a></td>
+        <td style="text-align: right">{{ item.duration|number_format(6) }}</td>
         <td style="text-align: right">{{ item.memory|octet_size }}</td>
         <td style="text-align: right">{{ item.error_list|length|number_format }}</td>
         <td style="text-align: right">{{ item.nr_query|number_format }}</td>
@@ -43,7 +43,7 @@
         <td>{{ item.created }}</td>
         <td>{% if item.seen == 1 %}&mdash;{% else %}{{ item.updated }}{% endif %}</td>
         <td style="word-break: break-all">{{ item.uri }}</td>
-        <td style="text-align: center"><input class="clear-row" type="checkbox" name="clear-{{ item.error_log_id }}" /></td>
+        <td style="text-align: center"><input class="clear-row" type="checkbox" name="clear-{{ item.id }}" /></td>
     </tr>
 {% endfor %}
     <tr>

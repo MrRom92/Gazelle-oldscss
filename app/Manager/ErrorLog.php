@@ -2,8 +2,14 @@
 
 namespace Gazelle\Manager;
 
-class ErrorLog extends \Gazelle\BaseManager {
+use Gazelle\BaseManager;
+
+class ErrorLog extends BaseManager {
     protected string $filter;
+
+    protected function digest(string $trace, array $errorList): string {
+        return hash('sha256', $trace . json_encode($errorList));
+    }
 
     public function create(
         string $uri,
@@ -12,54 +18,79 @@ class ErrorLog extends \Gazelle\BaseManager {
         int $memory,
         int $nrQuery,
         int $nrCache,
-        string $digest,
         string $trace,
-        string $request,
-        string $errorList,
-        string $loggedVar
-    ): int {
-        self::$db->prepared_query("
-            INSERT INTO error_log
-                   (uri, user_id, duration, memory, nr_query, nr_cache, digest, trace, request, error_list, logged_var)
-            VALUES (?,   ?,       ?,        ?,      ?,        ?,        ?,      ?,     ?,       ?,          ?)
-            ON DUPLICATE KEY UPDATE
-                updated = now(),
-                seen    = seen + 1
-            ", substr($uri, 0, 255), $userId, $duration, $memory, $nrQuery, $nrCache, $digest, $trace, $request, $errorList, $loggedVar
+        array $request,
+        array $errorList,
+    ): \Gazelle\ErrorLog {
+        $id = $this->pg()->scalar("
+            merge into error_log using (
+                select ? as uri,
+                    ?::int as id_user,
+                    ?::double precision as duration,
+                    ?::bigint as memory,
+                    ?::int as nr_query,
+                    ?::int as nr_cache,
+                    ? as trace,
+                    ?::jsonb as request,
+                    ?::jsonb as error_list,
+                    ?::bytea as digest
+                ) as i on i.digest = error_log.digest
+            when not matched then
+                insert (  uri,   id_user,   duration,   memory,   nr_query,   nr_cache,   trace,   request,   error_list,   digest)
+                values (i.uri, i.id_user, i.duration, i.memory, i.nr_query, i.nr_cache, i.trace, i.request, i.error_list, i.digest)
+            when matched then
+                update set
+                    seen = error_log.seen + 1,
+                    updated = now()
+            returning id_error_log;
+            ", substr($uri, 0, 255), $userId, $duration, $memory, $nrQuery, $nrCache,
+                $trace, json_encode($request), json_encode($errorList),
+                $this->digest($trace, $errorList),
         );
-        return self::$db->inserted_id();
+        return new \Gazelle\ErrorLog($id);
     }
 
     /**
      * Get an eror log based on its ID
      */
-    public function findById(int $errorId): ?\Gazelle\ErrorLog {
-        $id = (int)self::$db->scalar("
-            SELECT error_log_id FROM error_log WHERE error_log_id = ?
-            ", $errorId
+    public function findById(int $id): ?\Gazelle\ErrorLog {
+        $errorId = (int)$this->pg()->scalar("
+            select id_error_log FROM error_log where id_error_log = ?
+            ", $id
+        );
+        return $errorId ? new \Gazelle\ErrorLog($errorId) : null;
+    }
+
+    /**
+     * Get an eror log based on its digest
+     */
+    public function findByDigest(string $trace, array $errorList): ?\Gazelle\ErrorLog {
+        $id = (int)$this->pg()->scalar("
+            select id_error_log FROM error_log where digest = ?
+            ", $this->digest($trace, $errorList),
         );
         return $id ? new \Gazelle\ErrorLog($id) : null;
     }
 
     public function findByPrev(int $errorId): ?\Gazelle\ErrorLog {
-        $id = (int)self::$db->scalar("
-            SELECT error_log_id
-            FROM error_log
-            WHERE updated > (SELECT updated FROM error_log WHERE error_log_id = ?)
-            ORDER BY updated ASC
-            LIMIT 1
+        $id = (int)$this->pg()->scalar("
+            select id_error_log
+            from error_log
+            where updated > (select updated from error_log where id_error_log = ?)
+            order by updated asc
+            limit 1
             ", $errorId
         );
         return $id ? new \Gazelle\ErrorLog($id) : null;
     }
 
     public function findByNext(int $errorId): ?\Gazelle\ErrorLog {
-        $id = (int)self::$db->scalar("
-            SELECT error_log_id
-            FROM error_log
-            WHERE updated < (SELECT updated FROM error_log WHERE error_log_id = ?)
-            ORDER BY updated DESC
-            LIMIT 1
+        $id = (int)$this->pg()->scalar("
+            select id_error_log
+            from error_log
+            where updated < (select updated from error_log where id_error_log = ?)
+            order by updated desc
+            limit 1
             ", $errorId
         );
         return $id ? new \Gazelle\ErrorLog($id) : null;
@@ -75,11 +106,11 @@ class ErrorLog extends \Gazelle\BaseManager {
         if (!isset($this->filter)) {
             $where = '';
         } else {
-            $where = "WHERE uri LIKE concat('%', ?, '%')";
+            $where = "where uri ~ ?";
             $args[] = $this->filter;
         }
-        return (int)self::$db->scalar("
-            SELECT count(*) FROM error_log $where
+        return (int)$this->pg()->scalar("
+            select count(*) from error_log $where
             ", ...$args
         );
     }
@@ -89,12 +120,16 @@ class ErrorLog extends \Gazelle\BaseManager {
         if (!isset($this->filter)) {
             $where = '';
         } else {
-            $where = "WHERE uri LIKE concat('%', ?, '%')";
+            $where = "where uri ~ ?";
             $args[] = $this->filter;
         }
         array_push($args, $limit, $offset);
-        self::$db->prepared_query("
-            SELECT error_log_id,
+        /* In theory this could simply fetch the ids and then hydrate the
+         * individual ErrorLog objects, but as they are uncached, it would
+         * require n+1 queries overall.
+         */
+        $result = $this->pg()->all("
+            select id_error_log as id,
                 duration,
                 memory,
                 nr_cache,
@@ -107,16 +142,15 @@ class ErrorLog extends \Gazelle\BaseManager {
                 request,
                 error_list,
                 logged_var
-            FROM error_log $where
-            ORDER BY {$orderBy} {$dir}
-            LIMIT ? OFFSET ?
+            from error_log $where
+            order by {$orderBy} {$dir}
+            limit ? offset ?
             ", ...$args
         );
-        $result = self::$db->to_array('error_log_id', MYSQLI_ASSOC, false);
         $list = [];
         foreach ($result as $item) {
-            $item['trace'] = explode("\n", $item['trace']);
-            $item['request'] = json_decode($item['request'], true);
+            $item['trace']      = explode("\n", $item['trace']);
+            $item['request']    = json_decode($item['request'], true);
             $item['error_list'] = json_decode($item['error_list'], true);
             $item['logged_var'] = json_decode($item['logged_var'], true);
             $list[] = $item;
@@ -125,18 +159,16 @@ class ErrorLog extends \Gazelle\BaseManager {
     }
 
     public function removeList(array $list): int {
-        self::$db->prepared_query("
-            DELETE FROM error_log WHERE error_log_id IN (
+        return $this->pg()->prepared_query("
+            delete from error_log where id_error_log in (
             " . placeholders($list) . ")", ...$list
         );
-        return self::$db->affected_rows();
     }
 
     public function removeSlow(float $duration): int {
-        self::$db->prepared_query("
-            DELETE FROM error_log WHERE duration >= ?
+        return $this->pg()->prepared_query("
+            delete from error_log where duration >= ?
             ", $duration
         );
-        return self::$db->affected_rows();
     }
 }

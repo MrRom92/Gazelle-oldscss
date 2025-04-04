@@ -174,7 +174,7 @@ class Privilege extends \Gazelle\BaseManager {
             'site_database_specifics' => 'View database specifics',
             'site_proxy_images' => 'Image proxy',
             'site_search_many' => 'Go past low limit of search results',
-            'site_user_stats' => 'view other user stat graphs',
+            'site_user_stats' => 'view user stat graphs',
             'site_unlimit_ajax' => 'Bypass ajax api limits',
             'site_archive_ajax' => 'View archive-related ajax endpoints',
             'users_auto_reports' => 'Access automated user reports',

@@ -2,7 +2,7 @@
 
 namespace Gazelle;
 
-class ErrorLog extends BaseObject {
+class ErrorLog extends BasePgObject {
     final public const tableName = 'error_log';
     final public const pkName    = 'error_log_id';
 
@@ -23,9 +23,9 @@ class ErrorLog extends BaseObject {
         if (isset($this->info)) {
             return $this->info;
         }
-        $info = self::$db->rowAssoc("
-            SELECT error_log_id,
-                user_id,
+        $info = $this->pg()->rowAssoc("
+            select id_error_log,
+                id_user,
                 duration,
                 memory,
                 nr_query,
@@ -36,20 +36,25 @@ class ErrorLog extends BaseObject {
                 uri,
                 trace,
                 request,
+                encode(digest, 'base64') as digest,
                 error_list
-            FROM error_log
-            WHERE error_log_id = ?
+            from error_log
+            where id_error_log = ?
             ", $this->id
         );
-        $info['trace'] = explode("\n", $info['trace']);
-        $info['request'] = json_decode($info['request'], true);
-        $info['error_list'] = json_decode($info['error_list'], true) ?? [];
+        $info['trace']      = explode("\n", $info['trace']);
+        $info['request']    = json_decode($info['request'], true);
+        $info['error_list'] = json_decode($info['error_list'], true);
         $this->info = $info;
         return $this->info;
     }
 
     public function created(): string {
         return $this->info()['created'];
+    }
+
+    public function digest(): string {
+        return $this->info()['digest'];
     }
 
     public function duration(): float {
@@ -93,6 +98,15 @@ class ErrorLog extends BaseObject {
     }
 
     public function userId(): float {
-        return $this->info()['user_id'];
+        return $this->info()['id_user'];
+    }
+
+    public function remove(): int {
+        $affected = $this->pg()->prepared_query("
+            delete from error_log where id_error_log = ?
+            ", $this->id
+        );
+        $this->flush();
+        return $affected;
     }
 }

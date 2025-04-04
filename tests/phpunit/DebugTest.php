@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class DebugTest extends TestCase {
     public function testDebugGeneral(): void {
@@ -11,44 +12,46 @@ class DebugTest extends TestCase {
         $this->assertGreaterThan(0.0, $Debug->cpuElapsed(), 'debug-cpu-elapsed');
         $this->assertGreaterThan(0, $Debug->epochStart(), 'debug-epoch-start');
         $this->assertGreaterThan(350, count($Debug->includeList()), 'debug-include-list');
-        $this->assertTrue(\GazelleUnitTest\Helper::recentDate(date('Y-m-d H:i:s', (int)$Debug->epochStart()), 180), 'debug-recent-start');
+        $this->assertTrue(Helper::recentDate(date('Y-m-d H:i:s', (int)$Debug->epochStart()), 180), 'debug-recent-start');
     }
 
     public function testCreate(): void {
-        $manager = new Manager\ErrorLog();
-        $uri     = '/phpunit.php';
-        $id      = $manager->create(
+        $manager  = new Manager\ErrorLog();
+        $uri      = '/phpunit.php';
+        $errorLog = $manager->create(
             uri:       $uri,
             userId:    0,
             duration:  0.0,
             memory:    0,
             nrQuery:   0,
             nrCache:   0,
-            digest:    randomString(10),
             trace:     "a\nb",
-            request:   json_encode([]), /** @phpstan-ignore-line result is not false */
-            errorList: json_encode([]), /** @phpstan-ignore-line result is not false */
-            loggedVar: json_encode([]), /** @phpstan-ignore-line result is not false */
+            request:   [],
+            errorList: [],
         );
 
-        $this->assertGreaterThan(0, $id, 'errorlog-create');
-        $case = $manager->findById($id);
+        $this->assertGreaterThan(0, $errorLog->id, 'errorlog-create');
+        $case = $manager->findById($errorLog->id);
         $this->assertInstanceOf(ErrorLog::class, $case, 'errorlog-find');
         $this->assertEquals($uri, $case->uri(), 'errorlog-uri');
         $this->assertEquals([], $case->request(), 'errorlog-request');
         $this->assertEquals([], $case->errorList(), 'errorlog-errrolist');
         $this->assertEquals(["a", "b"], $case->trace(), 'errorlog-trace');
+        $this->assertEquals(
+            $case->id,
+            $manager->findByDigest("a\nb", [])->id,
+            'errorlog-find-by-digest',
+        );
 
         $this->assertEquals(1, $case->remove(), 'errorlog-remove');
     }
 
     public function testCase(): void {
-        $manager = new Manager\ErrorLog();
         global $Debug;
-        $id = $Debug->saveCase('phpunit-case-1');
-        $case = $manager->findById($id);
-        $trace = $case->trace();
+        $case = $Debug->saveCase('phpunit-case-1');
+        $this->assertGreaterThan(0, $case->id, 'php-case-is-saved');
 
+        $trace = $case->trace();
         $this->assertCount(1, $trace, 'debug-case-nr-trace');
         $this->assertEquals('phpunit-case-1', $trace[0], 'debug-case-trace');
         // if the next assertion fails, try uncommenting the next line to reset
@@ -56,8 +59,8 @@ class DebugTest extends TestCase {
         $this->assertEquals(1, $case->seen(), 'debug-case-seen');
         $this->assertEquals('cli', $case->uri(), 'debug-case-uri');
         $this->assertEquals(0, $case->userId(), 'debug-case-user-id');
-        $this->assertTrue(\GazelleUnitTest\Helper::recentDate($case->created()), 'debug-case-created');
-        $this->assertTrue(\GazelleUnitTest\Helper::recentDate($case->updated()), 'debug-case-updated');
+        $this->assertTrue(Helper::recentDate($case->created()), 'debug-case-created');
+        $this->assertTrue(Helper::recentDate($case->updated()), 'debug-case-updated');
         $case->remove();
     }
 

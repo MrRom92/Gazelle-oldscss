@@ -45,9 +45,9 @@ class Debug {
             $Reason[] = number_format($Micro, 3) . ' ms';
         }
 
-        $Errors = count($this->errorList());
-        if ($Errors > self::MAX_ERRORS) {
-            $Reason[] = $Errors . ' PHP errors';
+        $errorTotal = count($this->errorList());
+        if ($errorTotal > self::MAX_ERRORS) {
+            $Reason[] = "$errorTotal PHP errors";
         }
         $Ram = memory_get_usage(true);
         if ($Ram > self::MAX_MEMORY && !in_array($document, IGNORE_PAGE_MAX_MEMORY)) {
@@ -71,10 +71,10 @@ class Debug {
         return false;
     }
 
-    public function saveCase(string $message): int {
-        if (static::$caseCount++) {
-            return 0;
-        }
+    public function saveCase(
+        string $message,
+        Manager\ErrorLog $manager = new Manager\ErrorLog(),
+    ): ErrorLog {
         if (!isset($_SERVER['REQUEST_URI'])) {
             $uri    = 'cli';
             $userId = 0;
@@ -84,36 +84,31 @@ class Debug {
             $uri = preg_replace('/(?<=[?&]torrent_pass=)\w+/', 'HASH', $uri);
             $uri = preg_replace('/([?&]\w*id=)\d+/', '\1IDnnn', $uri);
             global $Viewer;
-            $userId = (int)$Viewer?->id();
+            $userId = (int)$Viewer?->id;
         }
-
-        $errorList = (string)json_encode(self::$Errors);
-        $id = (new Manager\ErrorLog())->create(
+        $errorLog = $manager->create(
            uri:       $uri,
            userId:    $userId,
            duration:  $this->duration(),
            memory:    memory_get_usage(true),
            nrQuery:   count(DB::DB()->queryList()),
            nrCache:   $this->cache->hitListTotal(),
-           digest:    hash('xxh3', $message . $errorList, true),
            trace:     $message,
-           request:   (string)json_encode($_REQUEST),
-           errorList: $errorList,
-           loggedVar: (string)json_encode(''),
+           request:   $_REQUEST,
+           errorList: $this->errorList(),
         );
-
         $this->cache->cache_value(
-            'analysis_' . $id, [
-                'URI' => isset($_SERVER['REQUEST_URI'])
-                    ? "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}"
-                    : 'cli',
+            "analysis_{$errorLog->id}", [
+                'URI' => PHP_SAPI === 'cli'
+                    ? 'cli'
+                    : "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}",
                 'message'       => $message,
                 'time'          => time(),
                 'errors'        => $this->errorList(true),
                 'flags'         => $this->markList(),
                 'includes'      => $this->includeList(),
                 'perf'          => $this->perfInfo(),
-                'ocelot'        => (new Tracker())->requestList(),
+                'ocelot'        => new Tracker()->requestList(),
                 'searches'      => class_exists('Sphinxql') ? \Sphinxql::$Queries : [],
                 'searches_time' => class_exists('Sphinxql') ? \Sphinxql::$Time : 0.0,
                 'queries'       => $this->db->queryList(),
@@ -123,8 +118,8 @@ class Debug {
             ],
             86400 * 2
         );
-
-        return $id;
+        static::$caseCount++;
+        return $errorLog;
     }
 
     public function analysis(string $module, string $message, string $report = ''): void {
@@ -141,12 +136,12 @@ class Debug {
         }
         $case = $this->saveCase($report);
         Irc::sendMessage(IRC_CHAN_STATUS, "{$message} $module "
-            . SITE_URL . "/tools.php?action=analysis&case=$case "
+            . SITE_URL . "/tools.php?action=analysis&case={$case->id} "
             . SITE_URL . "/{$uri}"
         );
     }
 
-    public function saveError(\Error|\Exception $e): int {
+    public function saveError(\Error|\Exception $e): ErrorLog {
         return $this->saveCase(
             $e->getMessage() . "\n"
             . str_replace(SERVER_ROOT . '/', '', $e->getTraceAsString())
@@ -284,7 +279,9 @@ class Debug {
     public function perfInfo(): array {
         return [
             'CPU time'          => number_format(($this->cpuElapsed() - $this->cpuStart) / 1_000_000, 3) . ' s',
-            'URI'               => "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}",
+            'URI'               => PHP_SAPI === 'cli'
+                ? 'cli'
+                : "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}",
             'Memory usage'      => byte_format(memory_get_usage(true)),
             'Page process time' => number_format($this->duration(), 3) . ' s',
             'Script start'      => Time::sqlTime($this->epochStart()),

@@ -29,16 +29,17 @@ $paginator->setTotal($errMan->total());
 
 $heading = new Util\SortableTableHeader('updated', [
     // see Gazelle\ErrorLog for these table aliases
-    'id'       => ['dbColumn' => 'error_log_id', 'defaultSort' => 'desc', 'text' => 'Case'],
+    'id'       => ['dbColumn' => 'id',           'defaultSort' => 'desc', 'text' => 'Case'],
     'duration' => ['dbColumn' => 'duration',     'defaultSort' => 'desc', 'text' => 'Duration'],
     'memory'   => ['dbColumn' => 'memory',       'defaultSort' => 'desc', 'text' => 'Memory'],
-    'error'    => ['dbColumn' => 'json_length(cast(error_list as json))',
+    'error'    => ['dbColumn' => 'jsonb_array_length(error_list)',
         'defaultSort' => 'desc', 'text' => 'Errors'],
     'nr_query' => ['dbColumn' => 'nr_query',     'defaultSort' => 'desc', 'text' => 'Queries'],
     'nr_cache' => ['dbColumn' => 'nr_cache',     'defaultSort' => 'desc', 'text' => 'Cache'],
     'seen'     => ['dbColumn' => 'seen',         'defaultSort' => 'desc', 'text' => 'Seen'],
     'created'  => ['dbColumn' => 'created',      'defaultSort' => 'asc',  'text' => 'First'],
     'updated'  => ['dbColumn' => 'updated',      'defaultSort' => 'desc', 'text' => 'Latest'],
+    'uri'      => ['dbColumn' => 'uri',          'defaultSort' => 'asc',  'text' => 'URI'],
 ]);
 
 echo $Twig->render('debug/analysis-list.twig', [

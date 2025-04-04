@@ -194,10 +194,10 @@ try {
     if ($e::class === DB\MysqlException::class) {
         DB::DB()->rollback();
     }
-    $id = $Debug->saveError($e);
+    $errorLog = $Debug->saveError($e);
     $message = DEBUG_MODE || $Viewer?->permitted('site_debug')
-        ? ($e->getMessage() . " (case $id)")
-        : "That is not supposed to happen, you can a thread in the Bugs forum explaining what you were doing and referencing Error ID $id";
+        ? ($e->getMessage() . " (case $errorLog->id)")
+        : "That is not supposed to happen, you can a thread in the Bugs forum explaining what you were doing and referencing Error ID $errorLog->id";
     Error500::error($message);
 } finally {
     $Debug->mark('send to user');
