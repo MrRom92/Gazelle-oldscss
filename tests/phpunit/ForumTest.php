@@ -190,6 +190,7 @@ class ForumTest extends TestCase {
         );
 
         $user = $this->userList['user'];
+        $this->assertFalse($user->forumAccess($secret, 10000), 'fthread-secret-userlevel');
         $this->assertFalse($user->readAccess($secret), 'fthread-secret-user-read');
         $this->assertFalse($user->writeAccess($secret), 'fthread-secret-user-write');
         $this->assertFalse($user->createAccess($secret), 'fthread-secret-user-create');

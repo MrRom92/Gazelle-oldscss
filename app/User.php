@@ -801,9 +801,9 @@ class User extends BaseObject {
      *
      * @return bool has access
      */
-    public function forumAccess(int $forumId, int $forumMinClassLevel): bool {
-        return ($this->classLevel() >= $forumMinClassLevel || in_array($forumId, $this->permittedForums()))
-            && !in_array($forumId, $this->forbiddenForums());
+    public function forumAccess(Forum $forum, int $forumMinClassLevel): bool {
+        return ($this->classLevel() >= $forumMinClassLevel || in_array($forum->id, $this->permittedForums()))
+            && !in_array($forum->id, $this->forbiddenForums());
     }
 
     /**
@@ -812,7 +812,7 @@ class User extends BaseObject {
      * @return boolean true if user has permission
      */
     public function createAccess(Forum $forum): bool {
-        return $this->forumAccess($forum->id(), $forum->minClassCreate());
+        return $this->forumAccess($forum, $forum->minClassCreate());
     }
 
     /**
@@ -821,7 +821,7 @@ class User extends BaseObject {
      * @return boolean true if user has permission
      */
     public function readAccess(Forum $forum): bool {
-        return $this->forumAccess($forum->id(), $forum->minClassRead());
+        return $this->forumAccess($forum, $forum->minClassRead());
     }
 
     /**
@@ -830,7 +830,7 @@ class User extends BaseObject {
      * @return boolean true if user has permission
      */
     public function writeAccess(Forum $forum): bool {
-        return $this->forumAccess($forum->id(), $forum->minClassWrite());
+        return $this->forumAccess($forum, $forum->minClassWrite());
     }
 
     /**
@@ -884,7 +884,7 @@ class User extends BaseObject {
             INNER JOIN forums f ON (f.ID = ft.ForumID)
             WHERE l.UserID = ?
                 AND f.ID = ?
-            ", $perPage, $this->id, $forum->id()
+            ", $perPage, $this->id, $forum->id
         );
         $list = [];
         foreach (self::$db->to_array('thread_id', MYSQLI_ASSOC, false) as $row) {

@@ -171,9 +171,6 @@ class UserTest extends TestCase {
         $this->assertEquals([], $this->user->navigationList(), 'utest-navigation-list');
         $this->assertEquals(USER, $this->user->primaryClass(), 'utest-primary-class');
 
-        $this->assertTrue($this->user->forumAccess(0, 0), 'utest-forum-access-low');
-        $this->assertFalse($this->user->forumAccess(0, 10000), 'utest-forum-access-high');
-
         $this->assertTrue($this->user->isVisible(), 'utest-is-visble');
         $this->assertTrue($this->user->canLeech(), 'utest-can-leech');
         $this->assertTrue($this->user->hasAutocomplete('other'), 'utest-has-autocomplete-other');
