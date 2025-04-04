@@ -160,7 +160,6 @@ class UserTest extends TestCase {
         $this->assertEquals(0, $this->user->invite()->pendingTotal(), 'utest-pending-invite-count');
         $this->assertEquals(0, $this->user->downloadedOnRatioWatch(), 'utest-download-ratio-watch');
         $this->assertEquals(0, $this->user->seedingSize(), 'utest-seeding-size');
-        $this->assertEquals(0, $this->user->torrentDownloadCount(0), 'utest-torrent-download-count');
         $this->assertEquals(0, $this->user->torrentRecentRemoveCount(1), 'utest-torrent-recent-remove-count');
         $this->assertEquals(0, $this->user->trackerIPCount(), 'utest-tracker-ipaddr-total');
         $this->assertEquals(0.0, $this->user->requiredRatio(), 'utest-required-ratio');

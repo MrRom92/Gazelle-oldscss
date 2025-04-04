@@ -1672,14 +1672,14 @@ class User extends BaseObject {
         return $recent;
     }
 
-    public function torrentDownloadCount(int $torrentId): int {
+    public function torrentDownloadCount(Torrent $torrent): int {
         return (int)self::$db->scalar('
             SELECT count(*)
             FROM users_downloads ud
             INNER JOIN torrents AS t ON (t.ID = ud.TorrentID)
             WHERE ud.UserID = ?
                 AND ud.TorrentID = ?
-            ', $this->id, $torrentId
+            ', $this->id, $torrent->id
         );
     }
 

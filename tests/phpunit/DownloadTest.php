@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\DownloadStatus;
 
 class DownloadTest extends TestCase {
@@ -11,12 +12,12 @@ class DownloadTest extends TestCase {
 
     public function setUp(): void {
         $this->userList = [
-            'up'   => \GazelleUnitTest\Helper::makeUser('upload.' . randomString(6), 'download'),
-            'down' => \GazelleUnitTest\Helper::makeUser('download.' . randomString(6), 'download'),
+            'up'   => Helper::makeUser('upload.' . randomString(6), 'download'),
+            'down' => Helper::makeUser('download.' . randomString(6), 'download'),
         ];
         $this->userList['up']->requestContext()->setViewer($this->userList['up']);
-        $this->torrent = \GazelleUnitTest\Helper::makeTorrentMusic(
-            tgroup: \GazelleUnitTest\Helper::makeTGroupMusic(
+        $this->torrent = Helper::makeTorrentMusic(
+            tgroup: Helper::makeTGroupMusic(
                 name:       'phpunit download ' . randomString(6),
                 artistName: [[ARTIST_MAIN], ['the ' . randomString(12) . ' Band']],
                 tagName:    ['downtempo'],
@@ -28,7 +29,7 @@ class DownloadTest extends TestCase {
     }
 
     public function tearDown(): void {
-        \GazelleUnitTest\Helper::removeTGroup($this->torrent->group(), $this->torrent->uploader());
+        Helper::removeTGroup($this->torrent->group(), $this->torrent->uploader());
         $db = DB::DB();
         foreach ($this->userList as $user) {
             $db->scalar("DELETE FROM ratelimit_torrent WHERE user_id = ?", $user->id());
@@ -41,6 +42,7 @@ class DownloadTest extends TestCase {
         $uploader = new Download($this->torrent, new User\UserclassRateLimit($user), false);
         $this->assertEquals(DownloadStatus::ok, $uploader->status(), 'download-uploader-ok');
         $this->assertEquals(1, $this->torrent->downloadTotal(), 'download-torrent-total');
+        $this->assertEquals(1, $user->torrentDownloadCount($this->torrent), 'user-torrent-download-count');
         $list = $this->torrent->downloadList($user, 2, 0);
         $this->assertCount(1, $list, 'download-torrent-list');
         $this->assertEquals(
@@ -48,7 +50,7 @@ class DownloadTest extends TestCase {
             array_keys($list[0]),
             'download-torrent-keys'
         );
-        \GazelleUnitTest\Helper::generateTorrentSeed($this->torrent, $user);
+        Helper::generateTorrentSeed($this->torrent, $user);
         $list = $this->torrent->seederList($user, 2, 0);
         $this->assertCount(1, $list, 'seeder-torrent-list');
         $this->assertEquals(

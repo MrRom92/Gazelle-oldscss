@@ -20,7 +20,7 @@ if (
         BT_BROKEN_USERAGENT_REGEXP,
         $torrent->requestContext()->useragent(),
     )
-    && $Viewer->torrentDownloadCount($torrent->id) > BT_BROKEN_USERAGENT_DOWNLOAD
+    && $Viewer->torrentDownloadCount($torrent) > BT_BROKEN_USERAGENT_DOWNLOAD
 ) {
     json_or_error('You have downloaded this torrent file more than '
         . BT_BROKEN_USERAGENT_DOWNLOAD
