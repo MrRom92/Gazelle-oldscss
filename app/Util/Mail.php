@@ -12,8 +12,9 @@ class Mail {
 
     /**
      * Send an email.
+     * Returns the underlying return code from mail() or fclose().
      */
-    public function send(string $to, string $subject, string $body): void {
+    public function send(string $to, string $subject, string $body): bool {
         $from = $this->from . '@' . SITE_HOST;
         $msgId = randomString(40);
         $headers = implode("\r\n", [
@@ -28,12 +29,12 @@ class Mail {
         ]);
         if (DEBUG_EMAIL) {
             $out = fopen(TMPDIR . "/$msgId.mail", "w");
-            if ($out) {
-                fwrite($out, $headers . "\n" . $body . "\n");
-                fclose($out);
+            if ($out === false) {
+                return false;
             }
-        } else {
-            mail($to, $subject, $body, $headers, "-f $from");
+            fwrite($out, $headers . "\n" . $body . "\n");
+            return fclose($out);
         }
+        return mail($to, $subject, $body, $headers, "-f $from");
     }
 }
