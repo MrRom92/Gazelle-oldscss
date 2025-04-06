@@ -4,8 +4,8 @@ ENV DEB_RELEASE=bookworm
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PHP_VER=8.4
 ENV NODE_VERSION=20
-# commit of composer 2.8.6
-ENV COMPOSER_COMMIT=51c25eb405dc44528575cb36aea4aeec31c4bf15
+# commit of composer 2.8.8
+ENV COMPOSER_COMMIT=f3108f64b4e1c1ce6eb462b159956461592b3e3e
 
 # Uncomment to skip the chromium download when installing puppeteer. If you do,
 # you'll need to launch puppeteer with:
@@ -98,6 +98,13 @@ RUN apt-get update \
         libnss3 \
         lsb-release \
         xdg-utils \
+        # cypress
+        # all below is needed until running cypress headless/electron-less is fixed: https://github.com/cypress-io/cypress/issues/23636
+        libgbm-dev \
+        libgtk2.0-0 \
+        libnotify-dev \
+        procps \
+        xvfb \
     && apt-get autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \

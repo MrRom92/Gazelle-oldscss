@@ -22,8 +22,6 @@ parameters:
     reportStaticMethodSignatures: true
     reportWrongPhpDocTypeInVarTag: true
     errorFormat: table
-    stubFiles:
-        - ../lib/stub/memcached.stub
     bootstrapFiles:
         - ../lib/config.php
     scanFiles:

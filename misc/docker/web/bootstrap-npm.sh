@@ -7,7 +7,8 @@ export npm_config_cache
 
 bin/config-css /tmp/config-css.js
 
-npm install
+npm install -g npm@11.2.0
+npm install sass
 npx update-browserslist-db@latest
 npx puppeteer browsers install chrome
 npm run build

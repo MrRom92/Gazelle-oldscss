@@ -1,18 +1,18 @@
 FROM debian:bookworm-slim
 
-WORKDIR /var/www
-
 ENV DEB_RELEASE=bookworm
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PHP_VER=8.4
 ENV NODE_VERSION=20
-# commit of composer 2.8.6
-ENV COMPOSER_COMMIT=51c25eb405dc44528575cb36aea4aeec31c4bf15
+# commit of composer 2.8.8
+ENV COMPOSER_COMMIT=f3108f64b4e1c1ce6eb462b159956461592b3e3e
 
 # Uncomment to skip the chromium download when installing puppeteer. If you do,
 # you'll need to launch puppeteer with:
 #     browser.launch({executablePath: 'google-chrome-unstable'})
 # ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+
+WORKDIR /var/www
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -57,6 +57,7 @@ RUN apt-get update \
         unzip \
         zlib1g-dev \
         # This installs the necessary packages to run the bundled version of chromium for puppeteer
+        fonts-liberation \
         gconf-service \
         libasound2 \
         libatk1.0-0 \
@@ -72,6 +73,7 @@ RUN apt-get update \
         libglib2.0-0 \
         libgtk-3-0 \
         libnspr4 \
+        libnss3 \
         libpango-1.0-0 \
         libpangocairo-1.0-0 \
         libstdc++6 \
@@ -88,8 +90,6 @@ RUN apt-get update \
         libxrender1 \
         libxss1 \
         libxtst6 \
-        fonts-liberation \
-        libnss3 \
         lsb-release \
         xdg-utils \
     && apt-get autoremove \
@@ -108,20 +108,14 @@ RUN apt-get update \
 RUN echo "deb http://deb.debian.org/debian ${DEB_RELEASE}-backports main" > /etc/apt/sources.list.d/backports.list \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
-        postgresql-client \
         default-mysql-client \
         libmemcached-tools \
+        postgresql-client \
         sphinxsearch \
         # all below is needed until running cypress headless/electron-less is fixed: https://github.com/cypress-io/cypress/issues/23636
         libgtk2.0-0 \
-        libgtk-3-0 \
         libnotify-dev \
-        libgconf-2-4 \
         libgbm-dev \
-        libnss3 \
-        libxss1 \
-        libasound2 \
-        libxtst6 \
         procps \
         xvfb \
     && apt-get autoremove \

@@ -24,6 +24,8 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
+/* global Cypress, cy */
+
 const date = new Date();
 const footer = `Site and design © ${date.getFullYear()} Gazelle`;
 
@@ -37,6 +39,9 @@ Cypress.Commands.add('login', (username, password) => {
         cy.url().should('contain', '/index.php');
     })
 })
+
+// When running Cypress tests locally, change the following login calls
+// to users that exist in your environment.
 
 Cypress.Commands.add('loginAdmin', () => {
     cy.login('admin', 'password');

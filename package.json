@@ -12,24 +12,24 @@
   },
   "license": "Unlicense",
   "devDependencies": {
-    "@eslint/js": "^9.14",
-    "@stylistic/eslint-plugin-js": "^2.10",
-    "cypress": "^13.15",
-    "cypress-terminal-report": "^7.0.4",
-    "eslint": "^9.14",
+    "@eslint/js": "^9.24",
+    "@stylistic/eslint-plugin-js": "^4.2",
+    "cypress": "^13.17",
+    "cypress-terminal-report": "^7.1.0",
+    "eslint": "^9.24",
     "globals": "^15.12",
-    "stylelint": "^16.9",
+    "stylelint": "^16.18",
     "stylelint-checkstyle-formatter": "^0.1.2",
     "stylelint-config-recommended": "^14.0.1",
     "stylelint-config-standard": "^36.0.1",
-    "stylelint-scss": "^6.9",
-    "update-browserslist-db": "1.1.1"
+    "stylelint-scss": "^6.11.1",
+    "update-browserslist-db": "1.1"
   },
   "dependencies": {
     "cross-env": "^7.0",
-    "puppeteer": "^23.8",
-    "sass": "^1.80.7",
-    "sharp": "^0.33.5"
+    "puppeteer": "^24.6",
+    "sass": "^1.86",
+    "sharp": "^0.34"
   },
   "browserslist": [
     "last 3 versions",
