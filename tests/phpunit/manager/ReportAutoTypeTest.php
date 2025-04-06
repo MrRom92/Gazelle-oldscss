@@ -36,7 +36,6 @@ class ReportAutoTypeTest extends TestCase {
         $this->assertEquals('newcat', $type3->category(), 'ratman-create-newcat2');
 
         $type4 = $this->ratMan->create('type4 name', 'useful description', 'newcat');
-        $this->assertNotNull($type3, 'ratman-create-newcat3');
         $this->assertEquals('newcat', $type4->category(), 'ratman-create-newcat4');
         $this->assertEquals($type3->categoryId(), $type4->categoryId(), 'ratman-create-newcat5');
 

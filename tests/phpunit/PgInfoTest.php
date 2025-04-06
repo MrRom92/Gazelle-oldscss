@@ -45,6 +45,10 @@ class PgInfoTest extends TestCase {
     }
 
     public function testPgVersion(): void {
-        $this->assertIsString($this->pg()->version(), 'pg-version');
+        $this->assertStringStartsWith(
+            "PostgreSQL ",
+            $this->pg()->version(),
+            'pg-version'
+        );
     }
 }

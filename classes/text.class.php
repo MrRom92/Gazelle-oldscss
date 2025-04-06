@@ -768,7 +768,7 @@ class Text {
             }
             self::headline_level($n, $level, $list, $i, $off, $tag);
             $list .= sprintf('<li><a href="#%2$s">%1$s</a>', $t[1], $t[2]);
-            $level = $t[0];
+            $level = (int)$t[0];
             $off = 0;
             $i++;
         }
@@ -880,7 +880,11 @@ class Text {
                         if (!preg_match('/^[hr]/', $Rule)) {
                             $Rule = "r$Rule";
                         }
-                        $Str .= '<a href="rules.php?p=upload#' . urlencode(html_unescape($Rule)) . '">' . preg_replace('/[aA-zZ]/', '', $Block['Val']) . '</a>';
+                        $Str .= '<a href="rules.php?p=upload#' /** @phpstan-ignore-line */
+                            . urlencode(html_unescape($Rule))
+                            . '">'
+                            . preg_replace('/[aA-zZ]/', '', $Block['Val'])
+                            . '</a>';
                         break;
                     case 'collage':
                         $Str .= self::bbcodeCollageUrl((int)$Block['Val']);
@@ -908,7 +912,7 @@ class Text {
                         }
                         $tgroup = (new Gazelle\Manager\TGroup())->findById((int)$GroupID);
                         if (is_null($tgroup)) {
-                            $Str .= '[torrent]' . str_replace('[inlineurl]', '', $Block['Val']) . '[/torrent]';
+                            $Str .= '[torrent]' . str_replace('[inlineurl]', '', (string)$Block['Val']) . '[/torrent]';
                         } else {
                             if (str_contains($Block['Attr'], 'noartist')) {
                                 $Str .= "<a href=\"{$tgroup->url()}\" title=\"" . ($tgroup->hashTag() ?: 'View torrent group')

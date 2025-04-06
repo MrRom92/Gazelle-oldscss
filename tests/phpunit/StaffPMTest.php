@@ -45,7 +45,6 @@ class StaffPMTest extends TestCase {
         $initialOpen     = $this->spMan->countByStatus($this->user, ['Open']);
         $initialResolved = $this->spMan->countByStatus($this->sysop, ['Resolved']);
         $spm = $this->spMan->create($this->user, 0, 'for FLS', 'message handled by FLS');
-        $this->assertNotNull($spm, 'spm-fls-create');
         $this->assertEquals(0, $spm->assignedUserId(), 'spm-fls-no-assignedUser');
         $this->assertEquals(0, $spm->classLevel(), 'spm-fls-classlevel-0');
         $this->assertEquals('for FLS', $spm->subject(), 'spm-fls-subject');

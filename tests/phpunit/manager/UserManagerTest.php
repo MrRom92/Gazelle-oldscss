@@ -376,9 +376,9 @@ class UserManagerTest extends TestCase {
 
     public function testUserflow(): void {
         $userflow = (new Manager\User())->userflow();
-        $this->assertIsArray($userflow, 'uman-userflow-is-array');
+        $this->assertGreaterThanOrEqual(0, count($userflow), 'uman-userflow-is-array');
         $recent = end($userflow);
-        $this->assertIsArray($recent, 'uman-userflow-recent-is-array');
+        $this->assertGreaterThanOrEqual(0, count($recent), 'uman-userflow-recent-is-array');
         $this->assertEquals(['Week', 'created', 'disabled'], array_keys($recent), 'userman-recent-keys');
     }
 }

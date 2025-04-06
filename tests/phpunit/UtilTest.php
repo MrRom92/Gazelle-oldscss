@@ -247,8 +247,8 @@ class UtilTest extends TestCase {
     }
 
     public function testDataFile(): void {
-        $this->assertIsArray(worldTopology(), 'world-topology');
-        $this->assertIsArray(ISO3166_2(), 'iso3166-2-lookup');
+        $this->assertCount(10, worldTopology(), 'world-topology');
+        $this->assertCount(249, ISO3166_2(), 'iso3166-2-lookup');
         $iso = ISO3166_2();
         $this->assertEquals('Papua New Guinea', $iso['PG'], 'iso3166-2-pg');
     }

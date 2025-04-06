@@ -306,7 +306,7 @@ class RequestTest extends TestCase {
         $statsReq->flush();
         $this->assertEquals($before['total'] + 1, $statsReq->total(), 'request-stats-now-total');
         $this->assertEquals($before['total-filled'] + 1, $statsReq->filledTotal(), 'request-stats-now-filled');
-        $this->assertIsFloat($statsReq->filledPercent(), 'request-stats-filled-percent');
+        $this->assertGreaterThan(0.0, $statsReq->filledPercent(), 'request-stats-filled-percent');
         $this->assertTrue($this->request->isFilled(), 'request-now-filled');
 
         // and now unfill it
@@ -703,5 +703,24 @@ class RequestTest extends TestCase {
 
         $under = new Request\LogCue(needCue: true, needLog: true, minScore: -1);
         $this->assertFalse($under->isValid(), 'req-log-score-under');
+    }
+
+    public function testRenderRequest(): void {
+        $this->tgroup = Helper::makeTGroupMusic(
+            name       : 'phpunit render req',
+            artistName : [[ARTIST_MAIN], ['phpunit render req ' . randomString(12)]],
+            tagName    : ['reggae'],
+            user       : $this->userList['user'],
+        );
+        $this->request = Helper::makeRequestMusic($this->userList['admin'], 'phpunit render req');
+        $this->request->setField('GroupID', $this->tgroup->id)->modify();
+
+        $this->assertStringContainsString(
+            "<span style=\"font-weight: bold;\">Requests (1)</span>",
+            Util\Twig::factory(new Manager\User())->render('request/torrent.twig', [
+                'list' => (new Manager\Request())->findByTGroup($this->tgroup),
+            ]),
+            'render-tgroup-request-list',
+        );
     }
 }

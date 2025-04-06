@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class StaffBlogTest extends TestCase {
     protected array $userList;
@@ -14,8 +15,8 @@ class StaffBlogTest extends TestCase {
     }
 
     public function testStaffBlog(): void {
-        $this->userList['admin'] = \GazelleUnitTest\Helper::makeUser('admin.' . randomString(6), 'staffblog');
-        $this->userList['mod'] = \GazelleUnitTest\Helper::makeUser('mod.' . randomString(6), 'staffblog');
+        $this->userList['admin'] = Helper::makeUser('admin.' . randomString(6), 'staffblog');
+        $this->userList['mod'] = Helper::makeUser('mod.' . randomString(6), 'staffblog');
 
         $this->userList['admin']->setField('PermissionID', SYSOP)->modify();
         $this->userList['mod']->setField('PermissionID', MOD)->modify();
@@ -29,8 +30,8 @@ class StaffBlogTest extends TestCase {
         $this->assertEquals('phpunit staff blog', $blog->title(), 'staff-blog-title');
         $this->assertEquals('body text', $blog->body(), 'staff-blog-text');
         $this->assertEquals($this->userList['admin']->id(), $blog->userId(), 'staff-blog-user-id');
-        $this->assertIsString($blog->created(), 'staff-blog-created');
-        $this->assertIsInt($blog->epoch(), 'staff-blog-epoch');
+        $this->assertTrue(Helper::recentDate($blog->created()), 'staff-blog-created');
+        $this->assertGreaterThan(time() - 10, $blog->epoch(), 'staff-blog-epoch');
 
         $location = 'staffblog.php#blog' . $blog->id();
         $this->assertEquals($location, $blog->location(), 'staff-blog-location');

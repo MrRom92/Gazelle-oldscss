@@ -451,7 +451,7 @@ class Torrent {
                     $ValidValues = array_map('strtolower', ${$ValidValuesVarname});
                     if (($Value = array_search(strtolower($Value), $ValidValues)) === false) {
                         // Force the query to return 0 results if value is still invalid
-                        $Value = max(array_keys($ValidValues)) + 1;
+                        $Value = max(array_keys($ValidValues)) + 1; /** @phpstan-ignore-line it is a miracle this works */
                     }
                 }
                 $this->SphQL->where($Attribute, $Value);

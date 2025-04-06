@@ -188,14 +188,20 @@ class Privilege extends \Gazelle\BaseUser {
      * Forbidden forum ids for the user
      */
     public function forbiddenForumIdList(): array {
-        return array_keys(array_filter($this->info()['forum'], fn ($v) => $v === false));
+        return array_keys(array_filter(
+            $this->allowedForumList(),
+            fn ($v) => $v === false
+        ));
     }
 
     /**
      * Extra permitted forum ids for the user
      */
     public function permittedForumIdList(): array {
-        return array_keys(array_filter($this->info()['forum'], fn ($v) => $v === true));
+        return array_keys(array_filter(
+            $this->allowedForumList(),
+            fn ($v) => $v === true
+        ));
     }
 
     /**

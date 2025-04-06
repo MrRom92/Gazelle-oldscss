@@ -3,12 +3,13 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class DnuTest extends TestCase {
     protected User $user;
 
     public function setup(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('dnu.' . randomString(10), 'dnu');
+        $this->user = Helper::makeUser('dnu.' . randomString(10), 'dnu');
     }
 
     public function tearDown(): void {
@@ -32,7 +33,7 @@ class DnuTest extends TestCase {
             ),
             'dnu-modify'
         );
-        $this->assertIsString($manager->latest(), 'dnu-latest'); // validate SQL
+        $this->assertTrue(Helper::recentDate($manager->latest()), 'dnu-latest');
         $this->assertTrue($manager->hasNewForUser($this->user), 'dnu-user-latest');
 
         $this->assertEquals(

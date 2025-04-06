@@ -281,16 +281,26 @@ class InviteTest extends TestCase {
         $userMan = new Manager\User();
         $this->user->setField('PermissionID', MEMBER)->modify();
         $this->user->addClasses([
-            (int)current(array_filter($userMan->classList(), fn($class) => $class['Name'] == 'Recruiter'))['ID']
+            (int)current(array_filter(
+                $userMan->classList(),
+                fn ($class) => $class['Name'] == 'Recruiter'
+            ))['ID']
         ]);
-        $this->assertNull($inviteSourceMan->findSourceNameByUser($this->user), 'invite-source-inviter-source');
+        $this->assertNull(
+            $inviteSourceMan->findSourceNameByUser($this->user),
+            'invite-source-inviter-source'
+        );
 
         // set up an invite source for an inviter
         $initialSource = $inviteSourceMan->inviterConfiguration($this->user);
-        $this->assertIsArray($initialSource, 'invite-source-list-initial');
+        $this->assertGreaterThanOrEqual(
+            0,
+            count($initialSource),
+            'invite-source-list-initial'
+        );
 
         $sourceId = $inviteSourceMan->create('pu.' . randomString(6));
-        $this->assertIsInt($sourceId, 'invite-source-create');
+        $this->assertGreaterThan(0, $sourceId, 'invite-source-create');
         $this->assertEquals(
             1,
             $inviteSourceMan->modifyInviterConfiguration($this->user, [$sourceId]),

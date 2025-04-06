@@ -179,7 +179,11 @@ END;
         );
 
         $status = self::twig('{{ user_id|user_status(viewer) }}');
-        $this->assertIsString($status->render(['user_id' => $this->user->id(), 'viewer' => $this->user]), 'twig-user-status');
+        $this->assertEquals(
+            "<a target=\"_blank\" href=\"donate.php\"><img class=\"donor_icon tooltip\" src=\"/static/common/symbols/donor_6.png\" title=\"Donor\" /></a>",
+            $status->render(['user_id' => $this->user->id(), 'viewer' => $this->user]),
+            'twig-user-status'
+        );
         $donor->remove();
         Helper::flushDonationMonth(1);
     }
@@ -277,8 +281,9 @@ END;
             'twig-function-ipaddr'
         );
 
-        $this->assertIsString(self::twig('{{ mtime(asset) }}')->render(['asset' => 'blank.gif']), 'twig-function-mtime-file');
-        $this->assertIsString(self::twig('{{ mtime_scss(asset) }}')->render(['asset' => 'global.scss']), 'twig-function-mtime-scss');
+        // these will fail many, many, many years from now
+        $this->assertEquals(6, strlen(self::twig('{{ mtime(asset) }}')->render(['asset' => 'blank.gif'])), 'twig-function-mtime-file');
+        $this->assertEquals(6, strlen(self::twig('{{ mtime_scss(asset) }}')->render(['asset' => 'global.scss'])), 'twig-function-mtime-scss');
 
         $this->assertEquals(
             '<span class="tooltip r20" title="2.00000">2.00</span>',

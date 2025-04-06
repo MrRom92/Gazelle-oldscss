@@ -181,7 +181,7 @@ class AuditTrail extends \Gazelle\BaseUser {
                 where id_user_audit_trail in (" . placeholders($idList) . ")
                 ", ...$idList
             );
-        } else {
+        } elseif (count($idList)) {
             // edit
             $eventId = min($idList);
             $this->pg()->prepared_query("

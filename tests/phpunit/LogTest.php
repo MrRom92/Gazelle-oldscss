@@ -34,7 +34,7 @@ class LogTest extends TestCase {
 
     public function testGeneralLog(): void {
         $siteLog = new Manager\SiteLog(new Manager\User());
-        $this->assertIsInt($siteLog->relay(), 'sitelog-relay-init');
+        $this->assertGreaterThanOrEqual(0, $siteLog->relay(), 'sitelog-relay-init');
         $message = self::PREFIX . "general torrent 123457890 " . randomString();
         $siteLog->logger()->general($message);
 

@@ -136,8 +136,8 @@ class ForumPoll extends BaseObject {
         return $this->thread()->forum()->hasRevealVotes();
     }
 
-    protected function answerList(): array {
-        return array_map(fn($v) => $v['answer'], $this->info()['vote']);
+    public function answerList(): array {
+        return array_map(fn ($v) => $v['answer'], $this->info()['vote']);
     }
 
     protected function saveAnswerList(array $answerList): int {
@@ -159,7 +159,9 @@ class ForumPoll extends BaseObject {
      */
     public function addAnswer(string $answer): int {
         $answerList = $this->answerList();
-        return $this->saveAnswerList($answerList + [1 + max(array_keys($answerList)) => $answer]);
+        $idx = array_keys($answerList);
+        $answerList[(int)end($idx) + 1] = $answer;
+        return $this->saveAnswerList($answerList);
     }
 
     public function removeAnswer(int $item): int {

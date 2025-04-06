@@ -8,18 +8,20 @@ class EconomicTest extends TestCase {
     public function testEconomic(): void {
         $eco = new Stats\Economic();
 
-        $this->assertIsInt($eco->bountyAvailable(), 'eco-stats-bounty-available');
-        $this->assertIsInt($eco->bountyTotal(), 'eco-stats-bounty-total');
-        $this->assertIsInt($eco->downloadTotal(), 'eco-stats-download-total');
-        $this->assertIsInt($eco->leecherTotal(), 'eco-stats-leecher-total');
-        $this->assertIsInt($eco->peerTotal(), 'eco-stats-peer-total');
-        $this->assertIsInt($eco->seederTotal(), 'eco-stats-seeder-total');
-        $this->assertIsInt($eco->snatchGrandTotal(), 'eco-stats-seeder-grand-total');
-        $this->assertIsInt($eco->snatchTotal(), 'eco-stats-snatch-total');
-        $this->assertIsInt($eco->torrentTotal(), 'eco-stats-total-total');
-        $this->assertIsInt($eco->uploadTotal(), 'eco-stats-upload-total');
-        $this->assertIsInt($eco->userTotal(), 'eco-stats-user-total');
-        $this->assertIsInt($eco->userMfaTotal(), 'eco-stats-user-mfa-total');
-        $this->assertIsInt($eco->userPeerTotal(), 'eco-stats-user-peer-total');
+        // It would take too much scaffolding to verify exact values,
+        // but at least this shows the SQL queries are syntactically valid.
+        $this->assertGreaterThanOrEqual(0, $eco->bountyAvailable(), 'eco-stats-bounty-available');
+        $this->assertGreaterThanOrEqual(0, $eco->bountyTotal(), 'eco-stats-bounty-total');
+        $this->assertGreaterThanOrEqual(0, $eco->downloadTotal(), 'eco-stats-download-total');
+        $this->assertGreaterThanOrEqual(0, $eco->leecherTotal(), 'eco-stats-leecher-total');
+        $this->assertGreaterThanOrEqual(0, $eco->peerTotal(), 'eco-stats-peer-total');
+        $this->assertGreaterThanOrEqual(0, $eco->seederTotal(), 'eco-stats-seeder-total');
+        $this->assertGreaterThanOrEqual(0, $eco->snatchGrandTotal(), 'eco-stats-seeder-grand-total');
+        $this->assertGreaterThanOrEqual(0, $eco->snatchTotal(), 'eco-stats-snatch-total');
+        $this->assertGreaterThanOrEqual(0, $eco->torrentTotal(), 'eco-stats-total-total');
+        $this->assertGreaterThanOrEqual(0, $eco->uploadTotal(), 'eco-stats-upload-total');
+        $this->assertGreaterThanOrEqual(0, $eco->userTotal(), 'eco-stats-user-total');
+        $this->assertGreaterThanOrEqual(0, $eco->userMfaTotal(), 'eco-stats-user-mfa-total');
+        $this->assertGreaterThanOrEqual(0, $eco->userPeerTotal(), 'eco-stats-user-peer-total');
     }
 }

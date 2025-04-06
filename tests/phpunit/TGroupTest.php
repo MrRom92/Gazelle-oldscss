@@ -73,7 +73,6 @@ class TGroupTest extends TestCase {
     }
 
     public function testTGroupCreate(): void {
-        $this->assertNotNull($this->tgroup, 'tgroup-create-exists');
         $this->assertGreaterThan(1, $this->tgroup->id(), 'tgroup-create-id');
 
         $this->assertTrue($this->tgroup->categoryGrouped(), 'tgroup-create-category-grouped');
@@ -229,7 +228,6 @@ class TGroupTest extends TestCase {
             $this->userList['user'],
             new Manager\Torrent(),
         );
-        $this->assertIsArray($json->payload());
         ['group' => $group, 'torrents' => $torrentList] = $json->payload();
         $this->assertEquals(
             ["wikiBody", "wikiBBcode", "wikiImage", "proxyImage", "id", "name",
@@ -316,7 +314,11 @@ class TGroupTest extends TestCase {
 
     public function testLatestUploads(): void {
         // we can at least test the SQL
-        $this->assertIsArray((new Manager\Torrent())->latestUploads(5), 'tgroup-latest-uploads');
+        $this->assertGreaterThanOrEqual(
+            0,
+            count((new Manager\Torrent())->latestUploads(5)),
+            'tgroup-latest-uploads'
+        );
     }
 
     public function testTGroupMerge(): void {
@@ -413,7 +415,11 @@ class TGroupTest extends TestCase {
     }
 
     public function testStatsRefresh(): void {
-        $this->assertIsInt((new Stats\TGroups())->refresh(), 'tgroup-stats-refresh');
+        $this->assertGreaterThanOrEqual(
+            0,
+            (new Stats\TGroups())->refresh(),
+            'tgroup-stats-refresh'
+        );
     }
 
     public function testRemasterList(): void {
@@ -431,14 +437,13 @@ class TGroupTest extends TestCase {
         (new Stats\TGroups())->refresh();
 
         $stats = $this->tgroup->stats();
-        $this->assertIsInt($stats->downloadTotal(), 'tgroup-stats-download');
-        $this->assertIsInt($stats->leechTotal(), 'tgroup-stats-leech');
-        $this->assertIsInt($stats->seedingTotal(), 'tgroup-stats-seeding');
-        $this->assertIsInt($stats->snatchTotal(), 'tgroup-stats-snatch');
+        $this->assertGreaterThanOrEqual(0, $stats->downloadTotal(), 'tgroup-stats-download');
+        $this->assertGreaterThanOrEqual(0, $stats->leechTotal(), 'tgroup-stats-leech');
+        $this->assertGreaterThanOrEqual(0, $stats->seedingTotal(), 'tgroup-stats-seeding');
+        $this->assertGreaterThanOrEqual(0, $stats->snatchTotal(), 'tgroup-stats-snatch');
 
         // test increment
         $total = $stats->bookmarkTotal();
-        $this->assertIsInt($stats->bookmarkTotal(), 'tgroup-stats-bookmark');
         $bookmark = new User\Bookmark($this->userList['user']);
         $bookmark->create('torrent', $this->tgroup->id());
 

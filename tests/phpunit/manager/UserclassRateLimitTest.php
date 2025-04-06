@@ -7,8 +7,12 @@ use PHPUnit\Framework\TestCase;
 class UserclassRateLimitTest extends TestCase {
     public function testUserclassRateLimit(): void {
         $limiter = new Manager\UserclassRateLimit();
-        $list = $limiter->list();
-        $this->assertIsArray($list, 'userclass-ratelimit-initial'); // validate the SQL query
+        $list = $limiter->list(); // validate the SQL query
+        $this->assertGreaterThanOrEqual(
+            0,
+            count($list),
+            'userclass-ratelimit-initial'
+        );
 
         /* Find a free secondary userclass. The code does not pay attention
          * to secondary classes for real, this is just a simple way to test

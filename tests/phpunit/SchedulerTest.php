@@ -71,7 +71,11 @@ class SchedulerTest extends TestCase {
     public function testTask(string $taskName): void {
         $scheduler = new TaskScheduler();
         ob_start();
-        $this->assertIsInt($scheduler->runClass($taskName), "sched-task-$taskName");
+        $this->assertGreaterThanOrEqual(
+            -1,
+            $scheduler->runClass($taskName),
+            "sched-task-$taskName"
+        );
         ob_end_clean();
     }
 

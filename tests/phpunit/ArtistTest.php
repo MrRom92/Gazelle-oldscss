@@ -500,7 +500,13 @@ class ArtistTest extends TestCase {
         ));
         $this->assertInstanceOf(Json\Artist::class, $json->setReleasesOnly(true), 'artist-json-set-releases');
         $payload = $json->payload();
-        $this->assertIsArray($payload, 'artist-json-payload');
+        $this->assertEquals(
+            ["id", "name", "notificationsEnabled", "hasBookmarked", "image",
+                "body", "bodyBbcode", "vanityHouse", "tags", "similarArtists",
+                "statistics", "torrentgroup", "requests"],
+            array_keys($payload),
+            'artist-json-payload'
+        );
         $this->assertEquals($artist->id(), $payload['id'], 'artist-payload-id');
         $this->assertEquals($artist->name(), $payload['name'], 'artist-payload-name');
         $this->assertCount(0, $payload['tags'], 'artist-payload-tags');

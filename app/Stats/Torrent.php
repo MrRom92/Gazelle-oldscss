@@ -219,7 +219,7 @@ class Torrent extends \Gazelle\Base {
         $list = [];
         foreach ($this->categoryList() as $cat => $value) {
             $list[] = [
-                'name' => CATEGORY[$cat - 1],
+                'name' => CATEGORY[(int)$cat - 1],
                 'y'    => $value,
             ];
         }

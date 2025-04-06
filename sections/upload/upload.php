@@ -104,7 +104,7 @@ View::show_header('Upload', ['js' => 'upload,validate_upload,musicbrainz,bbcode'
             <th><strong>Reason</strong></th>
         </tr>
 <?php foreach ($dnu->dnuList() as $index => $bad) { ?>
-        <tr class="row<?=$index % 2 ? 'b' : 'a'?>">
+        <tr class="row<?= (int)$index % 2 ? 'b' : 'a'?>">
             <td>
                 <?= \Text::full_format($bad['name']) ?>
 <?php   if ($bad['is_new']) { ?>

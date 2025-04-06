@@ -15,7 +15,7 @@ class TorManagerTest extends TestCase {
             // filter out values from an aborted previous run
             fn ($ip) => !in_array($ip, ['169.254.100.110', '169.254.110.120'])
         );
-        $this->assertIsArray($list, 'tornode-has-list');
+        $this->assertGreaterThanOrEqual(0, count($list), 'tornode-has-list');
         $this->assertFalse($manager->isExitNode('0.0.0.0'), 'tornode-0000-exit-node');
 
         $this->assertFalse($manager->isExitNode('169.254.100.110'), 'tornode-not-exit-node');

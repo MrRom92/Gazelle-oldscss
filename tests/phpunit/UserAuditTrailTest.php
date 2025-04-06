@@ -27,7 +27,7 @@ class UserAuditTrailTest extends TestCase {
 
         $auditTrail = $this->user->auditTrail();
         $id1 = $auditTrail->addEvent(UserAuditEvent::staffNote, 'phpunit first');
-        $this->assertIsInt($id1, 'uat-insert');
+        $this->assertGreaterThan(0, $id1, 'uat-insert');
         $this->assertEquals($id1, $auditTrail->lastEventId(), 'uat-last-event');
         $id2 = $auditTrail->addEvent(UserAuditEvent::staffNote, 'phpunit second');
         $this->assertEquals($id1 + 1, $id2, 'uat-second');

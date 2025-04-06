@@ -8,7 +8,7 @@ class ClientWhitelistTest extends TestCase {
     public function testWhitelist(): void {
         $manager = new Manager\ClientWhitelist();
         $initial = $manager->list();
-        $this->assertIsArray($initial, 'cwl-initial');
+        $this->assertGreaterThanOrEqual(0, count($initial), 'cwl-initial');
 
         $id = $manager->create('&pu', 'PHPUnit');
         $this->assertGreaterThan(0, $id, 'cwl-id');

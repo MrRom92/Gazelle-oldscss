@@ -78,7 +78,7 @@ div#preview {display: none;}
         <div class="box pad">
             <a onclick="toggle_display('preview')" href="javascript:void(0)">Toggle Preview</a><br />
             <div id="preview">
-                <iframe style="width: 100%; height: 600px;" srcdoc="<?=str_replace('"', '&quot;', str_replace('&', '&amp;', $response['response']))?>"></iframe>
+                <iframe style="width: 100%; height: 600px;" srcdoc="<?= html_escape($response['response']) ?>"></iframe>
             </div><br />
             <div>
 <?php

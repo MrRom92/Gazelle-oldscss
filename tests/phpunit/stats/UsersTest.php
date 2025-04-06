@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\UserStatus;
 
 class UsersTest extends TestCase {
@@ -23,51 +24,62 @@ class UsersTest extends TestCase {
     }
 
     public function testUserStats(): void {
+        $this->userList[] = Helper::makeUser('stats.' . randomString(10), 'user', enable: true);
+        $this->userList[0]->setField('ipcc', 'XD')->modify();
         $stats = new Stats\Users();
+        $this->assertGreaterThanOrEqual(0, $stats->refresh(), 'user-stats-refresh');
 
         /* not easy to test precise results, but at least the SQL can be exercised */
-        $this->assertIsArray($stats->browserDistribution(true), 'users-stats-browser');
-        $this->assertIsArray($stats->browserDistributionList(true), 'users-stats-browser-list');
-        $this->assertIsArray($stats->userclassDistribution(true), 'users-stats-userclass');
-        $this->assertIsArray($stats->userclassDistributionList(true), 'users-stats-userclass-list');
-        $this->assertIsArray($stats->platformDistribution(true), 'users-stats-platform');
-        $this->assertIsArray($stats->platformDistributionList(true), 'users-stats-platform-list');
-        $this->assertIsArray($stats->browserList(), 'user-stats-browser');
-        $this->assertIsArray($stats->operatingSystemList(), 'user-stats-os');
+        $this->assertGreaterThanOrEqual(0, count($stats->browserDistribution(true)), 'users-stats-browser');
+        $this->assertGreaterThanOrEqual(0, count($stats->browserDistributionList(true)), 'users-stats-browser-list');
 
-        $this->assertIsInt($stats->leecherTotal(), 'users-stats-total-leecher');
-        $this->assertIsInt($stats->peerTotal(), 'users-stats-total-peer');
-        $this->assertIsInt($stats->seederTotal(), 'users-stats-total-seeder');
-        $this->assertIsInt($stats->snatchTotal(), 'users-stats-total-snatch');
-        $this->assertCount(3, $stats->peerStat(), 'users-stats-peer');
+        $dist = $stats->userclassDistribution(true);
+        $this->assertCount(14, $dist, 'users-stats-userclass-total');
+        $this->assertEquals('User', $dist[0]['name'], 'users-stats-userclass-name');
+        $this->assertGreaterThan(0, $dist[0]['y'], 'users-stats-userclass-total');
 
-        $this->assertIsArray($stats->stockpileTokenList(10), 'user-stats-stockpile');
+        $list = $stats->userclassDistributionList(true);
+        $this->assertCount(14, $list, 'users-stats-userclassdist-total');
+        $this->assertGreaterThan(0, $list['User'], 'users-stats-userclassdist-total');
+
+        $this->assertGreaterThanOrEqual(0, count($stats->platformDistribution(true)), 'users-stats-platform');
+        $this->assertGreaterThanOrEqual(0, count($stats->platformDistributionList(true)), 'users-stats-platform-list');
+        $this->assertGreaterThanOrEqual(0, count($stats->browserList()), 'user-stats-browser');
+        $this->assertGreaterThanOrEqual(0, count($stats->operatingSystemList()), 'user-stats-os');
+
+        $this->assertGreaterThanOrEqual(0, $stats->leecherTotal(), 'users-stats-total-leecher');
+        $this->assertGreaterThanOrEqual(0, $stats->peerTotal(), 'users-stats-total-peer');
+        $this->assertGreaterThanOrEqual(0, $stats->seederTotal(), 'users-stats-total-seeder');
+        $this->assertGreaterThanOrEqual(0, $stats->snatchTotal(), 'users-stats-total-snatch');
+        $this->assertEquals(
+            ['peer_total', 'seeder_total', 'leecher_total'],
+            array_keys($stats->peerStat()),
+            'users-stats-peer'
+        );
+
+        $this->assertGreaterThanOrEqual(0, count($stats->stockpileTokenList(10)), 'user-stats-stockpile');
         $this->assertCount(24, $stats->flow(), 'users-stats-flow');
 
-        // will be zero on a fresh install
-        $this->assertGreaterThanOrEqual(0, $stats->refresh(), 'user-stats-refresh');
         $this->assertGreaterThan(0, $stats->registerActivity('users_stats_daily', 10), 'user-stats-register');
-
-        $this->assertIsInt($stats->enabledUserTotal(), 'user-stats-enabled');
-
-        $this->assertIsArray($stats->activityStat(), 'user-stats-activity');
-        $this->assertIsInt($stats->dayActiveTotal(), 'user-stats-active-day');
-        $this->assertIsInt($stats->weekActiveTotal(), 'user-stats-active-week');
-        $this->assertIsInt($stats->monthActiveTotal(), 'user-stats-active-month');
+        $this->assertGreaterThan(0, $stats->enabledUserTotal(), 'user-stats-enabled');
+        $this->assertGreaterThan(0, count($stats->activityStat()), 'user-stats-activity');
+        $this->assertGreaterThanOrEqual(0, $stats->dayActiveTotal(), 'user-stats-active-day');
+        $this->assertGreaterThanOrEqual(0, $stats->weekActiveTotal(), 'user-stats-active-week');
+        $this->assertGreaterThanOrEqual(0, $stats->monthActiveTotal(), 'user-stats-active-month');
     }
 
     public function testGeodistribution(): void {
         $stats = new Stats\Users();
         $stats->flush();
-        $this->userList[] = \GazelleUnitTest\Helper::makeUser('geodist.' . randomString(10), 'user');
+        $this->userList[] = Helper::makeUser('geodist.' . randomString(10), 'user');
         $this->userList[0]->setField('ipcc', 'XA')->setField('PermissionID', SYSOP)->modify();
         foreach (range(1, COUNTRY_MINIMUM + 1) as $n) {
-            $user = \GazelleUnitTest\Helper::makeUser('geodist.' . randomString(10), 'user');
+            $user = Helper::makeUser('geodist.' . randomString(10), 'user');
             $user->setField('ipcc', 'XB')->modify();
             $this->userList[] = $user;
         }
         $geodist = $stats->geodistribution();
-        $this->assertIsArray($geodist, 'users-stats-geodistribution');
+        $this->assertGreaterThanOrEqual(0, count($geodist), 'users-stats-geodistribution');
         $ipccList = array_map(fn($c) => $c['ipcc'], $geodist);
 
         // If any the following tests fail, it is likely due to artifacts left over from previous tests
@@ -89,7 +101,7 @@ class UsersTest extends TestCase {
 
     public function testNewUsersAllowed(): void {
         $stats = new Stats\Users();
-        $this->userList[] = \GazelleUnitTest\Helper::makeUser('stats.' . randomString(6), 'user', enable: true);
+        $this->userList[] = Helper::makeUser('stats.' . randomString(6), 'user', enable: true);
         $this->assertTrue($stats->newUsersAllowed($this->userList[0]), 'user-stats-new-users');
     }
 
@@ -97,11 +109,11 @@ class UsersTest extends TestCase {
         $stats = new Stats\Users();
         $this->assertInstanceOf(Stats\Users::class, $stats->flush(), 'users-stats-flush');
         $this->assertInstanceOf(Stats\Users::class, $stats->flushTop(10), 'users-stats-top-flush');
-        $this->assertIsArray($stats->topDownloadList(10), 'users-stats-top-download');
-        $this->assertIsArray($stats->topDownSpeedList(10), 'users-stats-top-downspeed');
-        $this->assertIsArray($stats->topUploadList(10), 'users-stats-top-upload');
-        $this->assertIsArray($stats->topUpSpeedList(10), 'users-stats-top-upspeed');
-        $this->assertIsArray($stats->topTotalUploadList(10), 'users-stats-top-total-upload');
+        $this->assertGreaterThanOrEqual(0, count($stats->topDownloadList(10)), 'users-stats-top-download');
+        $this->assertGreaterThanOrEqual(0, count($stats->topDownSpeedList(10)), 'users-stats-top-downspeed');
+        $this->assertGreaterThanOrEqual(0, count($stats->topUploadList(10)), 'users-stats-top-upload');
+        $this->assertGreaterThanOrEqual(0, count($stats->topUpSpeedList(10)), 'users-stats-top-upspeed');
+        $this->assertGreaterThanOrEqual(0, count($stats->topTotalUploadList(10)), 'users-stats-top-total-upload');
     }
 
     public function testAjaxTop10(): void {
@@ -132,7 +144,7 @@ class UsersTest extends TestCase {
 
     public function testEcoStats(): void {
         $stats = new Stats\Users();
-        $this->userList[0] = \GazelleUnitTest\Helper::makeUser('stats.' . randomString(6), 'user', enable: true);
+        $this->userList[0] = Helper::makeUser('stats.' . randomString(6), 'user', enable: true);
 
         $eco = new Stats\Economic();
         $eco->flush();
@@ -148,7 +160,6 @@ class UsersTest extends TestCase {
         $disabled = $eco->userDisabledTotal();
         $eco->flush();
         $this->userList[0]->setField('Enabled', UserStatus::disabled->value)->modify();
-        // $stats->refresh();
 
         $this->assertEquals(23 + $stranded, $eco->tokenStrandedTotal(), 'utest-stats-total-disabled-stranded-tokens');
         $this->assertEquals(1 + $disabled, $eco->userDisabledTotal(), 'utest-stats-user-disabled-total');

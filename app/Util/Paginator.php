@@ -81,7 +81,11 @@ class Paginator {
              * page?keep=2&param=1 => page?keep=2
              * page?keep=3&param=2&also=3 => page?keep=3&also=3
              */
-            $uri = (string)preg_replace("/(?:(?<=\?)$param=[^&]+&?|&$param=[^&]+(?:(?=&)|$))/", '', $uri);
+            $uri = preg_replace(
+                "/(?:(?<=\?)$param=[^&]+&?|&$param=[^&]+(?:(?=&)|$))/",
+                '',
+                $uri
+            );
         }
         $uri = str_replace('&', '&amp;', rtrim($uri, '?'));
         $uri .= str_contains($uri, '?') ? '&amp;' : '?';

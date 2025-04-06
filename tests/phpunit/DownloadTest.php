@@ -68,7 +68,7 @@ class DownloadTest extends TestCase {
         $this->assertFalse($ratelimit->hasExceededTotal(), 'download-ratelimit-total');
         $downloader = new Download($this->torrent, $ratelimit, false);
         $this->assertEquals(DownloadStatus::ok, $downloader->status(), 'download-downloader-ok');
-        $this->assertIsInt($ratelimit->register($this->torrent), 'download-register-ratelimit');
+        $this->assertGreaterThan(0, $ratelimit->register($this->torrent), 'download-register-ratelimit');
 
         $this->userList['down']->setField('can_leech', 0)->modify();
         $ratio = new Download($this->torrent, new User\UserclassRateLimit($this->userList['down']), false);

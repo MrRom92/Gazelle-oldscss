@@ -384,9 +384,9 @@ class TagTest extends TestCase {
 
     public function testTop10(): void {
         $manager = new Manager\Tag();
-        $this->assertIsArray($manager->topTGroupList(1), 'tag-top10-tgroup');
-        $this->assertIsArray($manager->topRequestList(1), 'tag-top10-request');
-        $this->assertIsArray($manager->topVotedList(1), 'tag-top10-voted');
+        $this->assertGreaterThanOrEqual(0, count($manager->topTGroupList(1)), 'tag-top10-tgroup');
+        $this->assertGreaterThanOrEqual(0, count($manager->topRequestList(1)), 'tag-top10-request');
+        $this->assertGreaterThanOrEqual(0, count($manager->topVotedList(1)), 'tag-top10-voted');
 
         $ajax = new Json\Top10\Tag(
             details: 'all',

@@ -192,21 +192,21 @@ class TorrentManagerTest extends TestCase {
          */
         $stats = new Stats\Torrent();
         $this->assertInstanceOf(Stats\Torrent::class, $stats->flush(), 'torrents-stats-flush');
-        $this->assertIsInt($stats->torrentTotal(), 'torrent-stats-torrent-total');
-        $this->assertIsInt($stats->totalFiles(), 'torrent-stats-file-total');
-        $this->assertIsInt($stats->totalSize(), 'torrent-stats-size-total');
-        $this->assertIsInt($stats->amount('day'), 'torrent-stats-interval-amount');
-        $this->assertIsInt($stats->files('day'), 'torrent-stats-interval-files');
-        $this->assertIsInt($stats->size('day'), 'torrent-stats-interval-size');
-        $this->assertIsInt($stats->albumTotal(), 'torrent-stats-album-total');
-        $this->assertIsInt($stats->artistTotal(), 'torrent-stats-artist-total');
-        $this->assertIsInt($stats->perfectFlacTotal(), 'torrent-stats-perfect-flac-total');
-        $this->assertIsArray($stats->category(), 'torrent-stats-category');
-        $this->assertIsArray($stats->format(), 'torrent-stats-format');
-        $this->assertIsArray($stats->formatMonth(), 'torrent-stats-format-month');
-        $this->assertIsArray($stats->media(), 'torrent-stats-media');
-        $this->assertIsArray($stats->categoryList(), 'torrent-stats-category-list');
-        $this->assertIsArray($stats->categoryTotal(), 'torrent-stats-category-total');
+        $this->assertGreaterThanOrEqual(0, $stats->torrentTotal(), 'torrent-stats-torrent-total');
+        $this->assertGreaterThanOrEqual(0, $stats->totalFiles(), 'torrent-stats-file-total');
+        $this->assertGreaterThanOrEqual(0, $stats->totalSize(), 'torrent-stats-size-total');
+        $this->assertGreaterThanOrEqual(0, $stats->amount('day'), 'torrent-stats-interval-amount');
+        $this->assertGreaterThanOrEqual(0, $stats->files('day'), 'torrent-stats-interval-files');
+        $this->assertGreaterThanOrEqual(0, $stats->size('day'), 'torrent-stats-interval-size');
+        $this->assertGreaterThanOrEqual(0, $stats->albumTotal(), 'torrent-stats-album-total');
+        $this->assertGreaterThanOrEqual(0, $stats->artistTotal(), 'torrent-stats-artist-total');
+        $this->assertGreaterThanOrEqual(0, $stats->perfectFlacTotal(), 'torrent-stats-perfect-flac-total');
+        $this->assertGreaterThanOrEqual(0, count($stats->category()), 'torrent-stats-category');
+        $this->assertGreaterThanOrEqual(0, count($stats->format()), 'torrent-stats-format');
+        $this->assertGreaterThanOrEqual(0, count($stats->formatMonth()), 'torrent-stats-format-month');
+        $this->assertGreaterThanOrEqual(0, count($stats->media()), 'torrent-stats-media');
+        $this->assertGreaterThanOrEqual(0, count($stats->categoryList()), 'torrent-stats-category-list');
+        $this->assertGreaterThanOrEqual(0, count($stats->categoryTotal()), 'torrent-stats-category-total');
 
         $this->assertCount(24, $stats->flow(), 'torrent-stats-flow');
     }

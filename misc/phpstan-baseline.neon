@@ -251,11 +251,6 @@ parameters:
 			path: ../sections/tools/managers/ajax_take_enable_request.php
 
 		-
-			message: "#^Parameter \\#1 \\(array\\<int, string\\>\\|string\\) of echo cannot be converted to string\\.$#"
-			count: 1
-			path: ../sections/tools/development/referral_sandbox.php
-
-		-
 			message: "#^Variable \\$post might not be defined\\.$#"
 			count: 1
 			path: ../sections/tools/development/referral_sandbox.php

@@ -212,6 +212,7 @@ foreach ($context as $c) {
 
     $groupIds = array_column($details, 'tgroup_id');
     foreach ($details as $index => $detail) {
+        $index   = (int)$index;
         $torrent = $torMan->findById($detail['torrent_id']);
         if (is_null($torrent)) {
             continue;

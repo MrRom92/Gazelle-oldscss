@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\Direction;
 
 class DbTest extends TestCase {
@@ -108,12 +109,12 @@ class DbTest extends TestCase {
     }
 
     public function testDbTime(): void {
-        $this->assertTrue(\GazelleUnitTest\Helper::recentDate((new DB())->now()), 'db-current-date');
+        $this->assertTrue(Helper::recentDate((new DB())->now()), 'db-current-date');
     }
 
     public function testDbVersion(): void {
         // to check the executability of the SQL inside
-        $this->assertIsString((new DB())->version(), 'db-version');
+        $this->assertStringStartsWith('8.', (new DB())->version(), 'db-version');
     }
 
     public function testDebug(): void {
