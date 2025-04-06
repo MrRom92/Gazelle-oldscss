@@ -68,13 +68,13 @@
                     <th>Torrent</th>
                     <th>Created</th>
                 </tr>
-    {% for source in delay %}
+{%  for source in delay %}
                 <tr>
                     <td>{{ source.who }}</td>
                     <td><a href="{{ constant('SITE_URL') }}/torrents.php?torrentid={{ source.id }}">{{ source.id|default("None")  }}</a></td>
                     <td>{{ source.created|time_diff }}</td>
                 </tr>
-    {% endfor %}
+{%  endfor %}
             </table>
             </div>
         </div>
@@ -108,13 +108,13 @@
             </table>
 {% elseif user_id %}
                 User id {{ user_id }} is not known to the tracker.
-{% elseif torrent_stats%}
+{% elseif torrent_stats %}
             <div class="head">Torrent status</div>
             <table>
-    {% if torrent_stats.error %}
+{%  if torrent_stats.error %}
             <tr>
                 <td>{{ torrent_stats.error }}</td>
-    {% else %}
+{%  else %}
             <tr>
                 <td class="label">Title</td>
                 <td><a href="torrents.php?torrentid={{ torrent_stats.torrent.id }}">{{ torrent_stats.torrent.link|raw }}</a></td>
@@ -159,24 +159,25 @@
                     | join(' ')
                     }}{% endautoescape %}</td>
             </tr>
-    {% endif %}
+{%  endif %}
             </table>
-{% elseif mem_stats%}
+{% elseif mem_stats %}
     <div class="head">Memory allocation (jemalloc) statistics</div>
     <pre>{{ mem_stats }}</pre>
 {% elseif main_stats %}
     <div class="head">Numbers and such</div>
         <div class="pad box2">
-    {% for name, item in main_stats %}
-        {{ name }}
-        {%- if item.type == 'number' %} {{ item.value|number_format }}
-        {%- elseif item.type == 'byte' %} {{ item.value|octet_size }}
-        {%- elseif item.type == 'elapsed' %} {{ item.value|time_compact }}
-        {%- else %} {{ item.value }}{% endif %}
+{%  for name, item in main_stats %}
+{{          name }}
+{%      if name in ['user time', 'system time'] %}{{ item.value|number_format(3) }}
+{%      elseif item.type == 'number' %} {{ item.value|number_format }}
+{%      elseif item.type == 'byte' %} {{ item.value|octet_size }}
+{%      elseif item.type == 'elapsed' %} {{ item.value|time_compact }}
+{%      else %} {{ item.value }}{% endif %}
         <br />
-    {% endfor %}
+{%  endfor %}
         </div>
-    {% if viewer.permitted('admin_tracker') %}
+{%  if viewer.permitted('admin_tracker') %}
         <div class="box box2">
             <div class="pad">
             <div>In this section you can control the frequency at which clients
@@ -222,7 +223,7 @@
             </form>
             </div>
         </div>
-    {% endif %}
+{%  endif %}
 {% else %}
     <div>Failed to retrieve tracker info</div>
 {% endif %}

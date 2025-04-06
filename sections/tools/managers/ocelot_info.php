@@ -96,4 +96,3 @@ echo $Twig->render('admin/tracker-info.twig', [
     'user'          => $user,
     'viewer'        => $Viewer,
 ]);
-    dump($torrentStats);
