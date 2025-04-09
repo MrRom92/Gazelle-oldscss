@@ -20,7 +20,7 @@ if (is_null($user)) {
     exit;
 }
 
-$userId      = $user->id();
+$userId      = $user->id;
 $username    = $user->username();
 $Class       = $user->primaryClass();
 $donor       = new User\Donor($user);
@@ -348,7 +348,7 @@ if ($Viewer->permitted('users_view_invites')) {
 ?>
         <div class="box" id="invitetree_box">
             <div class="head">
-                Invite Tree <a href="#" data-id="<?= $user->id() ?>" class="user-invite-tree brackets">View</a>
+                Invite Tree <a href="#" data-id="<?= $user->id ?>" class="user-invite-tree brackets">View</a>
             </div>
             <div id="invitetree" class="hidden">
             </div>
@@ -408,7 +408,7 @@ if ($Viewer->permitted('users_auto_reports')) {
     if ($openReports && $openReports[0][1]) { ?>
 <div class="box">
     <div class="head">
-        <a href="report_auto.php?userid=<?=$user->id()?>"><?=$openReports[0][1]?> open automated report<?=plural($openReports[0][1])?></a>
+        <a href="report_auto.php?userid=<?=$user->id?>"><?=$openReports[0][1]?> open automated report<?=plural($openReports[0][1])?></a>
     </div>
 </div>
 <?php

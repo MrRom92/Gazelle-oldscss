@@ -123,7 +123,7 @@ class LogTest extends TestCase {
         $latest = current($result);
         $this->assertEquals(1, $latest['deleted'], 'torrentlog-latest-is-deleted');
         $this->assertEquals($torrent->id(), $latest['torrent_id'], 'torrentlog-latest-torrent-id');
-        $this->assertEquals($this->user->id(), $latest['user_id'], 'torrentlog-latest-user-id');
+        $this->assertEquals($this->user->id, $latest['user_id'], 'torrentlog-latest-user-id');
     }
 
     public function testRenderLog(): void {

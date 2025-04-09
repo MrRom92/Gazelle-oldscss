@@ -98,7 +98,7 @@ class Similar extends \Gazelle\Base {
                     AND NOT EXISTS (
                         SELECT 1 FROM artists_similar_votes WHERE SimilarID = ? AND UserID = ?
                     )
-                ", $findId, $findId, $user->id()
+                ", $findId, $findId, $user->id
             );
         } else {
             // No, it doesn't exist - create it
@@ -120,7 +120,7 @@ class Similar extends \Gazelle\Base {
             INSERT IGNORE INTO artists_similar_votes
                    (SimilarID, UserID, way)
             VALUES (?,         ?,      'up')
-            ", $findId, $user->id()
+            ", $findId, $user->id
         );
         $affected = self::$db->affected_rows();
         self::$db->commit();
@@ -144,7 +144,7 @@ class Similar extends \Gazelle\Base {
                 WHERE SimilarID = ?
                     AND UserID = ?
                     AND Way = ?
-                ", $similarId, $user->id(), $vote
+                ", $similarId, $user->id, $vote
             )
         ) {
             return false;
@@ -160,7 +160,7 @@ class Similar extends \Gazelle\Base {
             WHERE SimilarID = ?
                 AND UserID = ?
                 AND Way = ?
-            ", $similarId, $user->id(), $opposite
+            ", $similarId, $user->id, $opposite
             )
         ) {
             self::$db->begin_transaction();
@@ -175,7 +175,7 @@ class Similar extends \Gazelle\Base {
                 WHERE SimilarID = ?
                     AND UserID  = ?
                     AND Way     = ?
-                ", $similarId, $user->id(), $opposite
+                ", $similarId, $user->id, $opposite
             );
             self::$db->commit();
         } else {
@@ -191,7 +191,7 @@ class Similar extends \Gazelle\Base {
                 INSERT INTO artists_similar_votes
                        (SimilarID, UserID, Way)
                 VALUES (?,         ?,      ?)
-                ", $similarId, $user->id(), $vote
+                ", $similarId, $user->id, $vote
             );
             self::$db->commit();
         }

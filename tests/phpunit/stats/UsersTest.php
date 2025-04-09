@@ -15,7 +15,7 @@ class UsersTest extends TestCase {
                 if (isset($user)) {
                     DB::DB()->prepared_query("
                         DELETE FROM users_stats_daily WHERE UserID = ?
-                        ", $user->id()
+                        ", $user->id
                     );
                     $user->remove();
                 }

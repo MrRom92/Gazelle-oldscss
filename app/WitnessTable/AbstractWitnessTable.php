@@ -24,7 +24,7 @@ abstract class AbstractWitnessTable extends \Gazelle\Base {
             INSERT INTO {$this->tableName()}
             ({$this->idColumn()}, {$this->valueColumn()}) VALUES (?, ?)
             ON DUPLICATE KEY UPDATE {$this->valueColumn()} = ?
-            ", $user->id(), $latest, $latest
+            ", $user->id, $latest, $latest
         );
         $success = self::$db->affected_rows() !== 0;
         if ($success) {
@@ -38,7 +38,7 @@ abstract class AbstractWitnessTable extends \Gazelle\Base {
             INSERT INTO {$this->tableName()}
             ({$this->idColumn()}) VALUES (?)
             ON DUPLICATE KEY UPDATE {$this->valueColumn()} = now()
-            ", $user->id()
+            ", $user->id
         );
         $success = self::$db->affected_rows() !== 0;
         if ($success) {
@@ -55,7 +55,7 @@ abstract class AbstractWitnessTable extends \Gazelle\Base {
     public function lastRead(\Gazelle\User $user): ?int {
         $id = self::$db->scalar("
             SELECT {$this->valueColumn()} FROM {$this->tableName()} WHERE {$this->idColumn()} = ?
-            ", $user->id()
+            ", $user->id
         );
         return $id ? (int)$id : null;
     }

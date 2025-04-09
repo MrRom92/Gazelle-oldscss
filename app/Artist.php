@@ -299,7 +299,7 @@ class Artist extends BaseObject implements CollageEntry {
             INSERT INTO wiki_artists
                    (PageID, Body, Image, UserID, Summary)
             VALUES (?,      ?,    ?,     ?,      ?)
-            ", $this->id, $body, $image, $user->id(),
+            ", $this->id, $body, $image, $user->id,
                 implode(', ', array_filter($summary, fn($s) => !empty($s)))
         );
         $revisionId = self::$db->inserted_id();
@@ -324,7 +324,7 @@ class Artist extends BaseObject implements CollageEntry {
             SELECT Body, Image, ?,      ?,      ?
             FROM wiki_artists
             WHERE RevisionID = ?
-            ", $this->id, $user->id(), "Reverted to revision $revisionId",
+            ", $this->id, $user->id, "Reverted to revision $revisionId",
                 $revisionId
         );
         $newRevId = self::$db->inserted_id();
@@ -376,7 +376,7 @@ class Artist extends BaseObject implements CollageEntry {
             INSERT INTO artists_alias
                    (ArtistID, Name, Redirect, UserID)
             VALUES (?,        ?,    ?,        ?)
-            ", $this->id, $name, $redirect ?? 0, $user->id()
+            ", $this->id, $name, $redirect ?? 0, $user->id
         );
         $aliasId = self::$db->inserted_id();
         $this->logger()->general(
@@ -818,7 +818,7 @@ class Artist extends BaseObject implements CollageEntry {
                 INSERT INTO artists_alias
                        (ArtistID, Name, UserID, Redirect)
                 VALUES (?,        ?,    ?,      0)
-                ", $this->id, $newName, $user->id()
+                ", $this->id, $newName, $user->id
             );
             $newId = self::$db->inserted_id();
             // note: pass ArtistID because there is no index on Redirect

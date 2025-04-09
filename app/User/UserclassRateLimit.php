@@ -23,7 +23,7 @@ class UserclassRateLimit extends \Gazelle\BaseUser {
             INNER JOIN permissions p ON (p.ID = prl.permission_id)
             INNER JOIN users_main um ON (um.PermissionID = prl.permission_id)
             WHERE um.ID = ?
-            ", $this->user->id()
+            ", $this->user->id
         ) ?? [
             'factor'    => null,
             'overshoot' => null,
@@ -57,7 +57,7 @@ class UserclassRateLimit extends \Gazelle\BaseUser {
             WHERE ud.Time > now() - INTERVAL 1 DAY
                 AND t.UserID != ud.UserID
                 AND ud.UserID = ?
-            ", $this->user->id()
+            ", $this->user->id
         );
     }
 

@@ -14,7 +14,7 @@ if (!$user->MFA()->enabled()) {
     Error400::error('No MFA configured');
 }
 
-$userId = $user->id();
+$userId = $user->id;
 if (!$Viewer->permitted('users_edit_password')) {
     if ($userId !== $Viewer->id()) {
         Error403::error();

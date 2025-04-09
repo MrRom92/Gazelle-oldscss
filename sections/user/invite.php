@@ -15,8 +15,8 @@ if (!isset($_GET['id'])) {
         Error404::error();
     }
 }
-$userId = $user->id();
-$ownProfile = $user->id() == $Viewer->id();
+$userId = $user->id;
+$ownProfile = $user->id == $Viewer->id();
 if (!$Viewer->permitted('users_view_invites') && !$ownProfile) {
     Error403::error();
 }

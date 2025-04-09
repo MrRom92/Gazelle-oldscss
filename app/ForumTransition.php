@@ -76,7 +76,7 @@ class ForumTransition extends BaseObject {
      */
     public function hasUser(User $user): bool {
         return $this->classLevel() <= $user->classLevel()
-            || in_array($user->id(), $this->userIdList())
+            || in_array($user->id, $this->userIdList())
             || array_intersect(
                 array_keys((new User\Privilege($user))->secondaryClassList()),
                 $this->secondaryClassIdList()

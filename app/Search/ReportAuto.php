@@ -24,7 +24,7 @@ class ReportAuto {
             $this->cond[] = 'id_owner is NULL';
         } else {
             $this->cond[] = 'id_owner = ?';
-            $this->args[] = $user->id();
+            $this->args[] = $user->id;
         }
         return $this;
     }
@@ -46,7 +46,7 @@ class ReportAuto {
 
     public function setUser(\Gazelle\User $user): ReportAuto {
         $this->cond[] = 'id_user = ?';
-        $this->args[] = $user->id();
+        $this->args[] = $user->id;
         return $this;
     }
 

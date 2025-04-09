@@ -12,7 +12,7 @@ class DNU extends \Gazelle\Base {
             insert into do_not_upload
                    (name, description, id_user, sequence)
             VALUES (?,    ?,           ?,       9999)
-            ", $name, $description, $user->id()
+            ", $name, $description, $user->id
         );
     }
 
@@ -29,7 +29,7 @@ class DNU extends \Gazelle\Base {
                 id_user     = ?
             where id_do_not_upload = ?
             returning id_do_not_upload
-            ", $name, $description, $user->id(), $id
+            ", $name, $description, $user->id, $id
         );
     }
 
@@ -79,7 +79,7 @@ class DNU extends \Gazelle\Base {
             select coalesce(max(t.created), '-infinity') < ?
             from relay.torrents t
             where t.\"UserID\" = ?
-            ", $this->latest(), $user->id()
+            ", $this->latest(), $user->id
         );
     }
 }

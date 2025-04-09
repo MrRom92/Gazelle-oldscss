@@ -379,7 +379,7 @@ class TagTest extends TestCase {
         $this->assertEquals('other', $tag->type(), 'tag-instance-table-name');
         $manager->officialize($name, $this->user);
         $this->assertEquals('genre', $tag->flush()->type(), 'tag-instance-genre');
-        $this->assertEquals($this->user->id(), $tag->userId(), 'tag-instance-creator');
+        $this->assertEquals($this->user->id, $tag->userId(), 'tag-instance-creator');
     }
 
     public function testTop10(): void {

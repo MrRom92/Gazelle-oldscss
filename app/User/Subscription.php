@@ -14,8 +14,8 @@ class Subscription extends \Gazelle\BaseUser {
     public function flush(): static {
         $this->threadList = [];
         self::$cache->delete_multi([
-            sprintf(self::CACHE_KEY, $this->user->id()),
-            sprintf(self::NEW_KEY, $this->user->id()),
+            sprintf(self::CACHE_KEY, $this->user->id),
+            sprintf(self::NEW_KEY, $this->user->id),
         ]);
         return $this;
     }
@@ -29,14 +29,14 @@ class Subscription extends \Gazelle\BaseUser {
                 DELETE FROM users_subscriptions
                 WHERE UserID = ?
                     AND TopicID = ?
-                ', $this->user->id(), $thread->id()
+                ', $this->user->id, $thread->id()
             );
             $affected = self::$db->affected_rows();
         } else {
             self::$db->prepared_query('
                 INSERT IGNORE INTO users_subscriptions (UserID, TopicID)
                 VALUES (?, ?)
-                ', $this->user->id(), $thread->id()
+                ', $this->user->id, $thread->id()
             );
             $affected = self::$db->affected_rows();
         }
@@ -66,7 +66,7 @@ class Subscription extends \Gazelle\BaseUser {
                 WHERE UserID = ?
                     AND Page = ?
                     AND PageID = ?
-                ', $this->user->id(), $page, $pageID
+                ', $this->user->id, $page, $pageID
             );
             $success = self::$db->affected_rows() == 1;
             unset($subscriptions[$key]);
@@ -76,12 +76,12 @@ class Subscription extends \Gazelle\BaseUser {
                     (UserID, Page, PageID)
                 VALUES
                     (?,      ?,    ?)
-                ', $this->user->id(), $page, $pageID
+                ', $this->user->id, $page, $pageID
             );
             $success = true;
             array_push($subscriptions, [$page, $pageID]);
         }
-        self::$cache->cache_value("subscriptions_comments_user_" . $this->user->id(), $subscriptions, 0);
+        self::$cache->cache_value("subscriptions_comments_user_" . $this->user->id, $subscriptions, 0);
         self::$db->set_query_id($qid);
         return $success;
     }
@@ -94,14 +94,14 @@ class Subscription extends \Gazelle\BaseUser {
         if (isset($this->threadList) && !empty($this->threadList)) {
             return $this->threadList;
         }
-        $list = self::$cache->get_value("subscriptions_user_" . $this->user->id());
+        $list = self::$cache->get_value("subscriptions_user_" . $this->user->id);
         if ($list === false) {
             self::$db->prepared_query('
                 SELECT TopicID FROM users_subscriptions WHERE UserID = ?
-                ', $this->user->id()
+                ', $this->user->id
             );
             $list = self::$db->collect(0, false);
-            self::$cache->cache_value("subscriptions_user_" . $this->user->id(), $list, 0);
+            self::$cache->cache_value("subscriptions_user_" . $this->user->id, $list, 0);
         }
         $this->threadList = $list;
         return $this->threadList;
@@ -113,16 +113,16 @@ class Subscription extends \Gazelle\BaseUser {
      */
     public function commentSubscriptions(): array {
         $qid = self::$db->get_query_id();
-        $list = self::$cache->get_value("subscriptions_comments_user_" . $this->user->id());
+        $list = self::$cache->get_value("subscriptions_comments_user_" . $this->user->id);
         if ($list === false) {
             self::$db->prepared_query('
                 SELECT Page, PageID
                 FROM users_subscriptions_comments
                 WHERE UserID = ?
-                ', $this->user->id()
+                ', $this->user->id
             );
             $list = self::$db->to_array(false, MYSQLI_NUM, false);
-            self::$cache->cache_value("subscriptions_comments_user_" . $this->user->id(), $list, 0);
+            self::$cache->cache_value("subscriptions_comments_user_" . $this->user->id, $list, 0);
         }
         self::$db->set_query_id($qid);
         return $list;
@@ -133,10 +133,10 @@ class Subscription extends \Gazelle\BaseUser {
      * @return int Number of unread subscribed threads/comments
      */
     public function unread(): int {
-        $unread = self::$cache->get_value('subscriptions_user_new_' . $this->user->id());
+        $unread = self::$cache->get_value('subscriptions_user_new_' . $this->user->id);
         if ($unread === false) {
             $unread = (new \Gazelle\Manager\Forum())->unreadSubscribedForumTotal($this->user) + $this->unreadCommentTotal();
-            self::$cache->cache_value('subscriptions_user_new_' . $this->user->id(), $unread, 0);
+            self::$cache->cache_value('subscriptions_user_new_' . $this->user->id, $unread, 0);
         }
         return $unread;
     }
@@ -155,7 +155,7 @@ class Subscription extends \Gazelle\BaseUser {
             WHERE (s.Page != 'collages' OR co.Deleted = '0')
                 AND coalesce(lr.PostID, 0) < c.ID
                 AND s.UserID = ?
-            ", $this->user->id()
+            ", $this->user->id
         );
     }
 
@@ -171,7 +171,7 @@ class Subscription extends \Gazelle\BaseUser {
             LEFT JOIN collages AS co ON (s.Page = 'collages' AND co.ID = s.PageID)
             WHERE (s.Page != 'collages' OR co.Deleted = '0')
                 AND s.UserID = ?
-            ", $this->user->id()
+            ", $this->user->id
         );
     }
 
@@ -200,9 +200,9 @@ class Subscription extends \Gazelle\BaseUser {
                 INNER JOIN users_subscriptions us ON (us.TopicID = ft.ID)
                 WHERE us.UserID = ?
             ON DUPLICATE KEY UPDATE PostID = LastPostID
-            ", $this->user->id()
+            ", $this->user->id
         );
-        self::$cache->delete_value('subscriptions_user_new_' . $this->user->id());
+        self::$cache->delete_value('subscriptions_user_new_' . $this->user->id);
         return self::$db->affected_rows();
     }
 
@@ -220,7 +220,7 @@ class Subscription extends \Gazelle\BaseUser {
                 INNER JOIN forums_topics ft ON (ft.ID = us.TopicID)
                 WHERE us.UserID = ?
             ON DUPLICATE KEY UPDATE PostID = LastPostID
-            ", $this->user->id()
+            ", $this->user->id
         );
         $n = self::$db->affected_rows();
         self::$db->prepared_query("
@@ -231,11 +231,11 @@ class Subscription extends \Gazelle\BaseUser {
                     (SELECT max(ID) FROM comments WHERE Page = s.Page AND PageID = s.PageID))
                 WHERE s.UserID = ?
             ON DUPLICATE KEY UPDATE PostID = IFNULL(c.ID, 0)
-            ", $this->user->id()
+            ", $this->user->id
         );
         $n += self::$db->affected_rows();
         self::$db->commit();
-        self::$cache->delete_value('subscriptions_user_new_' . $this->user->id());
+        self::$cache->delete_value('subscriptions_user_new_' . $this->user->id);
         return $n;
     }
 
@@ -245,7 +245,7 @@ class Subscription extends \Gazelle\BaseUser {
         if ($showUnread) {
             $cond[] = "p.ID > if(t.IsLocked = '1' AND t.IsSticky = '0', p.ID, coalesce(lr.PostID, 0))";
         }
-        $userId = $this->user->id();
+        $userId = $this->user->id;
         $cond[] = "s.UserID = ?";
         array_push($args, $userId, $limit, $offset);
 

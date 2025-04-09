@@ -37,14 +37,14 @@ class IPv4 extends \Gazelle\Base {
             on conflict (id_user, ip, data_origin) do update set
                 total = ip_history.total + 1,
                 seen = tstzrange(lower(ip_history.seen), now())
-            ", $user->id(), $ipv4
+            ", $user->id, $ipv4
         );
         self::$db->prepared_query('
             INSERT INTO users_history_ips
                    (UserID, IP)
             VALUES (?,      ?)
             ON DUPLICATE KEY UPDATE EndTime = now()
-            ', $user->id(), $ipv4
+            ', $user->id, $ipv4
         );
         $affected = self::$db->affected_rows();
         $user->setField('IP', $ipv4)
@@ -140,7 +140,7 @@ class IPv4 extends \Gazelle\Base {
 
     public function userTotal(\Gazelle\User $user): int {
         $cond = ['uhi.UserID = ?'];
-        $args = [$user->id()];
+        $args = [$user->id];
         if (isset($this->filterIpaddrRegexp)) {
             $cond[] = "uhi.IP REGEXP ?";
             $args[] = $this->filterIpaddrRegexp;
@@ -165,7 +165,7 @@ class IPv4 extends \Gazelle\Base {
      */
     public function userOther(\Gazelle\User $user): array {
         $cond = ['uhi.UserID != ?'];
-        $args = [$user->id()];
+        $args = [$user->id];
         if (isset($this->filterIpaddrRegexp)) {
             $cond[] = "uhi.IP REGEXP ?";
             $args[] = $this->filterIpaddrRegexp;
@@ -189,7 +189,7 @@ class IPv4 extends \Gazelle\Base {
     public function userPage(\Gazelle\User $user, int $limit, int $offset): array {
         self::$db->prepared_query("SET SESSION group_concat_max_len = 50000");
         $cond = ['i.UserID = ?'];
-        $args = [$user->id()];
+        $args = [$user->id];
         if (isset($this->filterIpaddrRegexp)) {
             $cond[] = "i.IP REGEXP ?";
             $args[] = $this->filterIpaddrRegexp;
@@ -220,7 +220,7 @@ class IPv4 extends \Gazelle\Base {
             GROUP BY uhi.IP
             ORDER BY max_end DESC, ip_addr
             LIMIT ? OFFSET ?
-            ", $user->id(), ...$args
+            ", $user->id, ...$args
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
@@ -307,7 +307,7 @@ class IPv4 extends \Gazelle\Base {
                 user_id = ?,
                 created = now()
             WHERE ID = ?
-            ", substr($reason, 0, 255), $from, $to, $user->id(), $id
+            ", substr($reason, 0, 255), $from, $to, $user->id, $id
         );
         $affected = self::$db->affected_rows();
         $this->flush();

@@ -12,7 +12,7 @@ $user = $userMan->findById(($_REQUEST['id'] ?? '') === 'me' ? $Viewer->id() : (i
 if (is_null($user)) {
     Error404::error();
 }
-$UserID = $user->id();
+$UserID = $user->id;
 if ($UserID != $Viewer->id() && !$Viewer->permitted('users_edit_profiles')) {
     Error403::error();
 }

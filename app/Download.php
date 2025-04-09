@@ -32,7 +32,7 @@ class Download extends Base {
          * You can always download your own torrent, a torrent you have snatched or are seeding.
          */
         $user = $this->limiter->user();
-        $userId = $user->id();
+        $userId = $user->id;
         if (
             $this->torrent->uploaderId() == $userId
             || $user->snatch()->isSnatched($this->torrent)
@@ -128,11 +128,11 @@ class Download extends Base {
             INSERT INTO users_downloads
                    (UserID, TorrentID)
             VALUES (?,      ?)
-            ", $user->id(), $this->torrent->id()
+            ", $user->id, $this->torrent->id()
         );
 
         $user->stats()->increment('download_total');
-        if ($this->torrent->group()->image() != '' && $this->torrent->uploaderId() != $user->id()) {
+        if ($this->torrent->group()->image() != '' && $this->torrent->uploaderId() != $user->id) {
             $user->snatch()->flush();
         }
         return DownloadStatus::ok;

@@ -12,7 +12,7 @@ class Torrent extends \Gazelle\Json {
     public function torrentPayload(): array {
         $torrent = $this->torrent->setViewer($this->user);
         return array_merge(
-            $this->user->snatch()->isSnatched($torrent) || $torrent->uploaderId() == $this->user->id()
+            $this->user->snatch()->isSnatched($torrent) || $torrent->uploaderId() == $this->user->id
                 ? [ 'infoHash' => $torrent->infohash() ]
                 : [],
             [

@@ -29,19 +29,19 @@ class LastFM extends \Gazelle\Base {
             self::$db->prepared_query("
                 INSERT INTO lastfm_users (Username, ID)
                 VALUES (?, ?)
-                ", $username, $user->id()
+                ", $username, $user->id
             );
         } elseif ($previous && $username !== "") {
             self::$db->prepared_query("
                 UPDATE lastfm_users SET
                     Username = ?
                 WHERE ID = ?
-                ", $username, $user->id()
+                ", $username, $user->id
             );
         } elseif ($previous && $username === "") {
             self::$db->prepared_query("
                 DELETE FROM lastfm_users WHERE ID = ?
-                ", $user->id()
+                ", $user->id
             );
         }
         $affected = self::$db->affected_rows();
@@ -57,7 +57,7 @@ class LastFM extends \Gazelle\Base {
     public function username(\Gazelle\User $user): ?string {
         $username = self::$db->scalar("
             SELECT username FROM lastfm_users WHERE ID = ?
-            ", $user->id()
+            ", $user->id
         );
         return is_null($username) ? null : (string)$username;
     }

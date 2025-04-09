@@ -30,7 +30,7 @@ class Comment extends \Gazelle\BaseManager {
             INSERT INTO comments
                    (Page, PageID, AuthorID, Body)
             VALUES (?,    ?,      ?,        ?)
-            ", $page, $pageId, $user->id(), $body
+            ", $page, $pageId, $user->id, $body
         );
         $postId = self::$db->inserted_id();
         $catalogueId = (int)self::$db->scalar("

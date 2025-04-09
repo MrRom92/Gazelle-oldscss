@@ -16,7 +16,7 @@ class StaffBlog extends \Gazelle\Base {
             INSERT INTO staff_blog
                    (UserID, Title, Body)
             Values (?,      ?,     ?)
-            ", $user->id(), $title, $body
+            ", $user->id, $title, $body
         );
         $id = self::$db->inserted_id();
         $this->flush();
@@ -54,12 +54,12 @@ class StaffBlog extends \Gazelle\Base {
      * @return int epoch
      */
     public function readBy(\Gazelle\User $user): int {
-        $key = sprintf(self::CACHE_READ_KEY, $user->id());
+        $key = sprintf(self::CACHE_READ_KEY, $user->id);
         $time = self::$cache->get_value($key);
         if ($time === false) {
             $time = self::$db->scalar("
                 SELECT Time FROM staff_blog_visits WHERE UserID = ?
-                ", $user->id()
+                ", $user->id
             );
             $time = $time ? (int)strtotime((string)$time) : 0;
             self::$cache->cache_value($key, $time, 86400);
@@ -76,10 +76,10 @@ class StaffBlog extends \Gazelle\Base {
                    (UserID)
             VALUES (?)
             ON DUPLICATE KEY UPDATE Time = now()
-            ", $user->id()
+            ", $user->id
         );
         $affected = self::$db->affected_rows();
-        self::$cache->delete_value(sprintf(self::CACHE_READ_KEY, $user->id()));
+        self::$cache->delete_value(sprintf(self::CACHE_READ_KEY, $user->id));
         return $affected;
     }
 }

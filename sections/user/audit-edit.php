@@ -17,7 +17,7 @@ if (is_null($user)) {
 
 $idList = array_map('intval', $_REQUEST['idlist'] ?? []);
 if (!$idList) {
-    header("Location: ?action=audit&edit=1&id={$user->id()}");
+    header("Location: ?action=audit&edit=1&id={$user->id}");
     exit;
 }
 

@@ -25,14 +25,14 @@ class Tracker extends Base {
     public function addToken(Torrent $torrent, User $user): bool {
         return $this->update('add_token', [
             'info_hash' => $torrent->infohashEncoded(),
-            'userid'    => $user->id(),
+            'userid'    => $user->id,
         ]);
     }
 
     public function removeToken(Torrent $torrent, User $user): bool {
         return $this->update('remove_token', [
             'info_hash' => $torrent->infohashEncoded(),
-            'userid'    => $user->id(),
+            'userid'    => $user->id,
         ]);
     }
 
@@ -62,7 +62,7 @@ class Tracker extends Base {
         self::$cache->increment('stats_user_count');
         return $this->update('add_user', [
             'passkey' => $user->announceKey(),
-            'id'      => $user->id(),
+            'id'      => $user->id,
             'visible' => $user->isVisible() ? '1' : '0',
         ]);
     }

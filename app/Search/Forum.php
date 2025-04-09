@@ -275,8 +275,8 @@ class Forum extends \Gazelle\BaseUser {
             LEFT JOIN forums AS f ON (f.ID = t.ForumID)
             LEFT JOIN forums_last_read_topics AS flrt ON (flrt.TopicID = t.ID AND flrt.UserID = ?)";
         $cond[] = 'p.AuthorID = ?';
-        $args[] = $this->user->id();
-        array_unshift($args, $this->user->id());
+        $args[] = $this->user->id;
+        array_unshift($args, $this->user->id);
         if ($this->showUnread) {
             $cond[] = "(t.IsLocked = '0' OR t.IsSticky = '1') AND (flrt.PostID < t.LastPostID OR flrt.PostID IS NULL)";
         }
@@ -369,7 +369,7 @@ class Forum extends \Gazelle\BaseUser {
             INNER JOIN forums_topics AS t ON (t.ForumID = f.ID)
             WHERE t.AuthorID = ?
                 AND " . implode(' AND ', $cond),
-            $this->user->id(), ...$args
+            $this->user->id, ...$args
         );
     }
 
@@ -395,7 +395,7 @@ class Forum extends \Gazelle\BaseUser {
                 AND " . implode(' AND ', $cond) . "
             ORDER BY t.ID DESC
             LIMIT ? OFFSET ?
-            ", $this->user->id(), ...$args
+            ", $this->user->id, ...$args
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }

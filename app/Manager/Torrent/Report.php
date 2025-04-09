@@ -37,7 +37,7 @@ class Report extends \Gazelle\BaseManager {
             INSERT INTO reportsv2
                    (ReporterID, TorrentID, Type, UserComment, ExtraID, Track, Image, Link)
             VALUES (?,          ?,         ?,    ?,           ?,     ?,     ?,       ?)
-            ", $user->id(), $torrent->id(), $reportType->type(), $reason, $otherIdList, $track, $image, $link
+            ", $user->id, $torrent->id(), $reportType->type(), $reason, $otherIdList, $track, $image, $link
         );
 
         $report = new \Gazelle\Torrent\Report(self::$db->inserted_id(), $this->torMan);

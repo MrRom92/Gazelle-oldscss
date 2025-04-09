@@ -42,7 +42,7 @@ class Snatch extends \Gazelle\BaseUser {
             FROM xbt_snatched
             WHERE uid = ?
                 AND fid BETWEEN ? AND ?
-            ", $this->user->id(), $offset * self::RANGE_BIT, ($offset + 1) * self::RANGE_BIT - 1
+            ", $this->user->id, $offset * self::RANGE_BIT, ($offset + 1) * self::RANGE_BIT - 1
         );
         return $vector->init($offset * self::RANGE_BIT, self::$db->collect(0, false));
     }
@@ -50,7 +50,7 @@ class Snatch extends \Gazelle\BaseUser {
     public function isSnatched(\Gazelle\TorrentAbstract $torrent): bool {
         $offset = (int)floor($torrent->id() / self::RANGE_BIT);
         if (!isset($this->snatchVec[$offset])) {
-            $vector = new CacheVector(sprintf(self::CACHE_KEY, $this->user->id(), $offset), self::RANGE_BIT / 8, self::CACHE_EXPIRY);
+            $vector = new CacheVector(sprintf(self::CACHE_KEY, $this->user->id, $offset), self::RANGE_BIT / 8, self::CACHE_EXPIRY);
             if ($vector->isEmpty()) {
                 // the vector contents might have been cached, but if not, only we know how to initialize it
                 $this->load($offset, $vector);

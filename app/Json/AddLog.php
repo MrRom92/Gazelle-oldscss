@@ -13,7 +13,7 @@ class AddLog extends \Gazelle\Json {
     ) {}
 
     public function payload(): array {
-        if ($this->user->id() !== $this->torrent->uploaderId() && !$this->user->permitted('admin_add_log')) {
+        if ($this->user->id !== $this->torrent->uploaderId() && !$this->user->permitted('admin_add_log')) {
             $this->failure('Not the torrent owner or moderator');
             return [];
         }

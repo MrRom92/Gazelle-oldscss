@@ -146,7 +146,7 @@ class Collage extends BaseObject {
     }
 
     public function isOwner(User $user): bool {
-        return $this->info()['user_id'] === $user->id();
+        return $this->info()['user_id'] === $user->id;
     }
 
     public function isPersonal(): bool {
@@ -203,7 +203,7 @@ class Collage extends BaseObject {
     }
 
     public function userHasContributed(User $user): bool {
-        return isset($this->contributors()[$user->id()]);
+        return isset($this->contributors()[$user->id]);
     }
 
     public function userCanContribute(User $user): bool {
@@ -219,7 +219,7 @@ class Collage extends BaseObject {
      * How many entries in this collage are owned by a given user
      */
     public function contributionTotal(User $user): int {
-        return $this->contributors()[$user->id()] ?? 0;
+        return $this->contributors()[$user->id] ?? 0;
     }
 
     public function entryCreated(CollageEntry $entry): string {
@@ -238,18 +238,18 @@ class Collage extends BaseObject {
                 FROM users_collage_subs
                 WHERE UserID = ?
                     AND CollageID = ?
-            ", $user->id(), $this->id
+            ", $user->id, $this->id
             )
         ) {
             self::$db->prepared_query("
                 DELETE FROM users_collage_subs
                 WHERE UserID = ?
                     AND CollageID = ?
-                ", $user->id(), $this->id
+                ", $user->id, $this->id
             );
             $affected = self::$db->affected_rows();
             if (isset($this->userSubscriptions)) {
-                unset($this->userSubscriptions[$user->id()]);
+                unset($this->userSubscriptions[$user->id]);
             }
             $delta = -1;
         } else {
@@ -257,7 +257,7 @@ class Collage extends BaseObject {
                 INSERT IGNORE INTO users_collage_subs
                        (UserID, CollageID)
                 VALUES (?,      ?)
-                ", $user->id(), $this->id
+                ", $user->id, $this->id
             );
             $affected = self::$db->affected_rows();
             $delta = 1;
@@ -271,8 +271,8 @@ class Collage extends BaseObject {
             );
             $this->flush();
             self::$cache->delete_multi([
-                sprintf(self::SUBS_KEY, $user->id()),
-                sprintf(self::SUBS_NEW_KEY, $user->id()),
+                sprintf(self::SUBS_KEY, $user->id),
+                sprintf(self::SUBS_NEW_KEY, $user->id),
             ]);
         }
         return $affected;
@@ -284,12 +284,12 @@ class Collage extends BaseObject {
      */
     public function isSubscribed(User $user): bool {
         if (!isset($this->userSubscriptions)) {
-            $key = sprintf(self::SUBS_KEY, $user->id());
+            $key = sprintf(self::SUBS_KEY, $user->id);
             $subs = self::$cache->get_value($key);
             if ($subs === false) {
                 self::$db->prepared_query("
                     SELECT CollageID FROM users_collage_subs WHERE UserID = ?
-                    ", $user->id()
+                    ", $user->id
                 );
                 $subs = self::$db->collect(0, false);
                 self::$cache->cache_value($key, $subs, 3600 * 12);
@@ -304,9 +304,9 @@ class Collage extends BaseObject {
             UPDATE users_collage_subs SET
                 LastVisit = now()
             WHERE CollageID = ? AND UserID = ?
-            ", $this->id, $user->id()
+            ", $this->id, $user->id
         );
-        self::$cache->delete_value(sprintf(self::SUBS_NEW_KEY, $user->id()));
+        self::$cache->delete_value(sprintf(self::SUBS_NEW_KEY, $user->id));
         return true;
     }
 

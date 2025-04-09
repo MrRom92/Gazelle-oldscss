@@ -35,7 +35,7 @@ class Notification extends \Gazelle\BaseUser {
         if (isset($this->config)) {
             return $this->config;
         }
-        $key = sprintf(self::CACHE_KEY, $this->user->id());
+        $key = sprintf(self::CACHE_KEY, $this->user->id);
         $config = self::$cache->get_value($key);
         if ($config === false) {
             $attributes = $this->pg()->column("
@@ -79,7 +79,7 @@ class Notification extends \Gazelle\BaseUser {
             SELECT push_token
             FROM user_push_options AS pn
             WHERE pn.id_user = ?
-            ", $this->user->id()
+            ", $this->user->id
         );
     }
 
@@ -162,7 +162,7 @@ class Notification extends \Gazelle\BaseUser {
             $popup ? $selected[] = $type . "-pop" : $unselected[] = $type . "-pop";
         }
 
-        $userId = $this->user->id();
+        $userId = $this->user->id;
 
         $affected = 0;
         foreach ($selected as $attr) {
@@ -181,7 +181,7 @@ class Notification extends \Gazelle\BaseUser {
             ", $userId, $attr);
         }
 
-        self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->user->id()));
+        self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->user->id));
         return $affected;
     }
 
@@ -212,7 +212,7 @@ class Notification extends \Gazelle\BaseUser {
                 Users
             FROM users_notify_filters
             WHERE UserID = ?
-            ", $this->user->id()
+            ", $this->user->id
         );
         $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
         foreach ($list as &$f) {

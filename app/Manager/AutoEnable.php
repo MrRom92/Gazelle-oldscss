@@ -40,7 +40,7 @@ class AutoEnable extends \Gazelle\BaseManager {
             INSERT INTO users_enable_requests
                    (Email, IP, UserAgent, UserID, Timestamp)
             VALUES (?,     ?,  ?,         ?,      now())
-            ", $email, $remoteAddr, $user->requestContext()->useragent(), $user->id()
+            ", $email, $remoteAddr, $user->requestContext()->useragent(), $user->id
         );
         $enablerId = self::$db->inserted_id();
         $user->addStaffNote("Enable request $enablerId received from {$remoteAddr}")->modify();
@@ -67,7 +67,7 @@ class AutoEnable extends \Gazelle\BaseManager {
             WHERE UserID = ?
             ORDER BY ID DESC
             LIMIT 1
-            ", $user->id()
+            ", $user->id
         );
         return is_null($id) ? null : new \Gazelle\User\AutoEnable((int)$id, $user);
     }

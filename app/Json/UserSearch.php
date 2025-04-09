@@ -28,7 +28,7 @@ class UserSearch extends \Gazelle\Json {
         foreach (self::$db->collect(0, false) as $userId) {
             $user = $this->manager->findById($userId);
             $payload[] = [
-                'userId'   => $user->id(),
+                'userId'   => $user->id,
                 'username' => $user->username(),
                 'donor'    => (new \Gazelle\User\Donor($user))->isDonor(),
                 'warned'   => $user->isWarned(),

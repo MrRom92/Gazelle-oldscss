@@ -197,7 +197,7 @@ class AutoEnable extends \Gazelle\BaseUser {
                 ->modify();
             $success = false;
         } else {
-            $userId = $this->user->id();
+            $userId = $this->user->id;
             self::$db->prepared_query("
                 UPDATE users_main um
                 INNER JOIN users_info ui ON (ui.UserID = um.ID)

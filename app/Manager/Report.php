@@ -14,7 +14,7 @@ class Report extends \Gazelle\BaseManager {
             INSERT INTO reports
                    (UserID, ThingID, Type, Reason)
             VALUES (?,      ?,       ?,    ?)
-            ", $user->id(), $id, $type, $reason
+            ", $user->id, $id, $type, $reason
         );
         $id = self::$db->inserted_id();
         if ($type == 'request_update') {
@@ -49,7 +49,7 @@ class Report extends \Gazelle\BaseManager {
             WHERE Type = 'user'
                 AND ThingID = ?
             ORDER BY ID DESC
-            ", $user->id()
+            ", $user->id
         );
         $reportList = self::$db->collect(0, false);
         return array_map(fn($id) => $this->findById($id), $reportList);

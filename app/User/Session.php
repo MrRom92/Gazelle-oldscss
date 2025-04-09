@@ -17,7 +17,7 @@ class Session extends \Gazelle\BaseUser {
         if (isset($this->info) && !empty($this->info)) {
             return $this->info;
         }
-        $key = sprintf(self::CACHE_KEY, $this->user->id());
+        $key = sprintf(self::CACHE_KEY, $this->user->id);
         $info = self::$cache->get_value($key);
         if ($info === false) {
             self::$db->prepared_query("
@@ -30,7 +30,7 @@ class Session extends \Gazelle\BaseUser {
                 WHERE Active = 1
                     AND UserID = ?
                 ORDER BY LastUpdate DESC
-                ", $this->user->id()
+                ", $this->user->id
             );
             $info = self::$db->to_array('SessionID', MYSQLI_ASSOC, false);
             self::$cache->cache_value($key, $info, 43200);
@@ -81,7 +81,7 @@ class Session extends \Gazelle\BaseUser {
             INSERT INTO users_sessions
                    (UserID, SessionID, KeepLogged, Browser, BrowserVersion, OperatingSystem, OperatingSystemVersion, IP, FullUA, LastUpdate)
             VALUES (?,      ?,         ?,          ?,       ?,              ?,               ?,                      ?,  ?,      now())
-            ', $this->user->id(), $sessionId, $info['keep-logged'],
+            ', $this->user->id, $sessionId, $info['keep-logged'],
                $info['browser']['Browser'], $info['browser']['BrowserVersion'],
                $info['browser']['OperatingSystem'], $info['browser']['OperatingSystemVersion'],
                $info['ipaddr'], $info['useragent']
@@ -92,14 +92,14 @@ class Session extends \Gazelle\BaseUser {
                    (user_id, last_access)
             VALUES (?, now())
             ON DUPLICATE KEY UPDATE last_access = now()
-            ', $this->user->id()
+            ', $this->user->id
         );
-        self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->user->id()));
+        self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->user->id));
         return $this->info()[$sessionId];
     }
 
     public function cookie(string $sessionId): string {
-        return Crypto::encrypt($sessionId . '|~|' . $this->user->id(), ENCKEY);
+        return Crypto::encrypt($sessionId . '|~|' . $this->user->id, ENCKEY);
     }
 
     public function drop(string $sessionId): int {
@@ -107,10 +107,10 @@ class Session extends \Gazelle\BaseUser {
             DELETE FROM users_sessions
             WHERE UserID = ?
                 AND SessionID = ?
-            ', $this->user->id(), $sessionId
+            ', $this->user->id, $sessionId
         );
         self::$cache->delete_multi([
-            sprintf(self::CACHE_KEY, $this->user->id()),
+            sprintf(self::CACHE_KEY, $this->user->id),
             'session_' . $sessionId,
         ]);
         return self::$db->affected_rows();
@@ -121,15 +121,15 @@ class Session extends \Gazelle\BaseUser {
             SELECT concat('session_', SessionID) AS ck
             FROM users_sessions
             WHERE UserID = ?
-            ", $this->user->id()
+            ", $this->user->id
         );
         self::$cache->delete_multi([
-            sprintf(self::CACHE_KEY, $this->user->id()),
+            sprintf(self::CACHE_KEY, $this->user->id),
             ...self::$db->collect('ck', false)
         ]);
         self::$db->prepared_query('
             DELETE FROM users_sessions WHERE UserID = ?
-            ', $this->user->id()
+            ', $this->user->id
         );
         return self::$db->affected_rows();
     }

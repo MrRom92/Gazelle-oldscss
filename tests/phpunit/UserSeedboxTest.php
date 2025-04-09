@@ -44,7 +44,7 @@ class UserSeedboxTest extends TestCase {
             FROM user_seedbox us
             LEFT JOIN xbt_files_users xfu ON (xfu.uid = us.user_id)
             WHERE us.user_id = ?
-            ", $this->user->id()
+            ", $this->user->id
         );
         $this->user->remove();
     }
@@ -54,7 +54,7 @@ class UserSeedboxTest extends TestCase {
             INSERT INTO xbt_files_users
                    (fid, uid, useragent, peer_id, ip, active, remaining, timespent, mtime)
             VALUES (?,   ?,   ?,         ?,       ?,  1, 0, 1, unix_timestamp(now() - interval 1 hour))
-            ",  $torrent->id(), $this->user->id(), $ua, $peerId, $ip
+            ",  $torrent->id(), $this->user->id, $ua, $peerId, $ip
         );
     }
 

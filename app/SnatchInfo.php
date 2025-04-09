@@ -8,7 +8,7 @@ class SnatchInfo extends Base {
 
     public function setContextUser(User $user): static {
         $this->searchField = 'xs.uid';
-        $this->searchValue = $user->id();
+        $this->searchValue = $user->id;
         return $this;
     }
 

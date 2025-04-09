@@ -34,7 +34,7 @@ class NotificationSearch extends \Gazelle\BaseUser {
                 INNER JOIN torrents_leech_stats AS tls ON (tls.TorrentID = unt.TorrentID)
             ";
             $this->cond = ['unt.UserID = ?'];
-            $this->args = [$this->user->id()];
+            $this->args = [$this->user->id];
 
             if ($this->orderBy == 'tg.Year') {
                 $this->baseQuery .= " INNER JOIN torrents_group tg ON (tg.ID = t.GroupID)";
@@ -112,9 +112,9 @@ class NotificationSearch extends \Gazelle\BaseUser {
                 UnRead = 0
             WHERE UserID = ?
                 AND TorrentID IN (" . placeholders($torrentIdList) . ")
-            ", $this->user->id(), ...$torrentIdList
+            ", $this->user->id, ...$torrentIdList
         );
-        self::$cache->delete_value('user_notify_upload_' . $this->user->id());
+        self::$cache->delete_value('user_notify_upload_' . $this->user->id);
         return self::$db->affected_rows();
     }
 }

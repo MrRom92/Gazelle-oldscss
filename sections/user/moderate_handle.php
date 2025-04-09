@@ -43,7 +43,7 @@ if ($_POST['checkpoint'] != $user->checkpoint()) {
     );
 }
 
-$userId = $user->id();
+$userId = $user->id;
 $ownProfile = $userId === $Viewer->id();
 
 // Variables for database input

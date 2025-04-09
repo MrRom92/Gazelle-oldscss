@@ -42,7 +42,7 @@ abstract class AbstractComment extends \Gazelle\BaseObject {
     }
 
     public function isAuthor(\Gazelle\User $user): bool {
-        return $this->userId() === $user->id();
+        return $this->userId() === $user->id;
     }
 
     public function lastRead(): int {
@@ -175,7 +175,7 @@ abstract class AbstractComment extends \Gazelle\BaseObject {
         $lastPost = end($this->thread)['ID'];
         $page = $this->page();
         $pageId = $this->pageId;
-        $userId = $user->id();
+        $userId = $user->id;
 
         // quote notifications
         self::$db->begin_transaction();

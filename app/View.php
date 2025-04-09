@@ -115,7 +115,7 @@ class View extends Base {
                 }
             } elseif (
                 $TestUser
-                && $user->id() != ($_REQUEST['userid'] ?? 0)
+                && $user->id != ($_REQUEST['userid'] ?? 0)
                 && self::add_active($PageID, $testList)
             ) {
                 $extraClass[] = 'active';

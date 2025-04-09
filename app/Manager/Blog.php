@@ -25,7 +25,7 @@ class Blog extends \Gazelle\BaseManager {
             INSERT INTO blog
                    (UserID, Title, Body, ThreadID, Important)
             VALUES (?,      ?,     ?,    ?,        ?)
-            ", $user->id(), $title, $body, $thread?->id(), $important
+            ", $user->id, $title, $body, $thread?->id(), $important
         );
         $this->flush();
         return new \Gazelle\Blog(self::$db->inserted_id());

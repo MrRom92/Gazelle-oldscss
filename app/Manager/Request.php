@@ -30,7 +30,7 @@ class Request extends \Gazelle\BaseManager {
                 CatalogueNumber, ReleaseType, BitrateList, FormatList, MediaList, LogCue, Checksum, OCLC, GroupID)
             VALUES (
                 now(), 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            $user->id(), $categoryId, $title, $year, $image, $description, $recordLabel,
+            $user->id, $categoryId, $title, $year, $image, $description, $recordLabel,
             $catalogueNumber, $releaseType, $encodingList, $formatList, $mediaList, $logCue,
             (int)$checksum ? 1 : 0, $oclc, $groupId
         );
@@ -71,7 +71,7 @@ class Request extends \Gazelle\BaseManager {
             GROUP BY r.ID
             ORDER BY count(v.UserID) DESC, sum(v.Bounty) DESC
             LIMIT 0, ?
-            ", $user->id(), $limit
+            ", $user->id, $limit
         );
         return array_map(fn($id) => $this->findById($id), self::$db->collect(0, false));
     }

@@ -15,7 +15,7 @@ class GlobalNotification extends AbstractNotification {
 
     public function clear(): int {
         self::$cache->cache_value(
-            sprintf(self::CLEARED, $this->user->id()),
+            sprintf(self::CLEARED, $this->user->id),
             true,
             (new \Gazelle\Notification\GlobalNotification())->remaining()
         );
@@ -24,7 +24,7 @@ class GlobalNotification extends AbstractNotification {
 
     public function load(): bool {
         $alert = (new \Gazelle\Notification\GlobalNotification())->alert();
-        if ($alert && self::$cache->get_value(sprintf(self::CLEARED, $this->user->id())) === false) {
+        if ($alert && self::$cache->get_value(sprintf(self::CLEARED, $this->user->id)) === false) {
             $this->title     = $alert['title'];
             $this->url       = $alert['url'];
             $this->className = $alert['level'];

@@ -202,7 +202,7 @@ class Twig {
                 if ($user->isWarned()) {
                     $icon[] = '<a href="wiki.php?action=article&amp;name=warnings"><img src="'
                         . STATIC_SERVER . '/common/symbols/warned.png" alt="Warned" title="Warned'
-                        . ($viewer->id() == $user->id() ? ' - Expires ' . date('Y-m-d H:i', $user->warningExpiry()) : '')
+                        . ($viewer->id() == $user->id ? ' - Expires ' . date('Y-m-d H:i', $user->warningExpiry()) : '')
                         . '" class="tooltip" /></a>';
                 }
                 if ($user->isDisabled()) {

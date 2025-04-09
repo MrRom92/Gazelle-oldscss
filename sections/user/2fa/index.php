@@ -9,7 +9,7 @@ $user = (new Manager\User())->findById((int)($_REQUEST['userid'] ?? 0));
 if (is_null($user)) {
     Error404::error();
 }
-if ($user->id() != $Viewer->id() && !$Viewer->permitted('users_mod')) {
+if ($user->id != $Viewer->id() && !$Viewer->permitted('users_mod')) {
     Error403::error();
 }
 

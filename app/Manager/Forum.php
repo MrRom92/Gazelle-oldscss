@@ -27,7 +27,7 @@ class Forum extends \Gazelle\BaseManager {
                    (Sort, CategoryID, Name, Description, MinClassRead, MinClassWrite, MinClassCreate, AutoLock, AutoLockWeeks, LastPostAuthorID)
             VALUES (?,    ?,          ?,    ?,           ?,            ?,             ?,              ?,        ?,             ?)
             ", $sequence, $categoryId, trim($name), trim($description), $minClassRead, $minClassWrite, $minClassCreate,
-                $autoLock ? '1' : '0', $autoLockWeeks, $user->id()
+                $autoLock ? '1' : '0', $autoLockWeeks, $user->id
         );
         $id = self::$db->inserted_id();
         $this->flushToc();
@@ -237,7 +237,7 @@ class Forum extends \Gazelle\BaseManager {
             INNER JOIN forums AS f ON (f.ID = t.ForumID)
             WHERE s.UserID = ?
                 AND " . implode(' AND ', $cond),
-            $user->id(), ...$args
+            $user->id, ...$args
         );
     }
 
@@ -252,7 +252,7 @@ class Forum extends \Gazelle\BaseManager {
             WHERE if(t.IsLocked = '1' AND t.IsSticky = '0', t.LastPostID, coalesce(l.PostID, 0)) < t.LastPostID
                 AND s.UserID = ?
                 AND " . implode(' AND ', $cond),
-            $user->id(), ...$args
+            $user->id, ...$args
         );
     }
 
@@ -264,7 +264,7 @@ class Forum extends \Gazelle\BaseManager {
         array_push($cond,
             "s.UserID = ?"
         );
-        array_push($args, $user->id(), $limit, $offset);
+        array_push($args, $user->id, $limit, $offset);
 
         self::$db->prepared_query("
             SELECT f.ID            AS forumId,
@@ -283,7 +283,7 @@ class Forum extends \Gazelle\BaseManager {
             GROUP BY p.TopicID
             ORDER BY t.LastPostID DESC
             LIMIT ? OFFSET ?
-            ", $user->id(), ...$args
+            ", $user->id, ...$args
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }

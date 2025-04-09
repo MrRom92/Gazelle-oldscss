@@ -14,7 +14,7 @@ $user = (new Manager\User())->findById((int)($_GET['userid'] ?? 0));
 if (is_null($user)) {
     Error404::error();
 }
-if ($user->id() != $Viewer->id() && !$Viewer->isStaff()) {
+if ($user->id != $Viewer->id() && !$Viewer->isStaff()) {
     Error403::error();
 }
 

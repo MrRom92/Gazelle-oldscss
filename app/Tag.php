@@ -115,7 +115,7 @@ class Tag extends BaseObject {
             VALUES (?,     ?,       ?,      ?)
             ON DUPLICATE KEY UPDATE
                 PositiveVotes = PositiveVotes + 2
-            ", $this->id, $tgroup->id(), $user->id(), $weight
+            ", $this->id, $tgroup->id(), $user->id, $weight
         );
         $affected = self::$db->affected_rows();
         self::$db->prepared_query("
@@ -163,7 +163,7 @@ class Tag extends BaseObject {
                 AND GroupID = ?
                 AND UserID = ?
                 AND Way = ?
-            ", $this->id, $tgroup->id(), $user->id(), $way
+            ", $this->id, $tgroup->id(), $user->id, $way
         );
         if (self::$db->has_results()) {
             self::$db->rollback();
@@ -188,7 +188,7 @@ class Tag extends BaseObject {
             INSERT INTO torrents_tags_votes
                    (TagID, GroupID, UserID, Way)
             VALUES (?,     ?,       ?,      ?)
-            ", $this->id, $tgroup->id(), $user->id(), $way
+            ", $this->id, $tgroup->id(), $user->id, $way
         );
         $affected = self::$db->affected_rows();
         self::$db->commit();
@@ -203,7 +203,7 @@ class Tag extends BaseObject {
             WHERE TagID = ?
                 AND GroupID = ?
                 AND UserID = ?
-            ", $this->id, $tgroup->id(), $user->id()
+            ", $this->id, $tgroup->id(), $user->id
         );
     }
 

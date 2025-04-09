@@ -7,7 +7,7 @@ use Gazelle\Enum\UserTokenType;
 class UserToken extends \Gazelle\BaseManager {
     public function create(UserTokenType $type, \Gazelle\User $user, string|null $value = null): \Gazelle\User\Token {
         $field = ['type',       'id_user'];
-        $args  = [$type->value, $user->id()];
+        $args  = [$type->value, $user->id];
         if (!empty($value)) {
             $field[] = 'token';
             $args[]  = $value;
@@ -34,7 +34,7 @@ class UserToken extends \Gazelle\BaseManager {
                 expiry = now()
             where id_user = ?
                 and type = ?
-            ", $user->id(), UserTokenType::password->value
+            ", $user->id, UserTokenType::password->value
         );
         $userToken = $this->create(UserTokenType::password, $user);
         (new \Gazelle\Util\Mail())->send($user->email(), 'Password reset information for ' . SITE_NAME,
@@ -86,7 +86,7 @@ class UserToken extends \Gazelle\BaseManager {
                 from user_token
                 where id_user = ?
                     and type = ?
-                ", $user->id(), $type->value
+                ", $user->id, $type->value
             )
         );
     }
@@ -105,14 +105,14 @@ class UserToken extends \Gazelle\BaseManager {
             delete from user_token
             where id_user = ?
                 and type = ?
-            ", $user->id(), $type->value
+            ", $user->id, $type->value
         );
     }
 
     public function removeUser(\Gazelle\User $user): int {
         return $this->pg()->prepared_query("
             delete from user_token where id_user = ?
-            ", $user->id()
+            ", $user->id
         );
     }
 }

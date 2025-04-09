@@ -110,7 +110,7 @@ class Thread extends BaseObject {
             INSERT INTO thread_note
                    (ThreadID, UserID, Body, Visibility)
             VALUES (?,        ?,      ?,    ?)
-            ", $this->id, $user->id(), $body, $visibility
+            ", $this->id, $user->id, $body, $visibility
         );
         $inserted = self::$db->inserted_id();
         $this->flush();

@@ -20,7 +20,7 @@ class PM extends \Gazelle\BaseUser {
     }
 
     public function findById(int $pmId): ?\Gazelle\PM {
-        $key = sprintf(self::ID_KEY, $pmId, $this->user->id());
+        $key = sprintf(self::ID_KEY, $pmId, $this->user->id);
         $id = self::$cache->get_value($key);
         if ($id === false) {
             $id = (int)self::$db->scalar("
@@ -28,7 +28,7 @@ class PM extends \Gazelle\BaseUser {
                 FROM pm_conversations_users pcu
                 WHERE pcu.ConvID = ?
                     AND pcu.UserID = ?
-                ", $pmId, $this->user->id()
+                ", $pmId, $this->user->id
             );
             if ($id) {
                 self::$cache->cache_value($key, $id, 7200);
@@ -44,7 +44,7 @@ class PM extends \Gazelle\BaseUser {
             INNER JOIN pm_messages      pm USING (ConvID)
             WHERE pcu.UserID = ?
                 AND pm.ID = ?
-            ", $this->user->id(), $postId
+            ", $this->user->id, $postId
         );
         return $id ? new \Gazelle\PM($id, $this->user) : null;
     }

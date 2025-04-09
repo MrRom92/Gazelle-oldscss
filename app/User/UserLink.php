@@ -23,13 +23,13 @@ class UserLink extends \Gazelle\BaseUser {
     public function groupId(\Gazelle\User $user): ?int {
         $id = (int)self::$db->scalar("
             SELECT GroupID FROM users_dupes WHERE UserID = ?
-            ", $user->id()
+            ", $user->id
         );
         return $id ? (int)$id : null;
     }
 
     public function info(): array {
-        $sourceId = $this->user->id();
+        $sourceId = $this->user->id;
         [$linkedGroupId, $comment] = self::$db->row("
             SELECT dg.ID, dg.Comments
             FROM dupe_groups AS dg
@@ -55,7 +55,7 @@ class UserLink extends \Gazelle\BaseUser {
     }
 
     public function dupe(\Gazelle\User $target, \Gazelle\User $admin, bool $updateNote): bool {
-        $sourceId = $this->user->id();
+        $sourceId = $this->user->id;
         self::$db->begin_transaction();
         [$sourceGroupId, $comments] = self::$db->row("
             SELECT ud.GroupID, dg.Comments

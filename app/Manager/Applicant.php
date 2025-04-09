@@ -77,7 +77,7 @@ class Applicant extends \Gazelle\Base {
     }
 
     public function userList(\Gazelle\User $user): array {
-        return array_filter($this->list(), fn($applicant) => $applicant->userId() == $user->id());
+        return array_filter($this->list(), fn($applicant) => $applicant->userId() == $user->id);
     }
 
     public function userIsApplicant(\Gazelle\User $user): bool {

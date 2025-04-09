@@ -62,7 +62,7 @@ class Collage extends \Gazelle\Base {
         $this->userLink = $user->link();
         $this->joinList[]  = "INNER JOIN bookmarks_collages AS bc ON (c.ID = bc.CollageID)";
         $this->whereList[] = "bc.UserID = ?";
-        $this->args[]  = $user->id();
+        $this->args[]  = $user->id;
         return $this;
     }
 
@@ -75,7 +75,7 @@ class Collage extends \Gazelle\Base {
         $this->contributor = true;
         $this->userLink = $user->link();
         $this->whereList[] = "c.ID IN (SELECT DISTINCT CollageID FROM collages_torrents WHERE UserID = ?)";
-        $this->args[] = $user->id();
+        $this->args[] = $user->id;
         return $this;
     }
 
@@ -105,7 +105,7 @@ class Collage extends \Gazelle\Base {
     public function setUser(\Gazelle\User $user): static {
         $this->userLink = $user->link();
         $this->whereList[] = 'c.UserID = ?';
-        $this->args[]  = $user->id();
+        $this->args[]  = $user->id;
         return $this;
     }
 

@@ -61,7 +61,7 @@ class Inbox extends \Gazelle\Json {
             LEFT JOIN pm_conversations_users AS other ON (other.ConvID = c.ID AND other.UserID != ? AND other.ForwardedTo = 0)
             " . implode(' ', $this->join) . "
             WHERE " . implode(' AND ', $this->cond) . "
-            ", $this->user->id(), $this->user->id(), ...$this->args
+            ", $this->user->id, $this->user->id, ...$this->args
         );
         $paginator = new \Gazelle\Util\Paginator(MESSAGES_PER_PAGE, $this->page);
         $paginator->setTotal($total);
@@ -84,7 +84,7 @@ class Inbox extends \Gazelle\Json {
             GROUP BY c.ID
             ORDER BY cu.Sticky, {$orderBy}
             LIMIT ? OFFSET ?
-            ", $this->user->id(), $this->user->id(), ...$this->args
+            ", $this->user->id, $this->user->id, ...$this->args
         );
 
         $user = [];

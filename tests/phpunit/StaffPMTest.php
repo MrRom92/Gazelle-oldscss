@@ -33,7 +33,7 @@ class StaffPMTest extends TestCase {
             FROM staff_pm_conversations spc
             INNER JOIN staff_pm_messages spm ON (spm.ConvID = spc.ID)
             WHERE spm.UserID IN (?, ?, ?, ?)
-            ", $this->fls->id(), $this->mod->id(), $this->sysop->id(), $this->user->id()
+            ", $this->fls->id(), $this->mod->id(), $this->sysop->id(), $this->user->id
         );
         $this->fls->remove();
         $this->mod->remove();
@@ -49,7 +49,7 @@ class StaffPMTest extends TestCase {
         $this->assertEquals(0, $spm->classLevel(), 'spm-fls-classlevel-0');
         $this->assertEquals('for FLS', $spm->subject(), 'spm-fls-subject');
         $this->assertEquals('Level 0', $spm->userclassName(), 'spm-fls-userclass');
-        $this->assertEquals($this->user->id(), $spm->userId(), 'spm-fls-author-id');
+        $this->assertEquals($this->user->id, $spm->userId(), 'spm-fls-author-id');
         $this->assertTrue($spm->inProgress(), 'spm-fls-in-progress');
         $this->assertTrue($spm->visible($this->user), 'spm-fls-read-user');
         $this->assertTrue($spm->visible($this->fls), 'spm-fls-read-fls');
@@ -82,7 +82,7 @@ class StaffPMTest extends TestCase {
         $this->assertEquals(1, $spm->reply($this->mod, 'mod reply'), 'spm-user-mod-reply');
         $thread = $spm->thread();
         $this->assertCount(3, $thread, 'spm-thread-total');
-        $this->assertEquals($this->user->id(), $thread[0]['user_id'], 'spm-thread-0');
+        $this->assertEquals($this->user->id, $thread[0]['user_id'], 'spm-thread-0');
         $this->assertEquals($this->fls->id(), $thread[1]['user_id'], 'spm-thread-1');
         $this->assertEquals($this->mod->id(), $thread[2]['user_id'], 'spm-thread-2');
 
@@ -170,7 +170,7 @@ class StaffPMTest extends TestCase {
         $this->assertEquals(1, $historyFls[0]['total'], 'spm-fls-staff-history-message');
         $this->assertEquals(0, $historyFls[0]['total2'], 'spm-fls-staff-history-conv');
 
-        $historyUser = $this->spMan->staffHistory($level, [$this->user->id()], 1 /* day */);
+        $historyUser = $this->spMan->staffHistory($level, [$this->user->id], 1 /* day */);
         $this->assertEquals(2, $historyUser[0]['total'], 'spm-fls-user-history-message');
         $this->assertEquals(1, $historyUser[0]['total2'], 'spm-fls-user-history-conv');
     }

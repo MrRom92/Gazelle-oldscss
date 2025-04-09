@@ -266,7 +266,7 @@ class RequestTest extends TestCase {
         $this->assertTrue(Helper::recentDate($this->request->lastVoteDate()), 'request-last-vote-date');
         $this->assertEquals(2, $this->request->userVotedTotal(), 'request-user-voted-total');
         $this->assertEquals(
-            [$admin->id(), $user->id()],
+            [$admin->id(), $user->id],
             array_column($this->request->userIdVoteList(), 'user_id'),
             'request-user-id-vote-list'
         );
@@ -329,7 +329,7 @@ class RequestTest extends TestCase {
             'request-log-unfill-by'
         );
         $this->assertStringContainsString(
-            "was filled by user {$user->id()} ({$user->link()}) with the torrent <a href=\"torrents.php?torrentid={$torrent->id()}\">{$torrent->id()}</a>",
+            "was filled by user {$user->id} ({$user->link()}) with the torrent <a href=\"torrents.php?torrentid={$torrent->id()}\">{$torrent->id()}</a>",
             $page[1]['message'],
             'request-log-fill-by'
         );
@@ -481,7 +481,7 @@ class RequestTest extends TestCase {
         $this->assertLessThan(2, abs($first->getTimestamp() - $added->getTimestamp()), 'request-vote-order');
         $this->assertEquals($bounty + 15, $votes[0]['bounty'], 'request-vote-bounty1');
         $this->assertEquals($bounty + 1, $votes[2]['bounty'], 'request-vote-bounty2');
-        $this->assertEquals($user->id(), $votes[0]['user_id'], 'request-vote-user1');
+        $this->assertEquals($user->id, $votes[0]['user_id'], 'request-vote-user1');
         $this->assertEquals($user2->id(), $votes[2]['user_id'], 'request-vote-user2');
     }
 

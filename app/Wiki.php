@@ -200,7 +200,7 @@ class Wiki extends BaseObject {
             INSERT INTO wiki_aliases
                    (ArticleID, Alias, UserID)
             VALUES (?,         ?,     ?)
-            ", $this->id, self::normalizeAlias($alias), $user->id()
+            ", $this->id, self::normalizeAlias($alias), $user->id
         );
         $this->flush();
         return self::$db->affected_rows();

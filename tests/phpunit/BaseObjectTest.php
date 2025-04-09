@@ -49,7 +49,7 @@ class BaseObjectTest extends TestCase {
         $gen = object_generator(new Manager\User(), $idList);
         $n = 0;
         foreach ($gen as $user) {
-            $this->assertEquals($idList[$n], $user->id(), "base-object-generator-$n");
+            $this->assertEquals($idList[$n], $user->id, "base-object-generator-$n");
             $n++;
         }
         $this->assertEquals(count($idList), $n, "base-object-generator-total");

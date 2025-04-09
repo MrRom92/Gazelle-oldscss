@@ -19,14 +19,14 @@ class Staff extends BaseUser {
     }
 
     public function blogAlert(): bool {
-        if (($readTime = self::$cache->get_value('staff_blog_read_' . $this->user->id())) === false) {
+        if (($readTime = self::$cache->get_value('staff_blog_read_' . $this->user->id)) === false) {
             $readTime = self::$db->scalar('
                 SELECT unix_timestamp(Time)
                 FROM staff_blog_visits
                 WHERE UserID = ?
-                ', $this->user->id()
+                ', $this->user->id
             ) ?? 0;
-            self::$cache->cache_value('staff_blog_read_' . $this->user->id(), $readTime, 1_209_600);
+            self::$cache->cache_value('staff_blog_read_' . $this->user->id, $readTime, 1_209_600);
         }
         if (($blogTime = self::$cache->get_value('staff_blog_latest_time')) === false) {
             $blogTime = self::$db->scalar('
@@ -45,7 +45,7 @@ class Staff extends BaseUser {
             '(AssignedToUser = ? OR LEAST((SELECT max(Level) FROM permissions), Level) <= ?)',
         ];
         $effectiveClass = $this->user->privilege()->effectiveClassLevel();
-        $args = [$this->user->id(), $effectiveClass];
+        $args = [$this->user->id, $effectiveClass];
         $classes = (new Manager\User())->classList();
         if ($effectiveClass >= $classes[MOD]['Level']) {
             $cond[] = 'Level >= ?';
@@ -81,7 +81,7 @@ class Staff extends BaseUser {
                 AND (spc.Level <= ? OR spc.AssignedToUser = ?)
             GROUP BY spc.ID
             ORDER BY spc.Date DESC
-            ", $user->id(), $this->user->privilege()->effectiveClassLevel(), $this->user->id()
+            ", $user->id, $this->user->privilege()->effectiveClassLevel(), $this->user->id
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }

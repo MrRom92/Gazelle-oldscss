@@ -22,7 +22,7 @@ if (isset($_POST['confirm'])) {
         Error404::error(
             'Nobody with that name found. Try a user search and give them tokens from their profile page.'
         );
-    } elseif ($user->id() == $Viewer->id()) {
+    } elseif ($user->id == $Viewer->id()) {
         Error400::error('You cannot gift yourself tokens, they are cheaper to buy directly.');
     }
     $viewerBonus = new \Gazelle\User\Bonus($Viewer);

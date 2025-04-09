@@ -24,7 +24,7 @@ class Seedbox extends \Gazelle\BaseUser {
     }
 
     public function flush(): static {
-        self::$cache->delete_value(self::SUMMARY_KEY . $this->user->id());
+        self::$cache->delete_value(self::SUMMARY_KEY . $this->user->id);
         unset($this->host);
         unset($this->free);
         return $this;
@@ -75,7 +75,7 @@ class Seedbox extends \Gazelle\BaseUser {
             FROM user_seedbox
             WHERE user_id = ?
                 AND user_seedbox_id = ?
-            ", $this->user->id(), $this->hashid->decode($id)[0]
+            ", $this->user->id, $this->hashid->decode($id)[0]
         );
     }
 
@@ -113,7 +113,7 @@ class Seedbox extends \Gazelle\BaseUser {
             ? 0
             : (int)self::$db->scalar("
                 SELECT count(*) " . $this->buildFrom(),
-                $this->user->id(), $this->source, $this->user->id(), $this->target
+                $this->user->id, $this->source, $this->user->id, $this->target
             );
     }
 
@@ -130,7 +130,7 @@ class Seedbox extends \Gazelle\BaseUser {
             $from
             ORDER BY $orderBy
             LIMIT ? OFFSET ?
-            ", $this->user->id(), $this->source, $this->user->id(), $this->target,
+            ", $this->user->id, $this->source, $this->user->id, $this->target,
                 $limit, $offset
         );
         $info = self::$db->to_array('fid', MYSQLI_ASSOC, false);
@@ -167,7 +167,7 @@ class Seedbox extends \Gazelle\BaseUser {
             SELECT xfu.fid
             $from
             ORDER BY xfu.fid
-            ", $this->user->id(), $this->source, $this->user->id(), $this->target
+            ", $this->user->id, $this->source, $this->user->id, $this->target
         );
         return self::$db->collect(0, false);
     }
@@ -184,7 +184,7 @@ class Seedbox extends \Gazelle\BaseUser {
                     DELETE FROM user_seedbox
                     WHERE user_id = ?
                         AND user_seedbox_id = ?
-                    ", $this->user->id(), $this->hashid->decode($seedbox['id'])[0]
+                    ", $this->user->id, $this->hashid->decode($seedbox['id'])[0]
                 );
                 $n += self::$db->affected_rows();
             } else {
@@ -194,7 +194,7 @@ class Seedbox extends \Gazelle\BaseUser {
                             name = ?
                         WHERE user_id = ?
                             AND user_seedbox_id = ?
-                        ", mb_substr($name, 0, 100), $this->user->id(), $this->hashid->decode($seedbox['id'])[0]
+                        ", mb_substr($name, 0, 100), $this->user->id, $this->hashid->decode($seedbox['id'])[0]
                     );
                 } catch (\Gazelle\DB\MysqlDuplicateKeyException) {
                     ; // do nothing
@@ -223,7 +223,7 @@ class Seedbox extends \Gazelle\BaseUser {
             DELETE FROM user_seedbox
             WHERE user_id = ?
                 AND user_seedbox_id in (" . placeholders($remove) . ")
-            ", $this->user->id(), ...array_map(fn($id) => $h->decode($id)[0], $remove)
+            ", $this->user->id, ...array_map(fn($id) => $h->decode($id)[0], $remove)
         );
         $affected = self::$db->affected_rows();
         $this->flush()->build();
@@ -231,7 +231,7 @@ class Seedbox extends \Gazelle\BaseUser {
     }
 
     protected function build(): int {
-        $key = self::SUMMARY_KEY . $this->user->id();
+        $key = self::SUMMARY_KEY . $this->user->id;
         // get the seeding locations and their totals
         $client = self::$cache->get_value($key);
         if ($client === false) {
@@ -243,7 +243,7 @@ class Seedbox extends \Gazelle\BaseUser {
                 FROM xbt_files_users
                 WHERE uid = ?
                 GROUP BY IP, useragent
-                ", $this->user->id()
+                ", $this->user->id
             );
             $client = self::$db->to_array('client', MYSQLI_ASSOC, false);
             self::$cache->cache_value($key, $client, 3600);
@@ -257,7 +257,7 @@ class Seedbox extends \Gazelle\BaseUser {
                 name
             FROM user_seedbox
             WHERE user_id = ?
-            ", $this->user->id()
+            ", $this->user->id
         );
         $nameList = self::$db->to_array('client', MYSQLI_ASSOC, false);
         $h = $this->hashid;
@@ -280,7 +280,7 @@ class Seedbox extends \Gazelle\BaseUser {
                     INSERT INTO user_seedbox
                            (user_id, name, useragent, ipaddr)
                     VALUES (?,       ?,    ?,         inet_aton(?))
-                    ", $this->user->id(), mb_substr($seedbox['name'], 0, 100), $seedbox['useragent'], $seedbox['ipv4addr']
+                    ", $this->user->id, mb_substr($seedbox['name'], 0, 100), $seedbox['useragent'], $seedbox['ipv4addr']
                 );
                 $seedbox['id'] = $this->hashid->encode(self::$db->inserted_id());
             }

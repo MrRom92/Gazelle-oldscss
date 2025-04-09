@@ -40,7 +40,7 @@ class Bookmark extends \Gazelle\BaseUser {
         if (
             (bool)self::$db->scalar("
                 SELECT 1 FROM $table WHERE UserID = ? AND $column = ?
-                ", $this->user->id(), $id
+                ", $this->user->id, $id
             )
         ) {
             // overbooked
@@ -53,9 +53,9 @@ class Bookmark extends \Gazelle\BaseUser {
                            (GroupID,  UserID, Sort)
                     VALUES (?,        ?,
                         (1 + coalesce((SELECT max(m.Sort) from bookmarks_torrents m WHERE m.UserID = ?), 0))
-                    )", $id, $this->user->id(), $this->user->id()
+                    )", $id, $this->user->id, $this->user->id
                 );
-                self::$cache->delete_multi(["u_book_t_" . $this->user->id(), "bookmarks_{$type}_" . $this->user->id(), "bookmarks_group_ids_" . $this->user->id()]);
+                self::$cache->delete_multi(["u_book_t_" . $this->user->id, "bookmarks_{$type}_" . $this->user->id, "bookmarks_group_ids_" . $this->user->id]);
 
                 $torMan = (new \Gazelle\Manager\Torrent())->setViewer($this->user);
                 $tgroup = (new \Gazelle\Manager\TGroup())->findById($id);
@@ -84,16 +84,16 @@ class Bookmark extends \Gazelle\BaseUser {
             case 'request':
                 self::$db->prepared_query("
                     INSERT IGNORE INTO bookmarks_requests (RequestID, UserID) VALUES (?, ?)
-                    ", $id, $this->user->id()
+                    ", $id, $this->user->id
                 );
-                self::$cache->delete_value("bookmarks_{$type}_" . $this->user->id());
+                self::$cache->delete_value("bookmarks_{$type}_" . $this->user->id);
                 break;
             default:
                 self::$db->prepared_query("
                     INSERT IGNORE INTO $table ($column, UserID) VALUES (?, ?)
-                    ", $id, $this->user->id()
+                    ", $id, $this->user->id
                 );
-                self::$cache->delete_value("bookmarks_{$type}_" . $this->user->id());
+                self::$cache->delete_value("bookmarks_{$type}_" . $this->user->id);
                 break;
         }
         return true;
@@ -112,7 +112,7 @@ class Bookmark extends \Gazelle\BaseUser {
         if (isset($this->all)) {
             return $this->all;
         }
-        $key = "bookmarks_{$type}_" . $this->user->id();
+        $key = "bookmarks_{$type}_" . $this->user->id;
         $all = self::$cache->get_value($key);
         if ($all === false) {
             [$table, $column] = $this->schema($type);
@@ -121,7 +121,7 @@ class Bookmark extends \Gazelle\BaseUser {
                 SELECT $column
                 FROM $table
                 WHERE UserID = ?
-                ", $this->user->id()
+                ", $this->user->id
             );
             $all = self::$db->collect($column);
             self::$db->set_query_id($q);
@@ -164,7 +164,7 @@ class Bookmark extends \Gazelle\BaseUser {
      * @return array Group IDs, Bookmark Data, Torrent List
      */
     public function tgroupBookmarkList(): array {
-        $key = "bookmarks_group_ids_" . $this->user->id();
+        $key = "bookmarks_group_ids_" . $this->user->id;
         $bookmarkList = self::$cache->get_value($key);
         $bookmarkList = false;
         self::$db->prepared_query("
@@ -174,7 +174,7 @@ class Bookmark extends \Gazelle\BaseUser {
                 FROM bookmarks_torrents b
                 WHERE b.UserID = ?
                 ORDER BY b.Sort, b.Time
-                ", $this->user->id()
+                ", $this->user->id
         );
         $bookmarkList = self::$db->to_array(false, MYSQLI_ASSOC, false);
         self::$cache->cache_value($key, $bookmarkList, 3600);
@@ -192,7 +192,7 @@ class Bookmark extends \Gazelle\BaseUser {
             GROUP BY aa.ArtistID
             ORDER BY total DESC, id
             LIMIT 10
-            ", $this->user->id()
+            ", $this->user->id
         );
         $result = self::$db->to_array(false, MYSQLI_ASSOC, false);
         $list = [];
@@ -212,7 +212,7 @@ class Bookmark extends \Gazelle\BaseUser {
             FROM bookmarks_torrents b
             INNER JOIN torrents_artists ta USING (GroupID)
             WHERE b.UserID = ?
-            ", $this->user->id()
+            ", $this->user->id
         );
     }
 
@@ -227,7 +227,7 @@ class Bookmark extends \Gazelle\BaseUser {
             GROUP BY t.Name
             ORDER By 2 desc, t.Name
             LIMIT 10
-            ", $this->user->id()
+            ", $this->user->id
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
@@ -238,7 +238,7 @@ class Bookmark extends \Gazelle\BaseUser {
             FROM bookmarks_torrents b
             INNER JOIN torrents t USING (GroupID)
             WHERE b.UserID = ?
-            ", $this->user->id()
+            ", $this->user->id
         );
     }
 
@@ -252,7 +252,7 @@ class Bookmark extends \Gazelle\BaseUser {
             INNER JOIN artists_alias aa ON (ag.PrimaryAlias = aa.AliasID)
             WHERE ba.UserID = ?
             ORDER BY aa.Name
-            ", $this->user->id()
+            ", $this->user->id
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
@@ -276,7 +276,7 @@ class Bookmark extends \Gazelle\BaseUser {
             GROUP BY b.GroupID, b.Sort, b.Time
             ORDER BY seq, added
             LIMIT ? OFFSET ?
-            ", $this->user->id(), $limit, $offset
+            ", $this->user->id, $limit, $offset
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
@@ -292,9 +292,9 @@ class Bookmark extends \Gazelle\BaseUser {
                 WHERE s.uid = ?
             ) AS s USING (GroupID)
             WHERE b.UserID = ?
-            ", $this->user->id(), $this->user->id()
+            ", $this->user->id, $this->user->id
         );
-        self::$cache->delete_value("bookmarks_group_ids_" . $this->user->id());
+        self::$cache->delete_value("bookmarks_group_ids_" . $this->user->id);
         return self::$db->affected_rows();
     }
 
@@ -305,13 +305,13 @@ class Bookmark extends \Gazelle\BaseUser {
         [$table, $column] = $this->schema($type);
         self::$db->prepared_query("
             DELETE FROM $table WHERE UserID = ?  AND $column = ?
-            ", $this->user->id(), $id
+            ", $this->user->id, $id
         );
         $affected = self::$db->affected_rows();
-        self::$cache->delete_multi(["u_book_t_" . $this->user->id(), "bookmarks_{$type}_" . $this->user->id()]);
+        self::$cache->delete_multi(["u_book_t_" . $this->user->id, "bookmarks_{$type}_" . $this->user->id]);
 
         if ($type === 'torrent' && self::$db->affected_rows()) {
-            self::$cache->delete_value("bookmarks_group_ids_" . $this->user->id());
+            self::$cache->delete_value("bookmarks_group_ids_" . $this->user->id);
             (new \Gazelle\TGroup($id))->stats()->increment('bookmark_total', -1);
         }
         return $affected;

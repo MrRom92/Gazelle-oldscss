@@ -13,9 +13,9 @@ class Torrent extends AbstractNotification {
                 Unread = 0
             WHERE UnRead = 1
                 AND UserID = ?
-            ", $this->user->id()
+            ", $this->user->id
         );
-        self::$cache->delete_value('user_notify_upload_' . $this->user->id());
+        self::$cache->delete_value('user_notify_upload_' . $this->user->id);
         return self::$db->affected_rows();
     }
 
@@ -34,21 +34,21 @@ class Torrent extends AbstractNotification {
     public function total(): int {
         return (int)self::$db->scalar("
             SELECT count(*) FROM users_notify_torrents WHERE UserID = ?
-            ", $this->user->id()
+            ", $this->user->id
         );
     }
 
     public function unread(): int {
-        $total = self::$cache->get_value('user_notify_upload_' . $this->user->id());
+        $total = self::$cache->get_value('user_notify_upload_' . $this->user->id);
         if ($total === false) {
             $total = (int)self::$db->scalar("
                 SELECT count(*)
                 FROM users_notify_torrents
                 WHERE UnRead = 1
                     AND UserID = ?
-                ", $this->user->id()
+                ", $this->user->id
             );
-            self::$cache->cache_value('user_notify_upload_' . $this->user->id(), $total, 0);
+            self::$cache->cache_value('user_notify_upload_' . $this->user->id, $total, 0);
         }
         return $total;
     }
@@ -65,7 +65,7 @@ class Torrent extends AbstractNotification {
             WHERE unt.UserID = ?
             ORDER BY unt.TorrentID DESC
             LIMIT ? OFFSET ?
-            ", $this->user->id(), $limit, $offset
+            ", $this->user->id, $limit, $offset
         );
         $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
         foreach ($list as &$item) {

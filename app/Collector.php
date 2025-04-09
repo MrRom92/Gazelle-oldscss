@@ -155,7 +155,7 @@ abstract class Collector extends Base  {
         while ($row = self::$db->next_record(MYSQLI_ASSOC, false)) {
             if (!$this->idBoundary || $row['TorrentID'] == $this->idBoundary[$row[$Key]]) {
                 $downloadList[$row[$Key]] = $row;
-                array_push($insertArgs, $this->user->id(), $row['TorrentID']);
+                array_push($insertArgs, $this->user->id, $row['TorrentID']);
                 if (count($downloadList) >= self::CHUNK_SIZE) {
                     break;
                 }

@@ -55,7 +55,7 @@ class TrackerTest extends TestCase {
         $this->assertEquals($this->torrent->id(), $report['id'], 'tracker-tinfo-id');
         $this->assertCount(0, $report['leecher_list'], 'tracker-tinfo-leecher');
         $this->assertCount(0, $report['seeder_list'], 'tracker-tinfo-seeder');
-        $this->assertEquals([$this->user->id()], $report['fltoken_list'], 'tracker-tinfo-fltoken');
+        $this->assertEquals([$this->user->id], $report['fltoken_list'], 'tracker-tinfo-fltoken');
         $this->assertTrue($tracker->removeToken($this->torrent, $this->user), 'tracker-remove-token');
     }
 
@@ -86,7 +86,7 @@ class TrackerTest extends TestCase {
         $this->user = Helper::makeUser('trk.' . randomString(10), 'tracker');
         $this->assertEquals(
             [
-                'id'        => $this->user->id(),
+                'id'        => $this->user->id,
                 'can_leech' => 1,
                 'protected' => 0,
                 'deleted'   => 0,
@@ -103,7 +103,7 @@ class TrackerTest extends TestCase {
         $this->assertTrue($tracker->traceUser($this->user, true), 'tracker-trace-user');
         $this->assertEquals(
             [
-                'id'        => $this->user->id(),
+                'id'        => $this->user->id,
                 'can_leech' => 0,
                 'protected' => 1,
                 'deleted'   => 0,
@@ -118,7 +118,7 @@ class TrackerTest extends TestCase {
         $tracker->traceUser($this->user, false);
         $this->assertEquals(
             [
-                'id'        => $this->user->id(),
+                'id'        => $this->user->id,
                 'can_leech' => 0,
                 'protected' => 1,
                 'deleted'   => 0,

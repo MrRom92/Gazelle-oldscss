@@ -11,7 +11,7 @@ abstract class BaseUser extends BaseObject {
      * The id() of a BaseUser is the id() of the underlying BaseObject
      */
     public function id(): int {
-        return $this->user->id();
+        return $this->user->id;
     }
 
     /**

@@ -341,7 +341,7 @@ class Forum extends BaseObject {
                 AND " . implode(' AND ', $cond) . "
             GROUP BY ft.ForumID
             ORDER BY f.Sort
-            ", $user->id(), $user->id(), $this->id, ...$args
+            ", $user->id, $user->id, $this->id, ...$args
         );
         return self::$db->to_array('forum_id', MYSQLI_ASSOC, false);
     }
@@ -354,7 +354,7 @@ class Forum extends BaseObject {
             FROM forums_topics
             WHERE ForumID = ?
             ON DUPLICATE KEY UPDATE PostID = LastPostID
-            ", $user->id(), $this->id
+            ", $user->id, $this->id
         );
         return self::$db->affected_rows();
     }
@@ -382,7 +382,7 @@ class Forum extends BaseObject {
             INNER JOIN forums_topics ft ON (ft.ID = l.TopicID)
             WHERE ft.ForumID = ?
                 AND l.UserID = ?
-            ", $user->postsPerPage(), $this->id, $user->id()
+            ", $user->postsPerPage(), $this->id, $user->id
         );
         $list = [];
         foreach (self::$db->to_array('TopicID', MYSQLI_ASSOC, false) as $row) {
@@ -398,7 +398,7 @@ class Forum extends BaseObject {
             FROM forum_autosub
             WHERE id_forum = ?
                 AND id_user = ?
-            ", $this->id, $user->id()
+            ", $this->id, $user->id
         );
     }
 
@@ -415,7 +415,7 @@ class Forum extends BaseObject {
         }
         return $this->pg()->column("
             select id_forum from forum_autosub where id_user = ?
-            ", $user->id()
+            ", $user->id
         );
     }
 
@@ -431,14 +431,14 @@ class Forum extends BaseObject {
                        (id_forum, id_user)
                 VALUES (?,        ?)
                 ON CONFLICT (id_forum, id_user) DO NOTHING
-                ", $this->id, $user->id()
+                ", $this->id, $user->id
             );
         } else {
             return $this->pg()->prepared_query("
                 DELETE FROM forum_autosub
                 WHERE id_forum = ?
                     AND id_user = ?
-                ", $this->id, $user->id()
+                ", $this->id, $user->id
             );
         }
     }

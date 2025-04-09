@@ -679,7 +679,7 @@ abstract class TorrentAbstract extends BaseObject {
             INSERT IGNORE INTO torrent_has_attr
                 (TorrentID, TorrentAttrID, UserID)
             VALUES (?, (SELECT ID FROM torrent_attr WHERE Name = ?), ?)
-            ", $this->id, $flag->value, $user->id()
+            ", $this->id, $flag->value, $user->id
         );
         $this->flush();
         return self::$db->affected_rows();

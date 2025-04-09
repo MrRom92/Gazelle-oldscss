@@ -27,7 +27,7 @@ class UserMultiFactorAuthTest extends TestCase {
             where id_user = ?
               and type = ?
               and expiry > now()
-            ', $this->user->id(), UserTokenType::mfa->value
+            ', $this->user->id, UserTokenType::mfa->value
         );
     }
 

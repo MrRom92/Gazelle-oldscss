@@ -78,18 +78,18 @@ class Transcode extends \Gazelle\Base {
                 $distinct = 'DISTINCT'; // may be seeding from more than one location
                 $join = 'INNER JOIN xbt_files_users xfu ON (xfu.fid = t.ID)';
                 $cond[] = 'active = 1 AND remaining = 0 AND mtime > unix_timestamp(NOW() - INTERVAL 1 HOUR) AND uid = ?';
-                $args[] = $this->user->id();
+                $args[] = $this->user->id;
                 break;
             case self::MODE_SNATCHED:
                 $distinct = 'DISTINCT'; // may have snatched more than once
                 $join = 'INNER JOIN xbt_snatched xs ON (xs.fid = t.ID)';
                 $cond[] = 'xs.uid = ?';
-                $args[] = $this->user->id();
+                $args[] = $this->user->id;
                 break;
             case self::MODE_UPLOADED:
                 $join = '/* uploaded */';
                 $cond[] = 't.UserID = ?';
-                $args[] = $this->user->id();
+                $args[] = $this->user->id;
                 break;
             default:
                 $join = '/* any */';
@@ -146,7 +146,7 @@ class Transcode extends \Gazelle\Base {
             }
             . (isset($this->want320) ? '_320' : '')
             . (isset($this->wantV0)  ? '_v0'  : ''),
-            $this->user->id()
+            $this->user->id
         );
         $list = self::$cache->get_value($key);
         $list = false;
@@ -184,7 +184,7 @@ class Transcode extends \Gazelle\Base {
             }
             . (isset($this->want320) ? '_320' : '')
             . (isset($this->wantV0)  ? '_v0'  : ''),
-            $this->user->id()
+            $this->user->id
         );
         $total = self::$cache->get_value($key);
         $total = false;

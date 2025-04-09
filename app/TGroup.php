@@ -361,7 +361,7 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
             FROM torrents t
             WHERE t.GroupID = ?
                 AND t.UserID = ?
-            ", $this->id, $user->id()
+            ", $this->id, $user->id
         );
     }
 
@@ -504,7 +504,7 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
         return $user->permitted('torrents_edit')
             || (bool)self::$db->scalar("
                     SELECT 1 FROM torrents WHERE GroupID = ? AND UserID = ? LIMIT 1
-                    ", $this->id, $user->id()
+                    ", $this->id, $user->id
                 );
     }
 

@@ -90,7 +90,7 @@ class Report extends \Gazelle\Base {
     }
 
     public function canUnclaim(\Gazelle\User $user): bool {
-        return $this->mode === 'staff' && $user->id() === (int)$this->id;
+        return $this->mode === 'staff' && $user->id === (int)$this->id;
     }
 
     public function mode(): string {

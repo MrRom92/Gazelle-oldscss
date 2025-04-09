@@ -13,9 +13,9 @@ class Inbox extends AbstractNotification {
                 Unread = '0'
             WHERE Unread = '1'
                 AND UserID = ?
-            ", $this->user->id()
+            ", $this->user->id
         );
-        self::$cache->delete_value('inbox_new_' . $this->user->id());
+        self::$cache->delete_value('inbox_new_' . $this->user->id);
         return self::$db->affected_rows();
     }
 

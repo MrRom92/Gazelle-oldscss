@@ -13,7 +13,7 @@ class SingleSeeded extends AbstractBetter {
 
     public function setUploader(\Gazelle\User $user): static {
         $this->where[] = "t.UserID = ?";
-        $this->args[] = $user->id();
+        $this->args[] = $user->id;
         return $this;
     }
 

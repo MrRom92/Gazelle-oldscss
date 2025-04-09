@@ -195,7 +195,7 @@ class AuditTrail extends \Gazelle\BaseUser {
                     note = ?,
                     id_user_creator = ?
                 where id_user_audit_trail = ?
-                ", $note, $user->id(), $eventId
+                ", $note, $user->id, $eventId
             );
         }
         return $affected;

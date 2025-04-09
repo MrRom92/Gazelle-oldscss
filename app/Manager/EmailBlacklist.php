@@ -16,7 +16,7 @@ class EmailBlacklist extends \Gazelle\Base {
             insert into email_blacklist
                    (email, comment, id_user)
             VALUES (?,     ?,       ?)
-            ", $email, $comment, $user->id()
+            ", $email, $comment, $user->id
         );
     }
 
@@ -27,7 +27,7 @@ class EmailBlacklist extends \Gazelle\Base {
                 comment = ?,
                 id_user = ?
             where id_email_blacklist = ?
-            ", $email, $comment, $user->id(), $id
+            ", $email, $comment, $user->id, $id
         );
     }
 

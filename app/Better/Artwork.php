@@ -31,14 +31,14 @@ class Artwork extends AbstractBetter {
                 FROM xbt_snatched xs
                 INNER JOIN torrents t ON (t.ID = xs.fid AND xs.uid = ?)
                 WHERE t.GroupID = tg.ID)";
-            $this->args[]     = $this->user->id();
+            $this->args[]     = $this->user->id;
         } elseif ($this->filter === 'uploaded') {
             $this->where[] = "EXISTS (
                 SELECT 1
                 FROM torrents t
                 WHERE t.GroupID = tg.ID
                     AND t.UserID = ?)";
-            $this->args[] = $this->user->id();
+            $this->args[] = $this->user->id;
         }
     }
 }

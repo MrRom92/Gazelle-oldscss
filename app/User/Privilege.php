@@ -16,7 +16,7 @@ class Privilege extends \Gazelle\BaseUser {
         if (isset($this->info)) {
             return $this->info;
         }
-        $id = $this->user->id();
+        $id = $this->user->id;
         $key = sprintf(self::CACHE_KEY, $id);
         $info = self::$cache->get_value($key);
         if ($info !== false) {

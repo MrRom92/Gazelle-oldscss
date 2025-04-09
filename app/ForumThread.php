@@ -249,7 +249,7 @@ class ForumThread extends BaseObject {
                 Body = CONCAT(Body, '\n\n', ?),
                 EditedTime = now()
             WHERE ID = ?
-            ", $user->id(), $body, $post->id()
+            ", $user->id, $body, $post->id()
         );
         $affected = self::$db->affected_rows();
 
@@ -258,7 +258,7 @@ class ForumThread extends BaseObject {
             INSERT INTO comments_edits
                    (EditUser, PostID, Body, Page)
             VALUES (?,        ?,      ?,   'forums')
-            ", $user->id(), $post->id(), $oldBody
+            ", $user->id, $post->id(), $oldBody
         );
         self::$db->commit();
 
@@ -416,7 +416,7 @@ class ForumThread extends BaseObject {
             VALUES (?,      ?,       ?)
             ON DUPLICATE KEY UPDATE
                 PostID = ?
-            ", $user->id(), $this->id, $postId, $postId
+            ", $user->id, $this->id, $postId, $postId
         );
         return self::$db->affected_rows();
     }
@@ -436,7 +436,7 @@ class ForumThread extends BaseObject {
     public function userLastReadPost(User $user): int {
         return (int)self::$db->scalar("
             SELECT PostID FROM forums_last_read_topics WHERE UserID = ? AND TopicID = ?
-            ", $user->id(), $this->id
+            ", $user->id, $this->id
         );
     }
 

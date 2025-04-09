@@ -20,7 +20,7 @@ if (isset($_GET['userid'])) {
     $user = (new Manager\User())->find($_GET['userid']);
     if ($user) {
         $stats = $tracker->userReport($user);
-        $_GET['userid'] = $user->id(); // change @user to id
+        $_GET['userid'] = $user->id; // change @user to id
     }
 }
 

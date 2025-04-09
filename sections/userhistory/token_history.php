@@ -13,7 +13,7 @@ if (!isset($_GET['userid'])) {
     if (is_null($user)) {
         Error404::error();
     }
-    if ($user->id() !== $Viewer->id() && !$Viewer->permitted('admin_fl_history')) {
+    if ($user->id !== $Viewer->id() && !$Viewer->permitted('admin_fl_history')) {
         Error403::error();
     }
 }
@@ -30,7 +30,7 @@ if ($_GET['expire'] ?? 0) {
         Error404::error();
     }
     $torrent->expireToken($user);
-    header("Location: userhistory.php?action=token_history&userid=" . $user->id());
+    header("Location: userhistory.php?action=token_history&userid=" . $user->id);
 }
 
 $paginator = new Util\Paginator(25, (int)($_GET['page'] ?? 1));

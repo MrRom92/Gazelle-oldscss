@@ -314,10 +314,10 @@ class Torrent extends TorrentAbstract {
                 Expired = true
             WHERE UserID = ?
                 AND TorrentID = ?
-            ", $user->id(), $this->id
+            ", $user->id, $this->id
         );
         $affected = self::$db->affected_rows();
-        self::$cache->delete_value("users_tokens_{$user->id()}");
+        self::$cache->delete_value("users_tokens_{$user->id}");
         (new Tracker())->removeToken($this, $user);
         return $affected;
     }
@@ -364,7 +364,7 @@ class Torrent extends TorrentAbstract {
             GROUP BY user_id, is_snatched, is_seeding
             ORDER BY user_id != ?, ud.Time DESC, ud.UserID
             LIMIT ? OFFSET ?
-            ", $this->id, $this->id, $this->id, $user->id(), $limit, $offset
+            ", $this->id, $this->id, $this->id, $user->id, $limit, $offset
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
@@ -403,7 +403,7 @@ class Torrent extends TorrentAbstract {
                     AND xfu.fid = ?
                 ORDER BY xfu.uid != ?, xfu.uploaded DESC
                 LIMIT ? OFFSET ?
-                ", $this->id, $this->id, $user->id(), $this->id, $user->id(), $limit, $offset
+                ", $this->id, $this->id, $user->id, $this->id, $user->id, $limit, $offset
             );
             $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
             self::$cache->cache_value($key, $list, 300);
@@ -424,7 +424,7 @@ class Torrent extends TorrentAbstract {
             WHERE xs.fid = ?
             ORDER BY xs.uid != ?, xs.tstamp DESC, xs.uid
             LIMIT ? OFFSET ?
-            ", $this->id, $this->id, $this->id, $user->id(), $limit, $offset
+            ", $this->id, $this->id, $this->id, $user->id, $limit, $offset
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
@@ -557,7 +557,7 @@ class Torrent extends TorrentAbstract {
         $manager->softDelete(MYSQL_DB, 'users_notify_torrents', [['TorrentID', $this->id]]);
 
         if (!is_null($user)) {
-            $key = sprintf(self::USER_RECENT_UPLOAD, $user->id());
+            $key = sprintf(self::USER_RECENT_UPLOAD, $user->id);
             $recent = self::$cache->get_value($key);
             if (is_array($recent) && in_array($groupId, $recent)) {
                 $deleteKeys[] = $key;
@@ -567,7 +567,7 @@ class Torrent extends TorrentAbstract {
                 INSERT INTO user_torrent_remove
                        (user_id, torrent_id)
                 VALUES (?,       ?)
-                ", $user->id(), $this->id
+                ", $user->id, $this->id
             );
         }
 

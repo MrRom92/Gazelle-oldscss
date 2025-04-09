@@ -42,7 +42,7 @@ class Collage extends \Gazelle\BaseManager {
             INSERT INTO collages
                    (UserID, CategoryID, Name, Description, TagList)
             VALUES (?,      ?,          ?,    ?,           ?)
-            ", $user->id(), $categoryId, trim($name), trim($description), trim($tagList)
+            ", $user->id, $categoryId, trim($name), trim($description), trim($tagList)
         );
         $id = self::$db->inserted_id();
         $user->stats()->increment('collage_total');
@@ -103,7 +103,7 @@ class Collage extends \Gazelle\BaseManager {
                 AND CategoryID = 0
                 AND Deleted = '0'
             ORDER BY Featured DESC, Name ASC
-            ", $user->id()
+            ", $user->id
         );
         return array_map(fn($id) => $this->findById($id), self::$db->collect(0, false));
     }
@@ -168,7 +168,7 @@ class Collage extends \Gazelle\BaseManager {
     }
 
     public function addToArtistCollageDefault(CollageEntry $entry, \Gazelle\User $user): array {
-        $userId  = $user->id();
+        $userId  = $user->id;
         $key     = sprintf(self::CACHE_DEFAULT_ARTIST, $userId);
         $default = self::$cache->get_value($key);
         if ($default === false) {
@@ -226,7 +226,7 @@ class Collage extends \Gazelle\BaseManager {
     }
 
     public function addToCollageDefault(CollageEntry $entry, \Gazelle\User $user): array {
-        $key = sprintf(self::CACHE_DEFAULT_GROUP, $user->id());
+        $key = sprintf(self::CACHE_DEFAULT_GROUP, $user->id);
         $default = self::$cache->get_value($key);
         if ($default === false) {
             // All of their personal collages are in the result
@@ -241,7 +241,7 @@ class Collage extends \Gazelle\BaseManager {
                         SELECT 1 FROM collages_torrents WHERE CollageID = c.ID AND GroupID = ?
                     )
                 ORDER BY c.Updated DESC
-                ", $user->id(), CollageType::personal->value, $entry->id()
+                ", $user->id, CollageType::personal->value, $entry->id()
             );
             $default = self::$db->collect(0, false);
 
@@ -265,7 +265,7 @@ class Collage extends \Gazelle\BaseManager {
                 GROUP BY c.ID
                 ORDER BY max(ca.AddedOn) DESC
                 LIMIT 5
-                ", $user->id(), CollageType::personal->value, $user->id(), $entry->id()
+                ", $user->id, CollageType::personal->value, $user->id, $entry->id()
             );
             $default = array_merge($default, self::$db->collect(0, false));
             self::$cache->cache_value($key, $default, 86400);
@@ -281,12 +281,12 @@ class Collage extends \Gazelle\BaseManager {
     }
 
     public function flushDefaultArtist(\Gazelle\User $user): static {
-        self::$cache->delete_value(sprintf(self::CACHE_DEFAULT_ARTIST, $user->id()));
+        self::$cache->delete_value(sprintf(self::CACHE_DEFAULT_ARTIST, $user->id));
         return $this;
     }
 
     public function flushDefaultGroup(\Gazelle\User $user): static {
-        self::$cache->delete_value(sprintf(self::CACHE_DEFAULT_GROUP, $user->id()));
+        self::$cache->delete_value(sprintf(self::CACHE_DEFAULT_GROUP, $user->id));
         return $this;
     }
 
@@ -340,7 +340,7 @@ class Collage extends \Gazelle\BaseManager {
     public function subscribedTGroupCollageList(\Gazelle\User $user, bool $viewAll, $manager = new TGroup()): array {
         $manager->setViewer($user);
         $cond = ['s.UserID = ?'];
-        $args = [$user->id()];
+        $args = [$user->id];
         if ($viewAll) {
             $groupIds = 'min(ct.GroupID)';
         } else {
@@ -384,7 +384,7 @@ class Collage extends \Gazelle\BaseManager {
         $manager = new Artist(),
     ): array {
         $cond = ['s.UserID = ?'];
-        $args = [$user->id()];
+        $args = [$user->id];
         if ($viewAll) {
             $artistIds = 'min(ca.ArtistID)';
         } else {

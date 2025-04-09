@@ -105,7 +105,7 @@ class ForumPost extends BaseObject {
             INSERT INTO comments_edits
                    (EditUser, PostID, Body, Page)
             VALUES (?,        ?,      (SELECT Body from forums_posts WHERE ID = ?), 'forums')
-            ", $user->id(), $this->id, $this->id
+            ", $user->id, $this->id, $this->id
         );
         self::$db->prepared_query("
             UPDATE forums_posts SET
@@ -113,7 +113,7 @@ class ForumPost extends BaseObject {
                 Body = ?,
                 EditedTime = now()
             WHERE ID = ?
-            ", $user->id(), $body, $this->id
+            ", $user->id, $body, $this->id
         );
         $affected = self::$db->affected_rows();
         self::$db->commit();

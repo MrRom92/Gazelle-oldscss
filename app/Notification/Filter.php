@@ -88,7 +88,7 @@ class Filter extends \Gazelle\Base {
         foreach ($usernames as $username) {
             $user = $userMan->findByUsername($username);
             if ($user && !$user->isParanoid('notifications')) {
-                $this->field['user'][] = $user->id();
+                $this->field['user'][] = $user->id;
             }
         }
         return $this;

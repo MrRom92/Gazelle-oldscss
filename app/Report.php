@@ -109,7 +109,7 @@ class Report extends BaseObject {
     public function resolve(User $user): int {
         $affected = $this
             ->setField('Status', 'Resolved')
-            ->setField('ResolverID', $user->id())
+            ->setField('ResolverID', $user->id)
             ->setFieldNow('ResolvedTime')
             ->modify();
 

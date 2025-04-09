@@ -117,7 +117,7 @@ class UserAuditTrailTest extends TestCase {
         );
         $eventList = $auditTrail->fullEventList();
         $this->assertCount(1, $eventList, 'uat-after-modify');
-        $this->assertEquals($this->user->id(), $eventList[0]['id_user_creator'], 'uat-creator-after-modify');
+        $this->assertEquals($this->user->id, $eventList[0]['id_user_creator'], 'uat-creator-after-modify');
         $this->assertEquals(
             1,
             $auditTrail->modifyEventList([$id1], 'phpunit second rewrite', $this->user),

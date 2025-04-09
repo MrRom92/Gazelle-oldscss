@@ -54,7 +54,7 @@ class CommentTest extends TestCase {
         $this->assertCount(2, $thread, 'comment-artist-thread');
         $this->assertCount(2, $comment->threadList(new Manager\User()), 'comment-artist-threadlist');
         $this->assertEquals(2, $comment->total(), 'comment-artist-total');
-        $this->assertEquals($this->user->id(), $reply->userId(), 'comment-artist-user-id');
+        $this->assertEquals($this->user->id, $reply->userId(), 'comment-artist-user-id');
         $this->assertEquals(0, $comment->handleSubscription($this->user), 'comment-artist-handle-subscription');
 
         $this->assertInstanceOf(
@@ -140,7 +140,7 @@ class CommentTest extends TestCase {
         $this->assertStringStartsWith('phpunit comment ', $comment->body(), 'comment-torrent-body');
         $this->assertTrue(
             $comment->setField('Body', 'phpunit edit')
-                ->setField('EditedUserID', $this->user->id())
+                ->setField('EditedUserID', $this->user->id)
                 ->modify(),
             'comment-torrent-edit'
         );

@@ -13,7 +13,7 @@ class Tag extends \Gazelle\BaseManager {
                    (Name, UserID, TagType, Uses)
             VALUES (?,    ?,      ?,       ?)
             ", $this->resolve($this->sanitize($name)),
-                $user->id(),
+                $user->id,
                 $type,
                 $uses,
         );
@@ -236,7 +236,7 @@ class Tag extends \Gazelle\BaseManager {
                 FROM torrents_tags curr
                 LEFT JOIN torrents_tags merge ON (merge.GroupID = curr.GroupID AND merge.TagID = ?)
                 WHERE curr.TagID = ? AND merge.TagID IS NULL
-            ", $new->id(), $user->id(), $new->id(), $old->id()
+            ", $new->id(), $user->id, $new->id(), $old->id()
         );
         $changed = self::$db->affected_rows();
 
@@ -247,7 +247,7 @@ class Tag extends \Gazelle\BaseManager {
                 FROM artists_tags curr
                 LEFT JOIN artists_tags merge ON (merge.ArtistID = curr.ArtistID AND merge.TagID = ?)
                 WHERE curr.TagID = ? AND merge.TagID IS NULL
-            ', $new->id(), $user->id(), $new->id(), $old->id()
+            ', $new->id(), $user->id, $new->id(), $old->id()
         );
         $changed += self::$db->affected_rows();
 
@@ -526,7 +526,7 @@ class Tag extends \Gazelle\BaseManager {
             GROUP BY tt.TagID
             ORDER BY ((count(tags.Name) - 2) * (sum(tt.PositiveVotes) - sum(tt.NegativeVotes))) / (tags.Uses * 0.8) DESC
             LIMIT 8
-            ", $user->id()
+            ", $user->id
         );
         return self::$db->collect(0, false);
     }

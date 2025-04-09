@@ -65,8 +65,8 @@ class InviteTest extends TestCase {
         $this->assertTrue($manager->inviteExists($invite->key()), 'invite-key-found');
         $this->invitee = \GazelleUnitTest\Helper::makeUserByInvite('invitee.' . randomString(6), $invite->key());
         $this->assertInstanceOf(User::class, $this->invitee, 'invitee-class');
-        $this->assertEquals($this->user->id(), $this->invitee->inviter()->id(), 'invitee-invited-by');
-        $this->assertEquals($this->user->id(), $this->invitee->inviterId(), 'invitee-invited-id');
+        $this->assertEquals($this->user->id, $this->invitee->inviter()->id(), 'invitee-invited-by');
+        $this->assertEquals($this->user->id, $this->invitee->inviterId(), 'invitee-invited-id');
         $this->assertEquals(1, $this->user->stats()->invitedTotal(), 'invite-total-1');
         $this->assertEquals(0, $this->user->flush()->invite()->pendingTotal(), 'invite-pending-back-to-0');
         $inviteList = $this->user->invite()->page('um.ID', 'ASC', 1, 0);
@@ -315,7 +315,7 @@ class InviteTest extends TestCase {
             1,
             array_filter(
                 $inviteSourceMan->summaryByInviter(),
-                fn($s) => $s['user_id'] === $this->user->id()
+                fn($s) => $s['user_id'] === $this->user->id
             ),
             'invite-source-inviter-summary'
         );

@@ -66,7 +66,7 @@ class ApplicantRole extends BaseObject {
     }
 
     public function isStaffViewer(User $user): bool {
-        return in_array($user->id(), $this->viewerList()) || $user->permitted('admin_manage_applicants');
+        return in_array($user->id, $this->viewerList()) || $user->permitted('admin_manage_applicants');
     }
 
     public function isViewable(User $user): bool {
@@ -94,7 +94,7 @@ class ApplicantRole extends BaseObject {
             INSERT INTO applicant
                    (RoleID, UserID, Body, ThreadID)
             VALUES (?,      ?,      ?,    ?)
-            ", $this->id, $user->id(), $body,
+            ", $this->id, $user->id, $body,
                 (new Manager\Thread())->createThread('staff-role')->id()
         );
         (new Manager\Applicant())->flush();

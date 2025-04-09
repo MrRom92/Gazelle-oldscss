@@ -147,7 +147,7 @@ class ReportAuto extends BasePgObject {
                    (id_report_auto, id_user, comment)
             VALUES (?,              ?,       ?)
             RETURNING id_report_auto_comment
-            ", $this->id, $user->id(), $comment
+            ", $this->id, $user->id, $comment
         );
         unset($this->comments);
         return $commentId;
@@ -160,7 +160,7 @@ class ReportAuto extends BasePgObject {
                 resolved = now(),
                 id_owner = ?
             WHERE id_report_auto = ?
-            ", $user->id(), $this->id
+            ", $user->id, $this->id
         );
         $this->flush();
         return $affected;
@@ -168,7 +168,7 @@ class ReportAuto extends BasePgObject {
 
     public function unresolve(User $user): bool {
         return $this
-            ->setField('id_owner', $user->id())
+            ->setField('id_owner', $user->id)
             ->setField('resolved', null)
             ->modify();
     }

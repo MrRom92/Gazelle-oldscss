@@ -14,14 +14,14 @@ class StaffPM extends \Gazelle\BaseManager {
             INSERT INTO staff_pm_conversations
                    (UserID, Level, Subject)
             VALUES (?,      ?,     ?)
-            ", $user->id(), $level, $subject
+            ", $user->id, $level, $subject
         );
         $convId = self::$db->inserted_id();
         self::$db->prepared_query("
             INSERT INTO staff_pm_messages
                    (UserID, Message, ConvID)
             VALUES (?,      ?,       ?)
-            ", $user->id(), $message, $convId
+            ", $user->id, $message, $convId
         );
         self::$db->commit();
         return $this->findById($convId);
@@ -56,7 +56,7 @@ class StaffPM extends \Gazelle\BaseManager {
             FROM staff_pm_conversations
             WHERE UserID = ?
             ORDER BY Status, Date DESC
-            ", $user->id()
+            ", $user->id
         );
         $result = [];
         foreach (self::$db->collect(0, false) as $id) {
@@ -230,7 +230,7 @@ class StaffPM extends \Gazelle\BaseManager {
 
     public function setSearchStatusList(\Gazelle\User $user, array $status): static {
         $this->cond = ['(spc.Level <= ? OR spc.AssignedToUser = ?) AND spc.Status IN (' . placeholders($status) . ')'];
-        $this->args = [$user->privilege()->effectiveClassLevel(), $user->id(), ...$status];
+        $this->args = [$user->privilege()->effectiveClassLevel(), $user->id, ...$status];
         return $this;
     }
 
@@ -289,7 +289,7 @@ class StaffPM extends \Gazelle\BaseManager {
     public function page(\Gazelle\User $user, int $limit, int $offset): array {
         self::$db->prepared_query(
             $this->pageSql(),
-            ...[...$this->args, $user->id(), $limit, $offset]
+            ...[...$this->args, $user->id, $limit, $offset]
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }

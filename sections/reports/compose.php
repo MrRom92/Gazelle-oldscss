@@ -27,7 +27,7 @@ if (!isset($Return)) {
     if (is_null($user)) {
         Error404::error();
     }
-    if ($user->id() === $Viewer->id()) {
+    if ($user->id === $Viewer->id()) {
         Error400::error("You cannot start a conversation with yourself!");
     }
 }

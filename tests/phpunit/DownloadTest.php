@@ -32,7 +32,7 @@ class DownloadTest extends TestCase {
         Helper::removeTGroup($this->torrent->group(), $this->torrent->uploader());
         $db = DB::DB();
         foreach ($this->userList as $user) {
-            $db->scalar("DELETE FROM ratelimit_torrent WHERE user_id = ?", $user->id());
+            $db->scalar("DELETE FROM ratelimit_torrent WHERE user_id = ?", $user->id);
             $user->remove();
         }
     }
@@ -111,7 +111,7 @@ class DownloadTest extends TestCase {
         $db->prepared_query("
             INSERT INTO xbt_snatched (uid, fid, IP, seedtime, tstamp)
             VALUES                   (?,   ?, '127.0.0.1', 1, unix_timestamp(now()))
-            ", $user->id(), $this->torrent->id()
+            ", $user->id, $this->torrent->id()
         );
         $this->assertEquals(1, $this->torrent->expireToken($user), 'redown-expire-token');
         $this->assertFalse($user->flush()->hasToken($this->torrent), 'redown-user-no-more-token');

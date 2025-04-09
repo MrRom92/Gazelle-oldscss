@@ -41,7 +41,7 @@ class Request extends \Gazelle\ArtistRole {
                     INSERT INTO requests_artists
                            (RequestID, UserID, AliasID, artist_role_id, Importance)
                     VALUES (?,         ?,      ?,       ?,              ?)
-                    ", $this->object->id(), $user->id(), $artist->aliasId(), $role, (string)$role
+                    ", $this->object->id(), $user->id, $artist->aliasId(), $role, (string)$role
                 );
                 $affected += self::$db->affected_rows();
                 self::$cache->delete_value("artists_requests_{$artist->id()}");

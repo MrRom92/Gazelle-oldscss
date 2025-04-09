@@ -29,7 +29,7 @@ class Request extends \Gazelle\Base {
     public function setBookmarker(\Gazelle\User $user): static {
         $this->text         = "{$user->username()} › Bookmarked requests";
         $this->title        = "{$user->link()} › Bookmarked requests";
-        $this->bookmarkerId = $user->id();
+        $this->bookmarkerId = $user->id;
         return $this;
     }
 
@@ -52,14 +52,14 @@ class Request extends \Gazelle\Base {
     public function setCreator(\Gazelle\User $user): static {
         $this->text = "{$user->username()} › Requests created";
         $this->title = "{$user->link()} › Requests created";
-        $this->sphinxq->where('userid', $user->id());
+        $this->sphinxq->where('userid', $user->id);
         return $this;
     }
 
     public function setFiller(\Gazelle\User $user): static {
         $this->text = "{$user->username()} › Requests filled";
         $this->title = "{$user->link()} › Requests filled";
-        $this->sphinxq->where('fillerid', $user->id());
+        $this->sphinxq->where('fillerid', $user->id);
         return $this;
     }
 
@@ -225,7 +225,7 @@ class Request extends \Gazelle\Base {
     public function setVoter(\Gazelle\User $user): static {
         $this->text = "{$user->username()} › Requests voted on";
         $this->title = "{$user->link()} › Requests voted on";
-        $this->sphinxq->where('voter', $user->id());
+        $this->sphinxq->where('voter', $user->id);
         return $this;
     }
 

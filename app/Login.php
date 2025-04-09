@@ -57,7 +57,7 @@ class Login extends Base {
         if ($user) {
             $this->watch->clearAttempts();
             $user->toggleAttr('inactive-warning-sent', false);
-            self::$cache->delete_value(sprintf(self::FLOOD_COUNT, $user->id()));
+            self::$cache->delete_value(sprintf(self::FLOOD_COUNT, $user->id));
         } else {
             // we might not have an authenticated user, but still have the id of the username
             $this->watch->increment($this->userId, $this->username);
@@ -111,7 +111,7 @@ class Login extends Base {
             $this->error = self::ERR_CREDENTIALS;
             return null;
         }
-        $this->userId = $user->id();
+        $this->userId = $user->id;
         if (!$user->validatePassword($this->password)) {
             $this->error = self::ERR_CREDENTIALS;
             return null;
@@ -139,7 +139,7 @@ class Login extends Base {
         if (BLOCK_TOR && !$user->permitted('can_use_tor') && (new Manager\Tor())->isExitNode($ipaddr)) {
             $userMan->disableUserList(
                 new Tracker(),
-                [$user->id()],
+                [$user->id],
                 UserAuditEvent::activity,
                 "Logged in via Tor ($ipaddr)",
                 Manager\User::DISABLE_TOR
@@ -152,9 +152,9 @@ class Login extends Base {
                 on conflict (id_user, ip, data_origin) do update set
                     total = ip_history.total + 1,
                     seen = tstzrange(lower(ip_history.seen), now(), '[]')
-                ", $user->id(), $ipaddr
+                ", $user->id, $ipaddr
             );
-            return $userMan->findById($user->id());
+            return $userMan->findById($user->id);
         }
 
         if (!$user->permitted('site_disable_ip_history')) {

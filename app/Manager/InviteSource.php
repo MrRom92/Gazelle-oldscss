@@ -27,7 +27,7 @@ class InviteSource extends \Gazelle\Base {
             FROM invite_source i
             LEFT JOIN inviter_has_invite_source ihis ON (i.invite_source_id = ihis.invite_source_id AND ihis.user_id = ?)
             ORDER BY i.name
-            ", $user->id()
+            ", $user->id
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
@@ -44,7 +44,7 @@ class InviteSource extends \Gazelle\Base {
             FROM invite_source i
             INNER JOIN inviter_has_invite_source ihis ON (i.invite_source_id = ihis.invite_source_id AND ihis.user_id = ?)
             ORDER BY i.name
-            ", $user->id()
+            ", $user->id
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
@@ -56,7 +56,7 @@ class InviteSource extends \Gazelle\Base {
      * been used, it can no longer be removed.
      */
     public function modifyInviterConfiguration(\Gazelle\User $user, array $idList): int {
-        $userId = $user->id();
+        $userId = $user->id;
         $args = [];
         foreach ($idList as $sourceId) {
             array_push($args, $userId, $sourceId);
@@ -134,7 +134,7 @@ class InviteSource extends \Gazelle\Base {
             INSERT INTO user_has_invite_source
                    (user_id, invite_source_id)
             VALUES (?,       ?)
-            ", $user->id(), $sourceId
+            ", $user->id, $sourceId
         );
         return self::$db->affected_rows();
     }
@@ -172,7 +172,7 @@ class InviteSource extends \Gazelle\Base {
             LEFT JOIN user_has_invite_source uhis ON (uhis.user_id = um.ID)
             LEFT JOIN invite_source i USING (invite_source_id)
             WHERE um.inviter_user_id = ?
-            ", $user->id()
+            ", $user->id
         );
         return self::$db->to_array('user_id', MYSQLI_ASSOC, false);
     }
@@ -186,7 +186,7 @@ class InviteSource extends \Gazelle\Base {
             FROM invite_source i
             INNER JOIN user_has_invite_source uhis USING (invite_source_id)
             WHERE uhis.user_id = ?
-            ", $user->id()
+            ", $user->id
         );
         return $name ? (string)$name : null;
     }

@@ -54,10 +54,10 @@ class Bad extends AbstractBetter {
                 FROM xbt_snatched xs
                 WHERE xs.fid = t.ID
                     AND xs.uid = ?)";
-            $this->args[]     = $this->user->id();
+            $this->args[]     = $this->user->id;
         } elseif ($this->filter === 'uploaded') {
             $this->where[]    = 't.UserID = ?';
-            $this->args[]     = $this->user->id();
+            $this->args[]     = $this->user->id;
         }
     }
 }

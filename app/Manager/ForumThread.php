@@ -15,7 +15,7 @@ class ForumThread extends \Gazelle\BaseManager {
             INSERT INTO forums_topics
                    (ForumID, Title, AuthorID, LastPostAuthorID)
             Values (?,       ?,        ?,                ?)
-            ", $forum->id(), $title, $user->id(), $user->id()
+            ", $forum->id(), $title, $user->id, $user->id
         );
         $thread = new \Gazelle\ForumThread(self::$db->inserted_id());
         $thread->addPost($user, $body);

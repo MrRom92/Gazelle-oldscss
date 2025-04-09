@@ -26,7 +26,7 @@ class News extends \Gazelle\Base {
             INSERT INTO news
                    (UserID, Title, Body)
             VALUES (?,      ?,     ?)
-            ", $user->id(), $title, $body
+            ", $user->id, $title, $body
         );
         $id = self::$db->inserted_id();
         self::$cache->delete_multi(['feed_news', self::CACHE_KEY]);

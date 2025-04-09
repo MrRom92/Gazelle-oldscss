@@ -24,7 +24,7 @@ class ApplicantTest extends TestCase {
         foreach ($this->userList as $user) {
             DB::DB()->prepared_query("
                 DELETE FROM thread_note WHERE UserID = ?
-                ", $user->id()
+                ", $user->id
             );
             $user->remove();
         }

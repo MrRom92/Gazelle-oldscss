@@ -170,7 +170,7 @@ class Report extends \Gazelle\BaseObject {
                 Status = 'InProgress',
                 ResolverID = ?
             WHERE ID = ?
-            ", $user->id(), $this->id
+            ", $user->id, $this->id
         );
         $affected = self::$db->affected_rows();
         $this->flush();
@@ -221,7 +221,7 @@ class Report extends \Gazelle\BaseObject {
                 ModComment = ?
             WHERE Status != 'Resolved'
                 AND ID = ?
-            ", $user->id(), $message, $this->id
+            ", $user->id, $message, $this->id
         );
         $affected = self::$db->affected_rows();
         if ($this->torrent) {

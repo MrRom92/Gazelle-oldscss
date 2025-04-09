@@ -21,7 +21,7 @@ class Wiki extends \Gazelle\BaseManager {
             INSERT INTO wiki_articles
                    (Title, Body, MinClassRead, MinClassEdit, Author)
             VALUES (?,     ?,    ?,            ?,            ?)
-            ", $title, trim($body), $minRead, $minEdit, $user->id()
+            ", $title, trim($body), $minRead, $minEdit, $user->id
         );
         $article = new \Gazelle\Wiki(self::$db->inserted_id());
         $article->addAlias($title, $user);

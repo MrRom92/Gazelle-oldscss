@@ -34,7 +34,7 @@ class ForumThread extends \Gazelle\Json {
                     FROM forums_last_read_topics
                     WHERE UserID = ?
                         AND TopicID = ?
-                    ", $this->user->id(), $thread->id()
+                    ", $this->user->id, $thread->id()
                 );
                 if ($lastRead < $lastPost) {
                     self::$db->prepared_query("
@@ -42,7 +42,7 @@ class ForumThread extends \Gazelle\Json {
                                (UserID, TopicID, PostID)
                         VALUES (?,      ?,       ?)
                         ON DUPLICATE KEY UPDATE PostID = ?
-                        ", $this->user->id(), $thread->id(), $lastPostId, $lastPostId
+                        ", $this->user->id, $thread->id(), $lastPostId, $lastPostId
                     );
                 }
             }
@@ -116,7 +116,7 @@ class ForumThread extends \Gazelle\Json {
 
         $subscribed = (new \Gazelle\User\Subscription($this->user))->isSubscribed($thread);
         if ($subscribed) {
-            self::$cache->delete_value("subscriptions_user_new_{$this->user->id()}");
+            self::$cache->delete_value("subscriptions_user_new_{$this->user->id}");
         }
 
         return [

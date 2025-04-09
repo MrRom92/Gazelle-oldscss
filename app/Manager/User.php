@@ -230,7 +230,7 @@ class User extends \Gazelle\BaseManager {
      * List is ordered as parent, grandparent, great-grandparent...
      */
     public function ancestry(\Gazelle\User $user): array {
-        $key = sprintf(self::ANCESTRY_KEY, $user->id());
+        $key = sprintf(self::ANCESTRY_KEY, $user->id);
         $ancestry = self::$cache->get_value($key);
         if ($ancestry === false) {
             self::$db->prepared_query("
@@ -248,7 +248,7 @@ class User extends \Gazelle\BaseManager {
                 SELECT ancestor.user_id
                 FROM ancestor
                 WHERE ancestor.user_id != ? /* exclude self */
-                ", $user->id(), $user->id()
+                ", $user->id, $user->id
             );
             $ancestry = self::$db->collect(0, false);
             self::$cache->cache_value($key, $ancestry, 0);
@@ -656,7 +656,7 @@ class User extends \Gazelle\BaseManager {
                 ]),
             );
         }
-        $seen = [$user->id()];
+        $seen = [$user->id];
 
         self::$db->prepared_query("
             SELECT DISTINCT xfu.uid
@@ -1720,7 +1720,7 @@ class User extends \Gazelle\BaseManager {
             if (is_null($torrent)) {
                 continue;
             }
-            $clear["users_tokens_{$user->id()}"] = true;
+            $clear["users_tokens_{$user->id}"] = true;
             $tracker->removeToken($torrent, $user);
             $processed++;
             self::$db->prepared_query("
@@ -1728,7 +1728,7 @@ class User extends \Gazelle\BaseManager {
                     Expired = TRUE
                 WHERE TorrentID = ?
                     AND UserID = ?
-                ", $torrent->id(), $user->id()
+                ", $torrent->id(), $user->id
             );
         }
         self::$cache->delete_multi(array_keys($clear));

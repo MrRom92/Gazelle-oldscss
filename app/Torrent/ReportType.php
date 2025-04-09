@@ -211,7 +211,7 @@ class ReportType extends \Gazelle\BaseObject {
     }
 
     public function setChangeset(\Gazelle\User $user, array $changeset): static {
-        $this->changeset = [$user->id(), $changeset];
+        $this->changeset = [$user->id, $changeset];
         return $this;
     }
 

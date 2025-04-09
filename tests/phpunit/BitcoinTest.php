@@ -12,20 +12,20 @@ class BitcoinTest extends TestCase {
         $b = new Donate\Bitcoin($zpub, $counter);
 
         $user = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'bitcoin');
-        $addr = $b->address($user->id());
-        $addr2 = $b->address($user->id());
+        $addr = $b->address($user->id);
+        $addr2 = $b->address($user->id);
 
         $this->assertEquals($addr, $addr2, 'bitcoin-deterministic-address');
         $this->assertEquals('bc1qseej7kpuldfjjmedq5ehkpd0jqadxsx4j0zkqk', $addr, 'bitcoin-verify-addr');
 
-        $this->assertEquals($user->id(), $b->findUserIdbyAddress($addr), 'bitcoin-lookup-addr');
-        $this->assertTrue($b->invalidate($user->id()), 'bitcoin-invalidate-success');
-        $this->assertFalse($b->invalidate($user->id()), 'bitcoin-invalidate-fail');
+        $this->assertEquals($user->id, $b->findUserIdbyAddress($addr), 'bitcoin-lookup-addr');
+        $this->assertTrue($b->invalidate($user->id), 'bitcoin-invalidate-success');
+        $this->assertFalse($b->invalidate($user->id), 'bitcoin-invalidate-fail');
         $this->assertNull($b->findUserIdbyAddress($addr), 'bitcoin-lookup-addr-fail');
 
-        $newAddr = $b->address($user->id());
+        $newAddr = $b->address($user->id);
         $this->assertEquals('bc1qxpfasx86cav34eupzkxnjdsx7r9sn2490kepjx', $newAddr, 'bitcoin-verify-addr2');
-        $this->assertTrue($b->invalidate($user->id()), 'bitcoin-invalidate-reinvalidate');
+        $this->assertTrue($b->invalidate($user->id), 'bitcoin-invalidate-reinvalidate');
 
         $user->remove();
     }
@@ -37,9 +37,9 @@ class BitcoinTest extends TestCase {
         $b = new Donate\Bitcoin($xpub, $counter);
 
         $user = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'bitcoinxpub');
-        $addr = $b->address($user->id());
+        $addr = $b->address($user->id);
         $this->assertEquals('1JdkxJzyGgUB9m77GsmRZExxLeizmxtQsq', $addr, 'bitcoin-verify-xpub');
-        $this->assertTrue($b->invalidate($user->id()), 'bitcoin-invalidate-xpub'); // cleanup
+        $this->assertTrue($b->invalidate($user->id), 'bitcoin-invalidate-xpub'); // cleanup
         $user->remove();
     }
 
@@ -50,9 +50,9 @@ class BitcoinTest extends TestCase {
         $b = new Donate\Bitcoin($ypub, $counter);
 
         $user = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'bitcoinypub');
-        $addr = $b->address($user->id());
+        $addr = $b->address($user->id);
         $this->assertEquals('3DYoBqQ5N6dADzyQjy9FT1Ls4amiYVaqTG', $addr, 'bitcoin-verify-ypub');
-        $this->assertTrue($b->invalidate($user->id()), 'bitcoin-invalidate-ypub'); // cleanup
+        $this->assertTrue($b->invalidate($user->id), 'bitcoin-invalidate-ypub'); // cleanup
         $user->remove();
     }
 }

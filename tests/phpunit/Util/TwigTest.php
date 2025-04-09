@@ -161,8 +161,8 @@ END;
 
         Util\Twig::setViewer($this->user);
         $this->assertEquals(
-            "<a href=\"user.php?id={$this->user->id()}\">{$this->user->username()}</a>",
-            self::twig('{{ user_id|user_url }}')->render(['user_id' => $this->user->id()]),
+            "<a href=\"user.php?id={$this->user->id}\">{$this->user->username()}</a>",
+            self::twig('{{ user_id|user_url }}')->render(['user_id' => $this->user->id]),
             'twig-user-url'
         );
         $donor = new User\Donor($this->user);
@@ -173,15 +173,15 @@ END;
             reason: 'phpunit twig reason',
         );
         $this->assertMatchesRegularExpression(
-            "@^<a class=\"username\" href=\"user.php\?id={$this->user->id()}\">{$this->user->username()}</a><a target=\"_blank\" href=\"[^\"]+\"><img class=\"donor_icon tooltip\" src=\"[^\"]+\" (?:alt=\"[^\"]+\" )?(?:title=\"[^\"]+\" )?/></a> \(Sysop\)$@",
-            self::twig('{{ user_id|user_full }}')->render(['user_id' => $this->user->id()]),
+            "@^<a class=\"username\" href=\"user.php\?id={$this->user->id}\">{$this->user->username()}</a><a target=\"_blank\" href=\"[^\"]+\"><img class=\"donor_icon tooltip\" src=\"[^\"]+\" (?:alt=\"[^\"]+\" )?(?:title=\"[^\"]+\" )?/></a> \(Sysop\)$@",
+            self::twig('{{ user_id|user_full }}')->render(['user_id' => $this->user->id]),
             'twig-user-full'
         );
 
         $status = self::twig('{{ user_id|user_status(viewer) }}');
         $this->assertEquals(
             "<a target=\"_blank\" href=\"donate.php\"><img class=\"donor_icon tooltip\" src=\"/static/common/symbols/donor_6.png\" title=\"Donor\" /></a>",
-            $status->render(['user_id' => $this->user->id(), 'viewer' => $this->user]),
+            $status->render(['user_id' => $this->user->id, 'viewer' => $this->user]),
             'twig-user-status'
         );
         $donor->remove();

@@ -12,8 +12,8 @@ class MoneroTest extends TestCase {
         $m = new Donate\Monero($mainAddress);
 
         $user = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'monero');
-        $addr = $m->address($user->id());
-        $addr2 = $m->address($user->id());
+        $addr = $m->address($user->id);
+        $addr2 = $m->address($user->id);
 
         $this->assertEquals($addr, $addr2, 'monero-deterministic-address');
 
@@ -27,10 +27,10 @@ class MoneroTest extends TestCase {
         $decoded = (new \MoneroIntegrations\MoneroPhp\base58())->decode($addr);
         $paymentId = substr($decoded, 64 + 66, 16);
 
-        $this->assertEquals($user->id(), $m->findUserIdbyPaymentId($paymentId), 'monero-lookup-payment-id');
+        $this->assertEquals($user->id, $m->findUserIdbyPaymentId($paymentId), 'monero-lookup-payment-id');
 
-        $this->assertTrue($m->invalidate($user->id()), 'monero-invalidate-success');
-        $this->assertFalse($m->invalidate($user->id()), 'monero-invalidate-fail');
+        $this->assertTrue($m->invalidate($user->id), 'monero-invalidate-success');
+        $this->assertFalse($m->invalidate($user->id), 'monero-invalidate-fail');
 
         $this->assertNull($m->findUserIdbyPaymentId($paymentId), 'monero-lookup-payment-id-fail');
 

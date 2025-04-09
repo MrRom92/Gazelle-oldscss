@@ -212,7 +212,7 @@ class Inbox extends \Gazelle\BaseUser {
             LEFT JOIN pm_conversations_users AS cu2 ON (cu2.ConvID = c.ID AND cu2.UserID != ? AND cu2.ForwardedTo = 0)
             LEFT JOIN users_main AS um ON (um.ID = cu2.UserID)
             $where
-            ", $this->user->id(), $this->user->id(), ...$args
+            ", $this->user->id, $this->user->id, ...$args
         );
     }
 
@@ -230,13 +230,13 @@ class Inbox extends \Gazelle\BaseUser {
             WHERE " . implode(' AND ', $cond) . "
             ORDER BY cu.Sticky, $unreadFirst greatest(cu.ReceivedDate, cu.SentDate) DESC, cu.ConvID DESC
             LIMIT ? OFFSET ?
-            ", $this->user->id(), $this->user->id(), ...$args
+            ", $this->user->id, $this->user->id, ...$args
         );
         return array_map(fn($id) => $pmMan->findById($id), self::$db->collect(0, false));
     }
 
     protected function massFlush(array $ids): void {
-        $userId = $this->user->id();
+        $userId = $this->user->id;
         self::$cache->delete_multi([
             sprintf(self::CACHE_NEW, $userId),
             ...array_map(fn ($id) => sprintf(\Gazelle\PM::CACHE_KEY, $id, $userId), $ids)
@@ -252,7 +252,7 @@ class Inbox extends \Gazelle\BaseUser {
                 UnRead    = '0'
             WHERE UserID = ?
                 AND ConvID IN (" . placeholders($ids) . ")
-            ", $this->user->id(), ...$ids
+            ", $this->user->id, ...$ids
         );
         $this->massFlush($ids);
         return self::$db->affected_rows();
@@ -264,7 +264,7 @@ class Inbox extends \Gazelle\BaseUser {
                 Unread = ?
             WHERE UserID = ?
                 AND ConvID IN (" . placeholders($ids) . ")
-            ", $value, $this->user->id(), ...$ids
+            ", $value, $this->user->id, ...$ids
         );
         $this->massFlush($ids);
         return self::$db->affected_rows();
@@ -284,7 +284,7 @@ class Inbox extends \Gazelle\BaseUser {
                 Sticky = CASE WHEN Sticky = '0' THEN '1' ELSE '0' END
             WHERE UserID = ?
                 AND ConvID IN (" . placeholders($ids) . ")
-            ", $this->user->id(), ...$ids
+            ", $this->user->id, ...$ids
         );
         $this->massFlush($ids);
         return self::$db->affected_rows();

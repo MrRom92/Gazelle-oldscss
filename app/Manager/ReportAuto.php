@@ -29,7 +29,7 @@ class ReportAuto extends \Gazelle\BaseManager {
     }
 
     public function create(\Gazelle\User $user, \Gazelle\ReportAuto\Type $type, array $data, string|null $time = null): \Gazelle\ReportAuto {
-        $args = [$user->id(), $type->id(), json_encode($data)];
+        $args = [$user->id, $type->id(), json_encode($data)];
         if ($time) {
             // time is an iso timestring
             $qryCols = ', created';
@@ -106,7 +106,7 @@ class ReportAuto extends \Gazelle\BaseManager {
         return $this->pg()->prepared_query("
             DELETE FROM report_auto_comment
             WHERE id_report_auto_comment = ? AND id_user = ?
-        ", $commentId, $user->id());
+        ", $commentId, $user->id);
     }
 
     /**
@@ -119,7 +119,7 @@ class ReportAuto extends \Gazelle\BaseManager {
             UPDATE report_auto_comment SET
               comment = ?
             WHERE id_report_auto_comment = ? AND id_user = ?
-        ", $message, $commentId, $user->id());
+        ", $message, $commentId, $user->id);
     }
 
     protected function instantiateReportAuto(int $id, ?int $category): \Gazelle\ReportAuto {

@@ -16,7 +16,7 @@ class Friend extends \Gazelle\BaseUser {
             FROM friends
             WHERE UserID = ?
                 AND FriendID = ?
-            ", $this->user->id(), $friend->id()
+            ", $this->user->id, $friend->id()
         );
     }
 
@@ -27,19 +27,19 @@ class Friend extends \Gazelle\BaseUser {
             INNER JOIN friends b ON (b.UserID = a.FriendID AND b.FriendID = ?)
             WHERE a.UserID = ?
                 AND a.FriendID = ?
-            ", $this->user->id(), $this->user->id(), $friend->id()
+            ", $this->user->id, $this->user->id, $friend->id()
         );
     }
 
     public function add(\Gazelle\User $friend): int {
-        if ($this->user->id() === $friend->id()) {
+        if ($this->user->id === $friend->id()) {
             return -1;
         }
         self::$db->prepared_query("
             INSERT IGNORE INTO friends
                    (UserID, FriendID)
             VALUES (?,      ?)
-            ", $this->user->id(), $friend->id()
+            ", $this->user->id, $friend->id()
         );
         return self::$db->affected_rows();
     }
@@ -50,7 +50,7 @@ class Friend extends \Gazelle\BaseUser {
                 Comment = ?
             WHERE UserID = ?
                 AND FriendID = ?
-            ", $comment, $this->user->id(), $friend->id()
+            ", $comment, $this->user->id, $friend->id()
         );
         return self::$db->affected_rows();
     }
@@ -60,7 +60,7 @@ class Friend extends \Gazelle\BaseUser {
             DELETE FROM friends
             WHERE UserID = ?
                 AND FriendID = ?
-            ", $this->user->id(), $friend->id()
+            ", $this->user->id, $friend->id()
         );
         return self::$db->affected_rows();
     }
@@ -68,7 +68,7 @@ class Friend extends \Gazelle\BaseUser {
     public function total(): int {
         return (int)self::$db->scalar("
             SELECT count(*) FROM friends WHERE UserID = ?
-            ", $this->user->id()
+            ", $this->user->id
         );
     }
 
@@ -83,7 +83,7 @@ class Friend extends \Gazelle\BaseUser {
             WHERE a.UserID = ?
             ORDER BY um.Username
             LIMIT ? OFFSET ?
-            ", $this->user->id(), $this->user->id(), $limit, $offset
+            ", $this->user->id, $this->user->id, $limit, $offset
         );
         $list = self::$db->to_array('id', MYSQLI_ASSOC, false);
         foreach (array_map('intval', array_keys($list)) as $id) {
@@ -100,7 +100,7 @@ class Friend extends \Gazelle\BaseUser {
             INNER JOIN users_main AS u ON (u.ID = f.FriendID)
             WHERE f.UserID = ?
             ORDER BY u.Username ASC
-            ", $this->user->id()
+            ", $this->user->id
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }

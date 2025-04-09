@@ -20,8 +20,8 @@ class StaffPM extends BaseObject {
 
     public function flushUser(User $user): static {
         self::$cache->delete_multi([
-            "num_staff_pms_" . $user->id(),
-            "staff_pm_new_" . $user->id(),
+            "num_staff_pms_" . $user->id,
+            "staff_pm_new_" . $user->id,
         ]);
         return $this;
     }
@@ -152,7 +152,7 @@ class StaffPM extends BaseObject {
             INSERT INTO staff_pm_messages
                    (UserID, Message, ConvID)
             VALUES (?,      ?,       ?)
-            ", $user->id(), $message, $this->id
+            ", $user->id, $message, $this->id
         );
         $affected = self::$db->affected_rows();
         self::$db->prepared_query("
@@ -191,7 +191,7 @@ class StaffPM extends BaseObject {
     }
 
     public function resolve(User $user): int {
-        return $this->modifyStatus($user, 'Resolved', $user->id());
+        return $this->modifyStatus($user, 'Resolved', $user->id);
     }
 
     public function unresolve(User $user): int {

@@ -16,7 +16,7 @@ if (is_null($user)) {
     Error404::error();
 }
 
-$ownProfile = $user->id() === $Viewer->id();
+$ownProfile = $user->id === $Viewer->id();
 $showUnread = $ownProfile && (bool)($_GET['showunread'] ?? false);
 $showGrouped = $ownProfile && (bool)($_GET['group'] ?? false);
 
@@ -45,7 +45,7 @@ echo $Twig->render('user/post-history.twig', [
     'show_unread'   => $showUnread,
     'subscriptions' => (new \Gazelle\User\Subscription($user))->subscriptionList(),
     'title'         => $title,
-    'url_stem'      => 'userhistory.php?action=posts&amp;userid=' . $user->id() . '&amp;',
+    'url_stem'      => 'userhistory.php?action=posts&amp;userid=' . $user->id . '&amp;',
     'user'          => $user,
     'viewer'        => $Viewer,
 ]);

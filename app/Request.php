@@ -218,7 +218,7 @@ class Request extends BaseObject implements CategoryHasArtist {
     }
 
     public function canEditOwn(User $user): bool {
-        return !$this->isFilled() && $user->id() == $this->userId() && $this->userVotedTotal() < 2;
+        return !$this->isFilled() && $user->id == $this->userId() && $this->userVotedTotal() < 2;
     }
 
     public function canEdit(User $user): bool {
@@ -569,7 +569,7 @@ class Request extends BaseObject implements CategoryHasArtist {
                 Uploaded = Uploaded - ?
             WHERE Uploaded - ? >= 0
                 AND UserID = ?
-            ", $amount, $amount, $user->id()
+            ", $amount, $amount, $user->id
         );
         if (self::$db->affected_rows() == 0) {
             // Uploaded would turn negative
@@ -582,7 +582,7 @@ class Request extends BaseObject implements CategoryHasArtist {
             INSERT INTO requests_votes
                    (RequestID, UserID, Bounty)
             VALUES (?,         ?,      ?)
-            ", $this->id(), $user->id(), $bounty
+            ", $this->id(), $user->id, $bounty
         );
         self::$db->prepared_query("
             UPDATE requests SET
@@ -603,7 +603,7 @@ class Request extends BaseObject implements CategoryHasArtist {
             ON DUPLICATE KEY UPDATE
                 request_vote_size = VALUES(request_vote_size),
                 request_vote_total = VALUES(request_vote_total)
-            ", $user->id()
+            ", $user->id
         );
 
         $this->updateSphinx();
@@ -639,14 +639,14 @@ class Request extends BaseObject implements CategoryHasArtist {
                 FillerID = ?,
                 TorrentID = ?
             WHERE ID = ?
-            ", $user->id(), $torrent->id(), $this->id
+            ", $user->id, $torrent->id(), $this->id
         );
         $updated = self::$db->affected_rows();
         $this->updateSphinx();
         (new \SphinxqlQuery())->raw_query(
             sprintf("
                 UPDATE requests, requests_delta SET torrentid = %d, fillerid = %d WHERE id = %d
-                ", $torrent->id(), $user->id(), $this->id
+                ", $torrent->id(), $user->id, $this->id
             ), false
         );
         self::$db->commit();
@@ -741,7 +741,7 @@ class Request extends BaseObject implements CategoryHasArtist {
      * Get the total bounty that a user has added to a request
      */
     public function userBounty(User $user): int {
-        $vote = array_filter($this->userIdVoteList(), fn($r) => $r['user_id'] == $user->id());
+        $vote = array_filter($this->userIdVoteList(), fn($r) => $r['user_id'] == $user->id);
         return count($vote) ? current($vote)['bounty'] : 0;
     }
 
@@ -754,7 +754,7 @@ class Request extends BaseObject implements CategoryHasArtist {
         self::$db->prepared_query("
             DELETE FROM requests_votes
             WHERE RequestID = ? AND UserID = ?
-            ", $this->id, $user->id()
+            ", $this->id, $user->id
         );
         $affected = self::$db->affected_rows();
         if ($affected) {
@@ -769,7 +769,7 @@ class Request extends BaseObject implements CategoryHasArtist {
                 UPDATE users_leech_stats SET
                     Uploaded = Uploaded + ?
                 WHERE UserId = ?
-                ", $bounty, $user->id()
+                ", $bounty, $user->id
             );
             $user->flush();
         }
@@ -786,7 +786,7 @@ class Request extends BaseObject implements CategoryHasArtist {
         self::$db->prepared_query("
             DELETE FROM requests_votes
             WHERE RequestID = ? AND UserID = ?
-            ", $this->id, $user->id()
+            ", $this->id, $user->id
         );
         $affected = self::$db->affected_rows();
         if ($affected) {

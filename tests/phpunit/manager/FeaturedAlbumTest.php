@@ -28,7 +28,7 @@ class FeaturedAlbumTest extends TestCase {
         (new Manager\News())->remove(
             (int)$db->scalar("
                 SELECT ID FROM news WHERE UserID = ?
-                ", $this->user->id()
+                ", $this->user->id
             )
         );
         (new Manager\FeaturedAlbum())->findById($this->tgroup->id())?->remove();

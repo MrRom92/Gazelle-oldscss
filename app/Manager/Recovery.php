@@ -401,7 +401,7 @@ class Recovery extends \Gazelle\Base {
     public function mapToPrevious(\Gazelle\User $user, int $prevUserId, \Gazelle\User $admin): bool {
         self::$db->prepared_query(
             sprintf("INSERT INTO %s.%s (user_id, mapped_id) VALUES (?, ?)", RECOVERY_DB, RECOVERY_MAPPING_TABLE),
-            $prevUserId, $user->id()
+            $prevUserId, $user->id
         );
         if (self::$db->affected_rows() != 1) {
             return false;

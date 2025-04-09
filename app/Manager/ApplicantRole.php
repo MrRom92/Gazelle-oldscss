@@ -11,7 +11,7 @@ class ApplicantRole extends \Gazelle\Base {
             INSERT INTO applicant_role
                    (Title, Description, Published, UserID)
             VALUES (?,     ?,           ?,         ?)
-            ", trim($title), trim($description), (int)$published, $user->id()
+            ", trim($title), trim($description), (int)$published, $user->id
         );
         $id = self::$db->inserted_id();
         $this->flush();

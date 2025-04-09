@@ -58,7 +58,7 @@ abstract class AbstractBetter extends \Gazelle\Base {
             INNER JOIN artists_alias aa ON (ta.AliasID = aa.AliasID)
             INNER JOIN xbt_snatched x ON (x.fid = t.ID AND x.uid = ?)
         ) s ON (s.ArtistID = a.ArtistID)";
-        $this->args[] = $this->user->id();
+        $this->args[] = $this->user->id;
         return $this;
     }
 
@@ -71,7 +71,7 @@ abstract class AbstractBetter extends \Gazelle\Base {
             INNER JOIN artists_alias aa ON (ta.AliasID = aa.AliasID)
             WHERE t.UserID = ?
             ) s ON (s.ArtistID = a.ArtistID)";
-        $this->args[] = $this->user->id();
+        $this->args[] = $this->user->id;
         return $this;
     }
 

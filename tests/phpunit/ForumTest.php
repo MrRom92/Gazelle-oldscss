@@ -302,7 +302,7 @@ class ForumTest extends TestCase {
         $this->assertTrue($this->forum->isAutoSubscribe($user), 'forum-autosub-now-autosub');
         $this->assertEquals(0, $this->forum->toggleAutoSubscribe($user, true), 'forum-autosub-toggle-none');
 
-        $this->assertEquals([$user->id()], $this->forum->autoSubscribeUserIdList(), 'forum-autosub-userlist');
+        $this->assertEquals([$user->id], $this->forum->autoSubscribeUserIdList(), 'forum-autosub-userlist');
         $this->assertEquals([], $this->forum->autoSubscribeForUserList($user), 'forum-autosub-forum-list');
         $user->addCustomPrivilege('site_forum_autosub');
         $this->assertEquals([$this->forum->id()], $this->forum->autoSubscribeForUserList($user), 'forum-autosub-forum-list');

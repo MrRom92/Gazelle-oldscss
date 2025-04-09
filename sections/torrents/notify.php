@@ -22,7 +22,7 @@ if ($Viewer->permitted('users_mod') && (int)($_GET['userid'] ?? 0)) {
 } else {
     $user = $Viewer;
 }
-$UserID = $user->id();
+$UserID = $user->id;
 $ownProfile = $UserID === $Viewer->id();
 
 $imgTag = '<img loading="lazy" src="' . (new User\Stylesheet($Viewer))->imagePath()

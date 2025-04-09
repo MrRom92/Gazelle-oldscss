@@ -134,7 +134,7 @@ abstract class AbstractCollage extends \Gazelle\Base {
                     WHERE ca.CollageID = ?
                 )
             )
-            ", $this->id, $user->id(), $entry->id(), $mult, $this->id
+            ", $this->id, $user->id, $entry->id(), $mult, $this->id
 
         );
         $affected = self::$db->affected_rows();

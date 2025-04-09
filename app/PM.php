@@ -26,7 +26,7 @@ class PM extends Base {
     }
 
     public function flush(): static {
-        self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->id, $this->user->id()));
+        self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->id, $this->user->id));
         unset($this->info);
         return $this;
     }
@@ -35,7 +35,7 @@ class PM extends Base {
         if (isset($this->info)) {
             return $this->info;
         }
-        $key = sprintf(self::CACHE_KEY, $this->id, $this->user->id());
+        $key = sprintf(self::CACHE_KEY, $this->id, $this->user->id);
         $info = self::$cache->get_value($key);
         if ($info === false) {
             $info = self::$db->rowAssoc("
@@ -50,7 +50,7 @@ class PM extends Base {
                 LEFT JOIN pm_conversations_users cu2 ON (cu2.ConvID = c.ID AND cu2.UserID != ?)
                 WHERE c.ID = ?
                     AND cu.UserID = ?
-                ", $this->user->id(), $this->id, $this->user->id()
+                ", $this->user->id, $this->id, $this->user->id
             );
             foreach (['pinned', 'unread'] as $field) {
                 $info[$field] = ($info[$field] == '1');
@@ -72,9 +72,9 @@ class PM extends Base {
                 WHERE cu.ForwardedTo IN (0, cu.UserID)
                     AND cu.ConvID = ?
                     AND cu.UserID != ?
-                ", $this->id, $this->user->id()
+                ", $this->id, $this->user->id
             );
-            $info['recipient_list'] = [$this->user->id(), ...self::$db->collect(0, false)];
+            $info['recipient_list'] = [$this->user->id, ...self::$db->collect(0, false)];
             self::$cache->cache_value($key, $info, 86400);
         }
         $this->info = $info;
@@ -121,8 +121,8 @@ class PM extends Base {
     }
 
     public function isReadable(): bool {
-        return in_array($this->user->id(), $this->info()['sender_list'])
-            || in_array($this->user->id(), $this->recipientList());
+        return in_array($this->user->id, $this->info()['sender_list'])
+            || in_array($this->user->id, $this->recipientList());
     }
 
     public function recipientList(): array {
@@ -146,11 +146,11 @@ class PM extends Base {
                 WHERE UnRead = '1'
                     AND ConvID = ?
                     AND UserID = ?
-                ", $this->id, $this->user->id()
+                ", $this->id, $this->user->id
             );
             $affected = self::$db->affected_rows();
             if ($affected) {
-                self::$cache->decrement("inbox_new_" . $this->user->id());
+                self::$cache->decrement("inbox_new_" . $this->user->id);
                 $this->flush();
             }
         }
@@ -164,11 +164,11 @@ class PM extends Base {
             WHERE Unread = '0'
                 AND ConvID = ?
                 AND UserID = ?
-            ", $this->id, $this->user->id()
+            ", $this->id, $this->user->id
         );
         $affected = self::$db->affected_rows();
         if ($affected > 0) {
-            self::$cache->increment('inbox_new_' . $this->user->id());
+            self::$cache->increment('inbox_new_' . $this->user->id);
             $this->flush();
         }
         return $affected;
@@ -180,7 +180,7 @@ class PM extends Base {
                 Sticky = ?
             WHERE ConvID = ?
                 AND UserID = ?
-            ", $pin ? '1' : '0', $this->id, $this->user->id()
+            ", $pin ? '1' : '0', $this->id, $this->user->id
         );
         $this->flush();
         return self::$db->affected_rows();
@@ -203,7 +203,7 @@ class PM extends Base {
                 ForwardedTo = ?
             WHERE ConvID = ?
                 AND UserID = ?
-            ", $userId, $this->user->id(), $this->id
+            ", $userId, $this->user->id, $this->id
         );
         $affected += self::$db->affected_rows();
         self::$db->commit();
@@ -252,7 +252,7 @@ class PM extends Base {
                 Sticky    = '0'
             WHERE ConvID = ?
                 AND UserID = ?
-            ", $this->id, $this->user->id()
+            ", $this->id, $this->user->id
         );
         $affected = self::$db->affected_rows();
         $this->flush();

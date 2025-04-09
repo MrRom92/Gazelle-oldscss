@@ -65,7 +65,7 @@ class Applicant extends BaseObject {
     }
 
     public function isViewable(User $user): bool {
-        return $this->userId() == $user->id() || $this->role()->isStaffViewer($user);
+        return $this->userId() == $user->id || $this->role()->isStaffViewer($user);
     }
 
     public function thread(): Thread {

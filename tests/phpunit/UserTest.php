@@ -49,7 +49,7 @@ class UserTest extends TestCase {
 
     public function testFindById(): void {
         $userMan = new Manager\User();
-        $user = $userMan->findById($this->user->id());
+        $user = $userMan->findById($this->user->id);
         $this->assertFalse($user->isStaff(), 'user-is-not-admin');
         $this->assertStringStartsWith('user.', $user->username(), 'user-username');
         $this->assertStringEndsWith('@user.example.com', $user->email(), 'user-email');
@@ -57,7 +57,7 @@ class UserTest extends TestCase {
         $this->assertTrue($user->isUnconfirmed(), 'user-is-confirmed');
         $this->assertFalse($user->permittedAny('site_analysis', 'site_debug'), 'utest-permittedAny-site-analysis-site-debug');
 
-        $id       = $this->user->id();
+        $id       = $this->user->id;
         $username = $this->user->username();
         $this->assertEquals(1, $this->user->remove(), 'user-remove');
         $this->assertNull((new Manager\User())->findById($id), 'user-is-removed');
@@ -258,20 +258,20 @@ class UserTest extends TestCase {
         // defeat the avatar cache
         $this->assertTrue($this->modifyAvatarRender(AvatarDisplay::none, AvatarSynthetic::robot1), 'utest-avatar-update-none');
         $this->assertEquals(AvatarDisplay::none, $this->user->avatarMode(), 'utest-has-avatar-none');
-        $new = $userMan->findById($this->user->id());
+        $new = $userMan->findById($this->user->id);
         $this->assertEquals(USER_DEFAULT_AVATAR, $new->avatarComponentList($this->user->flush())['image'], 'utest-avatar-none');
 
         $url = 'https://www.example.com/avatar.jpg';
         $this->assertTrue($this->user->setField('avatar', $url)->modify(), 'utest-avatar-set');
         $this->assertEquals($url, $this->user->avatar(), 'utest-avatar-url');
-        $new = $userMan->findById($this->user->id());
+        $new = $userMan->findById($this->user->id);
         $this->assertEquals(USER_DEFAULT_AVATAR, $new->avatarComponentList($this->user->flush())['image'], 'utest-avatar-override-none');
 
         $this->assertTrue($this->modifyAvatarRender(AvatarDisplay::forceSynthetic, AvatarSynthetic::identicon), 'utest-avatar-update-synthetic-identicon');
         $this->assertEquals(AvatarDisplay::forceSynthetic, $this->user->flush()->avatarMode(), 'utest-clone-avatar-forceSynthetic');
 
         $this->assertTrue($this->modifyAvatarRender(AvatarDisplay::show, AvatarSynthetic::robot1), 'utest-avatar-update-show');
-        $new = $userMan->findById($this->user->id());
+        $new = $userMan->findById($this->user->id);
         $this->assertEquals('https://www.example.com/avatar.jpg', $new->avatarComponentList($this->user->flush())['image'], 'utest-avatar-show');
     }
 
@@ -466,7 +466,7 @@ class UserTest extends TestCase {
         $this->user->setField('Enabled', UserStatus::enabled->value)->modify();
         $db->prepared_query("
             INSERT INTO user_last_access (user_id, last_access) VALUES (?, now() - INTERVAL ? DAY)
-            ", $this->user->id(), INACTIVE_USER_WARN_DAYS + 1
+            ", $this->user->id, INACTIVE_USER_WARN_DAYS + 1
         );
         $this->user->flush();
         $this->assertEquals(1, $userMan->inactiveUserWarn(new Util\Mail()), 'utest-one-user-inactive-warned');
@@ -474,7 +474,7 @@ class UserTest extends TestCase {
 
         $db->prepared_query("
             UPDATE user_last_access SET last_access = now() - INTERVAL ? DAY WHERE user_id = ?
-            ", INACTIVE_USER_DEACTIVATE_DAYS + 1, $this->user->id()
+            ", INACTIVE_USER_DEACTIVATE_DAYS + 1, $this->user->id
         );
         $this->assertEquals(1, $userMan->inactiveUserDeactivate(new Tracker()), 'utest-one-user-inactive-deactivated');
         $this->user->flush();

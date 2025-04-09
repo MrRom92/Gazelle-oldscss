@@ -40,7 +40,7 @@ class UserCreateTest extends TestCase {
             'user-create-stylesheet'
         );
 
-        $location = "user.php?id={$this->user->id()}";
+        $location = "user.php?id={$this->user->id}";
         $this->assertEquals($location, $this->user->location(), 'user-location');
         $this->assertEquals(SITE_URL . "/$location", $this->user->publicLocation(), 'user-public-location');
         $this->assertEquals($location, $this->user->url(), 'user-url');

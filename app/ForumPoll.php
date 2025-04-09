@@ -190,7 +190,7 @@ class ForumPoll extends BaseObject {
             INSERT IGNORE INTO forums_polls_votes
                    (TopicID, UserID, Vote)
             VALUES (?,       ?,      ?)
-            ", $this->id, $user->id(), $vote
+            ", $this->id, $user->id, $vote
         );
         $affected = self::$db->affected_rows();
         $this->flush();
@@ -203,7 +203,7 @@ class ForumPoll extends BaseObject {
                 Vote = ?
             WHERE TopicID = ?
                 AND UserID = ?
-            ", $vote, $this->id, $user->id()
+            ", $vote, $this->id, $user->id
         );
         $affected = self::$db->affected_rows();
         $this->flush();
@@ -216,7 +216,7 @@ class ForumPoll extends BaseObject {
             FROM forums_polls_votes
             WHERE UserID = ?
                 AND TopicID = ?
-            ", $user->id(), $this->id
+            ", $user->id, $this->id
         );
         return $vote ? (int)$vote : null;
     }
