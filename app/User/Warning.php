@@ -26,7 +26,7 @@ class Warning extends \Gazelle\BaseUser {
                 coalesce((select warning_end from cte), now()) + ?::interval
             ))
             returning to_char(upper(warning), 'YYYY-MM-DD HH24:MI')
-            ", $this->id(), $this->id(), $warner->id(), $reason, $interval
+            ", $this->user->id, $this->user->id, $warner->id, $reason, $interval
         );
         $this->user()->auditTrail()->addEvent(
             \Gazelle\Enum\UserAuditEvent::warning,
@@ -43,7 +43,7 @@ class Warning extends \Gazelle\BaseUser {
                 from user_warning
                 where now() < upper(warning)
                     and id_user = ?
-                ", $this->id()
+                ", $this->user->id
             );
             $this->info = ['expiry' => is_null($expiry) ? null : (string)$expiry];
         }
@@ -72,7 +72,7 @@ class Warning extends \Gazelle\BaseUser {
             from user_warning
             where id_user = ?
             order by id_user_warning
-            ", $this->id()
+            ", $this->user->id
         );
     }
 
@@ -85,7 +85,7 @@ class Warning extends \Gazelle\BaseUser {
                 warning = NULL
             where upper(warning) > now()
                 and id_user = ?       
-            ", $this->id()
+            ", $this->user->id
         );
         $this->flush();
         return $affected;

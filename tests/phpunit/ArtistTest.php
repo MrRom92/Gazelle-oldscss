@@ -47,26 +47,26 @@ class ArtistTest extends TestCase {
         $this->assertNull($manager->findById(-666), 'artist-find-fail');
 
         $artist = $manager->create('phpunit.' . randomString(12));
-        $this->artistIdList[] = $artist->id();
+        $this->artistIdList[] = $artist->id;
 
         (DB::DB())->prepared_query("
             INSERT INTO artist_usage
                    (artist_id, role, uses)
             VALUES (?,         ?,    ?)
-            ", $artist->id(), '1', RANDOM_ARTIST_MIN_ENTRIES
+            ", $artist->id, '1', RANDOM_ARTIST_MIN_ENTRIES
         );
         // If the following test fails locally:
         // before test run: TRUNCATE TABLE artist_usage;
         // after test run: (new Stats\Artists)->updateUsage();
-        $this->assertEquals($artist->id(), $manager->findRandom()->id(), 'artist-find-random');
-        $this->assertNull($manager->findByIdAndRevision($artist->id(), -666), 'artist-find-revision-fail');
+        $this->assertEquals($artist->id, $manager->findRandom()->id, 'artist-find-random');
+        $this->assertNull($manager->findByIdAndRevision($artist->id, -666), 'artist-find-revision-fail');
 
-        $this->assertGreaterThan(0, $artist->id(), 'artist-create-artist-id');
+        $this->assertGreaterThan(0, $artist->id, 'artist-create-artist-id');
         $this->assertGreaterThan(0, $artist->aliasId(), 'artist-create-alias-id');
-        $artist = $manager->findById($artist->id());
+        $artist = $manager->findById($artist->id);
         $this->assertInstanceOf(Artist::class, $artist, 'artist-is-an-artist');
 
-        $this->assertNull($manager->findByIdAndRevision($artist->id(), -1), 'artist-is-an-unrevised-artist');
+        $this->assertNull($manager->findByIdAndRevision($artist->id, -1), 'artist-is-an-unrevised-artist');
         // empty, but at least it tests the SQL
         $this->assertCount(0, $artist->tagLeaderboard(), 'artist-tag-leaderboard');
     }
@@ -74,10 +74,10 @@ class ArtistTest extends TestCase {
     public function testArtistInfo(): void {
         $manager = new Manager\Artist();
         $artist = $manager->create('phpunit.' . randomString(12));
-        $this->artistIdList[] = $artist->id();
+        $this->artistIdList[] = $artist->id;
 
-        $this->assertEquals("<a href=\"artist.php?id={$artist->id()}\">{$artist->name()}</a>", $artist->link(), 'artist-link');
-        $this->assertEquals("artist.php?id={$artist->id()}", $artist->location(), 'artist-location');
+        $this->assertEquals("<a href=\"artist.php?id={$artist->id}\">{$artist->name()}</a>", $artist->link(), 'artist-link');
+        $this->assertEquals("artist.php?id={$artist->id}", $artist->location(), 'artist-location');
         $this->assertNull($artist->body(), 'artist-body-null');
         $this->assertNull($artist->image(), 'artist-image-null');
         $this->assertFalse($artist->isLocked(), 'artist-is-unlocked');
@@ -88,7 +88,7 @@ class ArtistTest extends TestCase {
     public function testArtistRevision(): void {
         $manager = new Manager\Artist();
         $artist = $manager->create('phpunit.' . randomString(12));
-        $this->artistIdList[] = $artist->id();
+        $this->artistIdList[] = $artist->id;
 
         $revision = $artist->createRevision(
             body:    'phpunit body test',
@@ -108,11 +108,11 @@ class ArtistTest extends TestCase {
         $this->assertEquals($revision + 1, $rev2, 'artist-revision-2');
         $this->assertEquals('https://example.com/artist-revised.jpg', $artist->image(), 'artist-image-revised');
 
-        $artistV1 = $manager->findByIdAndRevision($artist->id(), $revision);
+        $artistV1 = $manager->findByIdAndRevision($artist->id, $revision);
         $this->assertNotNull($artistV1, 'artist-revision-1-found');
         $this->assertEquals('phpunit body test', $artistV1->body(), 'artist-body-rev-1');
 
-        $artistV2 = $manager->findByIdAndRevision($artist->id(), $rev2);
+        $artistV2 = $manager->findByIdAndRevision($artist->id, $rev2);
         $this->assertEquals('https://example.com/artist-revised.jpg', $artistV2->image(), 'artist-image-rev-2');
 
         $list = $artist->revisionList();
@@ -127,10 +127,10 @@ class ArtistTest extends TestCase {
     public function testArtistAlias(): void {
         $manager = new Manager\Artist();
         $artist = $manager->create('phpunit.' . randomString(12));
-        $this->artistIdList[] = $artist->id();
+        $this->artistIdList[] = $artist->id;
 
-        $this->assertEquals($artist->id(), $artist->id(), 'artist-find-by-alias-id');
-        $this->assertEquals($artist->id(), $manager->findByName($artist->name())->id(), 'artist-find-by-alias-name');
+        $this->assertEquals($artist->id, $artist->id, 'artist-find-by-alias-id');
+        $this->assertEquals($artist->id, $manager->findByName($artist->name())->id, 'artist-find-by-alias-name');
         $this->assertEquals($artist->aliasId(), $manager->findByName($artist->name())->aliasId(), 'artist-find-aliasid-by-alias-name');
         $this->assertEquals(1, $manager->aliasUseTotal($artist->aliasId()), 'artist-sole-alias');
         $this->assertCount(0, $manager->tgroupList($artist->aliasId(), new Manager\TGroup()), 'artist-no-tgroup');
@@ -141,7 +141,7 @@ class ArtistTest extends TestCase {
         $this->assertEquals(2, $manager->aliasUseTotal($artist->aliasId()), 'artist-two-alias');
 
         $artist = $manager->findByName($aliasName);
-        $this->assertEquals($artist->id(), $artist->id(), 'artist-fetch-artist-id');
+        $this->assertEquals($artist->id, $artist->id, 'artist-fetch-artist-id');
         $this->assertEquals($newId, $artist->aliasId(), 'artist-fetch-alias-id');
 
         $this->assertEquals(1, $artist->removeAlias($newId), 'artist-remove-alias');
@@ -150,10 +150,10 @@ class ArtistTest extends TestCase {
     public function testArtistNonRedirAlias(): void {
         $manager = new Manager\Artist();
         $artist = $manager->create('phpunit.' . randomString(12));
-        $this->artistIdList[] = $artist->id();
+        $this->artistIdList[] = $artist->id;
 
         $aliasName = $artist->name() . '-reformed';
-        $newId = $artist->addAlias($aliasName, $artist->id(), $this->user);
+        $newId = $artist->addAlias($aliasName, $artist->id, $this->user);
         $this->assertEquals($artist->aliasId() + 1, $newId, 'artist-new-non-redirect');
     }
 
@@ -162,25 +162,25 @@ class ArtistTest extends TestCase {
         $oldName = 'phpunit.artist.' . randomString(12);
         $old = $manager->create($oldName);
         $oldAliasId = $old->aliasId();
-        $this->artistIdList[] = $old->id();
+        $this->artistIdList[] = $old->id;
 
         $newName = 'phpunit.artist.' . randomString(12);
         $new = $manager->create($newName);
-        $this->artistIdList[] = $new->id();
+        $this->artistIdList[] = $new->id;
 
         $userBk = new User\Bookmark($this->user);
-        $userBk->create('artist', $old->id());
+        $userBk->create('artist', $old->id);
 
         $commentMan = new Manager\Comment();
         $postList = [
-            $commentMan->create($this->user, 'artist', $old->id(), 'phpunit merge ' . randomString(6)),
-            $commentMan->create($this->user, 'artist', $new->id(), 'phpunit merge ' . randomString(6)),
+            $commentMan->create($this->user, 'artist', $old->id, 'phpunit merge ' . randomString(6)),
+            $commentMan->create($this->user, 'artist', $new->id, 'phpunit merge ' . randomString(6)),
         ];
 
         $this->extra = Helper::makeUser('merge.' . randomString(10), 'merge');
         $extraBk = new User\Bookmark($this->extra);
-        $extraBk->create('artist', $old->id());
-        $extraBk->create('artist', $new->id());
+        $extraBk->create('artist', $old->id);
+        $extraBk->create('artist', $new->id);
 
         $collMan = new Manager\Collage();
         $this->collage = $collMan->create(
@@ -220,19 +220,19 @@ class ArtistTest extends TestCase {
             ),
             'artist-merge-n',
         );
-        $this->assertNull($manager->findById($old->id()), 'art-merge-no-old');
-        $this->assertTrue($userBk->isArtistBookmarked($new->id()), 'art-merge-user-bookmarked-new');
-        $this->assertTrue($extraBk->isArtistBookmarked($new->id()), 'art-merge-extra-bookmarked-new');
+        $this->assertNull($manager->findById($old->id), 'art-merge-no-old');
+        $this->assertTrue($userBk->isArtistBookmarked($new->id), 'art-merge-user-bookmarked-new');
+        $this->assertTrue($extraBk->isArtistBookmarked($new->id), 'art-merge-extra-bookmarked-new');
         $this->assertCount(1, $extraBk->artistList(), 'art-merge-extra-bookmarked-list');
 
         // FIXME: flushed collage objects cannot be refreshed
-        $merged = $collMan->findById($this->collage->id());
-        $this->assertEquals([$new->id()], $merged->entryList(), 'art-merge-collage');
+        $merged = $collMan->findById($this->collage->id);
+        $this->assertEquals([$new->id], $merged->entryList(), 'art-merge-collage');
 
-        $comment = new Comment\Artist($new->id(), 1, 0);
+        $comment = new Comment\Artist($new->id, 1, 0);
         $comment->load(); // FIXME: load() should not be necessary
         $this->assertEquals(
-            [$postList[0]->id(), $postList[1]->id()],
+            [$postList[0]->id, $postList[1]->id],
             array_map(fn($p) => $p['ID'], $comment->thread()),
             'art-merge-comments'
         );
@@ -242,7 +242,7 @@ class ArtistTest extends TestCase {
             ++$n;
             $artistRole = $tgroup->flush()->artistRole();
             $this->assertEquals(
-                [ARTIST_MAIN => [['id' => $new->id(), 'name' => $oldName, 'aliasid' => $oldAliasId]]],
+                [ARTIST_MAIN => [['id' => $new->id, 'name' => $oldName, 'aliasid' => $oldAliasId]]],
                 $artistRole->idList(),
                 "art-merge-ar-$n"
             );
@@ -252,7 +252,7 @@ class ArtistTest extends TestCase {
     public function testArtistModify(): void {
         $manager = new Manager\Artist();
         $artist = $manager->create('phpunit.' . randomString(12));
-        $this->artistIdList[] = $artist->id();
+        $this->artistIdList[] = $artist->id;
 
         $this->assertTrue(
             $artist->setField('body', 'body modification')->setUpdateUser($this->user)->modify(),
@@ -278,7 +278,7 @@ class ArtistTest extends TestCase {
     public function testArtistRename(): void {
         $manager = new Manager\Artist();
         $artist = $manager->create('phpunit.' . randomString(12));
-        $this->artistIdList[] = $artist->id();
+        $this->artistIdList[] = $artist->id;
 
         $oldName = $artist->name();
         $rename = $artist->name() . '-rename';
@@ -296,10 +296,10 @@ class ArtistTest extends TestCase {
     public function testArtistRenamePrimary(): void {
         $manager = new Manager\Artist();
         $artist = $manager->create('phpunit.' . randomString(12));
-        $this->artistIdList[] = $artist->id();
+        $this->artistIdList[] = $artist->id;
 
         $commentMan = new Manager\Comment();
-        $post = $commentMan->create($this->user, 'artist', $artist->id(), 'phpunit smart rename ' . randomString(6));
+        $post = $commentMan->create($this->user, 'artist', $artist->id, 'phpunit smart rename ' . randomString(6));
 
         $requestMan = new Manager\Request();
         $request = $requestMan->create(
@@ -345,20 +345,20 @@ class ArtistTest extends TestCase {
         );
         $this->assertEquals($name, $artist->name(), 'artist-is-smart-renamed');
 
-        $commentPage = new Comment\Artist($artist->id(), 1, 0);
+        $commentPage = new Comment\Artist($artist->id, 1, 0);
         $commentPage->load();
         $threadList = $commentPage->threadList(new Manager\User());
         $this->assertCount(1, $threadList, 'artist-renamed-comments');
-        $this->assertEquals($post->id(), $threadList[0]['postId'], 'artist-renamed-comments');
+        $this->assertEquals($post->id, $threadList[0]['postId'], 'artist-renamed-comments');
 
         $request->flush();
         $idList = $request->artistRole()->idList();
-        $this->assertEquals($artist->id(), $idList[ARTIST_MAIN][0]['id'], 'artist-renamed-request');
+        $this->assertEquals($artist->id, $idList[ARTIST_MAIN][0]['id'], 'artist-renamed-request');
         $request->remove();
 
         $this->tgroupList[0]->flush();
         $idList = $this->tgroupList[0]->artistRole()->idList();
-        $this->assertEquals($artist->id(), $idList[ARTIST_MAIN][0]['id'], 'artist-renamed-tgroup');
+        $this->assertEquals($artist->id, $idList[ARTIST_MAIN][0]['id'], 'artist-renamed-tgroup');
     }
 
     public function testRenameAliasCapchange(): void {
@@ -430,14 +430,14 @@ class ArtistTest extends TestCase {
     public function testArtistSimilar(): void {
         $manager = new Manager\Artist();
         $artist = $manager->create('phpunit.artsim.' . randomString(12));
-        $this->artistIdList[] = $artist->id();
+        $this->artistIdList[] = $artist->id;
         $this->extra = Helper::makeUser('art2.' . randomString(10), 'artist');
 
         $other1 = $manager->create('phpunit.other1.' . randomString(12));
         $other2 = $manager->create('phpunit.other2.' . randomString(12));
 
-        $this->artistIdList[] = $other1->id();
-        $this->artistIdList[] = $other2->id();
+        $this->artistIdList[] = $other1->id;
+        $this->artistIdList[] = $other2->id;
 
         $this->assertFalse($artist->similar()->voteSimilar($this->extra, $artist, true), 'artist-vote-self');
 
@@ -453,13 +453,13 @@ class ArtistTest extends TestCase {
         $this->assertEquals(
             [
                 [
-                    'artist_id'  => $other1->id(),
+                    'artist_id'  => $other1->id,
                     'name'       => $other1->name(),
                     'score'      => 300,
                     'similar_id' => $artist->similar()->findSimilarId($other1),
                 ],
                 [
-                    'artist_id'  => $other2->id(),
+                    'artist_id'  => $other2->id,
                     'name'       => $other2->name(),
                     'score'      => 200,
                     'similar_id' => $artist->similar()->findSimilarId($other2),
@@ -472,12 +472,12 @@ class ArtistTest extends TestCase {
         $graph = $artist->similar()->similarGraph(100, 100);
         $this->assertCount(2, $graph, 'artist-similar-count');
         $this->assertEquals(
-            [$other1->id(), $other2->id()],
+            [$other1->id, $other2->id],
             array_values(array_map(fn($sim) => $sim['artist_id'], $graph)),
             'artist-similar-id-list'
         );
-        $this->assertEquals($other2->id(), $graph[$other1->id()]['related'][0], 'artist-sim-related');
-        $this->assertLessThan($graph[$other1->id()]['proportion'], $graph[$other2->id()]['proportion'], 'artist-sim-proportion');
+        $this->assertEquals($other2->id, $graph[$other1->id]['related'][0], 'artist-sim-related');
+        $this->assertLessThan($graph[$other1->id]['proportion'], $graph[$other2->id]['proportion'], 'artist-sim-proportion');
 
         $requestMan = new Manager\Request();
         $this->assertFalse($artist->similar()->removeSimilar($artist, $this->extra), 'artist-remove-similar-self');
@@ -488,7 +488,7 @@ class ArtistTest extends TestCase {
     public function testArtistJson(): void {
         $manager = new Manager\Artist();
         $artist = $manager->create('phpunit.' . randomString(12));
-        $this->artistIdList[] = $artist->id();
+        $this->artistIdList[] = $artist->id;
 
         $json = (new Json\Artist(
             $artist,
@@ -507,7 +507,7 @@ class ArtistTest extends TestCase {
             array_keys($payload),
             'artist-json-payload'
         );
-        $this->assertEquals($artist->id(), $payload['id'], 'artist-payload-id');
+        $this->assertEquals($artist->id, $payload['id'], 'artist-payload-id');
         $this->assertEquals($artist->name(), $payload['name'], 'artist-payload-name');
         $this->assertCount(0, $payload['tags'], 'artist-payload-tags');
         $this->assertCount(0, $payload['similarArtists'], 'artist-payload-similar-artists');
@@ -525,7 +525,7 @@ class ArtistTest extends TestCase {
                 $composer = $name;
             }
             $artist = $manager->create($name);
-            $this->artistIdList[] = $artist->id();
+            $this->artistIdList[] = $artist->id;
             $tgroup = Helper::makeTGroupMusic(
                 $this->user,
                 'phpunit artist autocomp ' . randomString(10),
@@ -552,13 +552,13 @@ class ArtistTest extends TestCase {
         $name = 'phpunit.' . randomString(12);
         $manager = new Manager\Artist();
         $artist = $manager->create($name);
-        $this->artistIdList[] = $artist->id();
+        $this->artistIdList[] = $artist->id;
 
-        (new User\Bookmark($this->user))->create('artist', $artist->id());
+        (new User\Bookmark($this->user))->create('artist', $artist->id);
         $json = new Json\Bookmark\Artist(new User\Bookmark($this->user));
         $this->assertEquals(
             [[
-                'artistId'   => $artist->id(),
+                'artistId'   => $artist->id,
                 'artistName' => $name,
             ]],
             $json->payload(),
@@ -569,7 +569,7 @@ class ArtistTest extends TestCase {
     public function testArtistDiscogs(): void {
         $manager = new Manager\Artist();
         $artist = $manager->create('phpunit.' . randomString(12));
-        $this->artistIdList[] = $artist->id();
+        $this->artistIdList[] = $artist->id;
 
         $id = -100000 + random_int(1, 100000);
         $discogs = new Util\Discogs(

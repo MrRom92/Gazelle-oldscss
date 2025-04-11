@@ -16,7 +16,7 @@ class AuditTrail extends \Gazelle\BaseUser {
                    (id_user, event, note, id_user_creator)
             values (?,       ?,     ?,    ?)
             returning id_user_audit_trail
-            ", $this->id(), $event->value, $note, $creator?->id()
+            ", $this->user->id, $event->value, $note, $creator?->id
         );
     }
 
@@ -44,7 +44,7 @@ class AuditTrail extends \Gazelle\BaseUser {
                    (id_user, event, note, created, id_user_creator)
             values (?,       ?,     ?,    ?,       ?)
             returning id_user_audit_trail
-            ", $this->id(), $event->value, $note, $date, (int)$creator?->id()
+            ", $this->user->id, $event->value, $note, $date, (int)$creator?->id
         );
     }
 
@@ -54,7 +54,7 @@ class AuditTrail extends \Gazelle\BaseUser {
             from user_audit_trail
             where id_user = ?
                 and event = ?
-            ", $this->id(), $event->value
+            ", $this->user->id, $event->value
         );
     }
 
@@ -69,7 +69,7 @@ class AuditTrail extends \Gazelle\BaseUser {
             where id_user = ?
                 and id_user_audit_trail in (" . placeholders($idList) . ")
             order by {$order->value}
-            ", $this->id(), ...$idList
+            ", $this->user->id, ...$idList
         );
     }
 
@@ -83,7 +83,7 @@ class AuditTrail extends \Gazelle\BaseUser {
             from user_audit_trail
             where id_user = ?
             order by {$order->value}
-            ", $this->id()
+            ", $this->user->id
         );
     }
 
@@ -97,7 +97,7 @@ class AuditTrail extends \Gazelle\BaseUser {
             where id_user = ?
             order by id_user_audit_trail desc
             limit 1
-            ", $this->id()
+            ", $this->user->id
         );
     }
 
@@ -141,14 +141,14 @@ class AuditTrail extends \Gazelle\BaseUser {
             delete from user_audit_trail
             where id_user_audit_trail = ?
                 and id_user = ?
-            ", $eventId, $this->id()
+            ", $eventId, $this->user->id
         );
     }
 
     public function resetAuditTrail(): int {
         return $this->pg()->prepared_query("
             delete from user_audit_trail where id_user = ?
-            ", $this->id()
+            ", $this->user->id
         );
     }
 

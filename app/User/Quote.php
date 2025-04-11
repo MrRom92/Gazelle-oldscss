@@ -14,7 +14,7 @@ class Quote extends \Gazelle\BaseUser {
     protected bool $showAll = false;
 
     public function flush(): static {
-        self::$cache->delete_value(sprintf(self::UNREAD_QUOTE_KEY, $this->id()));
+        self::$cache->delete_value(sprintf(self::UNREAD_QUOTE_KEY, $this->user->id));
         return $this;
     }
 
@@ -30,12 +30,12 @@ class Quote extends \Gazelle\BaseUser {
             INSERT IGNORE INTO users_notify_quoted
                    (UserID, Page, PageID, QuoterID, PostID)
             VALUES (?,      ?,    ?,      ?,        ?)
-            ', $this->id(), $page, $pageId, $quoter->id(), $postId
+            ', $this->user->id, $page, $pageId, $quoter->id, $postId
         );
         $affected = self::$db->affected_rows();
 
         $notifMan->push(
-            $notifMan->pushableTokensById([$this->id()], NotificationType::INBOX),
+            $notifMan->pushableTokensById([$this->user->id], NotificationType::INBOX),
             "{$quoter->username()} quoted you on the forum",
             "",
             SITE_URL . '/' . $postMan->findById($postId)->location()
@@ -66,7 +66,7 @@ class Quote extends \Gazelle\BaseUser {
                 UnRead = false
             WHERE Unread = true
                 AND UserID = ?
-            ", $this->id()
+            ", $this->user->id
         );
         $this->flush();
         return self::$db->affected_rows();
@@ -83,7 +83,7 @@ class Quote extends \Gazelle\BaseUser {
                 AND UserID = ?
                 AND PageID = ?
                 AND PostID BETWEEN ? AND ?
-            ", $this->id(), $thread->id(), $firstPost, $lastPost
+            ", $this->user->id, $thread->id, $firstPost, $lastPost
         );
         $this->flush();
         return self::$db->affected_rows();
@@ -125,7 +125,7 @@ class Quote extends \Gazelle\BaseUser {
             "(q.Page != 'forums' OR " . join(' AND ', $forumCond) . ")",
         ];
         $args = array_merge(
-            [$this->id()],
+            [$this->user->id],
             $forumArgs,
         );
 
@@ -264,12 +264,12 @@ class Quote extends \Gazelle\BaseUser {
      * @return int Number of unread quote notifications
      */
     public function unreadTotal(): int {
-        $key = sprintf(self::UNREAD_QUOTE_KEY, $this->id());
+        $key = sprintf(self::UNREAD_QUOTE_KEY, $this->user->id);
         $total = self::$cache->get_value($key);
         if ($total === false) {
             $forMan = new \Gazelle\Manager\Forum();
-            [$cond, $args] = $forMan->configureForUser(new \Gazelle\User($this->id()));
-            $args[] = $this->id(); // for q.UserID
+            [$cond, $args] = $forMan->configureForUser(new \Gazelle\User($this->user->id));
+            $args[] = $this->user->id; // for q.UserID
             $total = (int)self::$db->scalar("
                 SELECT count(*)
                 FROM users_notify_quoted AS q

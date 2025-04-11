@@ -174,7 +174,7 @@ class AutoEnable extends \Gazelle\BaseUser {
                 CheckedBy = ?,
                 Outcome = ?
             WHERE ID = ?
-            ", $viewer->id(), $status, $this->id
+            ", $viewer->id, $status, $this->id
         );
         self::$cache->delete_value(self::CACHE_TOTAL_OPEN);
         return self::$db->affected_rows();

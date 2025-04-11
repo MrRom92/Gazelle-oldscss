@@ -88,7 +88,7 @@ class InviteTree extends \Gazelle\BaseUser {
             )
             WHERE r.user_id != ?
             ORDER BY path
-            ", $width, $this->id(), $width, $this->id()
+            ", $width, $this->user->id, $width, $this->user->id
         );
         $userclassMap = []; // how many people per userclass
         $userlevelMap = []; // sort userclasses by level rather than name

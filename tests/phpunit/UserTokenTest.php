@@ -25,11 +25,10 @@ class UserTokenTest extends TestCase {
         $manager = new Manager\UserToken();
         $userToken = $manager->create(UserTokenType::password, $this->user);
         $this->assertTrue(Helper::recentDate($userToken->expiry()), 'usertoken-expiry');
-
-        $this->assertInstanceOf(User\Token::class, $manager->findById($userToken->id()), 'usertoken-find-by-id');
+        $this->assertInstanceOf(User\Token::class, $manager->findById($userToken->tokenId), 'usertoken-find-by-id');
         $this->assertInstanceOf(User\Token::class, $manager->findByToken($userToken->value()), 'usertoken-find-by-token');
         $this->assertEquals(UserTokenType::password, $userToken->type(), 'usertoken-type');
-        $this->assertTrue($userToken->isValid(), 'usertoken-create');
+        $this->assertTrue($userToken->isValid(), 'usertoken-valid');
 
         $this->assertTrue($userToken->consume(), 'usertoken-consume');
         Helper::sleepTick();

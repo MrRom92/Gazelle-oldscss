@@ -22,10 +22,10 @@ class Blog extends AbstractNotification {
         // You must be new around here.
         $newJoiner = is_null($lastRead) && $latest->createdEpoch() > strtotime($this->user->created());
 
-        if ($newJoiner || $latest->id() > $lastRead) {
+        if ($newJoiner || $latest->id > $lastRead) {
             $this->title   = "Blog: " . $latest->title();
             $this->url     = $latest->url();
-            $this->context = $latest->id();
+            $this->context = $latest->id;
             return true;
         }
         return false;

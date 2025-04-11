@@ -8,7 +8,7 @@ class Privilege extends \Gazelle\BaseUser {
 
     public function flush(): static {
         unset($this->info);
-        self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->id()));
+        self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->user->id));
         return $this;
     }
 
@@ -34,7 +34,7 @@ class Privilege extends \Gazelle\BaseUser {
             INNER JOIN users_info ui ON (ui.UserID = um.ID)
             INNER JOIN permissions p ON (p.ID = um.PermissionID)
             WHERE um.ID = ?
-            ", $this->id()
+            ", $this->user->id
         );
         $info = [
             'level'                 => $config['class_level'],
@@ -232,7 +232,7 @@ class Privilege extends \Gazelle\BaseUser {
             LEFT JOIN users_levels AS l ON (l.PermissionID = p.ID AND l.UserID = ?)
             WHERE p.Secondary = 1
             ORDER BY p.Name
-            ", $this->id()
+            ", $this->user->id
         );
         return self::$db->to_array('permName', MYSQLI_ASSOC, false);
     }
@@ -250,7 +250,7 @@ class Privilege extends \Gazelle\BaseUser {
             INSERT INTO users_levels
                    (UserID, PermissionID)
             VALUES (?,      ?)
-            ", $this->id(), $userclassId
+            ", $this->user->id, $userclassId
         );
         $affected = self::$db->affected_rows();
         $this->flush();
@@ -263,7 +263,7 @@ class Privilege extends \Gazelle\BaseUser {
             FROM users_levels
             WHERE UserID = ?
                 AND PermissionID = ?
-            ", $this->id(), $userclassId
+            ", $this->user->id, $userclassId
         );
         $affected = self::$db->affected_rows();
         $this->flush();
@@ -282,7 +282,7 @@ class Privilege extends \Gazelle\BaseUser {
                 UPDATE users_main SET
                     CustomPermissions = NULL
                 WHERE ID = ?
-                ", $this->id()
+                ", $this->user->id
             );
             $affected = self::$db->affected_rows();
             $this->flush();
@@ -301,7 +301,7 @@ class Privilege extends \Gazelle\BaseUser {
             UPDATE users_main SET
                 CustomPermissions = ?
             WHERE ID = ?
-            ", count($delta) ? serialize($delta) : null, $this->id()
+            ", count($delta) ? serialize($delta) : null, $this->user->id
         );
         $affected = self::$db->affected_rows();
         $this->flush();

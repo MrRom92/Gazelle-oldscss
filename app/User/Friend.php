@@ -16,7 +16,7 @@ class Friend extends \Gazelle\BaseUser {
             FROM friends
             WHERE UserID = ?
                 AND FriendID = ?
-            ", $this->user->id, $friend->id()
+            ", $this->user->id, $friend->id
         );
     }
 
@@ -27,7 +27,7 @@ class Friend extends \Gazelle\BaseUser {
             INNER JOIN friends b ON (b.UserID = a.FriendID AND b.FriendID = ?)
             WHERE a.UserID = ?
                 AND a.FriendID = ?
-            ", $this->user->id, $this->user->id, $friend->id()
+            ", $this->user->id, $this->user->id, $friend->id
         );
     }
 

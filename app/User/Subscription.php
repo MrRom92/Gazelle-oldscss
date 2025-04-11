@@ -29,14 +29,14 @@ class Subscription extends \Gazelle\BaseUser {
                 DELETE FROM users_subscriptions
                 WHERE UserID = ?
                     AND TopicID = ?
-                ', $this->user->id, $thread->id()
+                ', $this->user->id, $thread->id
             );
             $affected = self::$db->affected_rows();
         } else {
             self::$db->prepared_query('
                 INSERT IGNORE INTO users_subscriptions (UserID, TopicID)
                 VALUES (?, ?)
-                ', $this->user->id, $thread->id()
+                ', $this->user->id, $thread->id
             );
             $affected = self::$db->affected_rows();
         }
@@ -176,7 +176,7 @@ class Subscription extends \Gazelle\BaseUser {
     }
 
     public function isSubscribed(ForumThread $thread): bool {
-        return array_search($thread->id(), $this->subscriptionList()) !== false;
+        return array_search($thread->id, $this->subscriptionList()) !== false;
     }
 
     /**

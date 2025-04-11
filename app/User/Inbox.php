@@ -16,7 +16,7 @@ class Inbox extends \Gazelle\BaseUser {
     protected string $searchTerm;
 
     public function flush(): static {
-        self::$cache->delete_value(sprintf(self::CACHE_NEW, $this->id()));
+        self::$cache->delete_value(sprintf(self::CACHE_NEW, $this->user->id));
         $this->user->flush();
         return $this;
     }
@@ -30,8 +30,8 @@ class Inbox extends \Gazelle\BaseUser {
      * create() a PM
      */
     public function create(?\Gazelle\User $from, string $subject, string $body): ?\Gazelle\PM {
-        $fromId = $from?->id() ?? 0;
-        if ($this->id() === $fromId) {
+        $fromId = (int)$from?->id;
+        if ($this->user->id === $fromId) {
             // Don't allow users to send messages to the system or themselves
             return null;
         }
@@ -48,7 +48,7 @@ class Inbox extends \Gazelle\BaseUser {
             "(?, ?, '1', '0', '1')",
             "(?, ?, '0', '1', '0')",
         ];
-        $args = [$this->id(), $convId, $fromId, $convId];
+        $args = [$this->user->id, $convId, $fromId, $convId];
 
         self::$db->prepared_query("
             INSERT INTO pm_conversations_users
@@ -68,14 +68,14 @@ class Inbox extends \Gazelle\BaseUser {
         $senderName = $from?->username() ?? 'System';
 
         $notifMan = new \Gazelle\Manager\Notification();
-        $pushTokens = $notifMan->pushableTokensById([$this->id()], NotificationType::INBOX);
+        $pushTokens = $notifMan->pushableTokensById([$this->user->id], NotificationType::INBOX);
         $notifMan->push($pushTokens,
             "Message from $senderName", "Subject: $subject", SITE_URL . '/inbox.php');
 
         $this->flush();
         self::$cache->delete_multi([
             sprintf(\Gazelle\PM::CACHE_KEY, $convId, $fromId),
-            sprintf(\Gazelle\PM::CACHE_KEY, $convId, $this->id()),
+            sprintf(\Gazelle\PM::CACHE_KEY, $convId, $this->user->id),
         ]);
 
         return new \Gazelle\PM($convId, $this->user);
@@ -185,7 +185,7 @@ class Inbox extends \Gazelle\BaseUser {
     }
 
     public function unreadTotal(): int {
-        $key = sprintf(self::CACHE_NEW, $this->id());
+        $key = sprintf(self::CACHE_NEW, $this->user->id);
         $unread = self::$cache->get_value($key);
         if ($unread === false) {
             $unread = (int)self::$db->scalar("
@@ -194,7 +194,7 @@ class Inbox extends \Gazelle\BaseUser {
                 WHERE UnRead    = '1'
                     AND InInbox = '1'
                     AND UserID  = ?
-                ", $this->id()
+                ", $this->user->id
             );
             self::$cache->cache_value($key, $unread, 0);
         }

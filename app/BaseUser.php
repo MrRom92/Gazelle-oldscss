@@ -5,13 +5,8 @@ namespace Gazelle;
 abstract class BaseUser extends BaseObject {
     public function __construct(
         protected User $user,
-    ) {}
-
-    /**
-     * The id() of a BaseUser is the id() of the underlying BaseObject
-     */
-    public function id(): int {
-        return $this->user->id;
+    ) {
+        parent::__construct($user->id);
     }
 
     /**

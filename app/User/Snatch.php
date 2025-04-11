@@ -29,7 +29,7 @@ class Snatch extends \Gazelle\BaseUser {
     protected array $snatchVec = [];
 
     public function flush(): static {
-        self::$cache->delete_value(sprintf(self::USER_RECENT_SNATCH, $this->id()));
+        self::$cache->delete_value(sprintf(self::USER_RECENT_SNATCH, $this->user->id));
         foreach (array_values($this->snatchVec) as $vector) {
             $vector->flush();
         }
@@ -48,7 +48,7 @@ class Snatch extends \Gazelle\BaseUser {
     }
 
     public function isSnatched(\Gazelle\TorrentAbstract $torrent): bool {
-        $offset = (int)floor($torrent->id() / self::RANGE_BIT);
+        $offset = (int)floor($torrent->id / self::RANGE_BIT);
         if (!isset($this->snatchVec[$offset])) {
             $vector = new CacheVector(sprintf(self::CACHE_KEY, $this->user->id, $offset), self::RANGE_BIT / 8, self::CACHE_EXPIRY);
             if ($vector->isEmpty()) {
@@ -57,7 +57,7 @@ class Snatch extends \Gazelle\BaseUser {
             }
             $this->snatchVec[$offset] = $vector;
         }
-        return $this->snatchVec[$offset]->get($torrent->id() - $offset * self::RANGE_BIT);
+        return $this->snatchVec[$offset]->get($torrent->id - $offset * self::RANGE_BIT);
     }
 
     public function showSnatch(\Gazelle\TorrentAbstract $torrent): bool {
@@ -70,7 +70,7 @@ class Snatch extends \Gazelle\BaseUser {
      * This technique should be revisited, possibly by adding the limit to the key.
      */
     public function recentSnatchList(int $limit = 5, bool $forceNoCache = false): array {
-        $key = sprintf(self::USER_RECENT_SNATCH, $this->id());
+        $key = sprintf(self::USER_RECENT_SNATCH, $this->user->id);
         $recent = self::$cache->get_value($key);
         if ($forceNoCache) {
             $recent = false;
@@ -88,7 +88,7 @@ class Snatch extends \Gazelle\BaseUser {
                 GROUP BY g.ID
                 ORDER BY s.tstamp DESC
                 LIMIT ?
-                ", $this->id(), $limit
+                ", $this->user->id, $limit
             );
             $recent = self::$db->collect(0, false);
             if (!$forceNoCache) {

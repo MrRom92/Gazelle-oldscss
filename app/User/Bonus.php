@@ -23,8 +23,8 @@ class Bonus extends \Gazelle\BaseUser {
     public function flush(): static {
         $this->user->flush();
         self::$cache->delete_multi([
-            sprintf(self::CACHE_HISTORY, $this->id(), 0),
-            sprintf(self::CACHE_POOL_HISTORY, $this->id()),
+            sprintf(self::CACHE_HISTORY, $this->user->id, 0),
+            sprintf(self::CACHE_POOL_HISTORY, $this->user->id),
         ]);
         return $this;
     }
@@ -32,7 +32,7 @@ class Bonus extends \Gazelle\BaseUser {
     public function pointsSpent(): int {
         return (int)self::$db->scalar("
             SELECT sum(Price) FROM bonus_history WHERE UserID = ?
-            ", $this->id()
+            ", $this->user->id
         );
     }
 
@@ -112,12 +112,12 @@ class Bonus extends \Gazelle\BaseUser {
                 AND bh.OtherUserID = ?
             ORDER BY bh.PurchaseDate DESC
             LIMIT 1
-            ", $this->id(), $other->id()
+            ", $this->user->id, $other->id
         ) ?? [];
     }
 
     public function summary(): array {
-        $key = sprintf(self::CACHE_SUMMARY, $this->id());
+        $key = sprintf(self::CACHE_SUMMARY, $this->user->id);
         $summary = self::$cache->get_value($key);
         if ($summary === false) {
             $summary = self::$db->rowAssoc('
@@ -125,7 +125,7 @@ class Bonus extends \Gazelle\BaseUser {
                     coalesce(sum(price), 0) AS total
                 FROM bonus_history
                 WHERE UserID = ?
-                ', $this->id()
+                ', $this->user->id
             );
             self::$cache->cache_value($key, $summary, 86400 * 7);
         }
@@ -134,7 +134,7 @@ class Bonus extends \Gazelle\BaseUser {
 
     public function history(int $limit, int $offset): array {
         $page = $offset / $limit;
-        $key = sprintf(self::CACHE_HISTORY, $this->id(), $page);
+        $key = sprintf(self::CACHE_HISTORY, $this->user->id, $page);
         $history = self::$cache->get_value($key);
         if ($history === false) {
             self::$db->prepared_query('
@@ -144,12 +144,12 @@ class Bonus extends \Gazelle\BaseUser {
                 WHERE h.UserID = ?
                 ORDER BY PurchaseDate DESC
                 LIMIT ? OFFSET ?
-                ', $this->id(), $limit, $offset
+                ', $this->user->id, $limit, $offset
             );
             $history = self::$db->to_array();
             self::$cache->cache_value($key, $history, 86400 * 3);
             /* since we had to fetch this page, invalidate the next one */
-            self::$cache->delete_value(sprintf(self::CACHE_HISTORY, $this->id(), $page + 1));
+            self::$cache->delete_value(sprintf(self::CACHE_HISTORY, $this->user->id, $page + 1));
         }
         return $history;
     }
@@ -175,7 +175,7 @@ class Bonus extends \Gazelle\BaseUser {
     }
 
     public function poolHistory(): array {
-        $key = sprintf(self::CACHE_POOL_HISTORY, $this->id());
+        $key = sprintf(self::CACHE_POOL_HISTORY, $this->user->id);
         $history = self::$cache->get_value($key);
         if ($history === false) {
             self::$db->prepared_query('
@@ -185,7 +185,7 @@ class Bonus extends \Gazelle\BaseUser {
                 WHERE c.user_id = ?
                 GROUP BY p.until_date, p.name
                 ORDER BY p.until_date, p.name
-                ', $this->id()
+                ', $this->user->id
             );
             $history = self::$db->to_array();
             self::$cache->cache_value($key, $history, 86400 * 3);
@@ -199,7 +199,7 @@ class Bonus extends \Gazelle\BaseUser {
      * @return array of [title, total]
      */
     public function purchaseHistory(): array {
-        $key = sprintf(self::CACHE_PURCHASE, $this->id());
+        $key = sprintf(self::CACHE_PURCHASE, $this->user->id);
         $history = self::$cache->get_value($key);
         if ($history === false) {
             self::$db->prepared_query("
@@ -212,7 +212,7 @@ class Bonus extends \Gazelle\BaseUser {
                 WHERE bh.UserID = ?
                 GROUP BY bi.Title
                 ORDER BY bi.sequence
-                ", $this->id()
+                ", $this->user->id
             );
             $history = self::$db->to_array('id', MYSQLI_ASSOC, false);
             self::$cache->cache_value($key, $history, 86400 * 3);
@@ -233,7 +233,7 @@ class Bonus extends \Gazelle\BaseUser {
                 um.Invites = um.Invites + 1
             WHERE ub.points >= ?
                 AND ub.user_id = ?
-            ', $price, $price, $this->id()
+            ', $price, $price, $this->user->id
         );
         if (self::$db->affected_rows() != 2) {
             return false;
@@ -275,7 +275,7 @@ class Bonus extends \Gazelle\BaseUser {
                 um.collage_total = um.collage_total + 1
             WHERE ub.points >= ?
                 AND ub.user_id = ?
-            ', $price, $price, $this->id()
+            ', $price, $price, $this->user->id
         );
         $rows = self::$db->affected_rows();
         if (($price > 0 && $rows !== 2) || ($price === 0 && $rows !== 1)) {
@@ -286,7 +286,7 @@ class Bonus extends \Gazelle\BaseUser {
                 'personal-collage',
                 (int)self::$db->scalar("
                     SELECT collage_total FROM  users_main WHERE ID = ?
-                    ", $this->id()
+                    ", $this->user->id
                 )
             );
         $this->addPurchaseHistory($item['ID'], $price);
@@ -303,7 +303,7 @@ class Bonus extends \Gazelle\BaseUser {
                 ub.points = ub.points - ?
             WHERE ub.points >= ?
                 AND ub.user_id = ?
-            ', $price, $price, $this->id()
+            ', $price, $price, $this->user->id
         );
         if (self::$db->affected_rows() != 1) {
             self::$db->rollback();
@@ -314,7 +314,7 @@ class Bonus extends \Gazelle\BaseUser {
                 INSERT INTO user_has_attr
                        (UserID, UserAttrID)
                 VALUES (?,      (SELECT ID FROM user_attr WHERE Name = ?))
-                ", $this->id(), 'feature-seedbox'
+                ", $this->user->id, 'feature-seedbox'
             );
         } catch (\Gazelle\DB\MysqlDuplicateKeyException) {
             // no point in buying a second time
@@ -336,7 +336,7 @@ class Bonus extends \Gazelle\BaseUser {
                 ub.points = ub.points - ?
             WHERE ub.points >= ?
                 AND ub.user_id = ?
-            ', $price, $price, $this->id()
+            ', $price, $price, $this->user->id
         );
         if (self::$db->affected_rows() != 1) {
             self::$db->rollback();
@@ -347,7 +347,7 @@ class Bonus extends \Gazelle\BaseUser {
                 INSERT INTO user_has_attr
                        (UserID, UserAttrID)
                 VALUES (?,      (SELECT ID FROM user_attr WHERE Name = ?))
-                ", $this->id(), 'feature-file-count'
+                ", $this->user->id, 'feature-file-count'
             );
         } catch (\Gazelle\DB\MysqlDuplicateKeyException) {
             // no point in buying a second time
@@ -374,7 +374,7 @@ class Bonus extends \Gazelle\BaseUser {
                 uf.tokens = uf.tokens + ?
             WHERE ub.user_id = ?
                 AND ub.points >= ?
-            ', $price, $amount, $this->id(), $price
+            ', $price, $amount, $this->user->id, $price
         );
         if (self::$db->affected_rows() != 2) {
             return false;
@@ -389,7 +389,7 @@ class Bonus extends \Gazelle\BaseUser {
      * tokens purchased (for use in a response to the receiver).
      */
     public function purchaseTokenOther(\Gazelle\User $receiver, string $label, string $message): int {
-        if ($this->id() === $receiver->id()) {
+        if ($this->user->id === $receiver->id) {
             return 0;
         }
         $item = $this->items()[$label];
@@ -419,12 +419,12 @@ class Bonus extends \Gazelle\BaseUser {
                 AND other.ID = ?
                 AND self.ID = ?
                 AND ub.points >= ?
-            ", $price, $amount, $receiver->id(), $this->id(), $price
+            ", $price, $amount, $receiver->id, $this->user->id, $price
         );
         if (self::$db->affected_rows() != 2) {
             return 0;
         }
-        $this->addPurchaseHistory($item['ID'], $price, $receiver->id());
+        $this->addPurchaseHistory($item['ID'], $price, $receiver->id);
         $this->sendPmToOther($receiver, $amount, $message);
         $this->flush();
         $receiver->flush();
@@ -447,15 +447,15 @@ class Bonus extends \Gazelle\BaseUser {
 
     private function addPurchaseHistory(int $itemId, int $price, int|null $otherUserId = null): int {
         self::$cache->delete_multi([
-            sprintf(self::CACHE_PURCHASE, $this->id()),
-            sprintf(self::CACHE_SUMMARY, $this->id()),
-            sprintf(self::CACHE_HISTORY, $this->id(), 0)
+            sprintf(self::CACHE_PURCHASE, $this->user->id),
+            sprintf(self::CACHE_SUMMARY, $this->user->id),
+            sprintf(self::CACHE_HISTORY, $this->user->id, 0)
         ]);
         self::$db->prepared_query("
             INSERT INTO bonus_history
                    (ItemID, UserID, Price, OtherUserID)
             VALUES (?,      ?,      ?,     ?)
-            ", $itemId, $this->id(), $price, $otherUserId
+            ", $itemId, $this->user->id, $price, $otherUserId
         );
         return self::$db->affected_rows();
     }
@@ -465,7 +465,7 @@ class Bonus extends \Gazelle\BaseUser {
             UPDATE user_bonus SET
                 points = ?
             WHERE user_id = ?
-            ", $points, $this->id()
+            ", $points, $this->user->id
         );
         $affected = self::$db->affected_rows();
         $this->flush();
@@ -477,7 +477,7 @@ class Bonus extends \Gazelle\BaseUser {
             UPDATE user_bonus SET
                 points = points + ?
             WHERE user_id = ?
-            ", $points, $this->id()
+            ", $points, $this->user->id
         );
         $affected = self::$db->affected_rows();
         $this->flush();
@@ -493,13 +493,13 @@ class Bonus extends \Gazelle\BaseUser {
             // allow points to go negative
             self::$db->prepared_query('
                 UPDATE user_bonus SET points = points - ? WHERE user_id = ?
-                ', $points, $this->id()
+                ', $points, $this->user->id
             );
         } else {
             // Fail if points would go negative
             self::$db->prepared_query('
                 UPDATE user_bonus SET points = points - ? WHERE points >= ?  AND user_id = ?
-                ', $points, $points, $this->id()
+                ', $points, $points, $this->user->id
             );
             if (self::$db->affected_rows() != 1) {
                 return false;
@@ -521,7 +521,7 @@ class Bonus extends \Gazelle\BaseUser {
             INNER JOIN torrents AS t ON (t.ID = xfu.fid)
             INNER JOIN torrents_leech_stats tls ON (tls.TorrentID = t.ID)
             WHERE xfu.uid = ?
-            ", $this->id(), $this->id()
+            ", $this->user->id, $this->user->id
         );
     }
 
@@ -551,7 +551,7 @@ class Bonus extends \Gazelle\BaseUser {
             INNER JOIN torrents AS t ON (t.ID = xfu.fid)
             INNER JOIN torrents_leech_stats tls ON (tls.TorrentID = t.ID)
             WHERE xfu.uid = ?
-            ", $this->id(), $this->id()
+            ", $this->user->id, $this->user->id
         );
         $stats['total_size'] = (int)$stats['total_size'];
         return $stats;
@@ -582,7 +582,7 @@ class Bonus extends \Gazelle\BaseUser {
             ORDER BY $orderBy $orderWay
             LIMIT ?
             OFFSET ?
-            ", $this->id(), $this->id(), $limit, $offset
+            ", $this->user->id, $this->user->id, $limit, $offset
         );
         $list = [];
         foreach (self::$db->to_array('ID', MYSQLI_ASSOC, false) as $r) {

@@ -12,7 +12,10 @@ class Token extends \Gazelle\BaseUser {
         return $this;
     }
 
-    public function __construct(protected int $tokenId, \Gazelle\User $user) {
+    public function __construct(
+        public readonly int $tokenId,
+        \Gazelle\User $user,
+    ) {
         parent::__construct($user);
     }
 
@@ -25,7 +28,7 @@ class Token extends \Gazelle\BaseUser {
                 from user_token
                 where id_user_token = ?
                     and id_user = ?
-                ", $this->tokenId, $this->user()->id()
+                ", $this->tokenId, $this->user->id
             );
         }
         return $this->info;
@@ -45,7 +48,7 @@ class Token extends \Gazelle\BaseUser {
             from user_token
             where expiry > now()
                 and id_user_token = ?
-            ", $this->id()
+            ", $this->tokenId
         );
     }
 

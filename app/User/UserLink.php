@@ -103,7 +103,7 @@ class UserLink extends \Gazelle\BaseUser {
                 INSERT INTO users_dupes
                        (UserID, GroupID)
                 VALUES (?,      ?)
-                ", $target->id(), $sourceGroupId
+                ", $target->id, $sourceGroupId
             );
             $linkGroupId = $sourceGroupId;
         } else {
@@ -114,7 +114,7 @@ class UserLink extends \Gazelle\BaseUser {
                        (UserID, GroupID)
                 VALUES (?,      ?),
                        (?,      ?)
-                ", $target->id(), $linkGroupId, $sourceId, $linkGroupId
+                ", $target->id, $linkGroupId, $sourceId, $linkGroupId
             );
         }
 
@@ -167,7 +167,7 @@ class UserLink extends \Gazelle\BaseUser {
     }
 
     public function removeUser(\Gazelle\User $target, \Gazelle\User $admin): int {
-        $targetId = $target->id();
+        $targetId = $target->id;
         $target->auditTrail()->addEvent(
             UserAuditEvent::link,
             "[user]{$target->username()}[/user] unlinked",

@@ -93,10 +93,10 @@ class UserclassRateLimit extends \Gazelle\BaseUser {
             INSERT INTO ratelimit_torrent
                    (user_id, torrent_id)
             VALUES (?,       ?)
-            ", $this->id(), $torrent->id()
+            ", $this->user->id, $torrent->id
         );
         $id = self::$db->inserted_id();
-        $key = "user_429_flood_{$this->id()}";
+        $key = "user_429_flood_{$this->user->id}";
         if (self::$cache->get_value($key)) {
             self::$cache->increment($key);
         } else {

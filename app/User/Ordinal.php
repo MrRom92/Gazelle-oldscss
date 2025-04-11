@@ -18,14 +18,14 @@ class Ordinal extends \Gazelle\BaseUser {
     protected array $info;
 
     public function flush(): static {
-        self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->id()));
+        self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->user->id));
         unset($this->info);
         return $this;
     }
 
     public function info(): array {
         if (!isset($this->info)) {
-            $key = sprintf(self::CACHE_KEY, $this->id());
+            $key = sprintf(self::CACHE_KEY, $this->user->id);
             $info = self::$cache->get_value($key);
             if ($info === false) {
                 self::$db->prepared_query("
@@ -45,7 +45,7 @@ class Ordinal extends \Gazelle\BaseUser {
                     FROM user_ordinal uo
                     LEFT JOIN user_has_ordinal uho USING (user_ordinal_id)
                     WHERE uho.user_id = ?
-                    ", $this->id(), $this->id()
+                    ", $this->user->id, $this->user->id
                 );
                 $info = self::$db->to_array('name', MYSQLI_ASSOC, false);
                 self::$cache->cache_value($key, $info, 86400);
@@ -91,7 +91,7 @@ class Ordinal extends \Gazelle\BaseUser {
             FROM user_ordinal
             WHERE name = ?
             ON DUPLICATE KEY UPDATE value = ?
-            ", $this->id(), $value, $name, $value
+            ", $this->user->id, $value, $name, $value
         );
         $affected = self::$db->affected_rows();
         $this->flush();
@@ -107,7 +107,7 @@ class Ordinal extends \Gazelle\BaseUser {
                     FROM user_ordinal
                     WHERE name = ?
                 )
-            ", $this->id(), $name
+            ", $this->user->id, $name
         );
         $affected = self::$db->affected_rows();
         $this->flush();

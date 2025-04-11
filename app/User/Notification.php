@@ -44,7 +44,7 @@ class Notification extends \Gazelle\BaseUser {
                 inner join user_has_attr uha using (id_user_attr)
                 inner join user_attr_notification uhan using (id_user_attr)
                 where uha.id_user = ?;
-                ", $this->id()
+                ", $this->user->id
             );
 
             $typeConfig = [];

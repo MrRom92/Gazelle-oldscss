@@ -14,7 +14,7 @@ class Donor extends \Gazelle\BaseUser {
     }
 
     public function flush(): static {
-        self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->id()));
+        self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->user->id));
         unset($this->isDonor);
         $this->info = [];
         return $this;
@@ -24,7 +24,7 @@ class Donor extends \Gazelle\BaseUser {
         if (isset($this->info) && !empty($this->info)) {
             return $this->info;
         }
-        $key = sprintf(self::CACHE_KEY, $this->id());
+        $key = sprintf(self::CACHE_KEY, $this->user->id);
         $info = self::$cache->get_value($key);
         if ($info === false) {
             $info = self::$db->rowAssoc("
@@ -56,7 +56,7 @@ class Donor extends \Gazelle\BaseUser {
                 LEFT JOIN donor_rewards         dr  USING (UserID)
                 LEFT JOIN donor_forum_usernames dfu USING (UserID)
                 WHERE udr.UserID = ?
-                ", $this->id()
+                ", $this->user->id
             ) ?? [
                 'donor_rank'          => 0,
                 'special_rank'        => 0,
@@ -107,7 +107,7 @@ class Donor extends \Gazelle\BaseUser {
             UPDATE users_donor_ranks SET
                 Hidden = ?
             WHERE UserID = ?
-            ", $visible ? 0 : 1, $this->id()
+            ", $visible ? 0 : 1, $this->user->id
         );
         return $this->flush()->isVisible();
     }
@@ -137,7 +137,7 @@ class Donor extends \Gazelle\BaseUser {
                 FROM users_donor_ranks
             ) LEADER
             WHERE LEADER.UserID = ?
-            ", $this->id()
+            ", $this->user->id
         );
     }
 
@@ -429,7 +429,7 @@ class Donor extends \Gazelle\BaseUser {
             FROM donations
             WHERE UserID = ?
             ORDER BY Time DESC
-            ", $this->id()
+            ", $this->user->id
         );
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
@@ -441,13 +441,13 @@ class Donor extends \Gazelle\BaseUser {
                 donor_rank = donor_rank + ?,
                 TotalRank = TotalRank + ?
             WHERE UserID = ?
-            ", $rankDelta, $totalDelta, $this->id()
+            ", $rankDelta, $totalDelta, $this->user->id
         );
         self::$db->prepared_query("
             INSERT INTO donations
                    (UserID, donor_rank, TotalRank, Reason, AddedBy, Amount, xbt, Currency, Source)
             VALUES (?,      ?,          ?,         ?,      ?,       0,      0,   '',       'moderation')
-            ", $this->id(), $rankDelta, $totalDelta, trim($reason), $adjuster->id()
+            ", $this->user->id, $rankDelta, $totalDelta, trim($reason), $adjuster->id
         );
         $affected = self::$db->affected_rows();
         self::$db->commit();
@@ -496,17 +496,17 @@ class Donor extends \Gazelle\BaseUser {
                 TotalRank          = TotalRank  + ?,
                 DonationTime       = now(),
                 RankExpirationTime = now()
-            ', $this->id(),
+            ', $this->user->id,
                 $rankDelta, $rankDelta, $rankDelta, $rankDelta
         );
-        if (!(bool)self::$db->scalar("SELECT 1 FROM donor_rewards WHERE UserID = ?", $this->id())) {
+        if (!(bool)self::$db->scalar("SELECT 1 FROM donor_rewards WHERE UserID = ?", $this->user->id)) {
             self::$db->prepared_query("
                 INSERT INTO donor_rewards (
                     UserID, IconMouseOverText, AvatarMouseOverText, CustomIcon, CustomIconLink, SecondAvatar,
                     ProfileInfo1, ProfileInfo2, ProfileInfo3, ProfileInfo4,
                     ProfileInfoTitle1, ProfileInfoTitle2, ProfileInfoTitle3, ProfileInfoTitle4
                 ) VALUES (?, '', '', '', '', '', '', '', '', '', '', '', '', '')
-                ", $this->id()
+                ", $this->user->id
             );
         }
         $this->flush(); // so that rank() etc are updated
@@ -542,7 +542,7 @@ class Donor extends \Gazelle\BaseUser {
             $columns = implode(', ', $cond);
             self::$db->prepared_query("
                 UPDATE users_donor_ranks SET $columns WHERE UserID = ?
-                ", ...[...$args, $this->id()]
+                ", ...[...$args, $this->user->id]
             );
         }
         if ($newInvites) {
@@ -550,7 +550,7 @@ class Donor extends \Gazelle\BaseUser {
                 UPDATE users_main
                 SET Invites = Invites + ?
                 WHERE ID = ?
-                ', $newInvites, $this->id()
+                ', $newInvites, $this->user->id
             );
         }
 
@@ -560,8 +560,8 @@ class Donor extends \Gazelle\BaseUser {
             INSERT INTO donations
                    (UserID, Amount, Source, Reason, Currency, AddedBy, donor_rank, TotalRank, xbt)
             VALUES (?,      ?,      ?,      ?,      ?,        ?,       ?,          ?,         ?)
-            ', $this->id(), round($fiatAmount, 2), trim($source), trim($reason), $currency,
-                $who?->id() ?? $this->id(), $this->rank(), $this->totalRank(), $xbtAmount
+            ', $this->user->id, round($fiatAmount, 2), trim($source), trim($reason), $currency,
+                $who->id ?? $this->user->id, $this->rank(), $this->totalRank(), $xbtAmount
         );
         $affected = self::$db->affected_rows();
         self::$db->commit();
@@ -637,7 +637,7 @@ class Donor extends \Gazelle\BaseUser {
             UPDATE users_donor_ranks SET
                 SpecialRank = ?
             WHERE UserID = ?
-            ", $rank, $this->id()
+            ", $rank, $this->user->id
         );
         return $this->flush()->specialRank();
     }
@@ -654,7 +654,7 @@ class Donor extends \Gazelle\BaseUser {
                 Prefix   = ?,
                 Suffix   = ?,
                 UseComma = ?
-            ", $this->id(), $prefix, $suffix, (int)$useComma, $prefix, $suffix, (int)$useComma
+            ", $this->user->id, $prefix, $suffix, (int)$useComma, $prefix, $suffix, (int)$useComma
         );
         $this->flush();
         return true;
@@ -678,7 +678,7 @@ class Donor extends \Gazelle\BaseUser {
                 SpecialRank = 0,
                 TotalRank   = 0
             WHERE UserID = ?
-            ', $this->id()
+            ', $this->user->id
         );
         self::$db->commit();
         $this->flush();
@@ -701,7 +701,7 @@ class Donor extends \Gazelle\BaseUser {
             LEFT JOIN donor_forum_usernames dfu USING (UserID)
             LEFT JOIN users_donor_ranks     udr USING (UserID)
             WHERE d.UserID = ?
-            ", $this->id()
+            ", $this->user->id
         );
         $affected = self::$db->affected_rows();
         $this->flush();

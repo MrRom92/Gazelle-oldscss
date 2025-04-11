@@ -136,7 +136,7 @@ abstract class BaseObject extends Base {
                 $set[] = "$field = now()";
             }
         }
-        $args[] = $this->id();
+        $args[] = $this->id;
         self::$db->prepared_query(
             "UPDATE /* BaseObject */ " . static::tableName . " SET " . implode(', ', $set) . " WHERE " . static::pkName . " = ?",
             ...$args

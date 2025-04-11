@@ -20,7 +20,7 @@ class Invite extends \Gazelle\BaseUser {
             UPDATE users_main SET
                 Invites = GREATEST(Invites, 1) - 1
             WHERE ID = ?
-            ", $this->id()
+            ", $this->user->id
         );
         $affected = self::$db->affected_rows();
         $this->flush();
@@ -30,7 +30,7 @@ class Invite extends \Gazelle\BaseUser {
     public function pendingTotal(): int {
         return (int)self::$db->scalar("
             SELECT count(*) FROM invites WHERE InviterID = ?
-            ", $this->id()
+            ", $this->user->id
         );
     }
 
@@ -45,7 +45,7 @@ class Invite extends \Gazelle\BaseUser {
             LEFT JOIN invite_source ivs USING (invite_source_id)
             WHERE i.InviterID = ?
             ORDER BY i.Expires
-            ", $this->id()
+            ", $this->user->id
         );
         return self::$db->to_array('invite_key', MYSQLI_ASSOC, false);
     }
@@ -53,7 +53,7 @@ class Invite extends \Gazelle\BaseUser {
     public function total(): int {
         return (int)self::$db->scalar("
             SELECT count(*) FROM users_main WHERE inviter_user_id = ?
-            ", $this->id()
+            ", $this->user->id
         );
     }
 
@@ -66,7 +66,7 @@ class Invite extends \Gazelle\BaseUser {
             WHERE um.inviter_user_id = ?
             ORDER BY $orderBy $direction
             LIMIT ? OFFSET ?
-            ", $this->id(), $limit, $offset
+            ", $this->user->id, $limit, $offset
         );
         return self::$db->collect(0, false);
     }
@@ -98,7 +98,7 @@ class Invite extends \Gazelle\BaseUser {
             UPDATE users_main SET
                 Invites = Invites + 1
             WHERE ID = ?
-            ", $this->id()
+            ", $this->user->id
         );
         $affected += self::$db->affected_rows();
         self::$db->commit();

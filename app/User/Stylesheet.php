@@ -8,7 +8,7 @@ class Stylesheet extends \Gazelle\BaseUser {
 
     public function flush(): static {
         unset($this->info);
-        self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->id()));
+        self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->user->id));
         return $this;
     }
 
@@ -16,7 +16,7 @@ class Stylesheet extends \Gazelle\BaseUser {
         if (isset($this->info)) {
             return $this->info;
         }
-        $key = sprintf(self::CACHE_KEY, $this->id());
+        $key = sprintf(self::CACHE_KEY, $this->user->id);
         $info = self::$cache->get_value($key);
         if ($info === false) {
             $info = self::$db->rowAssoc("
@@ -28,7 +28,7 @@ class Stylesheet extends \Gazelle\BaseUser {
                 FROM stylesheets s
                 INNER JOIN users_main um ON (um.stylesheet_id = s.ID)
                 WHERE um.ID = ?
-                ", $this->id()
+                ", $this->user->id
             );
             self::$cache->cache_value($key, $info, 0);
         }
@@ -43,7 +43,7 @@ class Stylesheet extends \Gazelle\BaseUser {
                 stylesheet_url = ?
             WHERE ID = ?
             ", $stylesheetId, empty($stylesheetUrl) ? null : trim($stylesheetUrl),
-                $this->id()
+                $this->user->id
         );
         $affected = self::$db->affected_rows();
         $this->flush();

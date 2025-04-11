@@ -30,7 +30,7 @@ class History extends \Gazelle\BaseUser {
             FROM users_history_emails AS h
             WHERE h.UserID = ?
             ORDER BY h.created DESC
-            ", $this->id()
+            ", $this->user->id
         );
         $asnList = $asn->findByIpList(self::$db->collect('ipv4', false));
         $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
@@ -61,7 +61,7 @@ class History extends \Gazelle\BaseUser {
             WHERE uhe.UserID != ?
                 AND uhe.Email in (SELECT DISTINCT Email FROM users_history_emails WHERE UserID = ?)
             ORDER BY uhe.Email, uhe.created DESC
-            ", $this->id(), $this->id()
+            ", $this->user->id, $this->user->id
         );
         $asnList = $asn->findByIpList(self::$db->collect('ipv4', false));
         $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
@@ -80,7 +80,7 @@ class History extends \Gazelle\BaseUser {
     public function emailTotal(): int {
         return (int)self::$db->scalar("
             SELECT count(*) FROM users_history_emails WHERE UserID = ?
-            ", $this->id()
+            ", $this->user->id
         );
     }
 
@@ -102,7 +102,7 @@ class History extends \Gazelle\BaseUser {
             INSERT INTO users_history_emails
                    (UserID, Email, IP, useragent)
             VALUES (?,      ?,     ?,  ?)
-            ", $this->id(), $newEmail, $ipaddr, $useragent
+            ", $this->user->id, $newEmail, $ipaddr, $useragent
         );
         $affected = self::$db->affected_rows();
         if ($notify) {
@@ -133,19 +133,19 @@ class History extends \Gazelle\BaseUser {
         self::$db->prepared_query("
             DELETE FROM users_history_emails
             WHERE UserID = ?
-            ", $this->id()
+            ", $this->user->id
         );
         self::$db->prepared_query("
             INSERT INTO users_history_emails
                    (UserID, Email, IP, useragent)
             VALUES (?,      ?,     ?, 'email-reset')
-            ", $this->id(), $email, $ipaddr
+            ", $this->user->id, $email, $ipaddr
         );
         self::$db->prepared_query("
             UPDATE users_main SET
                 Email = ?
             WHERE ID = ?
-            ", $email, $this->id()
+            ", $email, $this->user->id
         );
         $affected = self::$db->affected_rows();
         $this->flush();
@@ -186,7 +186,7 @@ class History extends \Gazelle\BaseUser {
                 total = EXCLUDED.total,
                 seen  = s.seen + EXCLUDED.seen
             returning total
-            ", $this->id(), $ipaddr, $this->id(), $ipaddr, $this->id(), $ipaddr, $delay
+            ", $this->user->id, $ipaddr, $this->user->id, $ipaddr, $this->user->id, $ipaddr, $delay
         );
     }
 
@@ -204,7 +204,7 @@ class History extends \Gazelle\BaseUser {
             from ip_site_history
             where id_user = ?
             order by $orderBy
-            ", $this->id()
+            ", $this->user->id
         );
         $asnList = $asn->findByIpList(array_unique(array_map(fn ($r) => $r['ipv4'], $result)));
         foreach ($result as &$row) {
@@ -230,7 +230,7 @@ class History extends \Gazelle\BaseUser {
             WHERE uid = ?
             GROUP BY IP
             ORDER BY $orderBy
-            ", $this->id()
+            ", $this->user->id
         );
         $asnList = $asn->findByIpList(self::$db->collect('ipv4', false));
         $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
@@ -246,40 +246,40 @@ class History extends \Gazelle\BaseUser {
     public function resetIp(): int {
         $n = $this->pg()->prepared_query("
             delete from ip_history where id_user = ?
-            ", $this->id()
+            ", $this->user->id
         );
         $n += $this->pg()->prepared_query("
             delete from ip_site_history where id_user = ?
-            ", $this->id()
+            ", $this->user->id
         );
         self::$db->prepared_query("
             DELETE FROM users_history_ips WHERE UserID = ?
-            ", $this->id()
+            ", $this->user->id
         );
         $n += self::$db->affected_rows();
         self::$db->prepared_query("
             UPDATE users_main SET IP = '127.0.0.1' WHERE ID = ?
-            ", $this->id()
+            ", $this->user->id
         );
         $n += self::$db->affected_rows();
         self::$db->prepared_query("
             UPDATE xbt_snatched SET IP = '' WHERE uid = ?
-            ", $this->id()
+            ", $this->user->id
         );
         $n += self::$db->affected_rows();
         self::$db->prepared_query("
             UPDATE users_history_passwords SET ChangerIP = '', useragent = 'reset-ip-history' WHERE UserID = ?
-            ", $this->id()
+            ", $this->user->id
         );
         $n += self::$db->affected_rows();
         self::$db->prepared_query("
             UPDATE users_history_passkeys SET ChangerIP = '' WHERE UserID = ?
-            ", $this->id()
+            ", $this->user->id
         );
         $n += self::$db->affected_rows();
         self::$db->prepared_query("
             UPDATE users_sessions SET IP = '127.0.0.1' WHERE UserID = ?
-            ", $this->id()
+            ", $this->user->id
         );
         $n += self::$db->affected_rows();
         $this->flush();
@@ -290,7 +290,7 @@ class History extends \Gazelle\BaseUser {
         self::$db->prepared_query('
             DELETE FROM users_downloads
             WHERE UserID = ?
-            ', $this->id()
+            ', $this->user->id
         );
         return self::$db->affected_rows();
     }
@@ -302,7 +302,7 @@ class History extends \Gazelle\BaseUser {
                 RatioWatchDownload = 0,
                 RatioWatchTimes = 0
             WHERE UserID = ?
-            ", $this->id()
+            ", $this->user->id
         );
         $this->flush();
         return self::$db->affected_rows();
@@ -312,7 +312,7 @@ class History extends \Gazelle\BaseUser {
         self::$db->prepared_query("
             DELETE FROM xbt_snatched
             WHERE uid = ?
-            ", $this->id()
+            ", $this->user->id
         );
         $this->user->snatch()->flush();
         return self::$db->affected_rows();
