@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class NewsTest extends TestCase {
     protected array $userList;
@@ -11,8 +12,8 @@ class NewsTest extends TestCase {
 
     public function setUp(): void {
         $this->userList = [
-            \GazelleUnitTest\Helper::makeUser('news.' . randomString(10), 'news'),
-            \GazelleUnitTest\Helper::makeUser('news.' . randomString(10), 'news'),
+            Helper::makeUser('news.' . randomString(10), 'news'),
+            Helper::makeUser('news.' . randomString(10), 'news'),
         ];
         $this->forum = (new Manager\Forum())->findById(ANNOUNCEMENT_FORUM_ID);
     }

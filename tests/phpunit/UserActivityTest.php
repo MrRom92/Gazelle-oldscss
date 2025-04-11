@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\UserStatus;
 
 class UserActivityTest extends TestCase {
@@ -15,7 +16,7 @@ class UserActivityTest extends TestCase {
     }
 
     public function testActivity(): void {
-        $this->userList['admin'] = \GazelleUnitTest\Helper::makeUser('admin.' . randomString(10), 'activity');
+        $this->userList['admin'] = Helper::makeUser('admin.' . randomString(10), 'activity');
         $this->userList['admin']->setField('PermissionID', SYSOP)
             ->setField('Enabled', UserStatus::enabled->value)
             ->modify();
@@ -48,7 +49,7 @@ class UserActivityTest extends TestCase {
         $this->assertIsArray($global->alert(), 'global-alert');
         $this->assertEqualsWithDelta(10 * 60, $global->remaining(), 30, 'global-remaining-within-30sec');
 
-        $this->userList['user'] = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'activity');
+        $this->userList['user'] = Helper::makeUser('user.' . randomString(10), 'activity');
         $notifier = new User\Notification($this->userList['user']);
         $alertList = $notifier->alertList();
         $this->assertArrayHasKey('Global', $alertList, 'alert-has-global');
@@ -64,9 +65,9 @@ class UserActivityTest extends TestCase {
 
     public function testInbox(): void {
         $userMan = new Manager\User();
-        $this->userList['admin'] = \GazelleUnitTest\Helper::makeUser('admin.' . randomString(10), 'activity');
+        $this->userList['admin'] = Helper::makeUser('admin.' . randomString(10), 'activity');
         $this->userList['admin']->setField('PermissionID', SYSOP)->modify();
-        $this->userList['user'] = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'activity');
+        $this->userList['user'] = Helper::makeUser('user.' . randomString(10), 'activity');
 
         $admin = $this->userList['admin'];
         $user  = $this->userList['user'];
@@ -98,9 +99,9 @@ class UserActivityTest extends TestCase {
     }
 
     public function testNews(): void {
-        $this->userList['admin'] = \GazelleUnitTest\Helper::makeUser('admin.' . randomString(10), 'activity');
+        $this->userList['admin'] = Helper::makeUser('admin.' . randomString(10), 'activity');
         $this->userList['admin']->setField('PermissionID', SYSOP)->modify();
-        $this->userList['user'] = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'activity');
+        $this->userList['user'] = Helper::makeUser('user.' . randomString(10), 'activity');
 
         $manager = new Manager\News();
         $title   = "This is the 6 o'clock news";

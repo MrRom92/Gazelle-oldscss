@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 /**
  * In the original \Gazelle implementation, two sets of developers implemented
@@ -21,8 +22,8 @@ class ForumTest extends TestCase {
 
     public function setUp(): void {
         $this->userList = [
-            'admin' => \GazelleUnitTest\Helper::makeUser('admin.' . randomString(10), 'forum'),
-            'user'  => \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'forum'),
+            'admin' => Helper::makeUser('admin.' . randomString(10), 'forum'),
+            'user'  => Helper::makeUser('user.' . randomString(10), 'forum'),
         ];
         $this->userList['admin']->setField('PermissionID', SYSOP)->modify();
     }
@@ -79,7 +80,7 @@ class ForumTest extends TestCase {
         $user         = $this->userList['user'];
         $userTocTotal = count($forumMan->tableOfContents($user));
         $forumName    = 'phpunit first forum';
-        $this->forum  = \GazelleUnitTest\Helper::makeForum(
+        $this->forum  = Helper::makeForum(
             user:           $admin,
             sequence:       150,
             category:       $this->category,
@@ -117,7 +118,7 @@ class ForumTest extends TestCase {
         $find = $forumMan->findById($this->forum->id());
         $this->assertEquals($this->forum->id(), $find->id(), 'forum-forum-find');
 
-        $this->extra = \GazelleUnitTest\Helper::makeForum(
+        $this->extra = Helper::makeForum(
             user:           $this->userList['admin'],
             sequence:       100,
             category:       $this->category,
@@ -178,7 +179,7 @@ class ForumTest extends TestCase {
 
         // Forum ACLs
         $secretLevel = $admin->privilege()->effectiveClassLevel();
-        $secret = \GazelleUnitTest\Helper::makeForum(
+        $secret = Helper::makeForum(
             user:           $admin,
             sequence:       200,
             category:       $this->category,
@@ -288,7 +289,7 @@ class ForumTest extends TestCase {
 
     public function testForumAutoSub(): void {
         $this->category = (new Manager\ForumCategory())->create('phpunit category', 10010);
-        $this->forum    = \GazelleUnitTest\Helper::makeForum(
+        $this->forum    = Helper::makeForum(
             user:        $this->userList['admin'],
             sequence:    151,
             category:    $this->category,
@@ -346,7 +347,7 @@ class ForumTest extends TestCase {
     public function testForumJson(): void {
         $this->category = (new Manager\ForumCategory())->create('phpunit category', 10002);
         $forumMan       = new Manager\Forum();
-        $this->forum    = \GazelleUnitTest\Helper::makeForum(
+        $this->forum    = Helper::makeForum(
             user:        $this->userList['admin'],
             sequence:    151,
             category:    $this->category,
@@ -381,7 +382,7 @@ class ForumTest extends TestCase {
     public function testForumThreadJson(): void {
         $this->category = (new Manager\ForumCategory())->create('phpunit category', 10002);
         $forumMan       = new Manager\Forum();
-        $this->forum    = \GazelleUnitTest\Helper::makeForum(
+        $this->forum    = Helper::makeForum(
             user:        $this->userList['admin'],
             sequence:    151,
             category:    $this->category,
@@ -420,7 +421,7 @@ class ForumTest extends TestCase {
         $forumMan       = new Manager\Forum();
         $admin          = $this->userList['admin'];
         $user           = $this->userList['user'];
-        $this->forum    = \GazelleUnitTest\Helper::makeForum(
+        $this->forum    = Helper::makeForum(
             user:        $admin,
             sequence:    151,
             category:    $this->category,
@@ -465,7 +466,7 @@ class ForumTest extends TestCase {
         $this->category = (new Manager\ForumCategory())->create('phpunit category', 10002);
         $admin          = $this->userList['admin'];
         $user           = $this->userList['user'];
-        $this->forum    = \GazelleUnitTest\Helper::makeForum(
+        $this->forum    = Helper::makeForum(
             user:           $admin,
             sequence:       151,
             category:       $this->category,
@@ -516,7 +517,7 @@ class ForumTest extends TestCase {
         $this->category = (new Manager\ForumCategory())->create('phpunit category', 10002);
         $admin          = $this->userList['admin'];
         $user           = $this->userList['user'];
-        $this->forum    = \GazelleUnitTest\Helper::makeForum(
+        $this->forum    = Helper::makeForum(
             user:           $admin,
             sequence:       151,
             category:       $this->category,
@@ -539,7 +540,7 @@ class ForumTest extends TestCase {
         $name = 'phpunit category ' . randomString(6);
         $this->category = (new Manager\ForumCategory())->create($name, 10002);
         $admin          = $this->userList['admin'];
-        $this->forum    = \GazelleUnitTest\Helper::makeForum(
+        $this->forum    = Helper::makeForum(
             user:           $admin,
             sequence:       153,
             category:       $this->category,
@@ -568,7 +569,7 @@ class ForumTest extends TestCase {
     public function testEditPost(): void {
         $this->category = (new Manager\ForumCategory())->create('phpunit category', 10011);
         $user = $this->userList['user'];
-        $this->forum = \GazelleUnitTest\Helper::makeForum(
+        $this->forum = Helper::makeForum(
             user:           $user,
             sequence:       154,
             category:       $this->category,
@@ -607,7 +608,7 @@ class ForumTest extends TestCase {
         $admin = $this->userList['admin'];
         $user  = $this->userList['user'];
         $this->category = (new Manager\ForumCategory())->create('phpunit forum transition', 10005);
-        $this->forum = \GazelleUnitTest\Helper::makeForum(
+        $this->forum = Helper::makeForum(
             user:           $admin,
             sequence:       153,
             category:       $this->category,
@@ -624,7 +625,7 @@ class ForumTest extends TestCase {
         $this->assertTrue($locked->isLocked(), 'fthread-is-locked');
         $this->assertTrue($pinned->isPinned(), 'fthread-is-pinned');
 
-        $this->extra = \GazelleUnitTest\Helper::makeForum(
+        $this->extra = Helper::makeForum(
             user:           $admin,
             sequence:       153,
             category:       $this->category,
@@ -652,8 +653,8 @@ class ForumTest extends TestCase {
         $this->assertFalse($transition->hasUserForThread($this->userList['user'], $thread), 'forum-trans-hasnt-user');
         $this->assertEquals(1, $transition->remove(), 'forum-trans-remove');
 
-        $this->userList['FLS'] = \GazelleUnitTest\Helper::makeUser('fls.' . randomString(10), 'forum');
-        $this->userList['specific'] = \GazelleUnitTest\Helper::makeUser('spec.' . randomString(10), 'forum');
+        $this->userList['FLS'] = Helper::makeUser('fls.' . randomString(10), 'forum');
+        $this->userList['specific'] = Helper::makeUser('spec.' . randomString(10), 'forum');
         $this->transitionList[] = $manager->create(
            source:           $this->forum,
            destination:      $this->extra,
@@ -694,7 +695,7 @@ class ForumTest extends TestCase {
     public function testForumTwig(): void {
         $this->category = (new Manager\ForumCategory())->create('phpunit category', 10011);
         $user = $this->userList['user'];
-        $this->forum = \GazelleUnitTest\Helper::makeForum(
+        $this->forum = Helper::makeForum(
             user:           $user,
             sequence:       154,
             category:       $this->category,

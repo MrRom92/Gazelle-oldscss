@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class RenderUserTest extends TestCase {
     protected array $userList;
@@ -18,9 +19,9 @@ class RenderUserTest extends TestCase {
     }
 
     public function testProfile(): void {
-        $this->userList['admin'] = \GazelleUnitTest\Helper::makeUser('admin.' . randomString(6), 'render');
+        $this->userList['admin'] = Helper::makeUser('admin.' . randomString(6), 'render');
         $this->userList['admin']->setField('PermissionID', SYSOP)->modify();
-        $this->userList['user'] = \GazelleUnitTest\Helper::makeUser('user.' . randomString(6), 'render');
+        $this->userList['user'] = Helper::makeUser('user.' . randomString(6), 'render');
 
         $limiter = new User\UserclassRateLimit($this->userList['user']);
         $userMan = new Manager\User();

@@ -22,6 +22,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\ReaperNotify;
 use Gazelle\Enum\ReaperState;
 
@@ -33,14 +34,14 @@ class ReaperTest extends TestCase {
     public function setUp(): void {
         // we need two users, one who uploads and one who snatches
         $this->userList = [
-            \GazelleUnitTest\Helper::makeUser('reaper.' . randomString(10), 'reaper', enable: true, clearInbox: true),
-            \GazelleUnitTest\Helper::makeUser('reaper.' . randomString(10), 'reaper', enable: true, clearInbox: true),
+            Helper::makeUser('reaper.' . randomString(10), 'reaper', enable: true, clearInbox: true),
+            Helper::makeUser('reaper.' . randomString(10), 'reaper', enable: true, clearInbox: true),
         ];
         $this->userList[0]->requestContext()->setViewer($this->userList[0]);
 
         // create a torrent group
         $this->tgroupName = 'phpunit reaper ' . randomString(6);
-        $tgroup = \GazelleUnitTest\Helper::makeTGroupMusic(
+        $tgroup = Helper::makeTGroupMusic(
             name:       $this->tgroupName,
             artistName: [[ARTIST_MAIN], ['Reaper Girl ' . randomString(12)]],
             tagName:    ['electronic'],
@@ -49,7 +50,7 @@ class ReaperTest extends TestCase {
 
         // and add some torrents to the group
         $this->torrentList = array_map(fn($info) =>
-            \GazelleUnitTest\Helper::makeTorrentMusic(
+            Helper::makeTorrentMusic(
                 tgroup: $tgroup,
                 user:   $this->userList[0],
                 title:  $info['title'],
@@ -62,7 +63,7 @@ class ReaperTest extends TestCase {
 
     public function tearDown(): void {
         $this->removeUnseededAlert($this->torrentList);
-        \GazelleUnitTest\Helper::removeTGroup($this->torrentList[0]->group(), $this->userList[0]);
+        Helper::removeTGroup($this->torrentList[0]->group(), $this->userList[0]);
         foreach ($this->userList as $user) {
             $user->remove();
         }
@@ -230,7 +231,7 @@ class ReaperTest extends TestCase {
         $pm->remove();
 
         // reseed one of the torrents by the uploader
-        \GazelleUnitTest\Helper::generateTorrentSeed($this->torrentList[0], $this->torrentList[0]->uploader());
+        Helper::generateTorrentSeed($this->torrentList[0], $this->torrentList[0]->uploader());
         $this->torrentList[1]->setField('created', date('Y-m-d H:i:s'))->modify();
 
         // reset the time of the remaing never seeded alert back in time to hit
@@ -301,7 +302,7 @@ class ReaperTest extends TestCase {
             $this->modifyLastAction($torrent, NOTIFY_UNSEEDED_INITIAL_HOUR + 2);
             // pretend they were snatched
             foreach ($this->userList as $user) {
-                \GazelleUnitTest\Helper::generateTorrentSnatch($torrent, $user);
+                Helper::generateTorrentSnatch($torrent, $user);
             }
         }
 
@@ -358,7 +359,7 @@ class ReaperTest extends TestCase {
 
         // snatcher reseeds the first upload
         $this->modifyUnseededInterval($this->torrentList[0], NOTIFY_UNSEEDED_INITIAL_HOUR + 3);
-        \GazelleUnitTest\Helper::generateTorrentSeed($this->torrentList[0], $this->userList[1]);
+        Helper::generateTorrentSeed($this->torrentList[0], $this->userList[1]);
 
         // and wins the glory
         $bonus = $this->userList[1]->bonusPointsTotal();
@@ -478,7 +479,7 @@ class ReaperTest extends TestCase {
             $hour = NOTIFY_UNSEEDED_INITIAL_HOUR + 1;
             $torrent->setField('created', date('Y-m-d H:i:s', strtotime("-{$hour} hours")))->modify();
             $this->modifyLastAction($torrent, NOTIFY_UNSEEDED_INITIAL_HOUR + 2);
-            \GazelleUnitTest\Helper::generateTorrentSnatch($torrent, $this->userList[1]);
+            Helper::generateTorrentSnatch($torrent, $this->userList[1]);
         }
 
         // look for unseeded

@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class LogTest extends TestCase {
     protected const PREFIX = 'phpunit-logtest ';
@@ -52,10 +53,10 @@ class LogTest extends TestCase {
     }
 
     public function testGroupLog(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('sitelog.' . randomString(6), 'sitelog');
+        $this->user = Helper::makeUser('sitelog.' . randomString(6), 'sitelog');
         $this->user->requestContext()->setViewer($this->user);
         $logger = $this->user->logger();
-        $this->tgroup = \GazelleUnitTest\Helper::makeTGroupMusic(
+        $this->tgroup = Helper::makeTGroupMusic(
             $this->user,
             'phpunit log ' . randomString(6),
             [[ARTIST_MAIN], ['phpunit log artist ' . randomString(6)]],
@@ -76,7 +77,7 @@ class LogTest extends TestCase {
         $this->assertEquals(1, $latest['deleted'], 'grouplog-latest-is-deleted');
         $this->assertEquals(0, $latest['torrent_id'], 'grouplog-latest-no-torrent-id');
 
-        $this->tgroupNew = \GazelleUnitTest\Helper::makeTGroupMusic(
+        $this->tgroupNew = Helper::makeTGroupMusic(
             $this->user,
             'phpunit log ' . randomString(6),
             [[ARTIST_MAIN], ['phpunit log artist ' . randomString(6)]],
@@ -99,16 +100,16 @@ class LogTest extends TestCase {
     }
 
     public function testTorrentlLog(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('sitelog.' . randomString(6), 'sitelog');
+        $this->user = Helper::makeUser('sitelog.' . randomString(6), 'sitelog');
         $this->user->requestContext()->setViewer($this->user);
         $logger = $this->user->logger();
-        $this->tgroup = \GazelleUnitTest\Helper::makeTGroupMusic(
+        $this->tgroup = Helper::makeTGroupMusic(
             $this->user,
             'phpunit log ' . randomString(6),
             [[ARTIST_MAIN], ['phpunit log artist ' . randomString(6)]],
             ['log.jam']
         );
-        $torrent = \GazelleUnitTest\Helper::makeTorrentMusic(
+        $torrent = Helper::makeTorrentMusic(
             tgroup: $this->tgroup,
             user:  $this->user,
             title: randomString(10),
@@ -127,7 +128,7 @@ class LogTest extends TestCase {
     }
 
     public function testRenderLog(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('sitelog.' . randomString(6), 'sitelog');
+        $this->user = Helper::makeUser('sitelog.' . randomString(6), 'sitelog');
         $logger = $this->user->logger();
         $message = self::PREFIX . "general " . randomString();
         $logger->general($message);

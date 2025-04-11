@@ -3,12 +3,13 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class UserOrdinalTest extends TestCase {
     protected User $user;
 
     public function setUp(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('ord.' . randomString(10), 'ord');
+        $this->user = Helper::makeUser('ord.' . randomString(10), 'ord');
     }
 
     public function tearDown(): void {

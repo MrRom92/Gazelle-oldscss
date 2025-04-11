@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class CommentTest extends TestCase {
     protected Artist  $artist;
@@ -12,7 +13,7 @@ class CommentTest extends TestCase {
     protected User    $user;
 
     public function setUp(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('comment.' . randomString(10), 'comment');
+        $this->user = Helper::makeUser('comment.' . randomString(10), 'comment');
         $this->user->requestContext()->setViewer($this->user);
     }
 
@@ -27,7 +28,7 @@ class CommentTest extends TestCase {
             $this->request->remove();
         }
         if (isset($this->torrent)) {
-            \GazelleUnitTest\Helper::removeTGroup($this->torrent->group(), $this->user);
+            Helper::removeTGroup($this->torrent->group(), $this->user);
         }
         $this->user->remove();
     }
@@ -120,8 +121,8 @@ class CommentTest extends TestCase {
 
     public function testCommentTGroup(): void {
         $manager = new Manager\Comment();
-        $this->torrent = \GazelleUnitTest\Helper::makeTorrentMusic(
-            tgroup: \GazelleUnitTest\Helper::makeTGroupMusic(
+        $this->torrent = Helper::makeTorrentMusic(
+            tgroup: Helper::makeTGroupMusic(
                 name:       'phpunit comment ' . randomString(6),
                 artistName: [[ARTIST_MAIN], ['Comment Sister ' . randomString(12)]],
                 tagName:    ['jazz'],

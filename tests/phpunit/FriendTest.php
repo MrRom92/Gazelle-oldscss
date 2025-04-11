@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class FriendTest extends TestCase {
     protected array $friend;
@@ -16,9 +17,9 @@ class FriendTest extends TestCase {
     public function testFriend(): void {
         $manager = new Manager\User();
         $this->friend = [
-            new User\Friend(\GazelleUnitTest\Helper::makeUser('friend1.' . randomString(6), 'friend1')),
-            new User\Friend(\GazelleUnitTest\Helper::makeUser('friend2.' . randomString(6), 'friend2')),
-            new User\Friend(\GazelleUnitTest\Helper::makeUser('friend3.' . randomString(6), 'friend3')),
+            new User\Friend(Helper::makeUser('friend1.' . randomString(6), 'friend1')),
+            new User\Friend(Helper::makeUser('friend2.' . randomString(6), 'friend2')),
+            new User\Friend(Helper::makeUser('friend3.' . randomString(6), 'friend3')),
         ];
 
         // in the beginning

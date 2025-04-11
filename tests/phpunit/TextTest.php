@@ -4,6 +4,7 @@ namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use GazelleUnitTest\Helper;
 
 class TextTest extends TestCase {
     protected array $userList;
@@ -31,7 +32,7 @@ class TextTest extends TestCase {
 
     #[DataProvider('dataBB')]
     public function testBB(string $name, string $bbcode, string $expected): void {
-        $this->userList['user'] = \GazelleUnitTest\Helper::makeUser('bb.' . randomString(6), 'text');
+        $this->userList['user'] = Helper::makeUser('bb.' . randomString(6), 'text');
         \Text::setViewer($this->userList['user']);
         $this->assertEquals($expected, \Text::full_format($bbcode), $name);
     }
@@ -104,7 +105,7 @@ class TextTest extends TestCase {
     }
 
     public function testCollage(): void {
-        $this->userList['admin'] = \GazelleUnitTest\Helper::makeUser('collage.' . randomString(6), 'text');
+        $this->userList['admin'] = Helper::makeUser('collage.' . randomString(6), 'text');
         $this->userList['admin']->setField('PermissionID', SYSOP)->modify();
         $name    = 'collage ' . randomString(6);
         $collage = (new Manager\Collage())->create($this->userList['admin'], 1, $name, 'phpunit collage', 'jazz,disco');
@@ -130,12 +131,12 @@ class TextTest extends TestCase {
     }
 
     public function testForum(): void {
-        $this->userList['admin'] = \GazelleUnitTest\Helper::makeUser('forum.' . randomString(6), 'text');
+        $this->userList['admin'] = Helper::makeUser('forum.' . randomString(6), 'text');
         $this->userList['admin']->setField('PermissionID', SYSOP)->modify();
         \Text::setViewer($this->userList['admin']);
         $name  = 'forum ' . randomString(6);
         $category = (new Manager\ForumCategory())->create($name, 10003);
-        $forum = \GazelleUnitTest\Helper::makeForum(
+        $forum = Helper::makeForum(
             user:        $this->userList['admin'],
             sequence:    999,
             category:    $category,
@@ -328,7 +329,7 @@ END_HTML;
 
     public function testUser(): void {
         $username = 'text.' . randomString(6);
-        $this->userList['user'] = \GazelleUnitTest\Helper::makeUser($username, 'text');
+        $this->userList['user'] = Helper::makeUser($username, 'text');
         \Text::setViewer($this->userList['user']);
 
         $this->assertEquals("<a href=\"user.php?action=search&amp;search=$username\">$username</a>", \Text::full_format("[user]{$username}[/user]"), "text-user-1");

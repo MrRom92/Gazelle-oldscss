@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\UserAuditEvent;
 use Gazelle\Enum\UserTokenType;
 
@@ -12,7 +13,7 @@ class UserTokenTest extends TestCase {
     protected User $user;
 
     public function setUp(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('token.' . randomString(10), 'token');
+        $this->user = Helper::makeUser('token.' . randomString(10), 'token');
     }
 
     public function tearDown(): void {
@@ -23,7 +24,7 @@ class UserTokenTest extends TestCase {
     public function testUserTokenCreate(): void {
         $manager = new Manager\UserToken();
         $userToken = $manager->create(UserTokenType::password, $this->user);
-        $this->assertTrue(\GazelleUnitTest\Helper::recentDate($userToken->expiry()), 'usertoken-expiry');
+        $this->assertTrue(Helper::recentDate($userToken->expiry()), 'usertoken-expiry');
 
         $this->assertInstanceOf(User\Token::class, $manager->findById($userToken->id()), 'usertoken-find-by-id');
         $this->assertInstanceOf(User\Token::class, $manager->findByToken($userToken->value()), 'usertoken-find-by-token');

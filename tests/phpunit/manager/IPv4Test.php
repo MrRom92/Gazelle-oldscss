@@ -3,12 +3,13 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class IPv4Test extends TestCase {
     protected array $userList;
 
     public function setUp(): void {
-        $this->userList[] = \GazelleUnitTest\Helper::makeUser('ipv4.' . randomString(10), 'ipv4man');
+        $this->userList[] = Helper::makeUser('ipv4.' . randomString(10), 'ipv4man');
     }
 
     public function tearDown(): void {
@@ -75,10 +76,10 @@ class IPv4Test extends TestCase {
     public function testUserOther(): void {
         $now = time();
         $ip = '1.2.3.4';
-        $user2 = \GazelleUnitTest\Helper::makeUser('ipv4.' . randomString(10), 'ipv4man');
+        $user2 = Helper::makeUser('ipv4.' . randomString(10), 'ipv4man');
         $this->userList[] = $user2;
         $ipOther = '4.3.2.1';
-        $user3 = \GazelleUnitTest\Helper::makeUser('ipv4.' . randomString(10), 'ipv4man');
+        $user3 = Helper::makeUser('ipv4.' . randomString(10), 'ipv4man');
         $this->userList[] = $user3;
         $ipv4 = new Manager\IPv4();
         $ipv4->register($this->userList[0], $ip);

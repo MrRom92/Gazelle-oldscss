@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class RequestContextTest extends TestCase {
     protected User $user;
@@ -57,7 +58,7 @@ class RequestContextTest extends TestCase {
             (new Manager\TGroup())->requestContext()->remoteAddr(),
             'context-manager-ip',
         );
-        $this->user = \GazelleUnitTest\Helper::makeUser('base.' . randomString(6), 'base object');
+        $this->user = Helper::makeUser('base.' . randomString(6), 'base object');
         $this->assertEquals(
             'Chrome',
             $this->user->requestContext()->browser(),

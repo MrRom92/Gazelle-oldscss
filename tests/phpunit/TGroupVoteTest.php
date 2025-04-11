@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class TGroupVoteTest extends TestCase {
     protected array $tgroupList;
@@ -10,19 +11,19 @@ class TGroupVoteTest extends TestCase {
 
     public function setUp(): void {
         $this->userList = [
-            \GazelleUnitTest\Helper::makeUser('tgvote.' . randomString(10), 'vote'),
-            \GazelleUnitTest\Helper::makeUser('tgvote.' . randomString(10), 'vote'),
-            \GazelleUnitTest\Helper::makeUser('tgvote.' . randomString(10), 'vote'),
+            Helper::makeUser('tgvote.' . randomString(10), 'vote'),
+            Helper::makeUser('tgvote.' . randomString(10), 'vote'),
+            Helper::makeUser('tgvote.' . randomString(10), 'vote'),
         ];
         $this->userList[0]->requestContext()->setViewer($this->userList[0]);
         $this->tgroupList = [
-            \GazelleUnitTest\Helper::makeTGroupMusic(
+            Helper::makeTGroupMusic(
                 name:       'phpunit tgvote ' . randomString(6),
                 artistName: [[ARTIST_MAIN], ['phpunit tgvote ' . randomString(12)]],
                 tagName:    ['jazz'],
                 user:       $this->userList[0],
             ),
-            \GazelleUnitTest\Helper::makeTGroupMusic(
+            Helper::makeTGroupMusic(
                 name:       'phpunit tgvote ' . randomString(6),
                 artistName: [[ARTIST_MAIN], ['phpunit tgvote ' . randomString(12)]],
                 tagName:    ['metal'],
@@ -33,7 +34,7 @@ class TGroupVoteTest extends TestCase {
 
     public function tearDown(): void {
         foreach ($this->tgroupList as $tgroup) {
-            \GazelleUnitTest\Helper::removeTGroup($tgroup, $this->userList[0]);
+            Helper::removeTGroup($tgroup, $this->userList[0]);
         }
         foreach ($this->userList as $user) {
             $user->remove();

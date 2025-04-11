@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class CategoryTest extends TestCase {
     public function testCategory(): void {
@@ -23,14 +24,14 @@ class CategoryTest extends TestCase {
     public function testChangeCategory(): void {
         $tgMan  = new Manager\TGroup();
         $torMan = new Manager\Torrent();
-        $user   = \GazelleUnitTest\Helper::makeUser('tgcat.' . randomString(10), 'tgroup-cat');
+        $user   = Helper::makeUser('tgcat.' . randomString(10), 'tgroup-cat');
         $user->requestContext()->setViewer($user);
-        $tgroup = \GazelleUnitTest\Helper::makeTGroupEBook(
+        $tgroup = Helper::makeTGroupEBook(
             name: 'phpunit category change ' . randomString(6),
         );
         $this->assertFalse($tgroup->hasArtistRole(), 'tgroup-cat-non-music');
         $torrentList = array_map(fn($info) =>
-            \GazelleUnitTest\Helper::makeTorrentEBook(
+            Helper::makeTorrentEBook(
                 tgroup:      $tgroup,
                 user:        $user,
                 description: $info['description'],

@@ -2,8 +2,9 @@
 
 namespace Gazelle;
 
-use Gazelle\Enum\ReportAutoState;
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
+use Gazelle\Enum\ReportAutoState;
 
 class SearchReportAutoTest extends TestCase {
     protected static Manager\User $userMan;
@@ -29,8 +30,8 @@ class SearchReportAutoTest extends TestCase {
         self::$userMan = new Manager\User();
         self::$ratMan = new Manager\ReportAutoType();
         self::$raMan = new Manager\ReportAuto(self::$ratMan);
-        self::$user1 = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'reportautosearch', enable: true, clearInbox: true);
-        self::$user2 = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'reportautosearch', enable: true, clearInbox: true);
+        self::$user1 = Helper::makeUser('user.' . randomString(10), 'reportautosearch', enable: true, clearInbox: true);
+        self::$user2 = Helper::makeUser('user.' . randomString(10), 'reportautosearch', enable: true, clearInbox: true);
         self::$type1 = self::$ratMan->create('rasearch test type1' . randomString(10), '');
         self::$type2 = self::$ratMan->create('rasearch test type2' . randomString(10), '');
 

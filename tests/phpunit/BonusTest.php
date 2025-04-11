@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\UserStatus;
 
 class BonusTest extends TestCase {
@@ -15,8 +16,8 @@ class BonusTest extends TestCase {
     }
 
     public function testBonus(): void {
-        $this->userList['giver'] = \GazelleUnitTest\Helper::makeUser('bonusg.' . randomString(6), 'bonus', true);
-        $this->userList['receiver'] = \GazelleUnitTest\Helper::makeUser('bonusr.' . randomString(6), 'bonus', true);
+        $this->userList['giver'] = Helper::makeUser('bonusg.' . randomString(6), 'bonus', true);
+        $this->userList['receiver'] = Helper::makeUser('bonusr.' . randomString(6), 'bonus', true);
         $startingPoints = 10000;
 
         $giver = new User\Bonus($this->userList['giver']);
@@ -133,7 +134,7 @@ class BonusTest extends TestCase {
         $total    = $eco->bonusTotal();
         $stranded = $eco->bonusStrandedTotal();
 
-        $this->userList['bonus'] = \GazelleUnitTest\Helper::makeUser('bonusstat.' . randomString(6), 'bonus', true);
+        $this->userList['bonus'] = Helper::makeUser('bonusstat.' . randomString(6), 'bonus', true);
         $bonus = new User\Bonus($this->userList['bonus']);
         $bonus->addPoints(98765);
 

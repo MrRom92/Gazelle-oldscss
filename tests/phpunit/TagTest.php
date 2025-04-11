@@ -209,13 +209,13 @@ class TagTest extends TestCase {
     public function testTGroup(): void {
         $this->user = Helper::makeUser('tag.' . randomString(8), 'tag.tgroup');
         $this->user->requestContext()->setViewer($this->user);
-        $this->tgroup = \GazelleUnitTest\Helper::makeTGroupMusic(
+        $this->tgroup = Helper::makeTGroupMusic(
             name:       'phpunit tag ' . randomString(6),
             artistName: [[ARTIST_MAIN], ['Tag Girl ' . randomString(12)]],
             tagName:    ['phpunit.electronic', 'phpunit.folk', 'phpunit.disco'],
             user:       $this->user,
         );
-        \GazelleUnitTest\Helper::makeTorrentMusic(
+        Helper::makeTorrentMusic(
             tgroup: $this->tgroup,
             user:   $this->user,
         );
@@ -247,12 +247,12 @@ class TagTest extends TestCase {
     }
 
     public function testReAdd(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('tag.' . randomString(8), 'tag.readd');
+        $this->user = Helper::makeUser('tag.' . randomString(8), 'tag.readd');
         $this->user->requestContext()->setViewer($this->user);
         $manager      = new Manager\Tag();
         $name         = self::PREFIX . randomString(10);
         $tag          = $manager->create($name, $this->user);
-        $this->tgroup = \GazelleUnitTest\Helper::makeTGroupMusic(
+        $this->tgroup = Helper::makeTGroupMusic(
             name:       'phpunit tag ' . randomString(6),
             artistName: [[ARTIST_MAIN], ['Tag Girl ' . randomString(12)]],
             tagName:    [$name],
@@ -262,17 +262,17 @@ class TagTest extends TestCase {
     }
 
     public function testSplitNew(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('tag.' . randomString(8), 'tag.split');
+        $this->user = Helper::makeUser('tag.' . randomString(8), 'tag.split');
         $this->user->requestContext()->setViewer($this->user);
         $manager = new Manager\Tag();
         $name    = self::PREFIX . randomString(10);
         $tag     = $manager->create($name, $this->user);
 
         $this->user->addBounty(500 * 1024 ** 3);
-        $this->request = \GazelleUnitTest\Helper::makeRequestMusic($this->user, 'phpunit tag split new request');
+        $this->request = Helper::makeRequestMusic($this->user, 'phpunit tag split new request');
         $tag->addRequest($this->request);
         $this->assertEquals(1, $tag->flush()->uses(), 'tag-instance-use-1');
-        $this->tgroup = \GazelleUnitTest\Helper::makeTGroupMusic(
+        $this->tgroup = Helper::makeTGroupMusic(
             name:       'phpunit tag ' . randomString(6),
             artistName: [[ARTIST_MAIN], ['Tag Girl ' . randomString(12)]],
             tagName:    [$name],
@@ -313,16 +313,16 @@ class TagTest extends TestCase {
     }
 
     public function testSplitExisting(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('tag.' . randomString(8), 'tag.split');
+        $this->user = Helper::makeUser('tag.' . randomString(8), 'tag.split');
         $this->user->requestContext()->setViewer($this->user);
         $manager = new Manager\Tag();
         $name    = self::PREFIX . randomString(10);
         $tag     = $manager->create($name, $this->user);
 
         $this->user->addBounty(500 * 1024 ** 3);
-        $this->request = \GazelleUnitTest\Helper::makeRequestMusic($this->user, 'phpunit user promote request');
+        $this->request = Helper::makeRequestMusic($this->user, 'phpunit user promote request');
         $tag->addRequest($this->request);
-        $this->tgroup = \GazelleUnitTest\Helper::makeTGroupMusic(
+        $this->tgroup = Helper::makeTGroupMusic(
             name:       'phpunit tag ' . randomString(6),
             artistName: [[ARTIST_MAIN], ['Tag Girl ' . randomString(12)]],
             tagName:    [$name],
@@ -364,7 +364,7 @@ class TagTest extends TestCase {
     }
 
     public function testTag(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('tag.' . randomString(8), 'tag.tgroup');
+        $this->user = Helper::makeUser('tag.' . randomString(8), 'tag.tgroup');
         $manager    = new Manager\Tag();
         $name       = self::PREFIX . randomString(10);
         $tag        = $manager->create($name, $this->user);

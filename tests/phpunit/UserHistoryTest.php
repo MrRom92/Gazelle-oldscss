@@ -3,12 +3,13 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class UserHistoryTest extends TestCase {
     protected array $userList;
 
     public function setUp(): void {
-        $this->userList = [\GazelleUnitTest\Helper::makeUser('userhist.' . randomString(6), 'userhist')];
+        $this->userList = [Helper::makeUser('userhist.' . randomString(6), 'userhist')];
     }
 
     public function tearDown(): void {
@@ -41,7 +42,7 @@ class UserHistoryTest extends TestCase {
     }
 
     public function testEmailDuplicate(): void {
-        $user = \GazelleUnitTest\Helper::makeUser('userhist.' . randomString(6), 'userhist');
+        $user = Helper::makeUser('userhist.' . randomString(6), 'userhist');
         $this->userList[] = $user;
 
         $email   = $this->userList[0]->email();

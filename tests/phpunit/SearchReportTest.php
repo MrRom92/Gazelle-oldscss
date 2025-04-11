@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class SearchReportTest extends TestCase {
     protected array $reportList = [];
@@ -12,8 +13,8 @@ class SearchReportTest extends TestCase {
 
     public function setUp(): void {
         $this->userList = [
-            \GazelleUnitTest\Helper::makeUser('searchrep.' . randomString(10), 'searchrep', enable: true, clearInbox: true),
-            \GazelleUnitTest\Helper::makeUser('searchrep.' . randomString(10), 'searchrep', enable: true, clearInbox: true),
+            Helper::makeUser('searchrep.' . randomString(10), 'searchrep', enable: true, clearInbox: true),
+            Helper::makeUser('searchrep.' . randomString(10), 'searchrep', enable: true, clearInbox: true),
         ];
 
         $this->collage = (new Manager\Collage())->create(

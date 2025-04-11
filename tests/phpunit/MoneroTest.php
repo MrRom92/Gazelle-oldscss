@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class MoneroTest extends TestCase {
     public function testMoneroAddress(): void {
@@ -11,7 +12,7 @@ class MoneroTest extends TestCase {
         $mainDecoded = $cn->decode_address($mainAddress);
         $m = new Donate\Monero($mainAddress);
 
-        $user = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'monero');
+        $user = Helper::makeUser('user.' . randomString(10), 'monero');
         $addr = $m->address($user->id);
         $addr2 = $m->address($user->id);
 

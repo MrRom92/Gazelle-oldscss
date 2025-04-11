@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class DuplicateIpTest extends TestCase {
     protected array $userList;
@@ -10,11 +11,11 @@ class DuplicateIpTest extends TestCase {
     public function setUp(): void {
         $ip = '169.254.0.1';
         $this->userList = [
-            \GazelleUnitTest\Helper::makeUser('dupip.' . randomString(10), 'duplicate.ip')->setField('IP', $ip)->setField('Enabled', '1'),
-            \GazelleUnitTest\Helper::makeUser('dupip.' . randomString(10), 'duplicate.ip')->setField('IP', $ip)->setField('Enabled', '1'),
-            \GazelleUnitTest\Helper::makeUser('dupip.' . randomString(10), 'duplicate.ip')->setField('IP', $ip)->setField('Enabled', '1'),
-            \GazelleUnitTest\Helper::makeUser('dupip.' . randomString(10), 'duplicate.ip')->setField('IP', $ip)->setField('Enabled', '1'),
-            \GazelleUnitTest\Helper::makeUser('dupip.' . randomString(10), 'duplicate.ip')->setField('IP', $ip)->setField('Enabled', '1'),
+            Helper::makeUser('dupip.' . randomString(10), 'duplicate.ip')->setField('IP', $ip)->setField('Enabled', '1'),
+            Helper::makeUser('dupip.' . randomString(10), 'duplicate.ip')->setField('IP', $ip)->setField('Enabled', '1'),
+            Helper::makeUser('dupip.' . randomString(10), 'duplicate.ip')->setField('IP', $ip)->setField('Enabled', '1'),
+            Helper::makeUser('dupip.' . randomString(10), 'duplicate.ip')->setField('IP', $ip)->setField('Enabled', '1'),
+            Helper::makeUser('dupip.' . randomString(10), 'duplicate.ip')->setField('IP', $ip)->setField('Enabled', '1'),
         ];
         foreach ($this->userList as $user) {
             $user->modify();

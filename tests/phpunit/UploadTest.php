@@ -3,12 +3,13 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class UploadTest extends TestCase {
     protected User $user;
 
     public function setUp(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('upload.' . randomString(6), 'upload');
+        $this->user = Helper::makeUser('upload.' . randomString(6), 'upload');
     }
 
     public function tearDown(): void {

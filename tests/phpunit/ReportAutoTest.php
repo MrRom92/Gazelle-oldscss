@@ -3,14 +3,15 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class ReportAutoTest extends TestCase {
     protected User $user1;
     protected User $user2;
 
     public function setUp(): void {
-        $this->user1 = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'reportauto', enable: true, clearInbox: true);
-        $this->user2 = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'reportauto', enable: true, clearInbox: true);
+        $this->user1 = Helper::makeUser('user.' . randomString(10), 'reportauto', enable: true, clearInbox: true);
+        $this->user2 = Helper::makeUser('user.' . randomString(10), 'reportauto', enable: true, clearInbox: true);
     }
 
     public function tearDown(): void {

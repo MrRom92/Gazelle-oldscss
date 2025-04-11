@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\UserAuditEvent;
 
 class UserAuditTrailTest extends TestCase {
@@ -18,7 +19,7 @@ class UserAuditTrailTest extends TestCase {
     }
 
     public function testAuditTrailCreate(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('uat.' . randomString(10), 'uat');
+        $this->user = Helper::makeUser('uat.' . randomString(10), 'uat');
         $this->assertInstanceOf(
             \Gazelle\User\AuditTrail::class,
             $this->user->auditTrail(),
@@ -42,12 +43,12 @@ class UserAuditTrailTest extends TestCase {
     }
 
     public function testAuditTrailAbsent(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('uat.' . randomString(10), 'uat');
+        $this->user = Helper::makeUser('uat.' . randomString(10), 'uat');
         $this->assertFalse($this->user->auditTrail()->hasEvent(UserAuditEvent::mfa), 'uat-event-absent');
     }
 
     public function testAuditTrailMigrate(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('uat.' . randomString(10), 'uat');
+        $this->user = Helper::makeUser('uat.' . randomString(10), 'uat');
         $staffNoteList = [
             '2033-03-03 03:03:03 - three',
             '2022-02-02 02:02:02 - two',
@@ -68,7 +69,7 @@ class UserAuditTrailTest extends TestCase {
     }
 
     public function testAuditTrailStaffNote(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('uat.' . randomString(10), 'uat');
+        $this->user = Helper::makeUser('uat.' . randomString(10), 'uat');
         $auditTrail = $this->user->auditTrail();
         $this->assertFalse($this->user->auditTrail()->hasEvent(UserAuditEvent::historical), 'uat-not-staff-note-migrated');
 
@@ -90,8 +91,8 @@ class UserAuditTrailTest extends TestCase {
     }
 
     public function testAuditTrailCreatorStaffNote(): void {
-        $this->user  = \GazelleUnitTest\Helper::makeUser('uat.' . randomString(10), 'uat');
-        $this->admin = \GazelleUnitTest\Helper::makeUser('uat.adm.' . randomString(10), 'uat');
+        $this->user  = Helper::makeUser('uat.' . randomString(10), 'uat');
+        $this->admin = Helper::makeUser('uat.adm.' . randomString(10), 'uat');
         $this->user->auditTrail()->resetAuditTrail();
 
         $this->user->setField('AdminComment', date('Y-m-d H:m:s') . " - One by {$this->admin->username()}")->modify();
@@ -105,7 +106,7 @@ class UserAuditTrailTest extends TestCase {
     }
 
     public function testAuditTrailModify(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('uat.' . randomString(10), 'uat');
+        $this->user = Helper::makeUser('uat.' . randomString(10), 'uat');
         $auditTrail = $this->user->auditTrail();
         $auditTrail->resetAuditTrail();
         $id1 = $auditTrail->addEvent(UserAuditEvent::staffNote, 'phpunit first');
@@ -132,7 +133,7 @@ class UserAuditTrailTest extends TestCase {
     }
 
     public function testUserUpdate(): void {
-        $this->user  = \GazelleUnitTest\Helper::makeUser('uat.' . randomString(10), 'uat');
+        $this->user  = Helper::makeUser('uat.' . randomString(10), 'uat');
         $this->assertEquals($this->user->updated(), $this->user->created(), 'user-updated-is-created');
         $checkpoint = $this->user->checkpoint();
         sleep(1); // ensure created != updated

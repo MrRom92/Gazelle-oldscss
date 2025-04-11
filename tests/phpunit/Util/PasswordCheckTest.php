@@ -3,13 +3,14 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Util\PasswordCheck;
 
 class PasswordCheckTest extends TestCase {
     protected User $user;
 
     public function setUp(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('Pas5wd' . randomString(12), 'passwordStrength');
+        $this->user = Helper::makeUser('Pas5wd' . randomString(12), 'passwordStrength');
     }
 
     public function tearDown(): void {

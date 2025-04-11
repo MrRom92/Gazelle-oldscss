@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\UserAuditEvent;
 use Gazelle\Enum\UserStatus;
 
@@ -12,9 +13,9 @@ class UserManagerTest extends TestCase {
 
     public function setUp(): void {
         $this->userList = [
-            \GazelleUnitTest\Helper::makeUser('um1.' . randomString(10), 'userman', enable: true, clearInbox: true),
-            \GazelleUnitTest\Helper::makeUser('um2.' . randomString(10), 'userman', enable: true, clearInbox: true),
-            \GazelleUnitTest\Helper::makeUser('um3.' . randomString(10), 'userman', enable: true, clearInbox: true),
+            Helper::makeUser('um1.' . randomString(10), 'userman', enable: true, clearInbox: true),
+            Helper::makeUser('um2.' . randomString(10), 'userman', enable: true, clearInbox: true),
+            Helper::makeUser('um3.' . randomString(10), 'userman', enable: true, clearInbox: true),
         ];
     }
 
@@ -207,7 +208,7 @@ class UserManagerTest extends TestCase {
 
         // 11GiB and create a request for 5GiB to be eligible for User => Member promotion
         $user1->setField('leech_upload', 11 * 1024 ** 3)->modify();
-        $this->request = \GazelleUnitTest\Helper::makeRequestMusic($user1, 'phpunit user promote request');
+        $this->request = Helper::makeRequestMusic($user1, 'phpunit user promote request');
         $this->assertTrue($this->request->vote($user1, 5 * 1024 ** 3), 'uman-user-member-req-vote');
 
         // recompute user request stats

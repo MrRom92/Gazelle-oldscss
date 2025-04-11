@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 define('FAKE_LEVEL', 666);
@@ -17,8 +18,8 @@ class PrivilegeTest extends TestCase {
 
     public function setUp(): void {
         $this->userList = [
-            'admin' => \GazelleUnitTest\Helper::makeUser('priv1.' . randomString(6), 'request'),
-            'user'  => \GazelleUnitTest\Helper::makeUser('priv2.' . randomString(6), 'request'),
+            'admin' => Helper::makeUser('priv1.' . randomString(6), 'request'),
+            'user'  => Helper::makeUser('priv2.' . randomString(6), 'request'),
         ];
         $this->userList['admin']->setField('PermissionID', SYSOP)->modify();
     }

@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class UserLinkTest extends TestCase {
     protected array $userList = [];
@@ -14,7 +15,7 @@ class UserLinkTest extends TestCase {
     }
 
     public function testUserLinkBasic(): void {
-        $this->userList[] = \GazelleUnitTest\Helper::makeUser('ul1.' . randomString(10), 'userlink');
+        $this->userList[] = Helper::makeUser('ul1.' . randomString(10), 'userlink');
         $linker = new User\UserLink($this->userList[0]);
 
         $this->assertInstanceOf(User\UserLink::class, $linker->flush(), 'user-link-flush');
@@ -24,8 +25,8 @@ class UserLinkTest extends TestCase {
 
     public function testUserLinkInfo(): void {
         $this->userList = [
-            \GazelleUnitTest\Helper::makeUser('ul1.' . randomString(10), 'userlink'),
-            \GazelleUnitTest\Helper::makeUser('ul2.' . randomString(10), 'userlink'),
+            Helper::makeUser('ul1.' . randomString(10), 'userlink'),
+            Helper::makeUser('ul2.' . randomString(10), 'userlink'),
         ];
         $linker = new User\UserLink($this->userList[0]);
 
@@ -80,9 +81,9 @@ class UserLinkTest extends TestCase {
 
     public function testUserLinkLifeCycle(): void {
         $this->userList = [
-            \GazelleUnitTest\Helper::makeUser('ul1.' . randomString(10), 'userlink'),
-            \GazelleUnitTest\Helper::makeUser('ul2.' . randomString(10), 'userlink'),
-            \GazelleUnitTest\Helper::makeUser('ul3.' . randomString(10), 'userlink'),
+            Helper::makeUser('ul1.' . randomString(10), 'userlink'),
+            Helper::makeUser('ul2.' . randomString(10), 'userlink'),
+            Helper::makeUser('ul3.' . randomString(10), 'userlink'),
         ];
         $linker = new User\UserLink($this->userList[0]);
         $linker->dupe($this->userList[1], $this->userList[0], true);
@@ -102,11 +103,11 @@ class UserLinkTest extends TestCase {
 
     public function testUserLinkMergeGroup(): void {
         $this->userList = [
-            \GazelleUnitTest\Helper::makeUser('ul0.' . randomString(10), 'userlink'), // the admin
-            \GazelleUnitTest\Helper::makeUser('ul1.' . randomString(10), 'userlink'),
-            \GazelleUnitTest\Helper::makeUser('ul2.' . randomString(10), 'userlink'),
-            \GazelleUnitTest\Helper::makeUser('ul3.' . randomString(10), 'userlink'),
-            \GazelleUnitTest\Helper::makeUser('ul4.' . randomString(10), 'userlink'),
+            Helper::makeUser('ul0.' . randomString(10), 'userlink'), // the admin
+            Helper::makeUser('ul1.' . randomString(10), 'userlink'),
+            Helper::makeUser('ul2.' . randomString(10), 'userlink'),
+            Helper::makeUser('ul3.' . randomString(10), 'userlink'),
+            Helper::makeUser('ul4.' . randomString(10), 'userlink'),
         ];
 
         // link 1 and 2

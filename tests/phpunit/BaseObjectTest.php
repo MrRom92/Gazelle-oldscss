@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class BaseObjectTest extends TestCase {
     protected array $objectList = [];
@@ -14,7 +15,7 @@ class BaseObjectTest extends TestCase {
     }
 
     public function testBaseObject(): void {
-        $this->objectList[] = $object = \GazelleUnitTest\Helper::makeUser('bo.' . randomString(6), 'base object');
+        $this->objectList[] = $object = Helper::makeUser('bo.' . randomString(6), 'base object');
 
         $this->assertFalse($object->dirty(), 'base-object-initial');
         $this->assertNull($object->field('phpunit'), 'base-object-no-field');
@@ -31,19 +32,19 @@ class BaseObjectTest extends TestCase {
         $date = $object->created();
         $this->assertTrue($object->setFieldNow('created')->modify(), 'base-object-primary-table-now');
         $this->assertNotEquals($date, $object->created(), 'base-object-primary-remodified');
-        $this->assertTrue(\GazelleUnitTest\Helper::recentDate($object->created()), 'base-object-primary-recent');
+        $this->assertTrue(Helper::recentDate($object->created()), 'base-object-primary-recent');
 
         $this->assertTrue($object->setField('BanDate', '2020-02-02')->modify(), 'base-object-aux-modify');
         $date = $object->banDate();
         $this->assertTrue($object->setFieldNow('BanDate')->modify(), 'base-object-aux-now');
         $this->assertNotEquals($date, $object->banDate(), 'base-object-aux-remodified');
-        $this->assertTrue(\GazelleUnitTest\Helper::recentDate($object->banDate()), 'base-object-aux-recent');
+        $this->assertTrue(Helper::recentDate($object->banDate()), 'base-object-aux-recent');
     }
 
     public function testObjectGenerator(): void {
-        $this->objectList[] = \GazelleUnitTest\Helper::makeUser('bo.' . randomString(6), 'base object');
-        $this->objectList[] = \GazelleUnitTest\Helper::makeUser('bo.' . randomString(6), 'base object');
-        $this->objectList[] = \GazelleUnitTest\Helper::makeUser('bo.' . randomString(6), 'base object');
+        $this->objectList[] = Helper::makeUser('bo.' . randomString(6), 'base object');
+        $this->objectList[] = Helper::makeUser('bo.' . randomString(6), 'base object');
+        $this->objectList[] = Helper::makeUser('bo.' . randomString(6), 'base object');
 
         $idList = array_map(fn($obj) => $obj->id(), $this->objectList);
         $gen = object_generator(new Manager\User(), $idList);

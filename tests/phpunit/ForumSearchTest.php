@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class ForumSearchTest extends TestCase {
     protected ForumCategory $category;
@@ -11,7 +12,7 @@ class ForumSearchTest extends TestCase {
     protected User          $user;
 
     public function setUp(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'forum');
+        $this->user = Helper::makeUser('user.' . randomString(10), 'forum');
     }
 
     public function tearDown(): void {
@@ -23,7 +24,7 @@ class ForumSearchTest extends TestCase {
 
     public function testForumSearchThread(): void {
         $this->category = (new Manager\ForumCategory())->create('phpunit category', 10001);
-        $this->forum  = \GazelleUnitTest\Helper::makeForum(
+        $this->forum  = Helper::makeForum(
             user:        $this->user,
             sequence:    250,
             category:    $this->category,
@@ -66,7 +67,7 @@ class ForumSearchTest extends TestCase {
 
     public function testForumSearchAuthor(): void {
         $this->category = (new Manager\ForumCategory())->create('phpunit category', 10001);
-        $this->forum  = \GazelleUnitTest\Helper::makeForum(
+        $this->forum  = Helper::makeForum(
             user:        $this->user,
             sequence:    250,
             category:    $this->category,

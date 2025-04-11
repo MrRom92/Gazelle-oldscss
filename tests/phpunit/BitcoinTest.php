@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class BitcoinTest extends TestCase {
     public function testBitcoinAddress(): void {
@@ -11,7 +12,7 @@ class BitcoinTest extends TestCase {
             ->create('testBAddr' . randomString(6), 'testBAddr' . randomString(6), -1);
         $b = new Donate\Bitcoin($zpub, $counter);
 
-        $user = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'bitcoin');
+        $user = Helper::makeUser('user.' . randomString(10), 'bitcoin');
         $addr = $b->address($user->id);
         $addr2 = $b->address($user->id);
 
@@ -36,7 +37,7 @@ class BitcoinTest extends TestCase {
             ->create('addrXpub' . randomString(6), 'testAddrXpub' . randomString(6), -1);
         $b = new Donate\Bitcoin($xpub, $counter);
 
-        $user = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'bitcoinxpub');
+        $user = Helper::makeUser('user.' . randomString(10), 'bitcoinxpub');
         $addr = $b->address($user->id);
         $this->assertEquals('1JdkxJzyGgUB9m77GsmRZExxLeizmxtQsq', $addr, 'bitcoin-verify-xpub');
         $this->assertTrue($b->invalidate($user->id), 'bitcoin-invalidate-xpub'); // cleanup
@@ -49,7 +50,7 @@ class BitcoinTest extends TestCase {
             ->create('addrYpub' . randomString(6), 'testAddrYpub' . randomString(6), -1);
         $b = new Donate\Bitcoin($ypub, $counter);
 
-        $user = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'bitcoinypub');
+        $user = Helper::makeUser('user.' . randomString(10), 'bitcoinypub');
         $addr = $b->address($user->id);
         $this->assertEquals('3DYoBqQ5N6dADzyQjy9FT1Ls4amiYVaqTG', $addr, 'bitcoin-verify-ypub');
         $this->assertTrue($b->invalidate($user->id), 'bitcoin-invalidate-ypub'); // cleanup

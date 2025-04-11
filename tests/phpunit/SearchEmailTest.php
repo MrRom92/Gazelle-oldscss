@@ -3,15 +3,16 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class SearchEmailTest extends TestCase {
     protected array $userList;
 
     public function setUp(): void {
         $this->userList = [
-            \GazelleUnitTest\Helper::makeUser('email1.' . randomString(10), 'email-search'),
-            \GazelleUnitTest\Helper::makeUser('email2.' . randomString(10), 'email-search'),
-            \GazelleUnitTest\Helper::makeUser('email3.' . randomString(10), 'email-search'),
+            Helper::makeUser('email1.' . randomString(10), 'email-search'),
+            Helper::makeUser('email2.' . randomString(10), 'email-search'),
+            Helper::makeUser('email3.' . randomString(10), 'email-search'),
         ];
     }
 

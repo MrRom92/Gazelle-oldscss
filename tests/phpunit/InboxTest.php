@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class InboxTest extends TestCase {
     protected array $userList;
@@ -15,8 +16,8 @@ class InboxTest extends TestCase {
 
     public function testInbox(): void {
         $this->userList = [
-            'sender'   => \GazelleUnitTest\Helper::makeUser('inbox.send.' . randomString(6), 'inbox', clearInbox: true),
-            'receiver' => \GazelleUnitTest\Helper::makeUser('inbox.recv.' . randomString(6), 'inbox', clearInbox: true),
+            'sender'   => Helper::makeUser('inbox.send.' . randomString(6), 'inbox', clearInbox: true),
+            'receiver' => Helper::makeUser('inbox.recv.' . randomString(6), 'inbox', clearInbox: true),
         ];
         $senderId = $this->userList['sender']->id();
         $receiverId = $this->userList['receiver']->id();
@@ -189,7 +190,7 @@ class InboxTest extends TestCase {
 
     public function testSystem(): void {
         $this->userList = [
-            \GazelleUnitTest\Helper::makeUser('inbox.recv.' . randomString(6), 'inbox'),
+            Helper::makeUser('inbox.recv.' . randomString(6), 'inbox'),
         ];
         $pm = $this->userList[0]->inbox()->createSystem('system', 'body');
         $this->assertEquals(0, $pm->senderId(), 'inbox-system-sender-id');

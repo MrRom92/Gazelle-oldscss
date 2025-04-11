@@ -4,6 +4,7 @@ namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use GazelleUnitTest\Helper;
 
 class WikiTest extends TestCase {
     protected array $userList;
@@ -11,8 +12,8 @@ class WikiTest extends TestCase {
 
     public function setUp(): void {
         $this->userList = [
-            'admin' => \GazelleUnitTest\Helper::makeUser('wiki.' . randomString(6), 'wiki'),
-            'user'  => \GazelleUnitTest\Helper::makeUser('wiki.' . randomString(6), 'wiki'),
+            'admin' => Helper::makeUser('wiki.' . randomString(6), 'wiki'),
+            'user'  => Helper::makeUser('wiki.' . randomString(6), 'wiki'),
         ];
         $this->userList['admin']->setField('PermissionID', SYSOP)->modify();
     }
@@ -81,7 +82,7 @@ class WikiTest extends TestCase {
         $manager = new Manager\Wiki();
         $title   = 'phpunit bbwiki ' . randomString(6);
         $alias   = Wiki::normalizeAlias($title);
-        $this->userList['user'] = \GazelleUnitTest\Helper::makeUser('wiki.' . randomString(6), 'text');
+        $this->userList['user'] = Helper::makeUser('wiki.' . randomString(6), 'text');
         $article = $manager->create(
             $title,
             'wiki bbcode body',

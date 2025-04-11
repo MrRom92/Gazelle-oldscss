@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class ReportManagerTest extends TestCase {
     protected array $reportList = [];
@@ -12,8 +13,8 @@ class ReportManagerTest extends TestCase {
 
     public function setUp(): void {
         $this->userList = [
-            \GazelleUnitTest\Helper::makeUser('report.' . randomString(10), 'report', enable: true, clearInbox: true),
-            \GazelleUnitTest\Helper::makeUser('report.' . randomString(10), 'report', enable: true, clearInbox: true),
+            Helper::makeUser('report.' . randomString(10), 'report', enable: true, clearInbox: true),
+            Helper::makeUser('report.' . randomString(10), 'report', enable: true, clearInbox: true),
         ];
     }
 

@@ -3,12 +3,13 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class UserNavigationTest extends TestCase {
     protected User $user;
 
     public function setUp(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('user.' . randomString(10), 'forum');
+        $this->user = Helper::makeUser('user.' . randomString(10), 'forum');
     }
 
     public function tearDown(): void {

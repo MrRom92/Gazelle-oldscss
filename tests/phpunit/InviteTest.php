@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 use Gazelle\Enum\UserAuditEvent;
 
 class InviteTest extends TestCase {
@@ -10,7 +11,7 @@ class InviteTest extends TestCase {
     protected User $invitee;
 
     public function setUp(): void {
-        $this->user = \GazelleUnitTest\Helper::makeUser('invite.' . randomString(10), 'invite');
+        $this->user = Helper::makeUser('invite.' . randomString(10), 'invite');
     }
 
     public function tearDown(): void {
@@ -63,7 +64,7 @@ class InviteTest extends TestCase {
 
         // respond to invite
         $this->assertTrue($manager->inviteExists($invite->key()), 'invite-key-found');
-        $this->invitee = \GazelleUnitTest\Helper::makeUserByInvite('invitee.' . randomString(6), $invite->key());
+        $this->invitee = Helper::makeUserByInvite('invitee.' . randomString(6), $invite->key());
         $this->assertInstanceOf(User::class, $this->invitee, 'invitee-class');
         $this->assertEquals($this->user->id, $this->invitee->inviter()->id(), 'invitee-invited-by');
         $this->assertEquals($this->user->id, $this->invitee->inviterId(), 'invitee-invited-id');
