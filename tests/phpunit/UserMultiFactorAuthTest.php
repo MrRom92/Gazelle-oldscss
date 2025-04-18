@@ -45,7 +45,7 @@ class UserMultiFactorAuthTest extends TestCase {
         $burn = array_pop($recovery);
         $this->assertFalse($mfa->burnRecovery('no such key'), 'utest-no-burn-mfa');
         $this->assertTrue($mfa->burnRecovery($burn), 'utest-burn-mfa');
-        sleep(1); // pg table's time resolution is too low and causes race
+        Helper::sleepTick(); // pg table's time resolution is too low and causes race
         $this->assertEquals(9, $this->countTokens(), 'utest-less-mfa');
         $this->assertFalse($mfa->burnRecovery($burn), 'utest-burn-twice-mfa');
 

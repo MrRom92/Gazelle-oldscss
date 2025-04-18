@@ -203,7 +203,7 @@ class CollageTest extends TestCase {
         // A subscriber is considered to have a new entry in a collage when:
         //   collages_torrents.AddedOn > users_collage_subs.LastVisit
         // This is why we must
-        sleep(1);
+        Helper::sleepTick();
 
         $this->assertEquals(1, $collage->addEntry($this->tgroupList[0], $this->userList['u3'], 'collage-add-entry'));
         $this->assertEquals(0, $collage->addEntry($this->tgroupList[0], $this->userList['u2'], 'collage-add-dupe-entry'));
@@ -741,7 +741,7 @@ class CollageTest extends TestCase {
         );
 
         $collage->addEntry($this->tgroupList[1], $adder);
-        sleep(1); // Mysql does not record dates with sub-second resolution
+        Helper::sleepTick();
         $notifier = new User\Notification\Collage($subscriber);
         $this->assertEquals(
             1,
@@ -750,7 +750,7 @@ class CollageTest extends TestCase {
         );
 
         $collage->addEntry($this->tgroupList[2], $adder);
-        sleep(1);
+        Helper::sleepTick();
         $this->assertEquals(
             1,
             $notifier->clear(),

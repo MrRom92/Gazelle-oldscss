@@ -257,7 +257,7 @@ class RequestTest extends TestCase {
         // race condition between requests.LastPostTime and requests.created that would be
         // difficult to remove without adding a lot of complications to the code.
         $this->assertFalse($this->request->hasNewVote(), 'request-no-new-vote');
-        sleep(1); // to ensure lastVoteDate() > created()
+        Helper::sleepTick(); // to ensure lastVoteDate() > created()
         // add some bounty
         $this->assertTrue($this->request->vote($user, $bounty), 'request-more-bounty');
         $this->assertTrue($this->request->hasNewVote(), 'request-has-new-vote');

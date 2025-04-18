@@ -136,7 +136,7 @@ class UserAuditTrailTest extends TestCase {
         $this->user  = Helper::makeUser('uat.' . randomString(10), 'uat');
         $this->assertEquals($this->user->updated(), $this->user->created(), 'user-updated-is-created');
         $checkpoint = $this->user->checkpoint();
-        sleep(1); // ensure created != updated
+        Helper::sleepTick(); // ensure created != updated
         $this->user->setField('Username', $this->user->username() . 'x')->modify();
         $this->assertNotEquals($this->user->updated(), $this->user->created(), 'user-updated-after-created');
         $this->assertNotEquals($checkpoint, $this->user->checkpoint(), 'user-new-checkpoint');

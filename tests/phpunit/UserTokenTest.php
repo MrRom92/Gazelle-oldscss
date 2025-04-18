@@ -32,7 +32,7 @@ class UserTokenTest extends TestCase {
         $this->assertTrue($userToken->isValid(), 'usertoken-create');
 
         $this->assertTrue($userToken->consume(), 'usertoken-consume');
-        sleep(1);
+        Helper::sleepTick();
         $this->assertFalse($userToken->consume(), 'usertoken-already-consumed');
 
         $this->assertEquals(1, $manager->removeUser($userToken->user()), 'usertoken-remove-user');

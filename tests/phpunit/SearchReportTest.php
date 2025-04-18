@@ -46,9 +46,9 @@ class SearchReportTest extends TestCase {
 
         $manager = new Manager\Report(new Manager\User());
         $this->reportList['collage'] = $manager->create($this->userList[0], $this->collage->id(), 'collage', 'phpunit search collage report');
-        sleep(1);
+        Helper::sleepTick();
         $this->reportList['request'] = $manager->create($this->userList[0], $this->request->id(), 'request', 'phpunit search request report');
-        sleep(1);
+        Helper::sleepTick();
         $this->reportList['user'] = $manager->create($this->userList[0], $this->userList[1]->id(), 'user', 'phpunit search user report');
     }
 
