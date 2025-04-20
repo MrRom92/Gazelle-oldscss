@@ -146,7 +146,7 @@ class Request extends BaseObject implements CategoryHasArtist {
 
         self::$db->prepared_query("
             SELECT rv.UserID   AS user_id,
-                SUM(rv.Bounty) AS bounty
+                sum(rv.Bounty) AS bounty
             FROM requests_votes AS rv
             WHERE rv.RequestID = ?
             GROUP BY rv.UserID
@@ -855,12 +855,12 @@ class Request extends BaseObject implements CategoryHasArtist {
                 FormatList, MediaList, LogCue, FillerID, TorrentID,
                 TimeFilled, Visible, Votes, Bounty, TagList, ArtistList)
             SELECT
-                ID, r.UserID, UNIX_TIMESTAMP(TimeAdded) AS TimeAdded,
-                UNIX_TIMESTAMP(LastVote) AS LastVote, CategoryID, Title,
+                ID, r.UserID, unix_timestamp(TimeAdded) AS TimeAdded,
+                unix_timestamp(LastVote) AS LastVote, CategoryID, Title,
                 Year, ReleaseType, CatalogueNumber, RecordLabel, BitrateList,
                 FormatList, MediaList, LogCue, FillerID, TorrentID,
-                UNIX_TIMESTAMP(TimeFilled) AS TimeFilled, Visible,
-                COUNT(DISTINCT rv.UserID) AS Votes, SUM(rv.Bounty) >> 10 AS Bounty,
+                unix_timestamp(TimeFilled) AS TimeFilled, Visible,
+                count(DISTINCT rv.UserID) AS Votes, coalesce(sum(rv.Bounty)) >> 10 AS Bounty,
                 ?, ?
             FROM requests AS r
             LEFT JOIN requests_votes AS rv ON (rv.RequestID = r.ID)
