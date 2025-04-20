@@ -51,31 +51,31 @@ class Artist extends \Gazelle\BaseManager {
         return new \Gazelle\Artist($artistId);
     }
 
-    public function findById(int $artistId): ?\Gazelle\Artist {
-        $key = sprintf(self::ID_KEY, $artistId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\Artist {
+        $key = sprintf(self::ID_KEY, $id);
+        $artistId = self::$cache->get_value($key);
+        if ($artistId === false) {
+            $artistId = self::$db->scalar("
                 SELECT ArtistID FROM artists_group WHERE ArtistID = ?
-                ", $artistId
+                ", $id
             );
-            if (!is_null($id)) {
-                self::$cache->cache_value($key, $id, 7200);
+            if (!is_null($artistId)) {
+                self::$cache->cache_value($key, $artistId, 7200);
             }
         }
-        return $id ? new \Gazelle\Artist($id) : null;
+        return $artistId ? new \Gazelle\Artist($artistId) : null;
     }
 
-    public function findByIdAndRevision(int $artistId, int $revisionId): ?\Gazelle\Artist {
-        $id = (int)self::$db->scalar("
+    public function findByIdAndRevision(int $id, int $revisionId): ?\Gazelle\Artist {
+        $artistId = (int)self::$db->scalar("
             SELECT ag.ArtistID
             FROM artists_group ag
             INNER JOIN wiki_artists wa ON (wa.PageID = ag.ArtistID)
             WHERE wa.PageID = ?
                 AND wa.RevisionID = ?
-            ", $artistId, $revisionId
+            ", $id, $revisionId
         );
-        return $id ? new \Gazelle\Artist($id, null, $revisionId) : null;
+        return $artistId ? new \Gazelle\Artist($artistId, null, $revisionId) : null;
     }
 
     public function findByName(string $name): ?\Gazelle\Artist {
@@ -181,7 +181,7 @@ class Artist extends \Gazelle\BaseManager {
         );
         return array_filter(
             array_map(
-                fn($id) => $tgMan->findById($id),
+                fn ($id) => $tgMan->findById($id),
                 self::$db->collect(0, false)
             ),
             fn ($tgroup) => !empty($tgroup)

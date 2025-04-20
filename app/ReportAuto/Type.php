@@ -9,7 +9,7 @@ class Type extends \Gazelle\Base {
     protected array $info;
 
     public function __construct(
-        protected int $id
+        public readonly int $id
     ) {}
 
     public function info(): array {

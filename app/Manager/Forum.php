@@ -37,19 +37,19 @@ class Forum extends \Gazelle\BaseManager {
     /**
      * Instantiate a forum by its ID
      */
-    public function findById(int $forumId): ?\Gazelle\Forum {
-        $key = sprintf(self::ID_KEY, $forumId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\Forum {
+        $key = sprintf(self::ID_KEY, $id);
+        $forumId = self::$cache->get_value($key);
+        if ($forumId === false) {
+            $forumId = (int)self::$db->scalar("
                 SELECT ID FROM forums WHERE ID = ?
-                ", $forumId
+                ", $id
             );
-            if (!is_null($id)) {
-                self::$cache->cache_value($key, $id, 7200);
+            if ($forumId) {
+                self::$cache->cache_value($key, $forumId, 7200);
             }
         }
-        return $id ? new \Gazelle\Forum($id) : null;
+        return $forumId ? new \Gazelle\Forum($forumId) : null;
     }
 
     public function forumList(): array {

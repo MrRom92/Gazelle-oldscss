@@ -55,7 +55,7 @@ class Torrent extends \Gazelle\BaseManager {
                 ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                 ?, ?
-            )", $tgroup->id(), $user->id, $media, $format, $encoding,
+            )", $tgroup->id, $user->id, $media, $format, $encoding,
                 $isRemaster ? '1' : '0', $remasterYear, $remasterTitle, $remasterRecordLabel, $remasterCatalogueNumber,
                 $infohash, $isScene ? '1' : '0', $logScore, $hasChecksum ? '1' : '0', $hasLog ? '1' : '0',
                 $hasCue ? '1' : '0', $hasLogInDB ? '1' : '0', $filePath, count($fileList), implode("\n", $fileList),
@@ -64,7 +64,7 @@ class Torrent extends \Gazelle\BaseManager {
         $torrent = $this->findById(self::$db->inserted_id());
         self::$db->prepared_query('
             INSERT INTO torrents_leech_stats (TorrentID) VALUES (?)
-            ', $torrent->id()
+            ', $torrent->id
         );
         $tgroup->flush();
         $torrent->lockUpload();
@@ -78,22 +78,22 @@ class Torrent extends \Gazelle\BaseManager {
         return $torrent;
     }
 
-    public function findById(int $torrentId): ?\Gazelle\Torrent {
-        $key = sprintf(self::ID_KEY, $torrentId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\Torrent {
+        $key = sprintf(self::ID_KEY, $id);
+        $torrentId = self::$cache->get_value($key);
+        if ($torrentId === false) {
+            $torrentId = self::$db->scalar("
                 SELECT ID FROM torrents WHERE ID = ?
-                ", $torrentId
+                ", $id
             );
-            if (!is_null($id)) {
-                self::$cache->cache_value($key, $id, 7200);
+            if ($torrentId) {
+                self::$cache->cache_value($key, $torrentId, 7200);
             }
         }
-        if (!$id) {
+        if (!$torrentId) {
             return null;
         }
-        $torrent = new \Gazelle\Torrent($id);
+        $torrent = new \Gazelle\Torrent($torrentId);
         if (isset($this->viewer)) {
             $torrent->setViewer($this->viewer);
         }
@@ -221,7 +221,7 @@ class Torrent extends \Gazelle\BaseManager {
             $torrent = $this->findById($torrentId);
             if ($torrent) {
                 $result[$torrentId] = [
-                    'id'   => $torrent->id(),
+                    'id'   => $torrent->id,
                     'link' => $torrent->fullLink(),
                 ];
             }
@@ -605,7 +605,7 @@ class Torrent extends \Gazelle\BaseManager {
         }
         return $url . sprintf(
             '<a title="%s" href="/torrents.php?id=%d&torrentid=%d#torrent%d">%s%s</a>%s',
-            $tgroup->hashTag(), $tgroup->id(), $id, $id, display_str($tgroup->name()), $label,
+            $tgroup->hashTag(), $tgroup->id, $id, $id, display_str($tgroup->name()), $label,
             $meta . ($isDeleted ? ' <i>deleted</i>' : '')
         );
     }

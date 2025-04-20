@@ -24,22 +24,21 @@ class Report extends \Gazelle\BaseManager {
         return $this->findById($id);
     }
 
-    public function findById(int $reportId): ?\Gazelle\Report {
-        $key = sprintf(self::ID_KEY, $reportId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\Report {
+        $key = sprintf(self::ID_KEY, $id);
+        $reportId = self::$cache->get_value($key);
+        if ($reportId === false) {
+            $reportId = (int)self::$db->scalar("
                 SELECT ID FROM reports WHERE ID = ?
-                ", $reportId
+                ", $id
             );
-            if (!is_null($id)) {
-                self::$cache->cache_value($key, $id, 7200);
+            if ($reportId) {
+                self::$cache->cache_value($key, $reportId, 7200);
             }
         }
-        if (!$id) {
-            return null;
-        }
-        return (new \Gazelle\Report($id))->setUserManager($this->userMan);
+        return $reportId
+            ? (new \Gazelle\Report($reportId))->setUserManager($this->userMan)
+            : null;
     }
 
     public function findByReportedUser(\Gazelle\User $user): array {
@@ -52,7 +51,7 @@ class Report extends \Gazelle\BaseManager {
             ", $user->id
         );
         $reportList = self::$db->collect(0, false);
-        return array_map(fn($id) => $this->findById($id), $reportList);
+        return array_map(fn ($id) => $this->findById($id), $reportList);
     }
 
     public function decorate(

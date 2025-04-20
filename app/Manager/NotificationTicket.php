@@ -10,19 +10,19 @@ class NotificationTicket {
     public function create(\Gazelle\Torrent $torrent): \Gazelle\NotificationTicket {
         $this->pg()->prepared_query("
             INSERT INTO notification_ticket (id_torrent) VALUES (?)
-            ", $torrent->id()
+            ", $torrent->id
         );
-        return $this->findById($torrent->id());
+        return $this->findById($torrent->id);
     }
 
-    public function findById(int $torrentId): ?\Gazelle\NotificationTicket {
+    public function findById(int $id): ?\Gazelle\NotificationTicket {
         if (
             $this->pg()->scalar("
                 select 1 from notification_ticket where id_torrent = ?
-                ", $torrentId
+                ", $id
             )
         ) {
-            return new \Gazelle\NotificationTicket($torrentId);
+            return new \Gazelle\NotificationTicket($id);
         }
         return null;
     }

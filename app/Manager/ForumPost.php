@@ -19,11 +19,11 @@ class ForumPost extends \Gazelle\BaseManager {
     /**
      * Instantiate a post by its ID
      */
-    public function findById(int $postId): ?\Gazelle\ForumPost {
-        $id = self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\ForumPost {
+        $postId = (int)self::$db->scalar("
             SELECT ID FROM forums_posts WHERE ID = ?
-            ", $postId
+            ", $id
         );
-        return $id ? new \Gazelle\ForumPost((int)$id) : null;
+        return $postId ? new \Gazelle\ForumPost($postId) : null;
     }
 }

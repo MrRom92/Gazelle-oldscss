@@ -18,19 +18,19 @@ class ApplicantRole extends \Gazelle\Base {
         return new \Gazelle\ApplicantRole($id);
     }
 
-    public function findById(int $roleId): ?\Gazelle\ApplicantRole {
-        $key = sprintf(self::ID_KEY, $roleId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\ApplicantRole {
+        $key = sprintf(self::ID_KEY, $id);
+        $roleId = self::$cache->get_value($key);
+        if ($roleId === false) {
+            $roleId = self::$db->scalar("
                 SELECT ID FROM applicant_role WHERE ID = ?
-                ", $roleId
+                ", $id
             );
-            if (!is_null($id)) {
-                self::$cache->cache_value($key, $id, 7200);
+            if (!is_null($roleId)) {
+                self::$cache->cache_value($key, $roleId, 7200);
             }
         }
-        return $id ? new \Gazelle\ApplicantRole($id) : null;
+        return $roleId ? new \Gazelle\ApplicantRole($roleId) : null;
     }
 
     public function flush(): static {
@@ -47,7 +47,7 @@ class ApplicantRole extends \Gazelle\Base {
             $list = self::$db->collect(0, false);
             self::$cache->cache_value(self::LIST_KEY, $list, 0);
         }
-        return array_map(fn($id) => $this->findById($id), $list);
+        return array_map(fn ($id) => $this->findById($id), $list);
     }
 
     public function publishedList(): array {

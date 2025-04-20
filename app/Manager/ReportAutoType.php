@@ -21,8 +21,9 @@ class ReportAutoType extends \Gazelle\BaseManager {
 
     public function findByName(string $name): ?\Gazelle\ReportAuto\Type {
         $id = $this->pg()->scalar("
-                SELECT id_report_auto_type FROM report_auto_type WHERE name = ?
-            ", $name);
+            SELECT id_report_auto_type FROM report_auto_type WHERE name = ?
+            ", $name
+        );
         return $id ? $this->findById($id) : null;
     }
 

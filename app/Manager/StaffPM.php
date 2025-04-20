@@ -27,27 +27,27 @@ class StaffPM extends \Gazelle\BaseManager {
         return $this->findById($convId);
     }
 
-    public function findById(int $pmId): ?\Gazelle\StaffPM {
-        $key = sprintf(self::ID_KEY, $pmId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\StaffPM {
+        $key = sprintf(self::ID_KEY, $id);
+        $pmId = self::$cache->get_value($key);
+        if ($pmId === false) {
+            $pmId = (int)self::$db->scalar("
                 SELECT ID FROM staff_pm_conversations WHERE ID = ?
-                ", $pmId
+                ", $id
             );
-            if (!is_null($id)) {
-                self::$cache->cache_value($key, $id, 7200);
+            if ($pmId) {
+                self::$cache->cache_value($key, $pmId, 7200);
             }
         }
-        return $id ? new \Gazelle\StaffPM((int)$id) : null;
+        return $pmId ? new \Gazelle\StaffPM($pmId) : null;
     }
 
     public function findByPostId(int $postId): ?\Gazelle\StaffPM {
-        $id = (int)self::$db->scalar("
+        $pmId = (int)self::$db->scalar("
             SELECT ConvID FROM staff_pm_messages WHERE ID = ?
             ", $postId
         );
-        return $id ? new \Gazelle\StaffPM($id) : null;
+        return $pmId ? new \Gazelle\StaffPM($pmId) : null;
     }
 
     public function findAllByUser(\Gazelle\User $user): array {

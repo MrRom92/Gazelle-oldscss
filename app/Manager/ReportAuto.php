@@ -29,7 +29,7 @@ class ReportAuto extends \Gazelle\BaseManager {
     }
 
     public function create(\Gazelle\User $user, \Gazelle\ReportAuto\Type $type, array $data, string|null $time = null): \Gazelle\ReportAuto {
-        $args = [$user->id, $type->id(), json_encode($data)];
+        $args = [$user->id, $type->id, json_encode($data)];
         if ($time) {
             // time is an iso timestring
             $qryCols = ', created';
@@ -51,14 +51,18 @@ class ReportAuto extends \Gazelle\BaseManager {
         return $this->instantiateReportAuto((int)$id, $category);
     }
 
-    public function findById(int $reportId): ?\Gazelle\ReportAuto {
-        [$id, $category] = $this->pg()->row("
-            SELECT ra.id_report_auto, rat.id_report_auto_category
-            FROM report_auto ra JOIN report_auto_type rat USING (id_report_auto_type)
+    public function findById(int $id): ?\Gazelle\ReportAuto {
+        [$reportId, $category] = $this->pg()->row("
+            SELECT ra.id_report_auto,
+                rat.id_report_auto_category
+            FROM report_auto ra
+            INNER JOIN report_auto_type rat USING (id_report_auto_type)
             WHERE ra.id_report_auto = ?
-            ", $reportId
+            ", $id
         );
-        return is_null($id) ? null : $this->instantiateReportAuto((int)$id, $category);
+        return $reportId
+            ? $this->instantiateReportAuto($reportId, $category)
+            : null;
     }
 
     /**
@@ -74,9 +78,11 @@ class ReportAuto extends \Gazelle\BaseManager {
         return $this->pg()->prepared_query("
             UPDATE report_auto SET
               id_owner = ?
-            WHERE id_user = ? AND id_owner IS NULL
+            WHERE id_owner IS NULL
+                AND id_user = ?
             $typeWhere
-        ", $claimer->id(), $userId, ...$args);
+            ", $claimer->id, $userId, ...$args
+        );
     }
 
     /**
@@ -90,11 +96,14 @@ class ReportAuto extends \Gazelle\BaseManager {
             $args[] = $typeId;
         }
         return $this->pg()->prepared_query("
-            UPDATE report_auto
-            SET id_owner = ?, resolved = now()
-            WHERE id_user = ? AND resolved IS NULL
+            UPDATE report_auto SET
+                resolved = now(),
+                id_owner = ?
+            WHERE resolved IS NULL
+                AND id_user = ?
             $typeWhere
-        ", $resolver->id(), $userId, ...$args);
+            ", $resolver->id, $userId, ...$args
+        );
     }
 
     /**
@@ -105,8 +114,10 @@ class ReportAuto extends \Gazelle\BaseManager {
     public function deleteComment(int $commentId, \Gazelle\User $user): int {
         return $this->pg()->prepared_query("
             DELETE FROM report_auto_comment
-            WHERE id_report_auto_comment = ? AND id_user = ?
-        ", $commentId, $user->id);
+            WHERE id_report_auto_comment = ?
+                AND id_user = ?
+            ", $commentId, $user->id
+        );
     }
 
     /**
@@ -117,9 +128,11 @@ class ReportAuto extends \Gazelle\BaseManager {
     public function editComment(int $commentId, \Gazelle\User $user, string $message): int {
         return $this->pg()->prepared_query("
             UPDATE report_auto_comment SET
-              comment = ?
-            WHERE id_report_auto_comment = ? AND id_user = ?
-        ", $message, $commentId, $user->id);
+                comment = ?
+            WHERE id_report_auto_comment = ?
+                AND id_user = ?
+            ", $message, $commentId, $user->id
+        );
     }
 
     protected function instantiateReportAuto(int $id, ?int $category): \Gazelle\ReportAuto {

@@ -94,8 +94,8 @@ if ($search->canUnclaim($Viewer)) {
                 'report'         => $report,
                 'request_list'   => $requestMan->findByTorrentReported($torrent),
                 'torrent'        => $torrent,
-                'total_group'    => $reportMan->totalReportsGroup($torrent->groupId()),
-                'total_uploader' => $reportMan->totalReportsUploader($torrent->uploaderId()),
+                'total_group'    => $reportMan->totalReportsTGroup($torrent->group()),
+                'total_uploader' => $reportMan->totalReportsUploader($torrent->uploader()),
                 'total_torrent'  => $reportMan->totalReportsTorrent($torrent),
                 'viewer'         => $Viewer,
             ]);

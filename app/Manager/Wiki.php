@@ -34,19 +34,19 @@ class Wiki extends \Gazelle\BaseManager {
      *
      * @return \Gazelle\Wiki|null id of article if it exists
      */
-    public function findById(int $wikiId): ?\Gazelle\Wiki {
-        $key = sprintf(self::ID_KEY, $wikiId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\Wiki {
+        $key = sprintf(self::ID_KEY, $id);
+        $wikiId = self::$cache->get_value($key);
+        if ($wikiId === false) {
+            $wikiId = (int)self::$db->scalar("
                 SELECT ID FROM wiki_articles WHERE ID = ?
-                ", $wikiId
+                ", $id
             );
-            if (!is_null($id)) {
-                self::$cache->cache_value($key, $id, 7200);
+            if ($wikiId) {
+                self::$cache->cache_value($key, $wikiId, 7200);
             }
         }
-        return $id ? new \Gazelle\Wiki($id) : null;
+        return $wikiId ? new \Gazelle\Wiki($wikiId) : null;
     }
 
     /**

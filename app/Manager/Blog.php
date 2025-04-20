@@ -31,19 +31,19 @@ class Blog extends \Gazelle\BaseManager {
         return new \Gazelle\Blog(self::$db->inserted_id());
     }
 
-    public function findById(int $blogId): ?\Gazelle\Blog {
-        $key = sprintf(self::ID_KEY, $blogId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\Blog {
+        $key = sprintf(self::ID_KEY, $id);
+        $blogId = self::$cache->get_value($key);
+        if ($blogId === false) {
+            $blogId = (int)self::$db->scalar("
                 SELECT ID FROM blog WHERE ID = ?
-                ", $blogId
+                ", $id
             );
-            if (!is_null($id)) {
-                self::$cache->cache_value($key, (int)$id, 7200);
+            if ($blogId) {
+                self::$cache->cache_value($key, $blogId, 7200);
             }
         }
-        return $id ? new \Gazelle\Blog((int)$id) : null;
+        return $blogId ? new \Gazelle\Blog($blogId) : null;
     }
 
     /**

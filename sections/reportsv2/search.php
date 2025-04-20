@@ -68,7 +68,7 @@ if (!$filter) {
 } else {
     $reportMan->setSearchFilter($filter);
     $paginator->setTotal($reportMan->searchTotal());
-    $list = $reportMan->searchList($userMan, $paginator->limit(), $paginator->offset());
+    $list = $reportMan->searchList($paginator->limit(), $paginator->offset());
 }
 
 echo $Twig->render('reportsv2/search.twig', [

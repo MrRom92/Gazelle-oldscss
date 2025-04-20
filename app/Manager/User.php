@@ -34,19 +34,19 @@ class User extends \Gazelle\BaseManager {
     /**
      * Get a User object based on their ID
      */
-    public function findById(int $userId): ?\Gazelle\User {
-        $key = sprintf(self::ID_KEY, $userId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\User {
+        $key = sprintf(self::ID_KEY, $id);
+        $userId = self::$cache->get_value($key);
+        if ($userId === false) {
+            $userId = (int)self::$db->scalar("
                 SELECT ID FROM users_main WHERE ID = ?
-                ", $userId
+                ", $id
             );
-            if (!is_null($id)) {
-                self::$cache->cache_value($key, $id, 7200);
+            if ($userId) {
+                self::$cache->cache_value($key, $userId, 7200);
             }
         }
-        return $id ? new \Gazelle\User($id) : null;
+        return $userId ? new \Gazelle\User($userId) : null;
     }
 
     /**
@@ -161,7 +161,7 @@ class User extends \Gazelle\BaseManager {
         if ($user->warningExpiry()) {
             $display .= '<a href="wiki.php?action=article&amp;name=warnings"><img loading="lazy" class="tooltip" src="'
                 . STATIC_SERVER . '/common/symbols/warned.png" alt="Warned" title="Warned'
-                . ($viewer->id() == $userId
+                . ($viewer->id == $userId
                     ? ' - Expires ' . date('Y-m-d H:i', (int)strtotime($user->warningExpiry()))
                     : '')
                 . '" /></a>';
@@ -619,7 +619,7 @@ class User extends \Gazelle\BaseManager {
     public function sendSnatchPm(\Gazelle\User $viewer, \Gazelle\Torrent  $torrent, string $subject, string $body): int {
         self::$db->prepared_query('
             SELECT uid FROM xbt_snatched WHERE fid = ?
-            ', $torrent->id()
+            ', $torrent->id
         );
 
         $snatchers = self::$db->collect(0, false);
@@ -632,7 +632,7 @@ class User extends \Gazelle\BaseManager {
         $total = count($snatchers);
         $this->logger()->general(
             $viewer->username() . " sent a mass PM to $total snatcher" . plural($total)
-            . " of torrent {$torrent->id()} ({$torrent->group()->text()})"
+            . " of torrent {$torrent->id} ({$torrent->group()->text()})"
         );
         return $total;
     }
@@ -1728,7 +1728,7 @@ class User extends \Gazelle\BaseManager {
                     Expired = TRUE
                 WHERE TorrentID = ?
                     AND UserID = ?
-                ", $torrent->id(), $user->id
+                ", $torrent->id, $user->id
             );
         }
         self::$cache->delete_multi(array_keys($clear));

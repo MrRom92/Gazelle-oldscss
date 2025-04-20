@@ -7,21 +7,21 @@ class ReportType extends \Gazelle\Base {
     final public const NAME_KEY = 'zz_trtn_%s';
     final public const TYPE_KEY = 'zz_trtt_%s';
 
-    public function findById(int $reportTypeId): ?\Gazelle\Torrent\ReportType {
-        $key = sprintf(self::ID_KEY, $reportTypeId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\Torrent\ReportType {
+        $key = sprintf(self::ID_KEY, $id);
+        $reportTypeId = self::$cache->get_value($key);
+        if ($reportTypeId === false) {
+            $reportTypeId = (int)self::$db->scalar("
                 SELECT torrent_report_configuration_id
                 FROM torrent_report_configuration
                 WHERE torrent_report_configuration_id = ?
-                ", $reportTypeId
+                ", $id
             );
-            if (!is_null($id)) {
-                self::$cache->cache_value($key, $id, 0);
+            if ($reportTypeId) {
+                self::$cache->cache_value($key, $reportTypeId, 0);
             }
         }
-        return $id ? new \Gazelle\Torrent\ReportType($id) : null;
+        return $reportTypeId ? new \Gazelle\Torrent\ReportType($reportTypeId) : null;
     }
 
     public function findByName(string $name): ?\Gazelle\Torrent\ReportType {

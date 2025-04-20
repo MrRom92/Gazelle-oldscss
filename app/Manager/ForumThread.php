@@ -15,7 +15,7 @@ class ForumThread extends \Gazelle\BaseManager {
             INSERT INTO forums_topics
                    (ForumID, Title, AuthorID, LastPostAuthorID)
             Values (?,       ?,        ?,                ?)
-            ", $forum->id(), $title, $user->id, $user->id
+            ", $forum->id, $title, $user->id, $user->id
         );
         $thread = new \Gazelle\ForumThread(self::$db->inserted_id());
         $thread->addPost($user, $body);
@@ -28,30 +28,30 @@ class ForumThread extends \Gazelle\BaseManager {
     /**
      * Instantiate a thread by its ID
      */
-    public function findById(int $threadId): ?\Gazelle\ForumThread {
-        $key = sprintf(self::ID_KEY, $threadId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\ForumThread {
+        $key = sprintf(self::ID_KEY, $id);
+        $threadId = self::$cache->get_value($key);
+        if ($threadId === false) {
+            $threadId = (int)self::$db->scalar("
                 SELECT ID FROM forums_topics WHERE ID = ?
-                ", $threadId
+                ", $id
             );
-            if (!is_null($id)) {
-                self::$cache->cache_value($key, $id, 7200);
+            if ($threadId) {
+                self::$cache->cache_value($key, $threadId, 7200);
             }
         }
-        return $id ? new \Gazelle\ForumThread($id) : null;
+        return $threadId ? new \Gazelle\ForumThread($threadId) : null;
     }
 
     /**
      * Find the thread from a post ID.
      */
     public function findByPostId(int $postId): ?\Gazelle\ForumThread {
-        $id = (int)self::$db->scalar("
+        $threadId = (int)self::$db->scalar("
             SELECT TopicID FROM forums_posts WHERE ID = ?
             ", $postId
         );
-        return $id ? new \Gazelle\ForumThread($id) : null;
+        return $threadId ? new \Gazelle\ForumThread($threadId) : null;
     }
 
     public function lockOldThreads(): int {

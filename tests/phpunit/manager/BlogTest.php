@@ -41,13 +41,13 @@ class BlogTest extends TestCase {
         $this->assertEquals(1, $this->blog->important(), 'blog-important');
         $this->assertEquals(0, $this->blog->threadId(), 'blog-thread-id');
         $this->assertEquals('phpunit blog', $this->blog->title(), 'blog-title');
-        $this->assertEquals($this->userList[0]->id(), $this->blog->userId(), 'blog-userId');
+        $this->assertEquals($this->userList[0]->id, $this->blog->userId(), 'blog-userId');
 
         $this->assertEquals(1 + count($initial), count($manager->headlines()), 'blog-headlines');
-        $this->assertEquals($this->blog->id(), $manager->latest()->id(), 'blog-latest');
-        $this->assertEquals($this->blog->id(), $manager->latestId(), 'blog-id-latest');
-        $find = $manager->findById($this->blog->id());
-        $this->assertEquals($this->blog->id(), $find->id(), 'blog-find');
+        $this->assertEquals($this->blog->id, $manager->latest()->id, 'blog-latest');
+        $this->assertEquals($this->blog->id, $manager->latestId(), 'blog-id-latest');
+        $find = $manager->findById($this->blog->id);
+        $this->assertEquals($this->blog->id, $find->id, 'blog-find');
         $this->assertEquals((int)strtotime($find->created()), $manager->latestEpoch(), 'blog-epoch');
 
         $this->assertInstanceOf(Blog::class, $this->blog->flush(), 'blog-flush');
@@ -93,7 +93,7 @@ class BlogTest extends TestCase {
         $witness = new WitnessTable\UserReadBlog();
         $this->assertNull($witness->lastRead($this->userList[1]), 'blog-user-not-read');
         $this->assertTrue($witness->witness($this->userList[1]));
-        $this->assertEquals($this->blog->id(), $witness->lastRead($this->userList[1]), 'blog-user-read');
+        $this->assertEquals($this->blog->id, $witness->lastRead($this->userList[1]), 'blog-user-read');
     }
 
     public function testBlogNotification(): void {
@@ -118,7 +118,7 @@ class BlogTest extends TestCase {
         $this->assertInstanceOf(User\Notification\Blog::class, $alertBlog, 'alert-blog-instance');
         $this->assertEquals('Blog', $alertBlog->type(), 'alert-blog-type');
         $this->assertEquals("Blog: $title", $alertBlog->title(), 'alert-blog-title');
-        $this->assertEquals($this->blog->id(), $alertBlog->context(), 'alert-blog-context-is-blog');
+        $this->assertEquals($this->blog->id, $alertBlog->context(), 'alert-blog-context-is-blog');
         $this->assertEquals($this->blog->url(), $alertBlog->notificationUrl(), 'alert-blog-url-is-blog');
     }
 }

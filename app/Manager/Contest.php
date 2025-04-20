@@ -35,12 +35,12 @@ class Contest extends \Gazelle\Base {
         return $this->findById($contestId);
     }
 
-    public function findById(int $contestId): ?\Gazelle\Contest {
-        $id = (int)self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\Contest {
+        $contestId = (int)self::$db->scalar("
             SELECT contest_id FROM contest WHERE contest_id = ?
-            ", $contestId
+            ", $id
         );
-        return $id ? new \Gazelle\Contest($id) : null;
+        return $contestId ? new \Gazelle\Contest($contestId) : null;
     }
 
     /**

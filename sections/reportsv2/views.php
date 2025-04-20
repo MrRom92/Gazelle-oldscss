@@ -16,18 +16,16 @@ if (!$Viewer->permitted('admin_reports')) {
     Error403::error();
 }
 
-$reportMan     = new Manager\Torrent\Report(new Manager\Torrent());
-$reportTypeMan = new Manager\Torrent\ReportType();
-$userMan       = new Manager\User();
+$reportMan = new Manager\Torrent\Report(new Manager\Torrent());
 
 echo $Twig->render('reportsv2/summary.twig', [
-    'in_progress' => $reportMan->inProgressSummary($userMan),
-    'new'         => $reportMan->newSummary($reportTypeMan),
+    'in_progress' => $reportMan->inProgressSummary(),
+    'new'         => $reportMan->newSummary(),
     'resolved'    => [
-        'day'   => $reportMan->resolvedLastDay($userMan),
-        'week'  => $reportMan->resolvedLastWeek($userMan),
-        'month' => $reportMan->resolvedLastMonth($userMan),
-        'total' => $reportMan->resolvedSummary($userMan),
+        'day'   => $reportMan->resolvedLastDay(),
+        'week'  => $reportMan->resolvedLastWeek(),
+        'month' => $reportMan->resolvedLastMonth(),
+        'total' => $reportMan->resolvedSummary(),
     ],
     'viewer' => $Viewer,
 ]);

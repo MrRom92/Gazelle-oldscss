@@ -11,6 +11,7 @@ class CategoryTest extends TestCase {
 
         $this->assertEquals(1, $manager->findIdByName('Music'), 'cat-name-comics');
         $this->assertEquals(7, $manager->findIdByName('Comics'), 'cat-name-comics');
+        $this->assertEquals('Comics', $manager->findNameById(7), 'cat-id-comics');
         $this->assertNull($manager->findIdByName('thereisnospoon'), 'cat-name-bogus');
 
         $this->assertEquals('Music', $manager->findNameById(1), 'cat-id-ebooks');

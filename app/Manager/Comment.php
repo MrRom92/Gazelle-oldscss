@@ -55,23 +55,23 @@ class Comment extends \Gazelle\BaseManager {
     }
 
     public function findById(
-        int $postId,
+        int $id,
     ): \Gazelle\Comment\Artist|\Gazelle\Comment\Collage|\Gazelle\Comment\Request|\Gazelle\Comment\Torrent|null {
         [$page, $pageId] = self::$db->row("
             SELECT Page, PageID FROM comments WHERE ID = ?
-            ", $postId
+            ", $id
         );
         if (is_null($page)) {
             return null;
         }
         $className = $this->className($page);
-        return new $className($pageId, 0, $postId); /** @phpstan-ignore-line */
+        return new $className($pageId, 0, $id); /** @phpstan-ignore-line */
     }
 
-    public function findBodyById(int $postId): ?string {
+    public function findBodyById(int $id): ?string {
         $body = self::$db->scalar("
             SELECT Body FROM comments WHERE ID = ?
-            ", $postId
+            ", $id
         );
         return is_null($body) ? null : (string)$body;
     }

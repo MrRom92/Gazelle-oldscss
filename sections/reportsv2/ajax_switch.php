@@ -28,7 +28,7 @@ if (is_null($other)) {
 }
 
 $reportMan = new Manager\Torrent\Report($torMan);
-if ($reportMan->existsRecent($other->id(), $Viewer->id())) {
+if ($reportMan->existsRecent($other, $Viewer)) {
     json_error("too soon");
 }
 $report = $reportMan->findById((int)($_POST['reportid'] ?? 0));

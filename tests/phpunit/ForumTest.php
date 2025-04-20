@@ -63,9 +63,9 @@ class ForumTest extends TestCase {
         $this->assertCount($initial + 2, $fcatMan->forumCategoryList(), 'forum-cat-category-list');
         $this->assertCount($initial + 2, $fcatMan->usageList(), 'forum-cat-usage-list');
 
-        $find = $fcatMan->findById($this->category->id());
+        $find = $fcatMan->findById($this->category->id);
         $find->setField('Name', 'phpunit renamed')->modify();
-        $this->assertEquals($this->category->id(), $find->id(), 'forum-cat-find');
+        $this->assertEquals($this->category->id, $find->id, 'forum-cat-find');
         $this->assertEquals('phpunit renamed', $find->name(), 'forum-cat-name');
         $this->assertEquals(10001, $find->sequence(), 'forum-cat-sequence');
         $this->assertEquals(1, $categoryEphemeral->remove(), 'forum-cat-remove-unused');
@@ -103,7 +103,7 @@ class ForumTest extends TestCase {
         $this->assertEquals(0, $this->forum->lastPostEpoch(), 'forum-last-post-time');
         $this->assertEquals(0, $this->forum->numPosts(), 'forum-post-total');
         $this->assertEquals(0, $this->forum->numThreads(), 'forum-thread-total');
-        $this->assertEquals($admin->id(), $this->forum->lastAuthorId(), 'forum-last-author-id');
+        $this->assertEquals($admin->id, $this->forum->lastAuthorId(), 'forum-last-author-id');
         $this->assertEquals(42, $this->forum->autoLockWeeks(), 'forum-autolock-weeks');
         $this->assertEquals(150, $this->forum->sequence(), 'forum-sequence');
         $this->assertEquals(100, $this->forum->minClassRead(), 'forum-min-class-read');
@@ -115,8 +115,8 @@ class ForumTest extends TestCase {
         $this->assertNull($this->forum->lastThread(), 'forum-last-thread');
         $this->assertNull($this->forum->lastThreadName(), 'forum-last-thread-name');
 
-        $find = $forumMan->findById($this->forum->id());
-        $this->assertEquals($this->forum->id(), $find->id(), 'forum-forum-find');
+        $find = $forumMan->findById($this->forum->id);
+        $this->assertEquals($this->forum->id, $find->id, 'forum-forum-find');
 
         $this->extra = Helper::makeForum(
             user:           $this->userList['admin'],
@@ -132,15 +132,15 @@ class ForumTest extends TestCase {
         );
 
         $forumList = $forumMan->forumList();
-        $idList = array_map(fn ($f) => $f->id(), $forumList);
+        $idList = array_map(fn ($f) => $f->id, $forumList);
         $this->assertCount($initial + 2, $idList, 'forum-id-list-count');
-        $this->assertTrue(in_array($this->extra->id(), $idList), 'forum-id-list-sequence');
+        $this->assertTrue(in_array($this->extra->id, $idList), 'forum-id-list-sequence');
         $this->assertCount($userTocTotal + 1, $forumMan->tableOfContents($user), 'forum-test-toc-user');
         $this->assertEquals(0, $forumMan->subscribedForumTotal($user), 'forum-subscribed-total-user');
 
         $this->assertEquals(
             [$forumName, 'phpunit announcements'],
-            $forumMan->nameList([$this->forum->id(), $this->extra->id()]),
+            $forumMan->nameList([$this->forum->id, $this->extra->id]),
             'forum-name-list'
         );
 
@@ -153,11 +153,11 @@ class ForumTest extends TestCase {
         $this->assertEquals(0, $thread->lastCatalogue(), 'fthread-last-catalog');
         $this->assertEquals(1, $this->forum->numThreads(), 'fthread-admin-number-thread-total');
 
-        $this->assertEquals($admin->id(), $thread->authorId(), 'fthread-author-id');
+        $this->assertEquals($admin->id, $thread->authorId(), 'fthread-author-id');
         $this->assertEquals($admin->username(), $thread->author()->username(), 'fthread-author-username');
-        $this->assertEquals($this->forum->id(), $thread->forumId(), 'fthread-forum-id');
+        $this->assertEquals($this->forum->id, $thread->forumId(), 'fthread-forum-id');
         $this->assertEquals($this->forum->name(), $thread->forum()->name(), 'fthread-forum-title');
-        $this->assertEquals($admin->id(), $thread->lastAuthorId(), 'fthread-forum-title');
+        $this->assertEquals($admin->id, $thread->lastAuthorId(), 'fthread-forum-title');
         $this->assertEquals('thread title', $thread->title(), 'thread-title');
         $this->assertEquals(0, $thread->pinnedPostId(), 'fthread-pinned-post-id');
 
@@ -200,7 +200,7 @@ class ForumTest extends TestCase {
         $this->assertTrue($admin->writeAccess($secret), 'fthread-secret-admin-write');
         $this->assertTrue($admin->createAccess($secret), 'fthread-secret-admin-create');
 
-        $user->setField('PermittedForums', $secret->id())->modify();
+        $user->setField('PermittedForums', $secret->id)->modify();
         $this->assertTrue($user->readAccess($secret), 'fthread-secret-user-permitted-read');
         $this->assertTrue($user->writeAccess($secret), 'fthread-secret-user-permitted-write');
         $this->assertTrue($user->createAccess($secret), 'fthread-secret-user-permitted-create');
@@ -214,14 +214,17 @@ class ForumTest extends TestCase {
         $this->assertTrue($userSub->isSubscribed($thread), 'fpost-user-is-now-subbed');
         $list = $userSub->subscriptionList();
         $this->assertCount(1, $list, 'fpost-subscriptions-list');
-        $this->assertEquals($thread->id(), $list[0], 'fpost-subscriptions-first');
+        $this->assertEquals($thread->id, $list[0], 'fpost-subscriptions-first');
 
         $admin = $this->userList['admin'];
         $this->assertEquals(1, $admin->stats()->forumPostTotal(), 'fpost-first-user-stats');
         $message = 'first reply';
         $post = $thread->addPost($admin, $message);
         $this->assertEquals(2, $admin->stats()->flush()->forumPostTotal(), 'fpost-first-user-reply');
-        $this->assertEquals($post->id(), $this->forum->flush()->lastPostId(), 'fpost-is-last-post');
+        $this->assertEquals($post->id, $this->forum->flush()->lastPostId(), 'fpost-is-last-post');
+        $this->assertEquals(1, $post->page(), 'fpost-reply-page');
+        $this->assertEquals(1, $post->threadPageTotal(), 'fpost-reply-thread-page');
+        $this->assertEquals(2, $post->priorPostTotal(), 'fpost-reply-prior-page');
 
         /* post first reply */
         $postMan = new Manager\ForumPost();
@@ -236,14 +239,20 @@ class ForumTest extends TestCase {
         /* quote first post in reply */
         $body = "good job @{$admin->username()}";
         $reply = $thread->addPost($user, $body);
+
         // Should the following actions (quote and subscription handling) be performed by the addPost() method?
         (new User\Notification\Quote($admin))->create(
             'forums',
-            $thread->id(),
-            $reply->id(),
+            $thread->id,
+            $reply->id,
             $body,
         );
         (new Manager\Subscription())->flushThread($thread);
+        $this->assertEquals(
+            $thread->id,
+            $threadMan->findByPostId($reply->id)->id,
+            'fpost-find-thread',
+        );
 
         $this->assertEquals(1, $forumMan->unreadSubscribedForumTotal($admin), 'fpost-subscriptions-admin-forum-man-unread');
         $this->assertEquals(1, $adminSub->flush()->unread(), 'fpost-subscriptions-admin-new-unread');
@@ -254,28 +263,28 @@ class ForumTest extends TestCase {
 
         $page = $quote->page(10, 0);
         $this->assertCount(1, $page, 'fpost-quote-page-count');
-        $this->assertEquals($admin->id(), $page[0]['quoter_id'], 'fpost-quote-page-0-quoter');
-        $this->assertEquals($postMan->findById($reply->id())->url(), $page[0]['jump'], 'fpost-quote-page-0-jump');
+        $this->assertEquals($admin->id, $page[0]['quoter_id'], 'fpost-quote-page-0-quoter');
+        $this->assertEquals($postMan->findById($reply->id)->url(), $page[0]['jump'], 'fpost-quote-page-0-jump');
 
-        $this->assertEquals(1, $quote->clearThread($thread, $post->id(), $reply->id()), 'fpost-clear-thread');
+        $this->assertEquals(1, $quote->clearThread($thread, $post->id, $reply->id), 'fpost-clear-thread');
         $this->assertEquals(0, $quote->total(), 'fpost-quote-admin-total-clear');
         $this->assertEquals(0, $quote->unreadTotal(), 'fpost-quote-admin-unread-total-clear');
 
         $latest = $adminSub->latestSubscriptionList(true, 10, 0);
         $this->assertCount(1, $latest, 'fpost-subscription-latest-total');
-        $this->assertEquals($thread->id(), $latest[0]['PageID'], 'fpost-quote-admin-unread-page-id');
+        $this->assertEquals($thread->id, $latest[0]['PageID'], 'fpost-quote-admin-unread-page-id');
         $this->assertNull($latest[0]['PostID'], 'fpost-quote-admin-unread-post-id');
 
-        $thread->catchup($admin, $reply->id());
+        $thread->catchup($admin, $reply->id);
         $this->assertEquals(1, $adminSub->unread(), 'fpost-subscriptions-admin-one-read');
 
         $readLast = $this->forum->userLastRead($admin);
         $this->assertCount(1, $readLast, 'forum-last-read-list-total');
         $this->assertEquals(
             [
-                $thread->id() => [
-                    "TopicID" => $thread->id(),
-                    "PostID"  => $reply->id(),
+                $thread->id => [
+                    "TopicID" => $thread->id,
+                    "PostID"  => $reply->id,
                     "Page"    => 1,
                 ]
             ],
@@ -306,7 +315,7 @@ class ForumTest extends TestCase {
         $this->assertEquals([$user->id], $this->forum->autoSubscribeUserIdList(), 'forum-autosub-userlist');
         $this->assertEquals([], $this->forum->autoSubscribeForUserList($user), 'forum-autosub-forum-list');
         $user->addCustomPrivilege('site_forum_autosub');
-        $this->assertEquals([$this->forum->id()], $this->forum->autoSubscribeForUserList($user), 'forum-autosub-forum-list');
+        $this->assertEquals([$this->forum->id], $this->forum->autoSubscribeForUserList($user), 'forum-autosub-forum-list');
 
         $threadMan = new Manager\ForumThread();
         $this->threadList[] = $threadMan->create($this->forum, $this->userList['admin'], 'phpunit thread title', 'this is a new thread');
@@ -325,7 +334,7 @@ class ForumTest extends TestCase {
         $this->forum    = $forumMan->create(
             user:           $this->userList['admin'],
             sequence:       151,
-            categoryId:     $this->category->id(),
+            categoryId:     $this->category->id,
             name:           'phpunit forbid forum',
             description:    'This is where it forbids',
             minClassRead:   100,
@@ -338,7 +347,7 @@ class ForumTest extends TestCase {
         $this->assertTrue($user->writeAccess($this->forum), 'forum-forbid-write-allowed');
         $this->assertTrue($user->createAccess($this->forum), 'forum-forbid-create-allowed');
 
-        $user->setField('RestrictedForums', $this->forum->id())->modify();
+        $user->setField('RestrictedForums', $this->forum->id)->modify();
         $this->assertFalse($user->readAccess($this->forum), 'forum-forbid-read-denied');
         $this->assertFalse($user->writeAccess($this->forum), 'forum-forbid-write-denied');
         $this->assertFalse($user->createAccess($this->forum), 'forum-forbid-create-denied');
@@ -460,6 +469,9 @@ class ForumTest extends TestCase {
             'warn-user-inbox-pm-body-start'
         );
         $this->assertStringEndsWith($message . '[/quote]', $body, 'warn-user-inbox-pm-body-end');
+
+        $this->assertEquals(1, $post->edit($admin, 'cleaned'), 'fpost-edit');
+        $this->assertEquals(2, $post->remove(), 'fpost-remove');
     }
 
     public function testForumPoll(): void {
@@ -485,12 +497,12 @@ class ForumTest extends TestCase {
         $this->assertFalse($poll->hasRevealVotes(), 'forum-poll-is-not-featured');
         $this->assertFalse($poll->isFeatured(), 'forum-poll-is-not-featured');
         $this->assertEquals(0, $poll->total(), 'forum-poll-total');
-        $this->assertEquals($thread->id(), $poll->thread()->id(), 'forum-poll-thread-id');
+        $this->assertEquals($thread->id, $poll->thread()->id, 'forum-poll-thread-id');
         $this->assertCount(3, $poll->vote(), 'forum-poll-vote-count');
         $this->assertEquals($answer[1], $poll->vote()[1]['answer'], 'forum-poll-vote-1');
 
-        $find = $pollMan->findById($poll->id());
-        $this->assertEquals($poll->id(), $find->id(), 'forum-poll-find-by-id');
+        $find = $pollMan->findById($poll->id);
+        $this->assertEquals($poll->id, $find->id, 'forum-poll-find-by-id');
 
         $this->assertEquals(1, $poll->addAnswer('sushi'), 'forum-poll-add-answer');
 
@@ -644,8 +656,8 @@ class ForumTest extends TestCase {
         );
         $this->assertInstanceOf(ForumTransition::class, $transition, 'forum-trans-create');
         $this->assertEquals('phpunit', $transition->label(), 'forum-trans-label');
-        $this->assertEquals($this->forum->id(), $transition->sourceId(), 'forum-trans-source');
-        $this->assertEquals($this->extra->id(), $transition->destinationId(), 'forum-trans-dest');
+        $this->assertEquals($this->forum->id, $transition->sourceId(), 'forum-trans-source');
+        $this->assertEquals($this->extra->id, $transition->destinationId(), 'forum-trans-dest');
         $this->assertEquals($this->userList['admin']->classLevel(), $transition->classLevel(), 'forum-trans-class-level');
         $this->assertCount(0, $transition->secondaryClassIdList(), 'forum-trans-empty-secondary');
         $this->assertCount(0, $transition->userIdList(), 'forum-trans-empty-user-list');
@@ -662,7 +674,7 @@ class ForumTest extends TestCase {
            userClass:        $this->userList['admin']->classLevel(),
            secondaryClasses: (string)FLS_TEAM,
            privileges:       '',
-           userIds:          (string)$this->userList['specific']->id(),
+           userIds:          (string)$this->userList['specific']->id,
         );
         (new User\Privilege($this->userList['FLS']))->addSecondaryClass(FLS_TEAM);
         $this->assertTrue($this->userList['FLS']->isFLS(), 'user-is-fls');
@@ -681,8 +693,8 @@ class ForumTest extends TestCase {
         $list = $manager->threadTransitionList($this->userList['FLS'], $thread);
         $this->assertCount(1, $list, 'thread-transition-list');
         $this->assertEquals(
-            $this->transitionList[0]->id(),
-            $list[$this->transitionList[0]->id()]->id(),
+            $this->transitionList[0]->id,
+            $list[$this->transitionList[0]->id]->id,
             'forum-thread-transition-list'
         );
 

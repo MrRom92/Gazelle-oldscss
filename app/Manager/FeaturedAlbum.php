@@ -72,7 +72,7 @@ class FeaturedAlbum extends \Gazelle\BaseManager {
             ON DUPLICATE KEY UPDATE
                 Started = now(),
                 Ended = NULL
-            ", $tgroup->id(), $forum->lastThreadId(), $featureType->value
+            ", $tgroup->id, $forum->lastThreadId(), $featureType->value
         );
         $tgroup->setFreeleech(
             tracker:   $tracker,
@@ -84,15 +84,15 @@ class FeaturedAlbum extends \Gazelle\BaseManager {
         );
 
         self::$db->commit();
-        return (new \Gazelle\FeaturedAlbum($featureType, $tgroup->id()))->flush();
+        return (new \Gazelle\FeaturedAlbum($featureType, $tgroup->id))->flush();
     }
 
-    public function findById(int $tgroupId): ?\Gazelle\FeaturedAlbum {
+    public function findById(int $id): ?\Gazelle\FeaturedAlbum {
         $type = self::$db->scalar("
             SELECT Type
             FROM featured_albums
             WHERE GroupID = ?
-            ", $tgroupId
+            ", $id
         );
         if (is_null($type)) {
             return null;
@@ -102,19 +102,19 @@ class FeaturedAlbum extends \Gazelle\BaseManager {
                 1       => FeaturedAlbumType::Showcase,
                 default => FeaturedAlbumType::AlbumOfTheMonth,
             },
-            $tgroupId
+            $id
         );
     }
 
     public function findByType(FeaturedAlbumType $type): ?\Gazelle\FeaturedAlbum {
-        $id = (int)self::$db->scalar("
+        $tgroupId = (int)self::$db->scalar("
             SELECT GroupID
             FROM featured_albums
             WHERE Ended IS NULL
                 AND Type = ?
             ", $type->value
         );
-        return $id ? new \Gazelle\FeaturedAlbum($type, $id) : null;
+        return $tgroupId ? new \Gazelle\FeaturedAlbum($type, $tgroupId) : null;
     }
 
     public function lookupFeaturedAlbumType(int $featuredAlbumType): FeaturedAlbumType {

@@ -16,19 +16,19 @@ class Applicant extends \Gazelle\Base {
         return $this;
     }
 
-    public function findById(int $applicantId): ?\Gazelle\Applicant {
-        $key = sprintf(self::ID_KEY, $applicantId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = (int)self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\Applicant {
+        $key = sprintf(self::ID_KEY, $id);
+        $applicantId = self::$cache->get_value($key);
+        if ($applicantId === false) {
+            $applicantId = (int)self::$db->scalar("
                 SELECT ID FROM applicant WHERE ID = ?
-                ", $applicantId
+                ", $id
             );
-            if ($id) {
-                self::$cache->cache_value($key, $id, 0);
+            if ($applicantId) {
+                self::$cache->cache_value($key, $applicantId, 0);
             }
         }
-        return $id ? new \Gazelle\Applicant($id) : null;
+        return $applicantId ? new \Gazelle\Applicant($applicantId) : null;
     }
 
     public function list(): array {
@@ -47,7 +47,7 @@ class Applicant extends \Gazelle\Base {
             $list = self::$db->collect(0, false);
             self::$cache->cache_value(self::LIST_KEY, $list, 0);
         }
-        return array_map(fn($id) => $this->findById($id), $list);
+        return array_map(fn ($id) => $this->findById($id), $list);
     }
 
     public function resolvedList(): array {

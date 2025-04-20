@@ -382,4 +382,13 @@ class UserManagerTest extends TestCase {
         $this->assertGreaterThanOrEqual(0, count($recent), 'uman-userflow-recent-is-array');
         $this->assertEquals(['Week', 'created', 'disabled'], array_keys($recent), 'userman-recent-keys');
     }
+
+    public function testUserFind(): void {
+        $manager = new Manager\User();
+        $this->assertEquals(
+            $this->userList[0]->id,
+            $manager->findByEmail($this->userList[0]->email())->id,
+            'userman-find-by-email'
+        );
+    }
 }

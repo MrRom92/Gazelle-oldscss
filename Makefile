@@ -13,6 +13,7 @@ help:
 	echo '  check-php            - check that the modified PHP files are syntactically correct'
 	echo '  composer-dev-update  - run local composer update'
 	echo '  composer-live-update - run production composer install from composer.lock'
+	echo '  coverage             - generate HTML coverage report from unit tests'
 	echo '  config-css           - generate the configuration variables to build the CSS files'
 	echo '  dump-all             - create tarballs of the following:'
 	echo '  dump-riplog          - create a tarball of the rip logs'
@@ -50,6 +51,10 @@ composer-dev-update:
 .PHONY: composer-live-update
 composer-live-update:
 	composer install --no-dev --optimize-autoloader --no-progress
+
+.PHONY: coverage
+coverage:
+	 docker compose exec -e XDEBUG_MODE=coverage web vendor/bin/phpunit -c misc/phpunit.xml -d memory_limit=2G --coverage-html coverage/
 
 .PHONY: dump-all
 dump-all: dump-riplog dump-riploghtml dump-torrent

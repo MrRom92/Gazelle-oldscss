@@ -23,12 +23,12 @@ class StaffBlog extends \Gazelle\Base {
         return $this->findById($id);
     }
 
-    public function findById(int $staffBlogId): ?\Gazelle\StaffBlog {
-        $id = (int)self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\StaffBlog {
+        $staffBlogId = (int)self::$db->scalar("
             SELECT ID FROM staff_blog WHERE ID = ?
-            ", $staffBlogId
+            ", $id
         );
-        return $id ? new \Gazelle\StaffBlog($id) : null;
+        return $staffBlogId ? new \Gazelle\StaffBlog($staffBlogId) : null;
     }
 
     /**

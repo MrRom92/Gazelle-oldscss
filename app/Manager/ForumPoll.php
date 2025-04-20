@@ -18,36 +18,29 @@ class ForumPoll extends \Gazelle\BaseManager {
             INSERT INTO forums_polls
                    (TopicID, Question, Answers)
             Values (?,       ?,        ?)
-            ", $thread->id(), $question, serialize($answerList)
+            ", $thread->id, $question, serialize($answerList)
         );
-        return $this->findById($thread->id());
+        return $this->findById($thread->id);
     }
 
     /**
      * Instantiate a poll by its thread ID
      */
-    public function findById(int $threadId): ?\Gazelle\ForumPoll {
-        $key = sprintf(self::ID_KEY, $threadId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = (int)self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\ForumPoll {
+        $key = sprintf(self::ID_KEY, $id);
+        $threadId = self::$cache->get_value($key);
+        if ($threadId === false) {
+            $threadId = (int)self::$db->scalar("
                 SELECT TopicID FROM forums_polls WHERE TopicID = ?
-                ", $threadId
+                ", $id
             );
-            if ($id) {
-                self::$cache->cache_value($key, $id, 7200);
+            if ($threadId) {
+                self::$cache->cache_value($key, $threadId, 7200);
             }
         }
-        return $id
-            ? new \Gazelle\ForumPoll(new \Gazelle\ForumThread($id))
+        return $threadId
+            ? new \Gazelle\ForumPoll(new \Gazelle\ForumThread($threadId))
             : null;
-    }
-
-    /**
-     * Instantiate a poll by its thread
-     */
-    public function findByThread(\Gazelle\Thread $thread): ?\Gazelle\ForumPoll {
-        return $this->findById($thread->id());
     }
 
     /**

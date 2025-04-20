@@ -3,7 +3,7 @@
 namespace Gazelle;
 
 class ReleaseType extends Base {
-    protected const CACHE_KEY = 'release_type';
+    final public const CACHE_KEY = 'release_type';
 
     protected array $list;
 

@@ -5,9 +5,6 @@ namespace Gazelle;
 use PHPUnit\Framework\TestCase;
 
 class TorManagerTest extends TestCase {
-    public function setup(): void {
-    }
-
     public function testTor(): void {
         $manager = new Manager\Tor();
         $list = array_filter(

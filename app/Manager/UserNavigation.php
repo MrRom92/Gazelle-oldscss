@@ -29,19 +29,19 @@ class UserNavigation extends \Gazelle\BaseManager {
         return new \Gazelle\UserNavigation($id);
     }
 
-    public function findById(int $controlId): ?\Gazelle\UserNavigation {
-        $key = sprintf(self::ID_KEY, $controlId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = self::$db->scalar("
-                SELECT ID FROM forums_nav WHERE ID = ?
-                ", $controlId
+    public function findById(int $id): ?\Gazelle\UserNavigation {
+        $key = sprintf(self::ID_KEY, $id);
+        $navigationId = self::$cache->get_value($key);
+        if ($navigationId === false) {
+            $navigationId = (int)self::$db->scalar("
+                SELECT id FROM nav_items WHERE id = ?
+                ", $id
             );
-            if (!is_null($id)) {
-                self::$cache->cache_value($key, $id, 7200);
+            if ($navigationId) {
+                self::$cache->cache_value($key, $navigationId, 7200);
             }
         }
-        return $id ? new \Gazelle\UserNavigation($id) : null;
+        return $navigationId ? new \Gazelle\UserNavigation($navigationId) : null;
     }
 
     public function userControlList(\Gazelle\User $user): array {

@@ -35,6 +35,7 @@ class CommentTest extends TestCase {
 
     public function testCommentArtist(): void {
         $manager = new Manager\Comment();
+        $this->assertNull($manager->findById(0), 'comment-404-id');
         $artMan  = new Manager\Artist();
         $this->artist = $artMan->create('phpunit.' . randomString(12));
 

@@ -58,7 +58,7 @@ class ContestTest extends TestCase {
             dateBegin   : date('Y-m-d H:i:s'),
             dateEnd     : date('Y-m-d H:i:s', $now + 86400 * 15),
             name        : $name,
-            description : 'phpunit contest description', 
+            description : 'phpunit contest description',
             display     : 10,
             hasPool     : false,
             type        : $contestTypes[1]['id'],
@@ -80,6 +80,7 @@ class ContestTest extends TestCase {
         $this->assertEquals(0, $this->contest->totalEntries(), 'contest-no-entries-yet');
         $this->assertNull($this->contest->rank($this->userList[0]), 'contest-no-rank-yet');
         $this->assertEquals('none', $this->contest->bonusStatus(), 'contest-status-no-bonus-pool');
+        $this->assertEquals($this->contest->id, $manager->findById($this->contest->id)->id, 'contest-find-by-id');
 
         $this->assertEquals(1, $this->contest->remove(), 'contest-remove');
         unset($this->contest);
@@ -94,7 +95,7 @@ class ContestTest extends TestCase {
             dateBegin   : date('Y-m-d H:i:s', time() - 1),
             dateEnd     : (new \DateTime())->add(new \DateInterval("P15D"))->format('Y-m-d H:i:s'),
             name        : 'phpunit contest upload flac ' . randomString(6),
-            description : 'phpunit contest description', 
+            description : 'phpunit contest description',
             display     : 10,
             hasPool     : true,
             type        : $contestTypes[1]['id'],
@@ -301,7 +302,7 @@ class ContestTest extends TestCase {
             Helper::makeRequestMusic($this->userList[0], 'phpunit contest request fill 0-2'),
             Helper::makeRequestMusic($this->userList[1], 'phpunit contest request fill 1-1'),
         ];
-        foreach($this->requestList as $r) {
+        foreach ($this->requestList as $r) {
             // backdate the requests prior to the beginning of the contest, add bounty
             $r->setField('created', date('Y-m-d H:i:s', time() - 10))->modify();
             $r->vote($this->userList[0], 1024 * 1024);

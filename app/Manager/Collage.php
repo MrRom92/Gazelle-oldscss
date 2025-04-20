@@ -53,13 +53,13 @@ class Collage extends \Gazelle\BaseManager {
         return new \Gazelle\Collage($id, $categoryId);
     }
 
-    public function findById(int $collageId): ?\Gazelle\Collage {
-        $key = sprintf(self::ID_KEY, $collageId);
+    public function findById(int $id): ?\Gazelle\Collage {
+        $key = sprintf(self::ID_KEY, $id);
         $idCategory = self::$cache->get_value($key);
         if ($idCategory === false) {
             $idCategory = self::$db->row("
                 SELECT ID, CategoryID FROM collages WHERE ID = ?
-                ", $collageId
+                ", $id
             );
             if ($idCategory) {
                 self::$cache->cache_value($key, $idCategory, 7200);

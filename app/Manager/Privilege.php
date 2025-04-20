@@ -25,27 +25,27 @@ class Privilege extends \Gazelle\BaseManager {
         return new \Gazelle\Privilege(self::$db->inserted_id());
     }
 
-    public function findById(int $privilegeId): ?\Gazelle\Privilege {
-        $key = sprintf(self::ID_KEY, $privilegeId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = (int)self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\Privilege {
+        $key = sprintf(self::ID_KEY, $id);
+        $privilegeId = self::$cache->get_value($key);
+        if ($privilegeId === false) {
+            $privilegeId = (int)self::$db->scalar("
                 SELECT ID FROM permissions WHERE ID = ?
-                ", $privilegeId
+                ", $id
             );
-            if ($id) {
-                self::$cache->cache_value($key, $id, 7200);
+            if ($privilegeId) {
+                self::$cache->cache_value($key, $privilegeId, 7200);
             }
         }
-        return $id ? new \Gazelle\Privilege($id) : null;
+        return $privilegeId ? new \Gazelle\Privilege($privilegeId) : null;
     }
 
     public function findByLevel(int $level): ?\Gazelle\Privilege {
-        $id = (int)self::$db->scalar("
+        $privilegeId = (int)self::$db->scalar("
             SELECT ID FROM permissions WHERE Level = ?
             ", $level
         );
-        return $id ? new \Gazelle\Privilege($id) : null;
+        return $privilegeId ? new \Gazelle\Privilege($privilegeId) : null;
     }
 
     protected function info(): array {

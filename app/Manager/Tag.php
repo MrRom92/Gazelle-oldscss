@@ -36,19 +36,19 @@ class Tag extends \Gazelle\BaseManager {
             : null;
     }
 
-    public function findById(int $tagId): ?\Gazelle\Tag {
-        $key = sprintf(self::ID_KEY, $tagId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = (int)self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\Tag {
+        $key = sprintf(self::ID_KEY, $id);
+        $tagId = self::$cache->get_value($key);
+        if ($tagId === false) {
+            $tagId = (int)self::$db->scalar("
                 SELECT ID FROM tags WHERE ID = ?
-                ", $tagId
+                ", $id
             );
-            if ($id) {
-                self::$cache->cache_value($key, $id, 7200);
+            if ($tagId) {
+                self::$cache->cache_value($key, $tagId, 7200);
             }
         }
-        return $id ? new \Gazelle\Tag($id) : null;
+        return $tagId ? new \Gazelle\Tag($tagId) : null;
     }
 
     public function findByName(string $name): ?\Gazelle\Tag {

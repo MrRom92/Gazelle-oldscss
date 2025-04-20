@@ -89,7 +89,7 @@
         <td>{{ config.needSitelink }}
         <br /><select name="need_sitelink">
 {% for value in config.needSitelinkList %}
-            <option value="{{ value }}"{{ selected(config.needSiteLink == value) }}>{{ value }}</option>
+            <option value="{{ value }}"{{ selected(config.needSitelink == value) }}>{{ value }}</option>
 {% endfor %}
         </select>
         <br />The report (optionally) requires a link to page onsite.</td>

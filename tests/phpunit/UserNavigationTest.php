@@ -18,6 +18,9 @@ class UserNavigationTest extends TestCase {
 
     public function testNavigationBasic(): void {
         $manager = new Manager\UserNavigation();
+        $this->assertNull($manager->findById(0), 'user-nav-find-by-id');
+        global $Cache;
+        $Cache->delete_value(Manager\UserNavigation::LIST_KEY);
         $fullList = $manager->fullList();
         $this->assertCount(12, $fullList, 'user-nav-manager-full');
 

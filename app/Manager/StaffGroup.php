@@ -16,19 +16,19 @@ class StaffGroup extends \Gazelle\BaseManager {
         return new \Gazelle\StaffGroup(self::$db->inserted_id());
     }
 
-    public function findById(int $staffGroupId): ?\Gazelle\StaffGroup {
-        $key = sprintf(self::ID_KEY, $staffGroupId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\StaffGroup {
+        $key = sprintf(self::ID_KEY, $id);
+        $staffGroupId = self::$cache->get_value($key);
+        if ($staffGroupId === false) {
+            $staffGroupId = (int)self::$db->scalar("
                 SELECT ID FROM staff_groups WHERE ID = ?
-                ", $staffGroupId
+                ", $id
             );
-            if (!is_null($id)) {
-                self::$cache->cache_value($key, $id, 7200);
+            if ($staffGroupId) {
+                self::$cache->cache_value($key, $staffGroupId, 7200);
             }
         }
-        return $id ? new \Gazelle\StaffGroup($id) : null;
+        return $staffGroupId ? new \Gazelle\StaffGroup($staffGroupId) : null;
     }
 
     public function groupList(): array {

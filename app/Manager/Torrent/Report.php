@@ -37,7 +37,7 @@ class Report extends \Gazelle\BaseManager {
             INSERT INTO reportsv2
                    (ReporterID, TorrentID, Type, UserComment, ExtraID, Track, Image, Link)
             VALUES (?,          ?,         ?,    ?,           ?,     ?,     ?,       ?)
-            ", $user->id, $torrent->id(), $reportType->type(), $reason, $otherIdList, $track, $image, $link
+            ", $user->id, $torrent->id, $reportType->type(), $reason, $otherIdList, $track, $image, $link
         );
 
         $report = new \Gazelle\Torrent\Report(self::$db->inserted_id(), $this->torMan);
@@ -48,26 +48,28 @@ class Report extends \Gazelle\BaseManager {
             );
         }
 
-        self::$cache->delete_value(sprintf(\Gazelle\TorrentAbstract::CACHE_REPORTLIST, $torrent->id()));
+        self::$cache->delete_value(sprintf(\Gazelle\TorrentAbstract::CACHE_REPORTLIST, $torrent->id));
         self::$cache->increment('num_torrent_reportsv2');
         $torrent->flush();
 
         return $report;
     }
 
-    public function findById(int $reportId): ?\Gazelle\Torrent\Report {
-        $key = sprintf(self::ID_KEY, $reportId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = (int)self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\Torrent\Report {
+        $key = sprintf(self::ID_KEY, $id);
+        $reportId = self::$cache->get_value($key);
+        if ($reportId === false) {
+            $reportId = (int)self::$db->scalar("
                 SELECT ID FROM reportsv2 WHERE ID = ?
-                ", $reportId
+                ", $id
             );
-            if ($id) {
-                self::$cache->cache_value($key, $id, 7200);
+            if ($reportId) {
+                self::$cache->cache_value($key, $reportId, 7200);
             }
         }
-        return $id ? new \Gazelle\Torrent\Report($reportId, $this->torMan) : null;
+        return $reportId
+            ? new \Gazelle\Torrent\Report($reportId, $this->torMan)
+            : null;
     }
 
     public function findNewest(): ?\Gazelle\Torrent\Report {
@@ -75,28 +77,28 @@ class Report extends \Gazelle\BaseManager {
             (int)self::$db->scalar("
                 SELECT ID
                 FROM reportsv2
-                WHERE r.Status = 'New'
-                ORDER BY ReportedTime ASC
+                WHERE Status = 'New'
+                ORDER BY ReportedTime DESC
                 LIMIT 1
             ")
         );
     }
 
-    public function existsRecent(int $torrentId, int $ViewerId): bool {
+    public function existsRecent(\Gazelle\Torrent $torrent, \Gazelle\User $user): bool {
         return (bool)self::$db->scalar("
             SELECT ID
             FROM reportsv2
             WHERE ReportedTime > now() - INTERVAL 5 SECOND
                 AND TorrentID = ?
                 AND ReporterID = ?
-            ", $torrentId, $ViewerId);
+            ", $torrent->id, $user->id);
     }
 
     public function categories(): array {
         return $this->categories;
     }
 
-    public function newSummary(ReportType $reportTypeMan): array {
+    public function newSummary(ReportType $reportTypeMan = new ReportType()): array {
         self::$db->prepared_query("
             SELECT Type  AS type,
                 count(*) AS total
@@ -120,7 +122,7 @@ class Report extends \Gazelle\BaseManager {
         return $list;
     }
 
-    public function inProgressSummary(\Gazelle\Manager\User $userMan): array {
+    public function inProgressSummary(\Gazelle\Manager\User $userMan = new \Gazelle\Manager\User()): array {
         self::$db->prepared_query("
             SELECT r.ResolverID AS user_id,
                 count(*)        AS total
@@ -132,7 +134,7 @@ class Report extends \Gazelle\BaseManager {
         return $this->decorateUser($userMan, self::$db->to_array(false, MYSQLI_ASSOC, false));
     }
 
-    public function resolvedSummary(\Gazelle\Manager\User $userMan): array {
+    public function resolvedSummary(\Gazelle\Manager\User $userMan = new \Gazelle\Manager\User()): array {
         self::$db->prepared_query("
             SELECT r.ResolverID AS user_id,
                 count(*)        AS total
@@ -150,50 +152,50 @@ class Report extends \Gazelle\BaseManager {
                 count(*)        AS total
             FROM reportsv2 AS r
             WHERE r.ResolverID > 0
-                AND  r.LastChangeTime > now() - INTERVAL $interval
+                AND r.LastChangeTime > now() - INTERVAL $interval
             GROUP BY r.ResolverID
             ORDER BY total DESC
         ");
         return $this->decorateUser($userMan, self::$db->to_array(false, MYSQLI_ASSOC, false));
     }
 
-    public function resolvedLastDay(\Gazelle\Manager\User $userMan): array {
+    public function resolvedLastDay(\Gazelle\Manager\User $userMan = new \Gazelle\Manager\User()): array {
         return $this->resolvedLastInterval($userMan, '1 DAY');
     }
 
-    public function resolvedLastWeek(\Gazelle\Manager\User $userMan): array {
+    public function resolvedLastWeek(\Gazelle\Manager\User $userMan = new \Gazelle\Manager\User()): array {
         return $this->resolvedLastInterval($userMan, '1 WEEK');
     }
 
-    public function resolvedLastMonth(\Gazelle\Manager\User $userMan): array {
+    public function resolvedLastMonth(\Gazelle\Manager\User $userMan = new \Gazelle\Manager\User()): array {
         return $this->resolvedLastInterval($userMan, '1 MONTH');
     }
 
     /**
      * How many open reports exist for this group
      */
-    public function totalReportsGroup(int $groupId): int {
+    public function totalReportsTGroup(\Gazelle\TGroup $tgroup): int {
         return (int)self::$db->scalar("
             SELECT count(*)
             FROM reportsv2 AS r
             INNER JOIN torrents AS t ON (t.ID = r.TorrentID)
             WHERE r.Status != 'Resolved'
                 AND t.GroupID = ?
-            ", $groupId
+            ", $tgroup->id
         );
     }
 
     /**
      * How many open reports exist for this uploader
      */
-    public function totalReportsUploader(int $userId): int {
+    public function totalReportsUploader(\Gazelle\User $user): int {
         return (int)self::$db->scalar("
             SELECT count(*)
             FROM reportsv2 AS r
             INNER JOIN torrents AS t ON (t.ID = r.TorrentID)
             WHERE r.Status != 'Resolved'
                 AND t.UserID = ?
-            ", $userId
+            ", $user->id
         );
     }
 
@@ -203,7 +205,7 @@ class Report extends \Gazelle\BaseManager {
     public function totalReportsTorrent(\Gazelle\Torrent|\Gazelle\TorrentDeleted $torrent): int {
         return (int)self::$db->scalar("
             SELECT count(*) FROM reportsv2 WHERE Status != 'Resolved' AND TorrentID = ?
-            ", $torrent->id()
+            ", $torrent->id
         );
     }
 
@@ -222,14 +224,14 @@ class Report extends \Gazelle\BaseManager {
         $delargs = [];
         if (isset($this->filter['reporter'])) {
             $cond[] = 'r.ReporterID = ?';
-            $args[] = $this->filter['reporter']->id();
+            $args[] = $this->filter['reporter']->id;
         }
         if (isset($this->filter['handler'])) {
             $cond[] = 'r.ResolverID = ?';
-            $args[] = $this->filter['handler']->id();
+            $args[] = $this->filter['handler']->id;
         }
         if (isset($this->filter['uploader'])) {
-            $userId = $this->filter['uploader']->id();
+            $userId = $this->filter['uploader']->id;
             $cond[] = 't.UserID = ?';
             $args[] = $userId;
             $delcond[] = '(dt.UserID IS NULL OR dt.UserID = ?)';
@@ -288,7 +290,11 @@ class Report extends \Gazelle\BaseManager {
         );
     }
 
-    public function searchList(\Gazelle\Manager\User $userMan, int $limit, int $offset): array {
+    public function searchList(
+        int $limit,
+        int $offset,
+        \Gazelle\Manager\User $userMan = new \Gazelle\Manager\User(),
+    ): array {
         [$cond, $args, $delcond, $delargs] = $this->searchConfigure();
         $where = (count($cond) == 0 && count($delcond) == 0)
             ? ''

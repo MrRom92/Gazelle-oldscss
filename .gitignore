@@ -20,6 +20,7 @@
 __MACOSX/
 
 /cache
+/coverage
 /misc/docker/data/
 /misc/mysql-dump.sql
 /misc/postgresql-dump.sql

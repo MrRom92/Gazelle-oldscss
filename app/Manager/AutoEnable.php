@@ -49,12 +49,14 @@ class AutoEnable extends \Gazelle\BaseManager {
         return $this->findById($enablerId);
     }
 
-    public function findById(int $enableId): ?\Gazelle\User\AutoEnable {
-        [$id, $userId] = self::$db->row("
+    public function findById(int $id): ?\Gazelle\User\AutoEnable {
+        [$enableId, $userId] = self::$db->row("
             SELECT ID, UserID FROM users_enable_requests WHERE ID = ?
-            ", $enableId
+            ", $id
         );
-        return is_null($id) ? null : new \Gazelle\User\AutoEnable($id, new \Gazelle\User($userId));
+        return $enableId
+            ? new \Gazelle\User\AutoEnable($enableId, new \Gazelle\User($userId))
+            : null;
     }
 
     /**

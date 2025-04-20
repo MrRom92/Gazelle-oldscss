@@ -26,7 +26,7 @@ if (is_null($torrent)) {
 }
 
 $reportMan = new Manager\Torrent\Report($torMan);
-if ($reportMan->existsRecent($torrent->id(), $Viewer->id())) {
+if ($reportMan->existsRecent($torrent, $Viewer)) {
     Error429::error("Slow down, you're moving too fast!");
 }
 

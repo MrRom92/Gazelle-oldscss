@@ -27,7 +27,7 @@ class TGroup extends \Gazelle\BaseManager {
             ", $categoryId, $name, $description, $year, $recordLabel, $catalogueNumber, $image, $releaseType, (int)$showcase
         );
         $id = self::$db->inserted_id();
-        $tgroup = $this->findById((int)$id);
+        $tgroup = $this->findById($id);
         self::$cache->increment_value('stats_group_count');
         if ($tgroup->categoryName() === 'Music') {
             self::$cache->decrement('stats_album_count');
@@ -87,22 +87,22 @@ class TGroup extends \Gazelle\BaseManager {
         return $new;
     }
 
-    public function findById(int $tgroupId): ?\Gazelle\TGroup {
-        $key = sprintf(self::ID_KEY, $tgroupId);
-        $id = self::$cache->get_value($key);
-        if ($id === false) {
-            $id = self::$db->scalar("
+    public function findById(int $id): ?\Gazelle\TGroup {
+        $key = sprintf(self::ID_KEY, $id);
+        $tgroupId = self::$cache->get_value($key);
+        if ($tgroupId === false) {
+            $tgroupId = (int)self::$db->scalar("
                 SELECT ID FROM torrents_group WHERE ID = ?
-                ", $tgroupId
+                ", $id
             );
-            if (!is_null($id)) {
-                self::$cache->cache_value($key, $id, 7200);
+            if ($tgroupId) {
+                self::$cache->cache_value($key, $tgroupId, 7200);
             }
         }
-        if (!$id) {
+        if (!$tgroupId) {
             return null;
         }
-        $tgroup = new \Gazelle\TGroup($id);
+        $tgroup = new \Gazelle\TGroup($tgroupId);
         if (isset($this->viewer)) {
             $tgroup->setViewer($this->viewer);
         }

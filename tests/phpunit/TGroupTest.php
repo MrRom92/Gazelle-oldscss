@@ -414,6 +414,33 @@ class TGroupTest extends TestCase {
         $this->assertCount(1, $this->tgroupExtra->torrentIdList(), 'tgroup-split-has-one-torrent');
     }
 
+    public function testReleaseType(): void {
+        global $Cache;
+        $Cache->delete_value(ReleaseType::CACHE_KEY);
+        $releaseType = new ReleaseType();
+        $this->assertCount(17, $releaseType->list(), 'rel-type-list');
+        $this->assertCount(
+            22,
+            $releaseType->extendedList(),
+            'rel-type-extended-list',
+        );
+        $this->assertEquals(
+            6,
+            $releaseType->findIdByName('Anthology'),
+            'rel-type-find-id',
+        );
+        $this->assertEquals(
+            'Anthology',
+            $releaseType->findNameById(6),
+            'rel-type-find-name',
+        );
+        $this->assertEquals(
+            'DJ Mixes',
+            $releaseType->sectionTitle($releaseType->findIdByName('DJ Mix')),
+            'rel-type-section-title',
+        );
+    }
+
     public function testStatsRefresh(): void {
         $this->assertGreaterThanOrEqual(
             0,

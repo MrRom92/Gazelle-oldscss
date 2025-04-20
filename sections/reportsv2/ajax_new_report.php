@@ -39,8 +39,8 @@ echo $Twig->render('reportsv2/new.twig', [
     'size'          => '(' . number_format($report->torrent()->size() / (1024 * 1024), 2) . ' MiB)',
     'torrent'       => $report->torrent(),
     'other'         => [
-        'group'     => $reportMan->totalReportsGroup($report->torrent()->groupId()) - 1,
-        'uploader'  => $reportMan->totalReportsUploader($report->torrent()->uploader()->id()) - 1,
+        'group'     => $reportMan->totalReportsTGroup($report->torrent()->group()) - 1,
+        'uploader'  => $reportMan->totalReportsUploader($report->torrent()->uploader()) - 1,
     ],
     'viewer'        => $Viewer,
 ]);
