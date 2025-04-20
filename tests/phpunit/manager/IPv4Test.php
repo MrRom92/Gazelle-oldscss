@@ -6,6 +6,8 @@ use PHPUnit\Framework\TestCase;
 use GazelleUnitTest\Helper;
 
 class IPv4Test extends TestCase {
+    use Pg;
+
     protected array $userList;
 
     public function setUp(): void {
@@ -13,37 +15,85 @@ class IPv4Test extends TestCase {
     }
 
     public function tearDown(): void {
+        $idList = array_map(fn ($u) => $u->id, $this->userList);
+        $placeholders = placeholders($idList);
+        $this->pg()->prepared_query("
+            delete from ip_ban where id_ip_ban in (
+                select id_ip_ban from ip_ban_hist where id_user in ($placeholders))
+            ", ...$idList
+        );
+        DB::DB()->prepared_query("
+            DELETE FROM users_history_ips WHERE UserID IN ($placeholders)
+            ", ...$idList
+        );
         foreach ($this->userList as $user) {
             $user->remove();
         }
         $this->userList = [];
     }
 
-    public function testBan(): void {
-        $ipv4 = new Manager\IPv4();
-        $initial = $ipv4->total();
-        // if the following fails, it is due to a previous unittest failure
-        $this->assertFalse($ipv4->isBanned('127.9.9.55'), 'ipv4-is-not-banned');
-        $id = $ipv4->createBan($this->userList[0], '127.9.9.50', '127.9.9.60', 'phpunit');
-        $this->assertGreaterThan(0, $id, 'ipv4-ban-create');
-        $this->assertTrue($ipv4->isBanned('127.9.9.55'), 'ipv4-is-banned');
-        $this->assertEquals($initial + 1, $ipv4->total(), 'ipv4-total');
+    public function testBanBasic(): void {
+        $manager = new Manager\Ban();
+        $initial = $manager->total();
+        $this->assertFalse($manager->isBanned('127.9.9.55'), 'ipv4-is-not-banned');
+        $ban = $manager->create('127.9.9.50', 'phpunit', $this->userList[0]);
+        $this->assertGreaterThan(0, $ban->id, 'ipv4-ban-create');
+        $this->assertFalse($manager->isBanned('127.9.9.55'), 'ipv4-is-banned');
+        $this->assertEquals($initial + 1, $manager->total(), 'ipv4-total');
+        $this->assertCount(1, $ban->history(), 'ban-history-initial');
+        $ban->addNote('phpunit add note', $this->userList[0]);
+        $this->assertEquals(2, $ban->total(), 'ban-total');
+        $this->assertTrue(Helper::recentDate($ban->created()), 'ban-created');
 
-        $this->assertFalse($ipv4->isBanned('127.9.9.61'), 'ipv4-outside-ban-range');
-        $this->assertEquals(
-            1,
-            $ipv4->modifyBan($this->userList[0], $id, '127.9.9.50', '127.9.9.61', 'extend'),
-            'ipv4-extend'
-        );
-        $this->assertTrue($ipv4->isBanned('127.9.9.61'), 'ipv4-inside-ban-range');
+        $this->assertFalse($manager->isBanned('127.9.9.61'), 'ipv4-outside-ban-range');
+        $manager->create('127.9.9.55/26', 'extend');
+        $this->assertTrue($manager->isBanned('127.9.9.61'), 'ipv4-inside-ban-range');
 
-        $ipv4->setFilterNotes('extend');
-        $list = $ipv4->page('id', 'desc', 2, 0);
+        $manager->setFilterNotes('extend')
+            ->setFilterActive(true)
+            // need to add a second in the future because Pg offers microsecond resolution
+            ->setFilterTime(date('Y-m-d H:i:s', time() - 10), date('Y-m-d H:i:s', time() + 1));
+        $list = $manager->page(2, 0);
         $this->assertCount(1, $list, 'ipv4-extend-list');
-        $this->assertEquals($id, $list[0]['id'], 'ipv4-extend-id');
+        $this->assertEquals($ban->id, $list[0]['id'], 'ipv4-extend-id');
+        $this->assertEquals(
+            "<a href=\"tools.php?action=ip-ban-edit&amp;id={$ban->id}\">IP {$ban->ip()}</a>",
+            $ban->link(),
+            'ban-link',
+        );
 
-        $this->assertEquals(1, $ipv4->removeBan($id), 'ipv4-ban-remove');
-        $this->assertFalse($ipv4->isBanned('127.9.9.55'), 'ipv4-is-unbanned');
+        $this->assertEquals(1, $ban->remove(), 'ipv4-ban-remove');
+        $this->assertFalse($manager->isBanned('127.9.9.55'), 'ipv4-is-unbanned');
+    }
+
+    public function testBanExtend(): void {
+        $manager = new Manager\Ban();
+        $manager->create('127.100.0.0/24', 'phpunit class 1');
+        $manager->create('127.100.1.0/24', 'phpunit class 2');
+        // now create a ban that encompasses the above
+        $ban = $manager->create('127.100.0.0/22', 'phpunit class 1+2');
+        $this->assertInstanceOf(
+            Ban::class,
+            $manager->findByIp('127.100.0.1'),
+            'ip-ban-class-1',
+        );
+        $this->assertEquals(
+            $ban->id,
+            $manager->findByIp('127.100.1.1')->id,
+            'ip-ban-class-2',
+        );
+        $this->assertEquals(
+            $ban->id,
+            $manager->findByIp('127.100.2.1')->id,
+            'ip-ban-class-3',
+        );
+        $this->assertEquals('127.100.0.0/22', $ban->ip(), 'ip-ban-ip');
+        $this->assertTrue($manager->isBanned('127.100.3.3'), 'ip-is-banned');
+        $this->assertTrue($ban->setField('is_active', 'f')->modify());
+        $this->assertFalse($ban->isActive(), 'ban-rule-is-inactive');
+        $this->assertFalse($manager->isBanned('127.100.3.3'), 'ip-is-unbanned');
+
+        $ban->remove();
     }
 
     public function testUserPage(): void {
@@ -54,17 +104,19 @@ class IPv4Test extends TestCase {
         $this->assertEquals(
             ['127.0.0.1', '127.1.0.1'],
             array_map(
-                fn($h) => $h['ip_addr'],
+                fn ($h) => $h['ip_addr'],
                 $ipv4->userPage($user, 3, 0)
             ),
             'ipv4-user-page',
         );
-        $this->assertFalse($ipv4->isBanned('127.1.0.1'), 'ipv4-not-banned');
+        $manager = new Manager\Ban();
+        $this->assertFalse($manager->isBanned('127.1.0.1'), 'ipv4-not-banned');
 
         $ipv4->setFilterIpaddrRegexp('^127\.0');
         $this->assertEquals(1, $ipv4->userTotal($user), 'ipv4-user-filter-regexp');
         $ipv4->setFilterIpaddrRegexp('^10\.0');
         $this->assertEquals(0, $ipv4->userTotal($user), 'ipv4-user-fail-regexp');
+
 
         $ipv4->flush();
         $ipv4->setFilterIpaddr('127.1.0.1');
@@ -74,20 +126,21 @@ class IPv4Test extends TestCase {
     }
 
     public function testUserOther(): void {
-        $now = time();
-        $ip = '1.2.3.4';
         $user2 = Helper::makeUser('ipv4.' . randomString(10), 'ipv4man');
-        $this->userList[] = $user2;
-        $ipOther = '4.3.2.1';
         $user3 = Helper::makeUser('ipv4.' . randomString(10), 'ipv4man');
+        $this->userList[] = $user2;
         $this->userList[] = $user3;
-        $ipv4 = new Manager\IPv4();
+        $ipv4    = new Manager\IPv4();
+        $ip      = '1.2.3.4';
+        $ipOther = '4.3.2.1';
         $ipv4->register($this->userList[0], $ip);
         $ipv4->register($user2, $ip);
         $ipv4->register($user3, $ipOther);
 
-        $ipv4->setFilterTime($now, time() + 1);
-        $ipv4->setFilterIpaddr($ip);
+        $now = time();
+        $ipv4->setFilterBegin(date('Y-m-d H:i:s', $now - 10))
+            ->setFilterEnd(date('Y-m-d H:i:s', $now + 10))
+            ->setFilterIpaddr($ip);
         $this->assertEquals([$user2->id()], $ipv4->userOther($this->userList[0]), 'ipv4-other-success');
 
         $ipv4->setFilterIpaddr($ipOther);

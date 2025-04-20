@@ -1,7 +1,7 @@
 #! /usr/bin/env php
 <?php
 
-require_once(__DIR__ . "/../lib/bootstrap.php");
+require_once __DIR__ . "/../../lib/bootstrap.php";
 
 // length of interval between two records to extend the date range
 define('INTERVAL_DAYS', 8);

@@ -24,4 +24,23 @@ abstract class BasePgObject extends BaseObject {
         }
         return $success;
     }
+
+    /**
+     * Remove an object. If there is no caching, this is all you need.
+     * It will blow up if there are non-cascading foreign keys still present,
+     * but that is probably what you want. Clean those first explicitly
+     * before calling this.
+     */
+    public function remove(): int {
+        $affected = $this->pg()->prepared_query(
+            "DELETE /* BasePgObject */ FROM "
+                . static::tableName
+                . " WHERE "
+                . static::pkName
+                . " = ?",
+            $this->id
+        );
+        $this->flush();
+        return $affected;
+    }
 }

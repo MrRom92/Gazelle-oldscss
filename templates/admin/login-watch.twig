@@ -11,84 +11,70 @@
 
 {% if nr_ban or nr_clear %}
 <div class="pad box">
-    {% if nr_ban %}
+{%  if nr_ban %}
     IP addresses banned: {{ nr_ban }}
-    {% endif %}
-    {% if nr_clear %}
+{%  endif %}
+{%  if nr_clear %}
     IP addresses cleared: {{ nr_clear }}
-    {% endif %}
+{%  endif %}
 </div>
 {% endif %}
 
-{% if list is empty %}
-<div class="pad box">
-    There are no current login watches.
-</div>
-{% else %}
-{{ paginator.linkbox|raw }}
-{% for b in list %}
-    {% if loop.first %}
+{% for b in watch.activeList(paginator.limit, paginator.offset) %}
+{%  set header = watch.header %}
+{%  if loop.first %}
+{{  paginator.linkbox|raw }}
 <form class="manage_form" name="bans" action="" method="post">
 <input type="hidden" name="auth" value="{{ viewer.auth }}" />
 <input type="hidden" name="action" value="login_watch" />
 <table width="100%">
     <tr class="colhead">
-        <td>{{ header.ipaddr|raw }}</td>
-        {% if resolve %}<td>rDNS</td>{% endif %}
-        <td>{{ header.user|raw }}</td>
-        <td>{{ header.attempts|raw }}</td>
-        <td>{{ header.bans|raw }}</td>
-        <td>{{ header.last_attempt|raw }}</td>
-        <td>{{ header.banned_until|raw }}</td>
+        <td>{{ header.emit('ipaddr')|raw }}</td>
+        <td>rDNS</td>
+        <td>{{ header.emit('user')|raw }}</td>
+        <td>{{ header.emit('attempts')|raw }}</td>
+        <td>{{ header.emit('bans')|raw }}</td>
+        <td>{{ header.emit('last_attempt')|raw }}</td>
+        <td>{{ header.emit('banned_until')|raw }}</td>
         <td>Clear</td>
-        {% if viewer.permitted('admin_manage_ipbans') %}
+{%      if viewer.permitted('admin_manage_ipbans') %}
         <td>Ban</td>
-        {% endif %}
+{%      endif %}
         <td>Do nothing</td>
-
     </tr>
-    {% endif %}
+{%  endif %}
     <tr class="row{{ cycle(['a', 'b'], loop.index0) }}">
         <td>
             {{ ip_search(b.ipaddr) }}{% if b.banned %}<span title="Banned">&nbsp;⛔</span>{% endif %}
         </td>
-    {% if resolve %}
         <td>
             <span class="resolve-ipv4" data-ip="{{ b.ipaddr }}">Resolving...</span>
         </td>
-    {% endif %}
         <td>
-    {% if b.user_id %}
+{%  if b.user_id %}
             {{ b.user_id|user_url }}
-    {% else %}
+{%  else %}
             <i title="no user with this name">{{ b.capture }}</i>
-    {% endif %}
+{%  endif %}
         </td>
-        <td>
-            {{ b.attempts }}
-        </td>
-        <td>
-            {{ b.bans }}
-        </td>
-        <td>
-            {{ b.last_attempt|time_diff }}
-        </td>
-        <td>
-            {{ b.banned_until|time_diff }}
-        </td>
+        <td>{{ b.attempts }}</td>
+        <td>{{ b.bans }}</td>
+        <td>{{ b.last_attempt|time_diff }}</td>
+        <td>{{ b.banned_until|time_diff }}</td>
         <td style="text-align: center">
             <input type="radio" title="clear" name="admin-{{ b.id }}" value="clear" />
         </td>
-    {% if viewer.permitted('admin_manage_ipbans') %}
+{%  if viewer.permitted('admin_manage_ipbans') %}
         <td style="text-align: center">
             <input type="radio" title="ban" name="admin-{{ b.id }}" value="ban" />
         </td>
-    {% endif %}
+{%  endif %}
         <td style="text-align: center">
-            <input type="radio" title="no change" id="noop-{{ b.id }}" name="admin-{{ b.id }}" value="noop" checked="checked" />
+            <input type="radio" title="no change" id="noop-{{ b.id
+                }}" name="admin-{{ b.id }}" value="noop" checked="checked" />
         </td>
-    {% if loop.last %}
-        {% if viewer.permitted('admin_manage_ipbans') %}
+{%  if loop.last %}
+{%      if viewer.permitted('admin_manage_ipbans') %}
     <tr>
         <td><br />Ban Reason</td>
         <td colspan="9">
@@ -97,19 +83,21 @@
             <br />When banning, this reason will be recorded for each checked IP address.
         </td>
     </tr>
-        {% endif %}
+{%      endif %}
     <tr>
-        <td colspan="10">
-            <input type="checkbox" id="resolve" name="resolve"{{ checked(resolve) }}
-            />&nbsp;<label for="resolve">Resolve IP addresses (may be slow)</label><br />
+        <td colspan="{{ 9 + (viewer.permitted('admin_manage_ipbans') ? 1 : 0) }}">
             <input type="submit" name="submit" value="Update" />
         </td>
     </tr>
+
 </table>
 </form>
-    {% endif %}
+{%  endif %}
+{{  paginator.linkbox|raw }}
+{% else %}
+<div class="pad box">
+    There are no current login watches.
+</div>
 {% endfor %}
-{{ paginator.linkbox|raw }}
-{% endif %}
 </div>
 {{ footer() }}

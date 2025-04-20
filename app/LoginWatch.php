@@ -173,12 +173,26 @@ class LoginWatch extends Base {
         ");
     }
 
+    public function header(): Util\SortableTableHeader {
+        return new Util\SortableTableHeader(
+            'last_attempt',
+            [
+                'ipaddr'       => ['dbColumn' => 'inet_aton(w.IP)', 'defaultSort' => 'asc',  'text' => 'IP'],
+                'user'         => ['dbColumn' => 'coalesce(um.username, w.capture)', 'defaultSort' => 'asc', 'text' => 'User'],
+                'attempts'     => ['dbColumn' => 'w.Attempts',      'defaultSort' => 'desc', 'text' => 'Attempts'],
+                'bans'         => ['dbColumn' => 'w.Bans',          'defaultSort' => 'desc', 'text' => 'Bans'],
+                'last_attempt' => ['dbColumn' => 'w.LastAttempt',   'defaultSort' => 'desc', 'text' => 'Last Attempt'],
+                'banned_until' => ['dbColumn' => 'w.BannedUntil',   'defaultSort' => 'desc', 'text' => 'Login Forbidden'],
+            ]
+        );
+    }
+
     /**
      * Get the list of login failures
      *
      * @return array list [ID, ipaddr, userid, LastAttempt (datetime), Attempts, BannedUntil (datetime), Bans]
      */
-    public function activeList(string $orderBy, string $orderWay, int $limit, int $offset): array {
+    public function activeList(int $limit, int $offset): array {
         self::$db->prepared_query("
             SELECT w.ID       AS id,
                 w.IP          AS ipaddr,
@@ -195,7 +209,7 @@ class LoginWatch extends Base {
             LEFT JOIN ip_bans ip ON (ip.FromIP = inet_aton(w.IP))
             WHERE (w.BannedUntil > now() - INTERVAL 24 HOUR AND Bans > 0)
                 OR (w.LastAttempt > now() - INTERVAL 6 HOUR AND attempts > 0)
-            ORDER BY $orderBy $orderWay
+            ORDER BY {$this->header()->orderBy()} {$this->header()->dir()}
             LIMIT ? OFFSET ?
             ", $limit, $offset
         );
@@ -205,35 +219,52 @@ class LoginWatch extends Base {
     /**
      * Ban the IP addresses pointed to by the IDs that are on login watch.
      */
-    public function setBan(User $user, string $reason, array $list, Manager\IPv4 $manager): int {
-        if (!$list) {
-            return 0;
-        }
-        $affected = 0;
+    public function setBan(
+        string $reason,
+        array $list,
+        User $user,
+        Manager\Ban $manager = new Manager\Ban(),
+    ): int {
+        $created = 0;
         foreach ($list as $id) {
-            $ipv4 = self::$db->scalar("
+            $ip = self::$db->scalar("
                 SELECT IP FROM login_attempts WHERE ID = ?
                 ", $id
             );
-            if (is_string($ipv4)) {
-                $affected += $manager->createBan($user, $ipv4, $ipv4, $reason);
+            if (is_string($ip)) {
+                $manager->create($ip, $reason, $user);
+                ++$created;
             }
         }
-        return $affected;
+        Util\Irc::sendMessage(
+            IRC_CHAN_STATUS,
+            "login watch ip ban set by {$user->username()} on " . implode(', ', $list),
+        );
+        return $created;
     }
 
     /**
      * Clear the list of IDs that are on login watch.
      */
-    public function setClear(array $list): int {
+    public function setClear(array $list, User $user): int {
         if (!$list) {
             return 0;
         }
-        self::$db->prepared_query("
-            DELETE FROM login_attempts
-            WHERE ID in (" . placeholders($list) . ")
+        $ipList = (string)self::$db->scalar("
+            SELECT group_concat(IP SEPARATOR ', ') FROM login_attempts
+            WHERE ID IN (" . placeholders($list) . ")
             ", ...$list
         );
-        return self::$db->affected_rows();
+        self::$db->prepared_query("
+            DELETE FROM login_attempts
+            WHERE ID IN (" . placeholders($list) . ")
+            ", ...$list
+        );
+        $affected = self::$db->affected_rows();
+        Util\Irc::sendMessage(
+            IRC_CHAN_STATUS,
+            "login watch clear by {$user->username()} on $ipList",
+        );
+        return $affected;
     }
 }

@@ -62,6 +62,8 @@ $preload = [
     'bonus'       => new Manager\Bonus(),
     'collMan'     => new Manager\Collage(),
     'forMan'      => new Manager\Forum(),
+    'ipMan'       => new Manager\IPv4(),
+    'notifMan'    => new Manager\Notification(),
     'pg'          => new DB\Pg(PG_RO_DSN),
     'postMan'     => new Manager\ForumPost(),
     'privMan'     => new Manager\Privilege(),
@@ -74,7 +76,6 @@ $preload = [
     'trepMan'     => new Manager\Torrent\Report($torMan),
     'trepTypeMan' => new Manager\Torrent\ReportType(),
     'userMan'     => $userMan,
-    'notifMan'    => new Manager\Notification(),
 ];
 
 printf("** preloaded objects:\n** %s\n", implode(', ', array_keys($preload)));

@@ -10,58 +10,49 @@ if (!$Viewer->permitted('admin_manage_ipbans')) {
     Error403::error();
 }
 
-$IPv4Man = new Manager\IPv4();
+$manager = new Manager\Ban();
 
-if (isset($_POST['submit'])) {
-    authorize();
-    $id = (int)($_POST['id'] ?? 0);
-    if ($_POST['submit'] == 'Delete') { //Delete
-        if (!$id) {
-            Error400::error('Unknown id for ip ban removal');
-        }
-        $IPv4Man->removeBan($id);
-    } else { //Edit & Create, Shared Validation
-        $validator = new Util\Validator();
-        $validator->setFields([
-            ['start', true,'regex','You must include the starting IP address.',['regex' => '/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/i']],
-            ['end', true,'regex','You must include the ending IP address.',['regex' => '/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/i']],
-            ['notes', true,'string','You must include the reason for the ban.'],
-        ]);
-        if (!$validator->validate($_POST)) {
-            Error400::error($validator->errorMessage());
-        }
-        if ($id) {
-            $IPv4Man->modifyBan($Viewer, $id, $_POST['start'], $_POST['end'], trim($_POST['notes']));
-        } else {
-            $IPv4Man->createBan($Viewer, $_POST['start'], $_POST['end'], trim($_POST['notes']));
-        }
+$message = false;
+if (isset($_POST['add'])) {
+    $validator = new Util\Validator();
+    $validator->setFields([
+        ['ip', true, 'regex', 'You must specify an IP CIDR address.',
+            ['regex' => '#^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?:/\d{1,2})?#']
+        ],
+        ['note', true, 'string','You must include the reason for the ban.'],
+    ]);
+    if (!$validator->validate($_POST)) {
+        Error400::error($validator->errorMessage());
+    }
+    $id = $manager->create($_POST['ip'], trim($_POST['note']), $Viewer);
+} elseif (isset($_POST['toggle'])) {
+    $ban = $manager->findById((int)($_POST['id'] ?? 0));
+    if (is_null($ban)) {
+        Error404::error("Ban record not found for that id");
+    }
+    $ban->setField('is_active', $ban->isActive() ? 'false' : 'true')
+        ->modify();
+    $ban->addNote($ban->isActive() ? 'Enabled' : 'Disabled', $Viewer);
+    $message = "Ban on address {$ban->ip()} "
+        . ($ban->isActive() ? "enabled" : "disabled");
+} else {
+    if (!empty($_REQUEST['note'])) {
+        $manager->setFilterNotes($_REQUEST['note']);
+    }
+    if (!empty($_REQUEST['ip']) && preg_match(IP_REGEXP, $_REQUEST['ip'])) {
+        $manager->setFilterIpaddr($_REQUEST['ip']);
     }
 }
 
-$header = new Util\SortableTableHeader('created', [
-    'fromip'     => ['dbColumn' => 'i.FromIP',    'defaultSort' => 'asc',  'text' => 'From'],
-    'toip'       => ['dbColumn' => 'i.ToIP',      'defaultSort' => 'asc',  'text' => 'To'],
-    'reason'     => ['dbColumn' => 'i.Reason',    'defaultSort' => 'asc',  'text' => 'Reason'],
-    'username'   => ['dbColumn' => 'um.Username', 'defaultSort' => 'asc',  'text' => 'Added By'],
-    'created'    => ['dbColumn' => 'i.created',   'defaultSort' => 'desc', 'text' => 'Date'],
-]);
-$OrderBy = $header->orderBy();
-$OrderDir = $header->dir();
-
-if (!empty($_REQUEST['notes'])) {
-    $IPv4Man->setFilterNotes($_REQUEST['notes']);
-}
-if (!empty($_REQUEST['ip']) && preg_match(IP_REGEXP, $_REQUEST['ip'])) {
-    $IPv4Man->setFilterIpaddr($_REQUEST['ip']);
-}
 $paginator = new Util\Paginator(IPS_PER_PAGE, (int)($_GET['page'] ?? 1));
-$paginator->setTotal($IPv4Man->total());
+$paginator->setTotal($manager->total());
 
 echo $Twig->render('admin/ipaddr-bans.twig', [
     'ip'        => $_REQUEST['ip'] ?? '',
     'notes'     => $_REQUEST['notes'] ?? '',
-    'header'    => $header,
-    'list'      => $IPv4Man->page($OrderBy, $OrderDir, $paginator->limit(), $paginator->offset()),
+    'header'    => $manager->header(),
+    'list'      => $manager->page($paginator->limit(), $paginator->offset()),
+    'message'   => $message,
     'paginator' => $paginator,
     'viewer'    => $Viewer,
 ]);

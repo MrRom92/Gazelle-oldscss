@@ -84,8 +84,8 @@ class Login extends Base {
                     self::$cache->increment($key);
                 }
             } elseif ($this->watch->nrBans() > 3) {
-                (new Manager\IPv4())->createBan(
-                    null, $ipaddr, $ipaddr, 'Automated ban, too many failed login attempts'
+                (new Manager\Ban())->create(
+                    $ipaddr, 'Automated ban, too many failed login attempts'
                 );
             }
         }

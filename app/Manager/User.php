@@ -76,7 +76,10 @@ class User extends \Gazelle\BaseManager {
      * If success is false, the result is the error message to be returned in the response
      * Otherwise the result is a Gazelle\User object.
      */
-    public function findByAuthorization(IPv4 $ipv4Man, string $authorization): array {
+    public function findByAuthorization(
+        string $authorization,
+        Ban $manager = new Ban(),
+    ): array {
         $info = explode(" ", $authorization);
         // this first case is for compatibility with RED
         if (count($info) === 1) {
@@ -104,7 +107,7 @@ class User extends \Gazelle\BaseManager {
             if ($watch->nrAttempts() >= 5) {
                 $watch->ban("[id:$userId]");
                 if ($watch->nrBans() >= 10) {
-                    $ipv4Man->createBan($user, $ipaddr, $ipaddr, 'Automated ban per failed token usage');
+                    $manager->create($ipaddr, 'Automated ban per failed token usage', $user);
                 }
             }
             return [false, 'invalid token'];

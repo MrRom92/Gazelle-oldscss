@@ -1,0 +1,38 @@
+{{ header('IP Ban › ' ~ ban.ip ) }}
+<div class="header">
+    <h2><a href="?action=ip_ban">IP Bans</a> › {{ ban.ip }}</h2>
+</div>
+<div class="pad">
+<form method="post">
+<input type="submit" name="toggle" value="{% if ban.isActive %}Disable{% else %}Enable{% endif %} Ban" />
+<input type="hidden" name="action" value="ip_ban" />
+<input type="hidden" name="id" value="{{ ban.id }}" />
+<input type="hidden" name="toggle" value="{{ ban.isActive ? 1 : 0 }}" />
+<div class="pad">Disabling a ban allows connections from this IP address once more,
+however, subsequent user activity may cause it to be reactivated in the
+future.</div>
+</form>
+{% for h in ban.history %}
+{%  if loop.first %}
+<table>
+    <tr>
+        <th>Note</th>
+        <th>Created</th>
+        <th>By</th>
+    </tr>
+{%  endif %}
+    <tr class="row{{ cycle(['a', 'b'], loop.index0) }}">
+        <td>{{ h.note }}</td>
+        <td>{{ h.created|time_diff }}</td>
+        <td>{{ h.id_user|user_url }}</td>
+    </tr>
+{%  if loop.end %}
+</table>
+{%  endif %}
+{%  else %}
+<div class="box pad thin">
+    There are no ip bans registered.
+</div>
+{% endfor %}
+</div>
+{{ footer() }}

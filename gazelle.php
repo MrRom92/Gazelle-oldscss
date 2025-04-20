@@ -43,7 +43,7 @@ if (
 
 $SessionID = false;
 $Viewer    = null;
-$ipv4Man   = new Manager\IPv4();
+$banMan    = new Manager\Ban();
 $userMan   = new Manager\User();
 
 $forceLogout = function (): never {
@@ -60,11 +60,11 @@ $forceLogout = function (): never {
 
 // Authorization header only makes sense for the ajax endpoint
 if (!empty($_SERVER['HTTP_AUTHORIZATION']) && $module === 'ajax') {
-    if ($ipv4Man->isBanned($context->remoteAddr())) {
+    if ($banMan->isBanned($context->remoteAddr())) {
         header('Content-type: application/json');
         json_die('failure', 'your ip address has been banned');
     }
-    [$success, $result] = $userMan->findByAuthorization($ipv4Man, $_SERVER['HTTP_AUTHORIZATION']);
+    [$success, $result] = $userMan->findByAuthorization($_SERVER['HTTP_AUTHORIZATION']);
     if ($success) {
         $Viewer = $result;
         define('AUTHED_BY_TOKEN', true);
@@ -129,10 +129,10 @@ if ($Viewer) {
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
     }
     if ($Viewer->ipaddr() != $context->remoteAddr() && !$Viewer->permitted('site_disable_ip_history')) {
-        if ($ipv4Man->isBanned($context->remoteAddr())) {
+        if ($banMan->isBanned($context->remoteAddr())) {
             Error403::error('Your IP address has been banned.');
         }
-        $ipv4Man->register($Viewer, $context->remoteAddr());
+        (new Manager\IPv4())->register($Viewer, $context->remoteAddr());
     }
     if ($Viewer->isLocked() && !in_array($module, ['chat', 'staffpm', 'ajax', 'locked', 'logout', 'login'])) {
         $context->setModule('locked');

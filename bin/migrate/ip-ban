@@ -1,0 +1,46 @@
+#! /usr/bin/env php
+<?php
+
+namespace Gazelle;
+
+require_once __DIR__ . "/../../lib/bootstrap.php";
+
+$db = DB::DB();
+$pg = new DB\Pg(PG_RW_DSN);
+
+$db->prepared_query("
+    SELECT inet_ntoa(FromIP) as from_ip,
+        inet_ntoa(ToIP) as to_ip,
+        Reason,
+        user_id,
+        created
+    FROM ip_bans
+    ORDER BY ID
+");
+
+$n = 0;
+$pg->pdo()->beginTransaction();
+foreach ($db->to_array(false, MYSQLI_ASSOC, false) as $row) {
+    [$id, $action] = $pg->row("
+        with add as (select network(inet_merge(?::inet, ?::inet)) as ip)
+        merge into ip_ban ib using add on (ib.ip && add.ip)
+            when not matched then insert (ip) values (inet_merge(add.ip, ip))
+            when matched then update set is_active = true
+        returning id_ip_ban, merge_action()
+        ", $row['from_ip'], $row['to_ip'],
+    );
+    $pg->insert("
+        insert into ip_ban_hist
+               (id_ip_ban, id_user, created, note)
+        values (?,         ?,       ?,       ?)
+        ", $id,
+            $row['user_id'],
+            $row['created'],
+            $action === 'INSERT'
+                ? "historical:{$row['Reason']}"
+                : "${row['Reason']} (merged {$row['from_ip']}–{$row['to_ip']})",
+    );
+    $n++;
+}
+$pg->pdo()->commit();
+echo "$n rows migrated\n";

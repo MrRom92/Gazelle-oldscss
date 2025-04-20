@@ -95,6 +95,9 @@ switch ($_REQUEST['action'] ?? '') {
     case 'ip_ban':
         include_once 'managers/bans.php';
         break;
+    case 'ip-ban-edit':
+        include_once 'managers/ban-edit.php';
+        break;
     case 'ip_search':
         include_once 'managers/ip_search.php';
         break;

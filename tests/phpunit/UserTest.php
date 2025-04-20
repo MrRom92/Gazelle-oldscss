@@ -412,21 +412,26 @@ class UserTest extends TestCase {
         $this->assertEquals($login->error(), Login::ERR_CREDENTIALS, 'login-error-password');
         $this->assertEquals(2, $watch->nrAttempts(), 'loginwatch-more-attempt');
 
-        $this->assertGreaterThan(0, count($watch->activeList('1', 'ASC', 10, 0)), 'loginwatch-active-list');
+        $this->assertGreaterThan(0, count($watch->activeList(10, 0)), 'loginwatch-active-list');
         $this->assertGreaterThan(0, $watch->clearAttempts(), 'loginwatch-clear');
         $this->assertEquals(0, $watch->nrAttempts(), 'loginwatch-no-attempts');
 
-        $ipv4man = new Manager\IPv4();
-        $banId = $watch->setBan($this->user, 'phpunit ban', [$watch->id()], $ipv4man);
-        $this->assertGreaterThan(0, $banId, 'loginwatch-ip-ban');
+        $banned = $watch->setBan('phpunit ban', [$watch->id()], $this->user);
+        $this->assertEquals(1, $banned, 'loginwatch-ip-ban');
 
-        $this->assertTrue($ipv4man->isBanned($login->requestContext()->remoteAddr()), 'loginwatch-ip-is-banned');
-        $ipv4man->setFilterIpaddr($login->requestContext()->remoteAddr());
-        $this->assertEquals(1, $ipv4man->total(), 'loginwatch-ip-total');
-        $page = $ipv4man->page('ID', 'ASC', 2, 0);
+        $banMan = new Manager\Ban();
+        $ban = $banMan->findByIp($login->requestContext()->remoteAddr());
+        $this->assertInstanceOf(Ban::class, $ban, 'loginwatch-find-ban');
+        $this->assertTrue(
+            $banMan->isBanned($login->requestContext()->remoteAddr()),
+            'loginwatch-ip-is-banned'
+        );
+        $banMan->setFilterIpaddr($login->requestContext()->remoteAddr());
+        $this->assertEquals(1, $banMan->total(), 'loginwatch-ip-total');
+        $page = $banMan->page(2, 0);
         $this->assertCount(1, $page, 'loginwatch-ip-page');
-        $this->assertEquals($banId, $page[0]['id'], 'loginwatch-ip-id-page');
-        $this->assertEquals(1, $ipv4man->removeBan($banId), 'loginwatch-ip-ban-clear');
+        $this->assertEquals($ban->id, $page[0]['id'], 'loginwatch-ip-id-page');
+        $this->assertEquals(1, $ban->remove(), 'loginwatch-ip-ban-clear');
     }
 
     public function testParanoia(): void {

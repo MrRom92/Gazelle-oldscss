@@ -10,11 +10,11 @@ if (!$Viewer->permitted('admin_manage_ipbans')) {
 }
 
 if (isset($_GET['perform'])) {
-    $IPv4Man = new Manager\IPv4();
+    $manager = new Manager\Ban();
     if ($_GET['perform'] == 'delete') {
-        $IPv4Man->removeBan((int)$_GET['id']);
+        $manager->findById((int)($_GET['id']))?->remove();
     } elseif ($_GET['perform'] == 'create') {
-        $IPv4Man->createBan($Viewer, $_GET['ip'], $_GET['ip'], trim($_GET['notes']));
+        $manager->create($_GET['ip'], trim($_GET['notes']), $Viewer);
     } else {
         Error403::error();
     }
