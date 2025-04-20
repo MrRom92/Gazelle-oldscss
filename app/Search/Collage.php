@@ -9,15 +9,17 @@ class Collage extends \Gazelle\Base {
     protected bool $configured = false;
     protected bool $contributor = false;
     protected bool $tagAll = true;
+    protected bool $filtered = true;
 
     protected string $lookup = 'name';
     protected string $userLink = '';
 
-    protected array $category = [];
-    protected array $taglist  = [];
-    protected array $joinList = [];
-    protected array $whereList = ["c.Deleted = '0'"];
-    protected array $args     = [];
+    protected array $category   = [];
+    protected array $taglist    = [];
+    protected array $joinList   = [];
+    protected array $whereList  = ["c.Deleted = '0'"];
+    protected array $filter     = [];
+    protected array $args       = [];
 
     /* the collapsed version of the above */
     protected string $join;
@@ -55,6 +57,10 @@ class Collage extends \Gazelle\Base {
 
     public function userLink(): string {
         return $this->userLink;
+    }
+
+    public function filtered(): bool {
+        return $this->filtered;
     }
 
     public function setBookmarkView(\Gazelle\User $user): static {
@@ -114,6 +120,11 @@ class Collage extends \Gazelle\Base {
             array_push($this->whereList, ...array_fill(0, count($match[0]), "c." . $this->lookup . " LIKE concat('%', ?, '%')"));
             array_push($this->args, ...$match[0]);
         }
+        return $this;
+    }
+
+    public function disableFilter(): static {
+        $this->filtered = false;
         return $this;
     }
 

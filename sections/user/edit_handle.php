@@ -256,6 +256,7 @@ foreach (
         'no-pm-delete-snatch'   => !isset($_POST['notifyondeletesnatched']),
         'no-pm-unseeded-snatch' => !isset($_POST['notifyonunseededsnatch']),
         'no-pm-unseeded-upload' => !isset($_POST['notifyonunseededupload']),
+        'show-all-tags'         => !isset($_POST['show-all-tags']),
     ] as $attr => $state
 ) {
     $user->toggleAttr($attr, $state);

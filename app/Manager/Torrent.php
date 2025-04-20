@@ -506,10 +506,10 @@ class Torrent extends \Gazelle\BaseManager {
                             SELECT 1
                             FROM torrents_tags ttex
                             WHERE t.GroupID = ttex.GroupID
-                                AND ttex.TagID IN (" . placeholders(HOMEPAGE_TAG_IGNORE) . ")
+                                AND ttex.TagID IN (" . placeholders(HIDDEN_TAGS) . ")
                         )
                     ORDER BY t.created DESC
-                    ", ...HOMEPAGE_TAG_IGNORE
+                    ", ...HIDDEN_TAGS
                 );
                 $latest = [];
                 $seen   = [];

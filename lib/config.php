@@ -622,9 +622,8 @@ defined('LOGIN_ATTEMPT_BACKOFF') or define('LOGIN_ATTEMPT_BACKOFF', [
     86400 * 7,
 ]);
 
-// Set to TagID of 'test' to ignore uploads tagged with 'test' for the
-// recent uploads widget.
-defined('HOMEPAGE_TAG_IGNORE') or define('HOMEPAGE_TAG_IGNORE', [0]);
+// Releases and collages with these tags are hidden by default
+defined('HIDDEN_TAGS') or define('HIDDEN_TAGS', [0]);
 
 // Do not report these pages for excessive memory consumption
 defined('IGNORE_PAGE_MAX_MEMORY') or define('IGNORE_PAGE_MAX_MEMORY', ['artist', 'bookmark']);

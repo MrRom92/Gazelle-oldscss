@@ -233,6 +233,19 @@
             <label for="req-vote">Amount of bounty to offer when voting in a request. Value between 100 MiB and 1 TiB.</label>
         </td>
     </tr>
+    <tr id="tshow-all-tags-tr">
+    <td class="label tooltip" title="Display recommended tags on the site">
+            <strong>Content filter</strong>
+        </td>
+        <td>
+            <ul class="options_list nobullet">
+                <li>
+                    <input type="checkbox" name="show-all-tags" id="show-all-tags"{{ checked(not user.hasAttr('show-all-tags')) }} />
+                    <label for="show-all-tags">Show recommended tags</label>
+                </li>
+            </ul>
+        </td>
+    </tr>
 </table>
 </div>
 <script type="text/javascript" id="sortable_default">

@@ -56,6 +56,10 @@ if (($_GET['action'] ?? '') === 'mine') {
     }
 }
 
+if ($Viewer->hasAttr('show-all-tags')) {
+    $search->disableFilter();
+}
+
 $paginator = new Util\Paginator(COLLAGES_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($search->total());
 
