@@ -7,9 +7,9 @@
         <div class="pad">
             <input type="hidden" name="action" value="{% if create %}takenewblog{% else %}takeeditblog{% endif %}" />
             <input type="hidden" name="auth" value="{{ viewer.auth }}" />
-    {% if blog %}
+{%  if blog %}
             <input type="hidden" name="blogid" value="{{ blog.id }}"/>
-    {% endif %}
+{%  endif %}
             <h3>Title</h3>
             <input type="text" name="title" size="95" value="{{ blog.title }}" /><br/>
 
@@ -17,16 +17,15 @@
                 {{ body.preview|raw }}
                 {{ body.field|raw }}
             <br/>
-            <input type="checkbox" value="1" name="important" id="important" checked="checked" />
-            <label for="important">Important</label><br/>
-
-            <h3>Thread ID</h3>
-            <input type="text" name="thread" size="8" value="{% if not create %}{{ blog.threadId }}{% endif %}" />
-            (Leave blank to create thread automatically, set to 0 to not use thread)
-            <br/><br/>
-            <input id="subscribebox" type="checkbox" name="subscribe"{{ checked(viewer.option('AutoSubscribe')) }} tabindex="2" />
-            <label for="subscribebox">Subscribe</label>
-
+            <label>
+            <input type="checkbox" value="1" name="notify" checked />
+            Post an announcement to IRC {{ constant('IRC_CHAN') }} and send user notifications
+            </label>
+            <br />
+            <label>
+            <input type="checkbox" name="subscribe"{{ checked(viewer.option('AutoSubscribe')) }} tabindex="2" />
+            Subscribe to thread
+            </label>
             <div class="center">
                 {{ body.button|raw }}
                 <input type="submit" value="{{ action }} blog post" />
@@ -36,33 +35,31 @@
 </div>
 <br/>
 {% endif %}
-
 {% if create %}
 <div class="thin">
-    {% for item in headlines %}
+{%  for item in headlines %}
     <div id="blog{{ item.id }}" class="box blog_post">
         <div class="head">
             <a name="blog{{ item.id }}"><strong>{{ item.title }}</strong></a> - posted {{ item.created|time_diff }} by {{ item.userId|user_url }}
-        {% if viewer.permitted('admin_manage_blog') %}
+{%      if viewer.permitted('admin_manage_blog') %}
                 - <a href="blog.php?action=editblog&amp;id={{ item.id }}" class="brackets">Edit</a>
                 <a href="blog.php?action=deleteblog&amp;id={{ item.id }}&amp;auth={{ viewer.auth }}" class="brackets">Delete</a>
-        {% endif %}
+{%      endif %}
         </div>
         <div class="pad">
-            {{ item.body|bb_format }}
-        {% if item.threadId %}
+{{      item.body|bb_format }}
+{%      if item.threadId %}
                 <br /><br />
                 <em><a href="forums.php?action=viewthread&amp;threadid={{ item.threadId }}">Discuss this post here</a></em>
-            {% if viewer.permitted('admin_manage_blog') %}
+{%          if viewer.permitted('admin_manage_blog') %}
                     <span style="float: right"><a href="blog.php?action=deadthread&amp;id={{ item.id }}&amp;auth={{ viewer.auth }}"
                         class="brackets">Remove link</a></span>
-            {% endif %}
-        {% endif %}
-
+{%          endif %}
+{%      endif %}
         </div>
     </div>
     <br />
-    {% endfor %}
+{%  endfor %}
 {% endif %}
 </div>
 {{ footer() }}

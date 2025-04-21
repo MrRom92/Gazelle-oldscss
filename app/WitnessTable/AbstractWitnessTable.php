@@ -2,8 +2,14 @@
 
 namespace Gazelle\WitnessTable;
 
+use Gazelle\Enum\SourceDB;
+
 abstract class AbstractWitnessTable extends \Gazelle\Base {
+    abstract protected function sourceDb(): SourceDB;
+
     abstract protected function reference(): string;
+
+    abstract protected function refIdColumn(): string;
 
     abstract protected function tableName(): string;
 
@@ -14,12 +20,15 @@ abstract class AbstractWitnessTable extends \Gazelle\Base {
     abstract public function witness(\Gazelle\User $user): bool;
 
     protected function latestValue(): ?int {
-        $id = self::$db->scalar("SELECT max(ID) FROM {$this->reference()}");
+        $id = $this->sourceDb() === SourceDB::mysql
+            ? self::$db->scalar("SELECT max({$this->refIdColumn()}) FROM {$this->reference()}")
+            : $this->pg()->scalar("select max({$this->refIdColumn()}) from {$this->reference()}");
         return $id ? (int)$id : null;
     }
 
     protected function witnessValue(\Gazelle\User $user): bool {
         $latest = $this->latestValue();
+
         self::$db->prepared_query("
             INSERT INTO {$this->tableName()}
             ({$this->idColumn()}, {$this->valueColumn()}) VALUES (?, ?)

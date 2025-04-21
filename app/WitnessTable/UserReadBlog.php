@@ -2,9 +2,19 @@
 
 namespace Gazelle\WitnessTable;
 
+use Gazelle\Enum\SourceDB;
+
 class UserReadBlog extends AbstractWitnessTable {
+    protected function sourceDb(): SourceDB {
+        return SourceDB::postgres;
+    }
+
     protected function reference(): string {
         return 'blog';
+    }
+
+    protected function refIdColumn(): string {
+        return 'id_blog';
     }
 
     protected function tableName(): string {

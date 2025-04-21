@@ -35,35 +35,55 @@ class NewsTest extends TestCase {
         $title      = 'phpunit news ' . randomString(10);
         $initial    = $manager->headlines();
         $this->news = $manager->create(
-            $this->userList[0],
             $title,
             $body,
             'phpunit discuss me',
+            $this->userList[0],
             $this->forum,
-            $threadMan,
         );
         $thread = $threadMan->findById($this->forum->lastThreadId());
         $this->assertInstanceOf(ForumThread::class, $thread, 'news-announcement-thread');
-        $this->assertEquals($this->userList[0]->id(), $thread->authorId(), 'news-thread-author-id');
+        $this->assertEquals($this->userList[0]->id, $thread->authorId(), 'news-thread-author-id');
         $this->assertEquals($body, $thread->body(), 'news-thread-body');
         $this->assertEquals($title, $thread->title(), 'news-thread-title');
 
         $this->assertEquals(1 + count($initial), count($manager->headlines()), 'news-headlines');
         $this->assertEquals($this->news, $manager->latestId(), 'news-id-latest');
+        $this->assertLessThan(2, time() - $manager->latestEpoch(), 'news-created-epoch');
 
         $this->assertEquals(1, $manager->remove($this->news), 'news-remove');
         unset($this->news);
     }
 
+    public function testNewsModify(): void {
+        $manager    = new Manager\News();
+        $this->news = $manager->create(
+            'phpunit news modify',
+            'phpunit news modify body',
+            'phpunit news modify discuss',
+            $this->userList[0],
+            $this->forum,
+        );
+        $this->assertEquals(
+            1,
+            $manager->modify(
+                $this->news,
+                'phpunit new title',
+                'phpunit new body',
+            ),
+            'news-modify',
+        );
+        $this->assertEquals('phpunit new title', $manager->latest()['title'], 'news-thread-title');
+    }
+
     public function testNewsWitness(): void {
         $manager    = new Manager\News();
         $this->news = $manager->create(
-            $this->userList[0],
             'phpunit news witness',
             'phpunit news witness body',
             'phpunit news discuss',
+            $this->userList[0],
             $this->forum,
-            new Manager\ForumThread(),
         );
 
         $witness = new WitnessTable\UserReadNews();
@@ -76,12 +96,11 @@ class NewsTest extends TestCase {
         $manager    = new Manager\News();
         $title      = 'phpunit news notif';
         $this->news = $manager->create(
-            $this->userList[0],
             $title,
             'phpunit news notif body',
             'phpunit notif discuss',
+            $this->userList[0],
             $this->forum,
-            new Manager\ForumThread(),
         );
 
         $notifier = new User\Notification($this->userList[1]);

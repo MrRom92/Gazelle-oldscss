@@ -3,7 +3,7 @@
 namespace Gazelle\Manager;
 
 class Blog extends \Gazelle\BaseManager {
-    final public const CACHE_KEY = 'blog';
+    final public const CACHE_KEY = 'blogv2';
     final protected const ID_KEY = 'zz_blog_%d';
 
     public function flush(): static {
@@ -17,26 +17,26 @@ class Blog extends \Gazelle\BaseManager {
     public function create(
         string                    $title,
         string                    $body,
-        int                       $important,
+        bool                      $notify,
         \Gazelle\ForumThread|null $thread,
         \Gazelle\User             $user,
     ): \Gazelle\Blog {
-        self::$db->prepared_query("
-            INSERT INTO blog
-                   (UserID, Title, Body, ThreadID, Important)
-            VALUES (?,      ?,     ?,    ?,        ?)
-            ", $user->id, $title, $body, $thread?->id(), $important
+        $id = $this->pg()->insert("
+            insert into blog
+                   (id_user, title, body, id_thread, notify)
+            values (?,       ?,     ?,    ?,         ?)
+            ", $user->id, $title, $body, $thread?->id, $notify ? 't' : 'f',
         );
         $this->flush();
-        return new \Gazelle\Blog(self::$db->inserted_id());
+        return new \Gazelle\Blog($id);
     }
 
     public function findById(int $id): ?\Gazelle\Blog {
         $key = sprintf(self::ID_KEY, $id);
         $blogId = self::$cache->get_value($key);
         if ($blogId === false) {
-            $blogId = (int)self::$db->scalar("
-                SELECT ID FROM blog WHERE ID = ?
+            $blogId = (int)$this->pg()->scalar("
+                select id_blog from blog where id_blog = ?
                 ", $id
             );
             if ($blogId) {
@@ -55,13 +55,12 @@ class Blog extends \Gazelle\BaseManager {
     public function headlines(): array {
         $idList = self::$cache->get_value(self::CACHE_KEY);
         if ($idList === false) {
-            self::$db->prepared_query("
-                SELECT b.ID
-                FROM blog b
-                ORDER BY b.Time DESC
-                LIMIT 20
+            $idList = $this->pg()->column("
+                select b.id_blog
+                from blog b
+                order by b.created desc
+                limit 20
             ");
-            $idList = self::$db->collect(0, false);
             self::$cache->cache_value(self::CACHE_KEY, $idList, 7200);
         }
         return array_map(fn ($id) => new \Gazelle\Blog($id), $idList);

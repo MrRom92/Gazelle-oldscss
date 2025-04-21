@@ -2,12 +2,13 @@
 
 namespace Gazelle;
 
-class Blog extends BaseObject {
+class Blog extends BasePgObject {
     final public const tableName = 'blog';
-    final public const CACHE_KEY = 'blog_%d';
+    final public const pkName    = 'id_blog';
+    final public const CACHE_KEY = 'blogv2_%d';
 
     public function location(): string {
-        return 'blog.php?id=' . $this->id . '#blog' . $this->id;
+        return "blog.php?id={$this->id}#blog{$this->id}";
     }
 
     public function link(): string {
@@ -30,15 +31,15 @@ class Blog extends BaseObject {
         $key = sprintf(self::CACHE_KEY, $this->id);
         $info = self::$cache->get_value($key);
         if ($info === false) {
-            $info = self::$db->rowAssoc("
-                SELECT Title  AS title,
-                    Body      AS body,
-                    ThreadID  AS thread_id,
-                    Time      AS created,
-                    UserID    AS user_id,
-                    Important AS important
-                FROM blog
-                WHERE ID = ?
+            $info = $this->pg()->rowAssoc("
+                select title,
+                    body,
+                    id_thread,
+                    created,
+                    notify,
+                    id_user
+                from blog
+                where id_blog = ?
                 ", $this->id
             );
             self::$cache->cache_value($key, $info, 7200);
@@ -65,14 +66,14 @@ class Blog extends BaseObject {
      * The creation epoch of the blog
      */
     public function createdEpoch(): int {
-        return (int)strtotime($this->info()['created']);
+        return (int)strtotime($this->created());
     }
 
     /**
-     * The importance of the blog
+     * The notification status of the blog
      */
-    public function important(): int {
-        return $this->info()['important'];
+    public function notify(): bool {
+        return $this->info()['notify'];
     }
 
     /**
@@ -86,7 +87,7 @@ class Blog extends BaseObject {
      * The forum thread ID of the blog
      */
     public function threadId(): ?int {
-        return $this->info()['thread_id'];
+        return $this->info()['id_thread'];
     }
 
     /**
@@ -100,27 +101,32 @@ class Blog extends BaseObject {
      * The author of the blog
      */
     public function userId(): int {
-        return $this->info()['user_id'];
+        return $this->info()['id_user'];
     }
 
     /**
      * Remove an the link to the forum topic of the blog article
      */
     public function removeThread(): int {
-        self::$db->prepared_query("
-            UPDATE blog SET
-                ThreadID = NULL
-            WHERE ID = ?
+        $affected = $this->pg()->prepared_query("
+            update blog set
+                id_thread = null
+            where id_blog = ?
             ", $this->id
         );
         $this->flush();
-        return self::$db->affected_rows();
+        return $affected;
     }
 
     /**
      * Remove an existing blog article, and thread if it exists
      */
     public function remove(): int {
-        return $this->thread()?->remove() + parent::remove();
+        self::$db->prepared_query("
+            DELETE FROM user_read_blog WHERE blog_id = ?
+            ", $this->id
+        );
+        $affected = self::$db->affected_rows();
+        return $affected + $this->thread()?->remove() + parent::remove();
     }
 }

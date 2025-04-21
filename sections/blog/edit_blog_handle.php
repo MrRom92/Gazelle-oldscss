@@ -14,12 +14,10 @@ $body = trim($_POST['body']);
 if (empty($body)) {
     Error400::error('The body of the blog article must not be empty');
 }
-
 $title = trim($_POST['title']);
 if (empty($title)) {
     Error400::error('The title of the blog article must not be empty');
 }
-
 $blog = (new Manager\Blog())->findById((int)($_POST['blogid'] ?? 0));
 if (is_null($blog)) {
     Error404::error();
@@ -38,11 +36,11 @@ $thread = match ((int)($_POST['thread'] ?? -1)) {
 };
 
 if ($thread) {
-    $blog->setField('ThreadID', $thread->id());
+    $blog->setField('id_thread', $thread->id());
 }
-$blog->setField('Body', $body)
-    ->setField('Title', $title)
-    ->setField('Important', isset($_POST['important']) ? 1 : 0)
+$blog->setField('body', $body)
+    ->setField('title', $title)
+    ->setField('notify', isset($_POST['notify']))
     ->modify();
 
 if ($thread && isset($_POST['subscribe'])) {

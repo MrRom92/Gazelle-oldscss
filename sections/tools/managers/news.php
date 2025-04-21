@@ -22,13 +22,11 @@ $id      = false;
 switch ($_REQUEST['action']) {
     case 'takenewnews':
         $newsMan->create(
-            $Viewer,
             $_POST['title'],
             $_POST['body'],
             trim($_POST['pitch'] ?? '') ?: 'Discuss this post',
+            $Viewer,
             (new Manager\Forum())->findById(ANNOUNCEMENT_FORUM_ID),
-            new Manager\ForumThread(),
-
         );
         $notification = new Notification();
         $notification->push($notification->pushableTokens(NotificationType::NEWS), $_POST['title'], $_POST['body'], SITE_URL . '/index.php');

@@ -2,9 +2,19 @@
 
 namespace Gazelle\WitnessTable;
 
+use Gazelle\Enum\SourceDB;
+
 class UserReadForum extends AbstractWitnessTable {
+    protected function sourceDb(): SourceDB {
+        return SourceDB::mysql;
+    }
+
     protected function reference(): string {
         return '';
+    }
+
+    protected function refIdColumn(): string {
+        return 'ID';
     }
 
     protected function tableName(): string {

@@ -20,7 +20,6 @@ class BlogTest extends TestCase {
         if (isset($this->blog)) {
             $this->blog->remove();
         }
-        $db = DB::DB();
         foreach ($this->userList as $user) {
             $user->remove();
         }
@@ -30,20 +29,34 @@ class BlogTest extends TestCase {
         $manager = new Manager\Blog();
         $initial = $manager->headlines();
         $this->blog = $manager->create(
-            title     : 'phpunit blog',
-            body      : 'phpunit blog body',
-            thread    : null,
-            important : 1,
-            user      : $this->userList[0],
+            title  : 'phpunit blog',
+            body   : 'phpunit blog body',
+            notify : false,
+            thread : null,
+            user   : $this->userList[0],
         );
-        $this->assertTrue(Helper::recentDate($this->blog->created()), 'blog-created');
+        $this->assertEquals(
+            $this->blog->id,
+            $manager->findById($this->blog->id)->id,
+            'blog-find'
+        );
+        $this->assertEquals($this->blog->id, $manager->latestId(), 'blog-latest');
+        $this->assertTrue(Helper::recentDate($this->blog->created()), 'blog-created-date');
         $this->assertEquals('phpunit blog body', $this->blog->body(), 'blog-body');
-        $this->assertEquals(1, $this->blog->important(), 'blog-important');
-        $this->assertEquals(0, $this->blog->threadId(), 'blog-thread-id');
+        $this->assertTrue(Helper::recentDate($this->blog->created()), 'blog-created-date');
+        $this->assertLessThan(2, time() - $manager->latestEpoch(), 'blog-created-epoch');
+        $this->assertLessThan(2, time() - $this->blog->createdEpoch(), 'blog-created-epoch');
+        $this->assertFalse($this->blog->notify(), 'blog-no-notify');
         $this->assertEquals('phpunit blog', $this->blog->title(), 'blog-title');
+        $this->assertEquals(0, $this->blog->threadId(), 'blog-thread-id');
         $this->assertEquals($this->userList[0]->id, $this->blog->userId(), 'blog-userId');
+        $this->assertEquals(
+            "<a href=\"blog.php?id={$this->blog->id}#blog{$this->blog->id}\">phpunit blog</a>",
+            $this->blog->link(),
+            'blog-link'
+        );
 
-        $this->assertEquals(1 + count($initial), count($manager->headlines()), 'blog-headlines');
+        $this->assertEquals(min(20, 1 + count($initial)), count($manager->headlines()), 'blog-headlines');
         $this->assertEquals($this->blog->id, $manager->latest()->id, 'blog-latest');
         $this->assertEquals($this->blog->id, $manager->latestId(), 'blog-id-latest');
         $find = $manager->findById($this->blog->id);
@@ -52,7 +65,6 @@ class BlogTest extends TestCase {
 
         $this->assertInstanceOf(Blog::class, $this->blog->flush(), 'blog-flush');
         $this->assertEquals(1, $this->blog->remove(), 'blog-remove');
-        unset($this->blog);
     }
 
     public function testBlogThread(): void {
@@ -61,6 +73,7 @@ class BlogTest extends TestCase {
         $this->blog = $manager->create(
             title  : $title,
             body   : "$title body",
+            notify : false,
             thread : (new Manager\ForumThread())
                 ->create(
                     new Forum(ANNOUNCEMENT_FORUM_ID),
@@ -68,26 +81,27 @@ class BlogTest extends TestCase {
                     "thread $title title",
                     "thread $title body",
                 ),
-            important : 1,
-            user      : $this->userList[0],
+            user   : $this->userList[0],
         );
+        $this->assertFalse($this->blog->notify(), 'blog-no-notify');
         $this->assertEquals(
             "thread $title title",
             $this->blog->thread()->title(),
             'blog-thread-title',
         );
-        $this->assertEquals(3, $this->blog->remove(), 'blog-thread-remove');
+        $this->assertEquals(1, $this->blog->removeThread(), 'blog-thread-detach');
+        $this->assertEquals(1, $this->blog->remove(), 'blog-thread-remove');
         unset($this->blog);
     }
 
     public function testBlogWitness(): void {
         $manager = new Manager\Blog();
         $this->blog = $manager->create(
-            title     : 'phpunit blog witness',
-            body      : 'phpunit blog witness body',
-            thread    : null,
-            important : 1,
-            user      : $this->userList[0],
+            title  : 'phpunit blog witness',
+            body   : 'phpunit blog witness body',
+            notify : false,
+            thread : null,
+            user   : $this->userList[0],
         );
 
         $witness = new WitnessTable\UserReadBlog();
@@ -97,15 +111,16 @@ class BlogTest extends TestCase {
     }
 
     public function testBlogNotification(): void {
-        $manager = new Manager\Blog();
-        $title   = 'phpunit blog notif';
-        $this->blog    = $manager->create(
-            title     : $title,
-            body      : 'phpunit blog notif body',
-            thread    : null,
-            important : 1,
-            user      : $this->userList[0],
+        $manager    = new Manager\Blog();
+        $title      = 'phpunit blog notif';
+        $this->blog = $manager->create(
+            title  : $title,
+            body   : 'phpunit blog notif body',
+            thread : null,
+            notify : true,
+            user   : $this->userList[0],
         );
+        $this->assertTrue($this->blog->notify(), 'blog-notify');
 
         $notifier = new User\Notification($this->userList[1]);
         // if this fails, the CI database has drifted (or another UT has clobbered the expected value here)

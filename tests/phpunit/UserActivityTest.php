@@ -106,12 +106,11 @@ class UserActivityTest extends TestCase {
         $manager = new Manager\News();
         $title   = "This is the 6 o'clock news";
         $newsId  = $manager->create(
-            $this->userList['admin'],
             $title,
             'Not much happened',
             'Discuss nothing',
+            $this->userList['admin'],
             (new Manager\Forum())->findById(ANNOUNCEMENT_FORUM_ID),
-            new Manager\ForumThread(),
         );
         $this->assertGreaterThan(0, $newsId, 'alert-news-create');
         $this->assertNull($manager->fetch(-1), 'alert-no-news-is-null-news');

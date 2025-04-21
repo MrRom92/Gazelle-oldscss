@@ -3,32 +3,34 @@
 namespace Gazelle\Manager;
 
 class News extends \Gazelle\Base {
-    final protected const CACHE_KEY = 'news';
+    final protected const CACHE_KEY = 'newsv2';
 
     /**
-     * Create a news article
+     * Create a news article. This class deviates from the usual architecture of
+     * having a Manager\News and News implementation, because it is so simple.
+     * Consequently, the manager takes care of updating and removing individual
+     * news items.
      */
     public function create(
-        \Gazelle\User  $user,
         string         $title,
         string         $body,
         string         $pitch,
+        \Gazelle\User  $user,
         \Gazelle\Forum $forum,
-        ForumThread    $threadMan,
+        ForumThread    $threadMan = new ForumThread(),
     ): int {
         $body   = trim($body);
         $title  = trim($title);
         $pitch  = trim($pitch);
         $thread = $threadMan->create($forum, $user, $title, $body);
 
-        $body .= "\n\n[url=/forums.php?action=viewthread&threadid={$thread->id()}]{$pitch}[/url]";
-        self::$db->prepared_query("
-            INSERT INTO news
-                   (UserID, Title, Body)
-            VALUES (?,      ?,     ?)
-            ", $user->id, $title, $body
+        $body .= "\n\n[url=/forums.php?action=viewthread&threadid={$thread->id}]{$pitch}[/url]";
+        $id = $this->pg()->insert("
+            insert into news
+                   (id_user, id_thread, title, body)
+            VALUES (?,       ?,         ?,     ?)
+            ", $user->id, $thread->id, $title, $body
         );
-        $id = self::$db->inserted_id();
         self::$cache->delete_multi(['feed_news', self::CACHE_KEY]);
         return $id;
     }
@@ -37,29 +39,28 @@ class News extends \Gazelle\Base {
      * Modify an existing news article (the author remains unchanged)
      */
     public function modify(int $id, string $title, string $body): int {
-        self::$db->prepared_query("
-            UPDATE news SET
-                Title = ?,
-                Body = ?
-            WHERE ID = ?
+        $affected = $this->pg()->prepared_query("
+            update news set
+                title = ?,
+                body = ?
+            where id_news = ?
             ", trim($title), trim($body), $id
         );
         self::$cache->delete_multi(['feed_news', self::CACHE_KEY]);
-        return self::$db->affected_rows();
+        return $affected;
     }
 
     public function list(int $limit, int $offset): array {
-        self::$db->prepared_query("
-            SELECT ID AS id,
-                Title AS title,
-                Body  AS body,
-                Time  AS created
-            FROM news
-            ORDER BY Time DESC
-            LIMIT ? OFFSET ?
+        return $this->pg()->all("
+            select id_news AS id,
+                title,
+                body,
+                created
+            from news
+            order by created desc
+            limit ? offset ?
             ", $limit, $offset
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
 
     /**
@@ -83,12 +84,13 @@ class News extends \Gazelle\Base {
      * @return array [string title, string body] or null if no such article
      */
     public function fetch(int $id): ?array {
-        return self::$db->row("
-            SELECT Title, Body
-            FROM news
-            WHERE ID = ?
+        $article = $this->pg()->row("
+            select title, body
+            from news
+            where id_news = ?
             ", $id
         );
+        return $article === [] ? null : $article;
     }
 
     /**
@@ -117,7 +119,7 @@ class News extends \Gazelle\Base {
      */
     public function latestEpoch(): int {
         $latest = $this->headlines();
-        return isset($latest['created']) ? (int)strtotime($latest['created']) : 0;
+        return $latest ? (int)strtotime($latest[0]['created']) : 0;
     }
 
     /**
@@ -125,10 +127,15 @@ class News extends \Gazelle\Base {
      */
     public function remove(int $id): int {
         self::$db->prepared_query("
-            DELETE FROM news WHERE ID = ?
+            DELETE FROM user_read_news WHERE news_id = ?
+            ", $id
+        );
+        $affected = self::$db->affected_rows();
+        $affected += $this->pg()->prepared_query("
+            delete from news where id_news = ?
             ", $id
         );
         self::$cache->delete_multi(['feed_news', self::CACHE_KEY]);
-        return self::$db->affected_rows();
+        return $affected;
     }
 }
