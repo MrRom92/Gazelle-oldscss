@@ -338,7 +338,6 @@ class Collage extends \Gazelle\BaseManager {
     }
 
     public function subscribedTGroupCollageList(\Gazelle\User $user, bool $viewAll, $manager = new TGroup()): array {
-        $manager->setViewer($user);
         $cond = ['s.UserID = ?'];
         $args = [$user->id];
         if ($viewAll) {

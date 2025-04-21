@@ -1611,8 +1611,7 @@ class User extends BaseAttrObject {
 
     /**
      * Can the user spend a token (or more) to set this torrent Freeleech?
-     * Note: The torrent object MUST be instantiated with setViewer() set
-     * to the user.
+     * Note: this method requires a valid RequestContext::viewer()
      */
     public function canSpendFLToken(Torrent $torrent): bool {
         return $this->canLeech()

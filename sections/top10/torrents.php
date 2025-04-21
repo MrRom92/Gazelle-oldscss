@@ -8,13 +8,13 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$torMan    = (new Manager\Torrent())->setViewer($Viewer);
+$torMan    = new Manager\Torrent();
 $reportMan = new Manager\Torrent\Report($torMan);
 $bookmark  = new User\Bookmark($Viewer);
-$snatcher  = $Viewer->snatch();
 $imgProxy  = new Util\ImageProxy($Viewer);
 $top10     = new Top10\Torrent(FORMAT, $Viewer);
 $urlStem   = (new User\Stylesheet($Viewer))->imagePath();
+$snatcher  = $Viewer->snatch();
 
 if (!empty($_GET['advanced']) && $Viewer->permitted('site_advanced_top10')) {
     $details = 'all';

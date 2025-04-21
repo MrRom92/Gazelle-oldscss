@@ -78,7 +78,7 @@ if ($search->canUnclaim($Viewer)) {
 <?php
         } else {
             $torrentId    = $report->torrentId();
-            $torrent      = $report->torrent()->setViewer($Viewer);
+            $torrent      = $report->torrent();
             $tgroupId     = (int)$torrent?->groupId();
 ?>
     <div id="report<?= $reportId ?>">
@@ -109,7 +109,6 @@ if ($search->canUnclaim($Viewer)) {
     $n = 0;
     foreach ($otherTorrentList as $extra) {
         if ($extra) {
-            $extra->setViewer($Viewer);
 ?>
             <?= $n++ == 0 ? '' : '<br />' ?>
             <?= $extra->group()->link() ?> <?= $extra->shortLabelLink() ?> (<?= byte_format($extra->size()) ?>)

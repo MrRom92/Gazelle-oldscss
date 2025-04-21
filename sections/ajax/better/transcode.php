@@ -9,7 +9,7 @@ if (!in_array((int)($_GET['type'] ?? 0), range(0, 3))) {
     json_error('Unknown transcode type');
 }
 
-$search = new Search\Transcode($Viewer, (new Manager\Torrent())->setViewer($Viewer));
+$search = new Search\Transcode($Viewer, new Manager\Torrent());
 if (isset($_GET['search'])) {
     $search->setSearch($_GET['search']);
 }

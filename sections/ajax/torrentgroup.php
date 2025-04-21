@@ -23,6 +23,6 @@ if (is_null($tgroup)) {
 echo (new Json\TGroup(
         $tgroup,
         $Viewer,
-        (new Manager\Torrent())->setViewer($Viewer))
-    )->setVersion(2)
+        new Manager\Torrent(),
+    ))->setVersion(2)
     ->response();

@@ -8,10 +8,10 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$torMan    = (new Manager\Torrent())->setViewer($Viewer);
-$reportMan = new Manager\Torrent\Report($torMan);
 $tagMan    = new Manager\Tag();
-$tgMan     = (new Manager\TGroup())->setViewer($Viewer);
+$tgMan     = new Manager\TGroup();
+$torMan    = new Manager\Torrent();
+$reportMan = new Manager\Torrent\Report($torMan);
 $snatcher  = $Viewer->snatch();
 
 if (!empty($_GET['searchstr']) || !empty($_GET['groupname'])) {

@@ -13,7 +13,6 @@ $torrent = (new Manager\Torrent())->findById((int)($_REQUEST['id'] ?? 0));
 if (is_null($torrent)) {
     json_or_error('could not find torrent', 404);
 }
-$torrent->setViewer($Viewer);
 
 if (
     preg_match(

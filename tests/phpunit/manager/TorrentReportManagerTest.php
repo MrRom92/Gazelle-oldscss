@@ -217,7 +217,6 @@ class TorrentReportManagerTest extends TestCase {
 
     public function testUrgentReport(): void {
         $torMan = new Manager\Torrent();
-        $torMan->setViewer($this->userList[0]);
         $torrent = $torMan->findById($this->tgroup->torrentIdList()[0]);
         $this->assertInstanceOf(Torrent::class, $torrent, 'report-torrent-is-torrent');
 

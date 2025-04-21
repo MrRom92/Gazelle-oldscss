@@ -25,7 +25,6 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
     protected int  $revisionId = 0;
     protected bool $showFallbackImage = true;
     protected ArtistRole\TGroup $artistRole;
-    protected User              $viewer;
     protected Stats\TGroup      $stats;
 
     public function flush(): static {
@@ -120,11 +119,6 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
             WHERE ID = ?
             ', $this->id
         );
-        return $this;
-    }
-
-    public function setViewer(User $viewer): static {
-        $this->viewer = $viewer;
         return $this;
     }
 
@@ -288,7 +282,8 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
     }
 
     protected function fetchIsSnatched(): bool {
-        return isset($this->viewer) && $this->viewer->option('ShowSnatched') && (bool)self::$db->scalar("
+        $viewer = $this->requestContext()->viewer();
+        return $viewer->option('ShowSnatched') && (bool)self::$db->scalar("
             SELECT 1
             FROM torrents_group tg
             WHERE exists(
@@ -299,7 +294,7 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
                     AND xs.uid = ?
                 )
                 AND tg.ID = ?
-            ", $this->viewer->id(), $this->id
+            ", $viewer->id, $this->id
         );
     }
 
@@ -517,13 +512,13 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
             INSERT IGNORE INTO cover_art
                    (GroupID, Image, Summary, UserID)
             VALUES (?,       ?,     ?,       ?)
-            ", $this->id, $image, $summary, $this->viewer()->id()
+            ", $this->id, $image, $summary, $this->requestContext()->viewer()->id
         );
         $id = self::$db->inserted_id();
         if ($id) {
             $this->logger()->group(
                 $this,
-                $this->viewer(),
+                $this->requestContext()->viewer(),
                 "Additional cover \"$summary - $image\" added to group"
             );
             self::$cache->delete_value(sprintf(self::CACHE_COVERART_KEY, $this->id));
@@ -547,7 +542,7 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
         if ($affected) {
             $this->logger()->group(
                 $this,
-                $this->viewer(),
+                $this->requestContext()->viewer(),
                 "Additional cover \"$summary - $image\" removed from group"
             );
             self::$cache->delete_value(sprintf(self::CACHE_COVERART_KEY, $this->id));
@@ -633,7 +628,7 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
                 array_push(
                     $args,
                     $this->id,
-                    $this->viewer()->id(),
+                    $this->requestContext()->viewer()->id,
                     $artist->aliasId(),
                     $role,
                     (string)$role,
@@ -655,11 +650,11 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
             $this->logger()
                 ->group(
                     $this,
-                    $this->viewer(),
+                    $this->requestContext()->viewer(),
                     "Added artist $artistLabel"
                 )
                 ->general(
-                    "Artist $artistLabel was added to the group {$this->label()} by user {$this->viewer()->label()}"
+                    "Artist $artistLabel was added to the group {$this->label()} by user {$this->requestContext()->viewer()->label()}"
                 );
         }
         self::$cache->increment_value('stats_album_count', count($names));
@@ -784,7 +779,7 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
             ", $this->id,
             $description,
             $image,
-            $this->viewer()->id(),
+            $this->requestContext()->viewer()->id,
             mb_substr(trim($summary), 0, 100),
         );
         $revisionId = self::$db->inserted_id();
@@ -835,9 +830,9 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
             $torrent = $torMan->findById($torrentId);
             if ($all || $torrent->format() == 'FLAC') {
                 if ($threshold > 0 and $torrent->size() > $threshold) {
-                    $large[] = $torrent->id();
+                    $large[] = $torrent->id;
                 } else {
-                    $regular[] = $torrent->id();
+                    $regular[] = $torrent->id;
                 }
             }
         }
@@ -856,12 +851,12 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
             UPDATE torrents SET
                 GroupID = ?
             WHERE ID = ?
-            ", $this->id, $torrent->id()
+            ", $this->id, $torrent->id
         );
 
         $affected = self::$db->affected_rows();
         $old      = $torrent->group();
-        $oldId    = $old->id();
+        $oldId    = $old->id;
 
         if ((bool)self::$db->scalar("SELECT count(*) FROM torrents WHERE GroupID = ?", $oldId)) {
             $old->flush();
@@ -876,11 +871,11 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
         $this->logger()
             ->group(
                 $this,
-                $this->viewer(),
+                $this->requestContext()->viewer(),
                 "merged group $oldId"
             )
             ->general(
-                "Torrent {$torrent->id()} was edited by {$this->viewer()->label()}"
+                "Torrent {$torrent->id} was edited by {$this->requestContext()->viewer()->label()}"
             );
         self::$db->commit();
 
@@ -897,10 +892,10 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
             $this->refresh();
             $this->logger()
                 ->group(
-                    $this, $this->viewer(), "renamed to \"$name\" from \"$oldName\""
+                    $this, $this->requestContext()->viewer(), "renamed to \"$name\" from \"$oldName\""
                 )
                 ->general(
-                    "Torrent Group {$this->id} was renamed to \"$name\" from \"$oldName\" by {$this->viewer()->username()}"
+                    "Torrent Group {$this->id} was renamed to \"$name\" from \"$oldName\" by {$this->requestContext()->viewer()->username()}"
                 );
         }
         return $success;

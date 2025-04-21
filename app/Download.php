@@ -82,13 +82,12 @@ class Download extends Base {
                 return DownloadStatus::too_big;
             }
 
-            // make sure personal freeleech on the torrent is up to date
-            $this->torrent->flush()->setViewer($this->limiter->user());
+            // it is already free for them
             if (!$user->canSpendFLToken($this->torrent)) {
                 return DownloadStatus::free;
             }
 
-            // Spend some tokens to make it personal freeleech
+            // spend some tokens to make it personal freeleech
             if (!$user->hasToken($this->torrent)) {
                 self::$db->begin_transaction();
                 self::$db->prepared_query('

@@ -30,7 +30,7 @@ $history     = new User\History($user);
 $limiter     = new User\UserclassRateLimit($user);
 $donorMan    = new Manager\Donation();
 $ipv4        = new Manager\IPv4();
-$tgMan       = (new Manager\TGroup())->setViewer($Viewer);
+$tgMan       = new Manager\TGroup();
 $resetToken  = $Viewer->permitted('users_mod')
     ? (new Manager\UserToken())->findByUser($user, UserTokenType::password)
     : false;

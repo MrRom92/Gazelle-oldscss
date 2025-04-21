@@ -38,12 +38,12 @@ if (empty($_GET['advanced']) || !$Viewer->permitted('site_advanced_top10')) {
 $vote->setTopLimit($limit);
 
 $bookmark     = new User\Bookmark($Viewer);
-$snatcher     = $Viewer->snatch();
 $imgProxy     = new Util\ImageProxy($Viewer);
 $reportMan    = new Manager\Report(new Manager\User());
-$tgMan        = (new Manager\TGroup())->setViewer($Viewer);
-$torMan       = (new Manager\Torrent())->setViewer($Viewer);
+$tgMan        = new Manager\TGroup();
+$torMan       = new Manager\Torrent();
 $urlStem      = (new User\Stylesheet($Viewer))->imagePath();
+$snatcher     = $Viewer->snatch();
 $topVotes     = $vote->topVotes();
 $number       = 0;
 

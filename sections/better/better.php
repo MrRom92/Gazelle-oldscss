@@ -29,9 +29,9 @@ $better = match ($type) {
     'artistdesc'    => new Better\ArtistDescription($user, $filter, new Manager\Artist()),
     'artistdiscogs' => new Better\ArtistDiscogs($user, $filter, new Manager\Artist()),
     'artistimg'     => new Better\ArtistImage($user, $filter, new Manager\Artist()),
-    'artwork'       => new Better\Artwork($user, $filter, (new Manager\TGroup())->setViewer($Viewer)),
-    'checksum'      => new Better\Checksum($user, $filter, (new Manager\Torrent())->setViewer($Viewer)),
-    'single'        => new Better\SingleSeeded($user, $filter, (new Manager\Torrent())->setViewer($Viewer)),
+    'artwork'       => new Better\Artwork($user, $filter, new Manager\TGroup()),
+    'checksum'      => new Better\Checksum($user, $filter, new Manager\Torrent()),
+    'single'        => new Better\SingleSeeded($user, $filter, new Manager\Torrent()),
     'files', 'folders', 'lineage', 'tags', 'trumpable'
                     => (new Better\Bad($user, $filter, new Manager\Torrent()))->setBadType($type),
     default         => Error404::error(),

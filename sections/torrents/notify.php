@@ -38,7 +38,7 @@ $headerIcons = new Util\SortableTableHeader('time', $headerMap, ['asc' => '', 'd
 
 $notifier = new User\NotificationSearch(
     $user,
-    (new Manager\Torrent())->setViewer($Viewer),
+    new Manager\Torrent(),
     $header->orderBy(),
     $header->dir(),
 );

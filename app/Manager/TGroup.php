@@ -7,8 +7,6 @@ class TGroup extends \Gazelle\BaseManager {
 
     protected const VOTE_SIMILAR = 'vote_similar_albums_%d';
 
-    protected \Gazelle\User $viewer;
-
     public function create(
         int     $categoryId,
         string  $name,
@@ -60,13 +58,13 @@ class TGroup extends \Gazelle\BaseManager {
             UPDATE torrents SET
                 GroupID = ?
             WHERE ID = ?
-            ', $newId, $torrent->id()
+            ', $newId, $torrent->id
         );
 
         // Update or remove previous group, depending on whether there is anything left
         $old = $torrent->group();
-        $oldId = $old->id();
-        if (self::$db->scalar('SELECT 1 FROM torrents WHERE GroupID = ?', $old->id())) {
+        $oldId = $old->id;
+        if (self::$db->scalar('SELECT 1 FROM torrents WHERE GroupID = ?', $old->id)) {
             $old->flush();
             $old->refresh();
         } else {
@@ -79,7 +77,7 @@ class TGroup extends \Gazelle\BaseManager {
 
         $this->logger()->group($new, $user, "split from group $oldId")
             ->general(
-                "Torrent {$torrent->id()} was split out from group $oldId to $newId by {$user->label()}"
+                "Torrent {$torrent->id} was split out from group $oldId to $newId by {$user->label()}"
             );
 
         $new->flush()->refresh();
@@ -99,23 +97,7 @@ class TGroup extends \Gazelle\BaseManager {
                 self::$cache->cache_value($key, $tgroupId, 7200);
             }
         }
-        if (!$tgroupId) {
-            return null;
-        }
-        $tgroup = new \Gazelle\TGroup($tgroupId);
-        if (isset($this->viewer)) {
-            $tgroup->setViewer($this->viewer);
-        }
-        return $tgroup;
-    }
-
-    /**
-     * Set the viewer context, for snatched indicators etc.
-     * If this is set, and Torrent object created will have it set
-     */
-    public function setViewer(\Gazelle\User $viewer): static {
-        $this->viewer = $viewer;
-        return $this;
+        return $tgroupId ? new \Gazelle\TGroup($tgroupId) : null;
     }
 
     public function findByTorrentId(int $torrentId): ?\Gazelle\TGroup {
@@ -180,7 +162,7 @@ class TGroup extends \Gazelle\BaseManager {
         \Gazelle\Manager\Vote $voteManager,
     ): bool {
         // GroupIDs
-        self::$db->prepared_query("SELECT ID FROM torrents WHERE GroupID = ?", $old->id());
+        self::$db->prepared_query("SELECT ID FROM torrents WHERE GroupID = ?", $old->id);
         self::$cache->delete_multi(
             array_map(fn($id) => sprintf(\Gazelle\Torrent::CACHE_KEY, $id), self::$db->collect(0, false))
         );
@@ -190,34 +172,34 @@ class TGroup extends \Gazelle\BaseManager {
             UPDATE torrents SET
                 GroupID = ?
             WHERE GroupID = ?
-            ", $new->id(), $old->id()
+            ", $new->id, $old->id
         );
         self::$db->prepared_query("
             UPDATE wiki_torrents SET
                 PageID = ?
             WHERE PageID = ?
-            ", $new->id(), $old->id()
+            ", $new->id, $old->id
         );
 
         (new \Gazelle\Manager\Bookmark())->merge($old, $new);
-        (new \Gazelle\Manager\Comment())->merge('torrents', $old->id(), $new->id());
+        (new \Gazelle\Manager\Comment())->merge('torrents', $old->id, $new->id);
         $voteManager->merge($old, $new, $userManager);
 
         // Collages
         self::$db->prepared_query("
             SELECT CollageID FROM collages_torrents WHERE GroupID = ?
-            ", $old->id()
+            ", $old->id
         );
         $collageList = self::$db->collect(0, false);
         self::$db->prepared_query("
             UPDATE IGNORE collages_torrents SET
                 GroupID = ?
             WHERE GroupID = ?
-            ", $new->id(), $old->id()
+            ", $new->id, $old->id
         );
         self::$db->prepared_query("
             DELETE FROM collages_torrents WHERE GroupID = ?
-                ", $old->id()
+                ", $old->id
         );
         self::$cache->delete_multi(array_map(
             fn ($id) => sprintf(\Gazelle\Collage::CACHE_KEY, $id), $collageList
@@ -226,24 +208,24 @@ class TGroup extends \Gazelle\BaseManager {
         // Requests
         self::$db->prepared_query("
             SELECT concat('request_', ID) FROM requests WHERE GroupID = ?
-            ", $old->id()
+            ", $old->id
         );
         self::$cache->delete_multi(self::$db->collect(0, false));
         self::$db->prepared_query("
             UPDATE requests SET
                 GroupID = ?
             WHERE GroupID = ?
-            ", $new->id(), $old->id()
+            ", $new->id, $old->id
         );
 
         self::$db->prepared_query("
             UPDATE group_log SET
                 GroupID = ?
             WHERE GroupID = ?
-            ", $new->id(), $old->id()
+            ", $new->id, $old->id
         );
 
-        $oldId    = $old->id();
+        $oldId    = $old->id;
         $oldLabel = $old->label();
         $old->removeTGroup();
         $this->logger()
@@ -253,7 +235,7 @@ class TGroup extends \Gazelle\BaseManager {
                 "Merged Group $oldLabel to {$new->label()}"
             )
             ->general(
-                "Group $oldId deleted following merge to {$new->id()}."
+                "Group $oldId deleted following merge to {$new->id}."
             )
             ->merge($old, $new);
 
@@ -261,10 +243,10 @@ class TGroup extends \Gazelle\BaseManager {
 
         $new->refresh();
         self::$cache->delete_multi([
-            "requests_group_" . $new->id(),
-            "torrent_collages_" . $new->id(),
-            "torrent_collages_personal_" . $new->id(),
-            "votes_" . $new->id(),
+            "requests_group_" . $new->id,
+            "torrent_collages_" . $new->id,
+            "torrent_collages_personal_" . $new->id,
+            "votes_" . $new->id,
         ]);
         return true;
     }
@@ -304,9 +286,9 @@ class TGroup extends \Gazelle\BaseManager {
     }
 
     public function similarVote(\Gazelle\TGroup $tgroup): array {
-        $key = sprintf(self::VOTE_SIMILAR, $tgroup->id());
+        $key = sprintf(self::VOTE_SIMILAR, $tgroup->id);
         $similar = self::$cache->get_value($key);
-        if ($similar === false || !isset($similar[$tgroup->id()])) {
+        if ($similar === false || !isset($similar[$tgroup->id])) {
             self::$db->prepared_query("
                 SELECT v.GroupID
                 FROM (
@@ -322,7 +304,7 @@ class TGroup extends \Gazelle\BaseManager {
                 ORDER BY binomial_ci(sum(if(v.Type = 'Up', 1, 0)), count(*)),
                     count(*) DESC
                 LIMIT 10
-                ", $tgroup->id(), $tgroup->id()
+                ", $tgroup->id, $tgroup->id
             );
             $similar = self::$db->collect(0, false);
             self::$cache->cache_value($key, $similar, 3600);

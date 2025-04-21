@@ -327,7 +327,7 @@ $torrentsInfo = $db->to_array('TorrentID', MYSQLI_ASSOC);
 $action       = display_str($_GET['type']);
 $urlStem      = "torrents.php?userid={$userId}&amp;type=";
 
-$torMan   = (new Manager\Torrent())->setViewer($Viewer);
+$torMan   = new Manager\Torrent();
 $imgProxy = new Util\ImageProxy($Viewer);
 $snatcher = $Viewer->snatch();
 

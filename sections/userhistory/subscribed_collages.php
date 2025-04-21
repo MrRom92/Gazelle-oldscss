@@ -19,7 +19,7 @@ $groupSubs = $collMan->subscribedTGroupCollageList(
     $viewAll,
 );
 
-$torMan    = (new Manager\Torrent())->setViewer($Viewer);
+$torMan    = new Manager\Torrent();
 $imgProxy  = new Util\ImageProxy($Viewer);
 $reportMan = new Manager\Report(new Manager\User());
 $snatcher  = $Viewer->snatch();

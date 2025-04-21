@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$torMan  = (new Manager\Torrent())->setViewer($Viewer);
+$torMan  = new Manager\Torrent();
 $id      = (int)($_GET['id'] ?? 0);
 $torrent = $torMan->findById($id);
 if (is_null($torrent)) {

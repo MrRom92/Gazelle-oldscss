@@ -10,5 +10,5 @@ use OrpheusNET\Logchecker\Logchecker;
 
 echo $Twig->render('logchecker/upload.twig', [
     'accepted' => Logchecker::getAcceptValues(),
-    'list'     => (new Manager\Torrent())->setViewer($Viewer)->missingLogfiles($Viewer->id()),
+    'list'     => (new Manager\Torrent())->missingLogfiles($Viewer->id),
 ]);

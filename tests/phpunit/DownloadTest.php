@@ -93,8 +93,9 @@ class DownloadTest extends TestCase {
 
         $this->assertEquals(1, $this->userList['down']->tokenCount(), 'download-downloader-spent-tokens');
         $this->assertTrue($this->userList['down']->hasToken($this->torrent), 'download-downloader-is-free');
+        $this->torrent->requestContext()->setViewer($this->userList['down']);
         $this->assertTrue(
-            $this->torrent->flush()->setViewer($this->userList['down'])->isFreeleechPersonal(),
+            $this->torrent->flush()->isFreeleechPersonal(),
             'download-torrent-is-free-personal'
         );
     }

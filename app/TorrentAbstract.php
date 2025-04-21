@@ -13,7 +13,6 @@ abstract class TorrentAbstract extends BaseAttrObject {
     final public const CACHE_FILELIST_CHUNK = 't_filelist_c_%d_%d';
 
     protected TGroup $tgroup;
-    protected User   $viewer;
 
     public function flush(): static {
         self::$cache->delete_multi([
@@ -66,14 +65,6 @@ abstract class TorrentAbstract extends BaseAttrObject {
     }
 
     /**
-     * Set the viewer context, for snatched indicators etc.
-     */
-    public function setViewer(User $viewer): static {
-        $this->viewer = $viewer;
-        return $this;
-    }
-
-    /**
      * Get the metadata of the torrent
      *
      * @return array of many things
@@ -103,9 +94,11 @@ abstract class TorrentAbstract extends BaseAttrObject {
             }
         }
 
-        if (!$this->isDeleted() && isset($this->viewer)) {
-            $info['PersonalFL'] = $info['FreeTorrent'] == LeechType::Normal->value && $this->viewer->hasToken($this);
-            $info['IsSnatched'] = $this->viewer->snatch()->showSnatch($this);
+        if (!$this->isDeleted() && $this->requestContext()->hasViewer()) {
+            $viewer = $this->requestContext()->viewer();
+            $info['PersonalFL'] = $info['FreeTorrent'] == LeechType::Normal->value
+                && $viewer->hasToken($this);
+            $info['IsSnatched'] = $viewer->snatch()->showSnatch($this);
         } else {
             $info['PersonalFL'] = false;
             $info['IsSnatched'] = false;
@@ -341,13 +334,7 @@ abstract class TorrentAbstract extends BaseAttrObject {
      * Get the torrent group in which this torrent belongs.
      */
     public function group(): TGroup {
-        if (!isset($this->tgroup)) {
-            $this->tgroup = new TGroup($this->groupId());
-            if (isset($this->viewer)) {
-                $this->tgroup->setViewer($this->viewer);
-            }
-        }
-        return $this->tgroup;
+        return $this->tgroup ??= new TGroup($this->groupId());
     }
 
     /**
@@ -592,7 +579,10 @@ abstract class TorrentAbstract extends BaseAttrObject {
             self::$cache->cache_value($key, $list, 7200);
         }
         if (!$viewer->isStaff()) {
-            $list = array_filter($list, fn($r) => $r['is_invisible'] == 0 || $r['reporter_id'] == $viewer->id);
+            $list = array_filter(
+                $list,
+                fn ($r) => $r['is_invisible'] == 0 || $r['reporter_id'] == $viewer->id
+            );
         }
         return array_column($list, 'id');
     }
@@ -749,7 +739,7 @@ abstract class TorrentAbstract extends BaseAttrObject {
                 if (!$info['HasLogDB']) {
                     $label[] = '<span class="tooltip" style="float: none" title="There is a logifile in the torrent, but it has not been uploaded to the site!">Log</span>';
                 } else {
-                    if (isset($this->viewer) && $this->viewer->isStaff()) {
+                    if ($this->requestContext()->viewer()->isStaff()) {
                         $label[] = "<a href=\"torrents.php?action=viewlog&torrentid={$this->id}&groupid={$this->groupId()}\">Log ({$info['LogScore']}%)</a>";
                     } else {
                         $label[] = "Log ({$info['LogScore']}%)";

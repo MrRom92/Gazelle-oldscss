@@ -12,17 +12,6 @@ class Torrent extends \Gazelle\BaseManager {
     final public const CACHE_KEY_LATEST_UPLOADS = 'latest_up_%d';
     final protected const CACHE_FOLDERNAME      = 'foldername_%s';
 
-    protected \Gazelle\User $viewer;
-
-    /**
-     * Set the viewer context, for snatched indicators etc.
-     * If this is set, and Torrent object created will have it set
-     */
-    public function setViewer(\Gazelle\User $viewer): static {
-        $this->viewer = $viewer;
-        return $this;
-    }
-
     public function create(
         \Gazelle\TGroup $tgroup,
         \Gazelle\User   $user,
@@ -90,14 +79,7 @@ class Torrent extends \Gazelle\BaseManager {
                 self::$cache->cache_value($key, $torrentId, 7200);
             }
         }
-        if (!$torrentId) {
-            return null;
-        }
-        $torrent = new \Gazelle\Torrent($torrentId);
-        if (isset($this->viewer)) {
-            $torrent->setViewer($this->viewer);
-        }
-        return $torrent;
+        return $torrentId ? new \Gazelle\Torrent($torrentId) : null;
     }
 
     public function findDeletedById(int $torrentId): ?\Gazelle\TorrentDeleted {

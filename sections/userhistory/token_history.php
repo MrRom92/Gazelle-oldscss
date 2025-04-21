@@ -19,7 +19,6 @@ if (!isset($_GET['userid'])) {
 }
 
 $torMan = new Manager\Torrent();
-$torMan->setViewer($Viewer);
 
 if ($_GET['expire'] ?? 0) {
     if (!$Viewer->permitted('admin_fl_history')) {

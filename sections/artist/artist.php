@@ -21,8 +21,8 @@ $artistId = $artist->id();
 
 $bookmark   = new User\Bookmark($Viewer);
 $collageMan = new Manager\Collage();
-$tgMan      = (new Manager\TGroup())->setViewer($Viewer);
-$torMan     = (new Manager\Torrent())->setViewer($Viewer);
+$tgMan      = new Manager\TGroup();
+$torMan     = new Manager\Torrent();
 $stats      = new Stats\Artist($artistId);
 $userMan    = new Manager\User();
 $reportMan  = new Manager\Report($userMan);

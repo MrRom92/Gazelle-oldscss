@@ -13,7 +13,7 @@ use Gazelle\Enum\CacheBucket;
 
 header('Access-Control-Allow-Origin: *');
 
-$tgMan  = (new Manager\TGroup())->setViewer($Viewer);
+$tgMan  = new Manager\TGroup();
 $tgroup = $tgMan->findById((int)($_GET['id'] ?? 0));
 if (is_null($tgroup)) {
     Error404::error();
@@ -30,12 +30,12 @@ $paginator->setAnchor('comments')->setTotal($commentPage->total())->removeParam(
 
 $artistMan     = new Manager\Artist();
 $collageMan    = new Manager\Collage();
-$torMan        = (new Manager\Torrent())->setViewer($Viewer);
+$torMan        = new Manager\Torrent();
 $reportMan     = new Manager\Torrent\Report($torMan);
 $requestMan    = new Manager\Request();
 $userMan       = new Manager\User();
-$snatcher      = $Viewer->snatch();
 $vote          = new User\Vote($Viewer);
+$snatcher      = $Viewer->snatch();
 
 $isSubscribed  = (new User\Subscription($Viewer))->isSubscribedComments('torrents', $tgroupId);
 $releaseTypes  = (new ReleaseType())->list();

@@ -31,8 +31,8 @@ if (empty($_GET['userid'])) {
 $bookmark  = new User\Bookmark($user);
 $snatcher  = $Viewer->snatch();
 $reportMan = new Manager\Report($userMan);
-$tgMan     = (new Manager\TGroup())->setViewer($Viewer);
-$torMan    = (new Manager\Torrent())->setViewer($Viewer);
+$tgMan     = new Manager\TGroup();
+$torMan    = new Manager\Torrent();
 $collMan   = (new Manager\Collage())->setImageProxy(new Util\ImageProxy($Viewer));
 
 $paginator = new Util\Paginator(200, (int)($_GET['page'] ?? 1));

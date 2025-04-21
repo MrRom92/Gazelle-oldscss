@@ -8,7 +8,7 @@ namespace Gazelle;
 
 authorize();
 
-$torrent = (new Manager\Torrent())->setViewer($Viewer)->findById((int)$_POST['torrentid']);
+$torrent = (new Manager\Torrent())->findById((int)$_POST['torrentid']);
 if (is_null($torrent)) {
     Error404::error();
 }

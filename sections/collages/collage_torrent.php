@@ -8,8 +8,8 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$tgMan         = (new Manager\TGroup())->setViewer($Viewer);
-$torMan        = (new Manager\Torrent())->setViewer($Viewer);
+$tgMan         = new Manager\TGroup();
+$torMan        = new Manager\Torrent();
 $bookmark      = new User\Bookmark($Viewer);
 $collMan       = (new Manager\Collage())->setImageProxy(new \Gazelle\Util\ImageProxy($Viewer));
 $urlStem       = (new User\Stylesheet($Viewer))->imagePath();
