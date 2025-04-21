@@ -14,7 +14,6 @@ $user = $userMan->findById((int)($_GET['id'] ?? 0));
 if (is_null($user)) {
     Error404::error();
 }
-$user->auditTrail()->migrate($userMan);
 
 echo $Twig->render('user/audit.twig', [
     'edit'   => isset($_GET['edit']),

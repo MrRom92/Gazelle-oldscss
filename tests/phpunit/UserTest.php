@@ -222,11 +222,6 @@ class UserTest extends TestCase {
             'utest-staff-note'
         );
 
-        $notes = $this->user->staffNotes();
-        $new   = "\n" . randomString(20);
-        $this->assertTrue($this->user->setField('AdminComment', $notes . $new)->modify());
-        $this->assertEquals($notes . $new, $this->user->staffNotes());
-
         $this->assertFalse($this->user->setTitle(str_repeat('x', USER_TITLE_LENGTH + 1)), 'utest-title-too-long');
         $this->assertTrue($this->user->setTitle('custom title'), 'utest-set-title');
         $this->user->modify();

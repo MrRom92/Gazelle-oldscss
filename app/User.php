@@ -160,7 +160,6 @@ class User extends BaseObject {
                 um.updated,
                 um.Visible,
                 um.ipcc,
-                ui.AdminComment,
                 ui.BanDate,
                 ui.NavItems,
                 ui.RatioWatchEnds,
@@ -583,10 +582,6 @@ class User extends BaseObject {
 
     public function slogan(): ?string {
         return $this->info()['slogan'];
-    }
-
-    public function staffNotes(): string {
-        return $this->info()['AdminComment'] ?? '';
     }
 
     public function title(): string {
@@ -1044,7 +1039,7 @@ class User extends BaseObject {
                 $now[] = "{$this->clearField($field)} = now()";
             }
         }
-        foreach (['AdminComment', 'BanDate', 'BanReason', 'PermittedForums', 'RestrictedForums', 'RatioWatchDownload', 'RatioWatchEnds'] as $field) {
+        foreach (['BanDate', 'BanReason', 'PermittedForums', 'RestrictedForums', 'RatioWatchDownload', 'RatioWatchEnds'] as $field) {
             if ($this->field($field) !== null || $this->nullField($field)) {
                 $userInfo["$field = ?"] = $this->clearField($field);
             }

@@ -594,13 +594,8 @@ if ($editSummary) {
     if ($reason) {
         $summary .= "\nReason: $reason";
     }
-    $user->setField(
-        'AdminComment',
-        Time::sqlTime() . ' - ' . ucfirst($summary) . "\n\n$adminComment"
-    );
     $user->auditTrail()->addEvent(UserAuditEvent::staffNote, ucfirst($summary), $Viewer);
 } elseif ($adminComment !== $cur['admincomment']) {
-    $user->setField('AdminComment', $adminComment);
     $user->auditTrail()->addEvent(UserAuditEvent::staffNote, $adminComment, $Viewer);
 }
 

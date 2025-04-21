@@ -274,11 +274,6 @@ if (empty($_GET)) {
         $Args[] = trim($_GET['tracker_ip']);
     }
 
-    if (!empty($_GET['comment'])) {
-        $Where[] = $m->matchField('ui1.AdminComment');
-        $Args[] = $_GET['comment'];
-    }
-
     if (!empty($_GET['lastfm'])) {
         $Distinct = true;
         $Join['lfm'] = 'INNER JOIN lastfm_users AS lfm ON (lfm.ID = um1.ID)';

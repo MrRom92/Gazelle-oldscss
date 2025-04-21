@@ -47,62 +47,24 @@ class UserAuditTrailTest extends TestCase {
         $this->assertFalse($this->user->auditTrail()->hasEvent(UserAuditEvent::mfa), 'uat-event-absent');
     }
 
-    public function testAuditTrailMigrate(): void {
-        $this->user = Helper::makeUser('uat.' . randomString(10), 'uat');
-        $staffNoteList = [
-            '2033-03-03 03:03:03 - three',
-            '2022-02-02 02:02:02 - two',
-            '2021-01-01 01:01:01 - one',
-        ];
-        $this->user->setField('AdminComment', implode("\n\n", $staffNoteList))->modify();
-
-        $auditTrail = $this->user->auditTrail();
-        $this->assertFalse($this->user->auditTrail()->hasEvent(UserAuditEvent::historical), 'uat-not-yet-migrated');
-        $this->assertGreaterThan(0, $auditTrail->migrate(new \Gazelle\Manager\User()), 'uat-migrate');
-        $this->assertTrue($this->user->auditTrail()->hasEvent(UserAuditEvent::historical), 'uat-migrated');
-
-        $eventList = $auditTrail->fullEventList();
-        $this->assertCount(4, $eventList, 'uat-migrated-event-list');
-        $this->assertEquals('three', $eventList[0]['note'], 'uat-event-list-0-note');
-        $this->assertEquals('two', $eventList[2]['note'], 'uat-event-list-1-note');
-        $this->assertEquals('2022-02-02 02:02:02+00', $eventList[2]['created'], 'uat-event-list-r-created');
-    }
-
     public function testAuditTrailStaffNote(): void {
         $this->user = Helper::makeUser('uat.' . randomString(10), 'uat');
         $auditTrail = $this->user->auditTrail();
         $this->assertFalse($this->user->auditTrail()->hasEvent(UserAuditEvent::historical), 'uat-not-staff-note-migrated');
 
         $this->user->addStaffNote('admin comment')->modify();
-        $this->assertGreaterThan(0, $auditTrail->migrate(new \Gazelle\Manager\User()), 'uat-staff-note-migrated');
-        $this->assertEquals(0, $auditTrail->migrate(new \Gazelle\Manager\User()), 'uat-already-migrated');
 
         // one for the creation, one for the staff note
         $eventList = $auditTrail->fullEventList();
-        $this->assertCount(3, $eventList, 'uat-migrated-staff-note-list');
+        $this->assertCount(2, $eventList, 'uat-migrated-staff-note-list');
         $this->assertCount(
             2,
             $auditTrail->eventList([
+                $eventList[0]['id_user_audit_trail'],
                 $eventList[1]['id_user_audit_trail'],
-                $eventList[2]['id_user_audit_trail'],
             ]),
             'uat-partial-event-list'
         );
-    }
-
-    public function testAuditTrailCreatorStaffNote(): void {
-        $this->user  = Helper::makeUser('uat.' . randomString(10), 'uat');
-        $this->admin = Helper::makeUser('uat.adm.' . randomString(10), 'uat');
-        $this->user->auditTrail()->resetAuditTrail();
-
-        $this->user->setField('AdminComment', date('Y-m-d H:m:s') . " - One by {$this->admin->username()}")->modify();
-        $this->assertGreaterThan(0, $this->user->auditTrail()->migrate(new \Gazelle\Manager\User()), 'uat-staff-note-migrated');
-        $this->assertEquals("One.", $this->user->auditTrail()->fullEventList()[0]['note'], 'uat-staff-note-one');
-
-        $this->user->auditTrail()->resetAuditTrail();
-        $this->user->setField('AdminComment', date('Y-m-d H:m:s') . " - Two by {$this->admin->username()}\nReason: Out on the weekend")->modify();
-        $this->assertGreaterThan(0, $this->user->auditTrail()->migrate(new \Gazelle\Manager\User()), 'uat-staff-multinote-migrated');
-        $this->assertEquals("Two.\nReason: Out on the weekend", $this->user->auditTrail()->fullEventList()[0]['note'], 'uat-staff-note-two');
     }
 
     public function testAuditTrailModify(): void {
