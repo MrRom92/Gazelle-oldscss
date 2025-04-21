@@ -1,3 +1,4 @@
+{% from 'macro/ipv4.twig' import ip_search %}
 {{ header('Registration log', {'js': 'resolve-ip'}) }}
 <div class="thin">
 <div class="header">
@@ -119,17 +120,15 @@
             <td style="vertical-align: top">
                 <a href="userhistory.php?action=ips&amp;userid{{ user.id }}" title="IP History" class="brackets tooltip">H</a>
                 <a href="/user.php?action=search&amp;ip_history=on&amp;ip={{ user.ipaddr }}" title="IP Search" class="brackets tooltip">S</a>
-                <a href="http://whatismyipaddress.com/ip/{{ user.ipaddr }}" title="whatismyipaddress.com" class="brackets tooltip">WI</a>
+                {{ ip_search(user.ipaddr) }}
 {%  if user.inviter.id and user.inviter.ipaddr != user.ipaddr %}
                 <br />
                 <a href="userhistory.php?action=ips&amp;userid={{ user.inviter.id }}" title="IP History" class="brackets tooltip">H</a>
                 <a href="/user.php?action=search&amp;ip_history=on&amp;ip={{ user.inviter.ipaddr }}" title="IP Search" class="brackets tooltip">S</a>
-                <a href="http://whatismyipaddress.com/ip/{{ user.inviter.ipaddr }}" title="WI" class="brackets tooltip">WI</a>
+                {{ ip_search(user.inviter.ipaddr) }}
 {%  endif %}
             </td>
-            <td>
-                {{ user.ipCountryIso }}
-            </td>
+            <td>{{ user.ipCountryIso }}</td>
             <td>
                 <span style="white-space: nowrap">{{- user.created|time_diff -}}</span>
                 <br />

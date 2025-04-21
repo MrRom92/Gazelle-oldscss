@@ -1,3 +1,4 @@
+{% from 'macro/ipv4.twig' import ip_search %}
 {{ header('Tracker IP address history › ' ~ (user ? user.username : "IP address " ~ ipaddr), {'js': 'resolve-ip'}) }}
 <div class="thin">
     <div class="header">
@@ -9,41 +10,41 @@
     </div>
 
 {% for s in summary %}
-    {% if loop.first %}
+{%  if loop.first %}
     <div class="header">
         <h3>Summary</h3>
     </div>
     <table>
         <tr class="colhead">
-        {% if is_mod %}
+{%      if is_mod %}
             <td title="Click on an address to view list of users seen on that address">IP address</td>
-        {% else %}
+{%      else %}
             <td>IP address</td>
-        {% endif %}
+{%      endif %}
             <td>Total</td>
             <td>First Seen</td>
             <td>Last Seen</td>
         </tr>
-    {% endif %}
+{%  endif %}
         <tr>
-    {% if is_mod %}
+{%  if is_mod %}
             <td><a href="{{ urlstem }}ip={{ s.IP }}">{{ s.IP }}</a></td>
-    {% else %}
+{%  else %}
             <td>">{{ s.IP }}</td>
-    {% endif %}
+{%  endif %}
             <td>{{ s.total|number_format }}</td>
             <td>{{ s.first|time_diff }}</td>
             <td>{{ s.last|time_diff }}</td>
-    {% if loop.last %}
+{%  if loop.last %}
     </table>
-    {% endif %}
+{%  endif %}
 {% endfor %}
 
     <div class="header">
         <h3>Detail</h3>
     </div>
 
-    {{ paginator.linkbox|raw }}
+{{ paginator.linkbox|raw }}
 
     <table>
         <tr class="colhead">
@@ -58,12 +59,12 @@
 {% for r in details %}
         <tr class="row{{ cycle(['a', 'b'], loop.index0) }}">
             <td>
-    {% if user %}
-            {{ r.ip }} <span class="resolve-ipv4" data-ip="{{ r.ip }}">Resolving...</span> ({{ resolveCountryIpv4(r.ip) }})
-            <a href="http://whatismyipaddress.com/ip/{{ r.ip }}" class="brackets tooltip" title="Search WIMIA.com">WI</a>
-    {% else %}
+{%-  if user %}
+{{  r.ip }} <span class="resolve-ipv4" data-ip="{{ r.ip }}">Resolving...</span> ({{
+                resolveCountryIpv4(r.ip) }}) {{ ip_search(r.ip) }}
+{%  else %}
             <a href="{{ urlstem }}userid={{ r.uid }}">{{ r.username }}</a>
-    {% endif %}
+{%  endif -%}
             </td>
             <td><a href="torrents.php?torrentid={{ r.fid }}">{{ r.name }}</a></td>
             <td>{{ r.date|time_diff }}</td>
@@ -72,10 +73,4 @@
     </table>
     {{ paginator.linkbox|raw }}
 </div>
-
-<script type="text/javascript">
-function ShowIPs(rowname) {
-    $('tr[name="'+rowname+'"]').gtoggle();
-}
-</script>
 {{ footer() }}

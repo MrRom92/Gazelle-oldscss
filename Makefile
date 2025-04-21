@@ -9,7 +9,7 @@ STORAGE_PATH_TORRENT    := $(shell bin/getconf STORAGE_PATH_TORRENT)
 .PHONY: help
 help:
 	echo '  help                 - output this message'
-	echo '  build-css            - build the CSS'
+	echo '  css                  - compile the css from sass'
 	echo '  check-php            - check that the modified PHP files are syntactically correct'
 	echo '  composer-dev-update  - run local composer update'
 	echo '  composer-live-update - run production composer install from composer.lock'
@@ -35,11 +35,6 @@ help:
 	echo '  test                 - run unit test suite'
 	echo '  twig-flush           - purge the Twig cache'
 
-.PHONY: build-css
-build-css:
-	docker compose exec -T web bin/config-css /tmp/config-css.js
-	docker compose exec -T web npm run build:scss
-
 .PHONY: check-php
 check-php:
 	git status | awk '/(modified|new file):.*\.php$$/ {print $$NF}' | xargs php -l
@@ -55,6 +50,11 @@ composer-live-update:
 .PHONY: coverage
 coverage:
 	 docker compose exec -e XDEBUG_MODE=coverage web vendor/bin/phpunit -c misc/phpunit.xml -d memory_limit=2G --coverage-html coverage/
+
+.PHONY: css
+css:
+	docker compose exec -T web bin/config-css /tmp/config-css.js
+	docker compose exec -T web npm run build:scss
 
 .PHONY: dump-all
 dump-all: dump-riplog dump-riploghtml dump-torrent

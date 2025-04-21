@@ -3,5 +3,6 @@
 {%- endmacro -%}
 
 {%- macro ip_search(ip) -%}
-    <a href="tools.php?action=ip_search&amp;ip={{ ip }}">{{ ip }}</a> <a href="https://whatismyipaddress.com/ip/{{ ip }}" class="brackets tooltip" title="What is my IP address?">WI</a>
+    <a href="https://whatismyipaddress.com/ip/{{ ip }}" title="whatismyipaddress.com" class="brackets tooltip"><span class="wimia">WI</span></a>
+    <a href="tools.php?action=ip_search&amp;ip={{ ip }}">{{ ip }}</a>
 {%- endmacro -%}
