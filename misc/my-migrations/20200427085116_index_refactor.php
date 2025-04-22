@@ -31,6 +31,7 @@ use Phinx\Migration\AbstractMigration;
  */
 
 class IndexRefactor extends AbstractMigration {
+    /** @phpstan-ignore missingType.iterableValue */
     protected function modifyColumn(): array {
         return [
             [
@@ -266,6 +267,7 @@ class IndexRefactor extends AbstractMigration {
         ];
     }
 
+    /** @phpstan-ignore missingType.iterableValue */
     protected function modifyTable(): array {
         return [
             [
@@ -517,6 +519,9 @@ class IndexRefactor extends AbstractMigration {
         ];
     }
 
+    /**
+     * @return array<string>
+     */
     protected function engineChange(): array {
         /* change from MyISAM to InnoDB */
         return [

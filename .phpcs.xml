@@ -41,8 +41,8 @@
 
     <rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace">
         <exclude-pattern>classes/*</exclude-pattern>
-        <exclude-pattern>misc/phinx/*</exclude-pattern>
-        <exclude-pattern>misc/phinx-pg/*</exclude-pattern>
+        <exclude-pattern>misc/my-migrations/*</exclude-pattern>
+        <exclude-pattern>misc/pg-migrations/*</exclude-pattern>
     </rule>
 
     <rule ref="Generic.PHP.ForbiddenFunctions">

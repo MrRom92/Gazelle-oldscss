@@ -3,6 +3,9 @@
 use Phinx\Migration\AbstractMigration;
 
 class NoZerodateTorrentFlag extends AbstractMigration {
+    /**
+     * @return array<string>
+     */
     protected function torrentTables(): array {
         return explode(" ", "torrents_bad_files torrents_bad_tags torrents_cassette_approved torrents_lossymaster_approved torrents_lossyweb_approved torrents_missing_lineage");
     }

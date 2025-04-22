@@ -13,8 +13,10 @@ use Phinx\Migration\AbstractMigration;
  */
 
 final class MysqlUtf8mb4 extends AbstractMigration {
+    /** @phpstan-ignore missingType.iterableValue */
     protected function table_list(): array {
-        return (array)preg_split('/\s+/', 'api_applications api_tokens applicant
+        /** @phpstan-ignore return.type */
+        return preg_split('/\s+/', 'api_applications api_tokens applicant
         applicant_role artist_attr artist_role artist_usage artists_alias
         artist_discogs artists_group artists_similar_votes bad_passwords blog
         bonus_item bonus_pool changelog collage_attr collages comments
