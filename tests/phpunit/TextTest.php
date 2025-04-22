@@ -111,19 +111,19 @@ class TextTest extends TestCase {
         $collage = (new Manager\Collage())->create($this->userList['admin'], 1, $name, 'phpunit collage', 'jazz,disco');
         $this->assertInstanceOf(Collage::class, $collage, 'text-create-collage');
         $this->assertEquals(
-            "<a href=\"collages.php?id={$collage->id()}\">{$collage->name()}</a>",
-            \Text::full_format("[collage]{$collage->id()}[/collage]"),
+            "<a href=\"collages.php?id={$collage->id}\">{$collage->name()}</a>",
+            \Text::full_format("[collage]{$collage->id}[/collage]"),
             'text-collage-bb'
         );
         $this->assertEquals(
-            "<a href=\"collages.php?id={$collage->id()}\">{$collage->name()}</a>",
+            "<a href=\"collages.php?id={$collage->id}\">{$collage->name()}</a>",
             \Text::full_format($collage->publicLocation()),
             'text-collage-url'
         );
         $commentMan = new Manager\Comment();
-        $comment    = $commentMan->create($this->userList['admin'], 'collages', $collage->id(), "nice collage!");
+        $comment    = $commentMan->create($this->userList['admin'], 'collages', $collage->id, "nice collage!");
         $this->assertEquals(
-            "<a href=\"{$comment->url()}\">Collages Comment #{$comment->id()}</a>",
+            "<a href=\"{$comment->url()}\">Collages Comment #{$comment->id}</a>",
             \Text::full_format($comment->publicLocation()),
             'text-collage-comment-link'
         );
@@ -145,8 +145,8 @@ class TextTest extends TestCase {
         );
         $this->assertInstanceOf(Forum::class, $forum, 'text-create-forum');
         $this->assertEquals(
-            "<a href=\"forums.php?action=viewforum&amp;forumid={$forum->id()}\" class=\"tooltip\" title=\"{$forum->name()}\">{$forum->name()}</a>",
-            \Text::full_format("[forum]{$forum->id()}[/forum]"),
+            "<a href=\"forums.php?action=viewforum&amp;forumid={$forum->id}\" class=\"tooltip\" title=\"{$forum->name()}\">{$forum->name()}</a>",
+            \Text::full_format("[forum]{$forum->id}[/forum]"),
             'text-forum'
         );
 
@@ -160,8 +160,8 @@ class TextTest extends TestCase {
             INNER JOIN forums_topics ft ON (ft.ID = fp.TopicID)
         ");
         $post = (new Manager\ForumPost())->findById($postId);
-        $threadId = $post->thread()->id();
-        $title    = $post->thread()->title();
+        $threadId = $post?->thread()->id;
+        $title    = $post?->thread()->title();
 
         $this->assertMatchesRegularExpression(
             "@^<a href=\"forums\.php\?action=viewthread&amp;threadid={$threadId}\">\Q{$title}\E</a>$@",
@@ -334,7 +334,7 @@ END_HTML;
 
         $this->assertEquals("<a href=\"user.php?action=search&amp;search=$username\">$username</a>", \Text::full_format("[user]{$username}[/user]"), "text-user-1");
 
-        $url = "<a href=\"user.php?id={$this->userList['user']->id()}\">@$username</a>";
+        $url = "<a href=\"user.php?id={$this->userList['user']->id}\">@$username</a>";
         $this->assertEquals($url, \Text::full_format("@$username"), "text-user-2");
         $this->assertEquals("$url.", \Text::full_format("@$username."), "text-user-3");
 

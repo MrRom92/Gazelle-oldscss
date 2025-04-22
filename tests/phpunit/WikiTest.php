@@ -56,18 +56,25 @@ class WikiTest extends TestCase {
         );
         $this->assertInstanceOf(Wiki::class, $article, 'wiki-create-open');
 
-        $this->assertEquals($article->id(), $manager->findById($article->id())->id(), 'wiki-find-by-id');
-        $this->assertEquals($article->id(), $manager->findByTitle($article->title())->id(), 'wiki-find-by-title');
+        $this->assertEquals(
+            $article->id,
+            $manager->findById($article->id)?->id,
+            'wiki-find-by-id');
+        $this->assertEquals(
+            $article->id,
+            $manager->findByTitle($article->title())?->id,
+            'wiki-find-by-title'
+        );
 
         $this->assertInstanceOf(Wiki::class, $article->flush(), 'wiki-flush');
         $this->assertEquals("<a href=\"{$article->url()}\">{$article->title()}</a>", $article->link(), 'wiki-link');
-        $this->assertEquals("wiki.php?action=article&id={$article->id()}", $article->location(), 'wiki-location');
+        $this->assertEquals("wiki.php?action=article&id={$article->id}", $article->location(), 'wiki-location');
         $this->assertEquals($alias, array_keys($article->alias())[0], 'wiki-alias');
         $this->assertEquals('wiki body', $article->body(), 'wiki-body');
         $this->assertStringStartsWith(date('Y-m-d H'), $article->date(), 'wiki-date');
         $this->assertEquals($title, $article->title(), 'wiki-title');
         $this->assertEquals($title, $article->shortName($title), 'wiki-short-name');
-        $this->assertEquals($this->userList['admin']->id(), $article->authorId(), 'wiki-author-id');
+        $this->assertEquals($this->userList['admin']->id, $article->authorId(), 'wiki-author-id');
         $this->assertEquals($this->userList['user']->privilege()->effectiveClassLevel(), $article->minClassRead(), 'wiki-min-read');
         $this->assertEquals($this->userList['user']->privilege()->effectiveClassLevel(), $article->minClassEdit(), 'wiki-min-edit');
 
@@ -94,17 +101,17 @@ class WikiTest extends TestCase {
         \Text::setViewer($this->userList['user']);
 
         $this->assertEquals(
-            "<a href=\"wiki.php\">Wiki</a> › <a href=\"wiki.php?action=article&amp;id={$article->id()}\">$title</a>",
+            "<a href=\"wiki.php\">Wiki</a> › <a href=\"wiki.php?action=article&amp;id={$article->id}\">$title</a>",
             \Text::full_format(SITE_URL . "/wiki.php?action=article&name=$alias"),
             'text-wiki-name-location',
         );
         $this->assertEquals(
-            "<a href=\"wiki.php\">Wiki</a> › <a href=\"wiki.php?action=article&amp;id={$article->id()}\">$title</a>",
+            "<a href=\"wiki.php\">Wiki</a> › <a href=\"wiki.php?action=article&amp;id={$article->id}\">$title</a>",
             \Text::full_format("{$article->publicLocation()}"),
             'text-wiki-id-location',
         );
         $this->assertEquals(
-            "<a href=\"wiki.php\">Wiki</a> › <a href=\"wiki.php?action=article&amp;id={$article->id()}\">$title</a>",
+            "<a href=\"wiki.php\">Wiki</a> › <a href=\"wiki.php?action=article&amp;id={$article->id}\">$title</a>",
             \Text::full_format("[[{$alias}]]"),
             'wiki-bbcode-alias'
         );
@@ -132,7 +139,7 @@ class WikiTest extends TestCase {
         $this->assertEquals(0, $article->removeAlias($newAlias), 'wiki-remove-missing-alias');
         $this->assertEquals(1, $article->addAlias($newAlias, $this->userList['admin']), 'wiki-add-alias');
         $this->assertCount(2, $article->alias(), 'wiki-alias-list');
-        $this->assertEquals($article->id(), $manager->findByAlias($newAlias)->id(), 'wiki-find-by-alias');
+        $this->assertEquals($article->id, $manager->findByAlias($newAlias)?->id, 'wiki-find-by-alias');
         $this->assertEquals(1, $article->removeAlias($newAlias), 'wiki-remove-alias');
     }
 
@@ -215,9 +222,9 @@ class WikiTest extends TestCase {
         $this->assertTrue($article->setField('Body', 'wiki body edit')->modify(), 'wiki-edit-body');
         $this->assertCount(1, $article->revisionList(), 'wiki-revision');
 
-        $clone = $manager->findById($article->id());
-        $this->assertEquals(2, $clone->revision(), 'wiki-n-revision');
-        $this->assertEquals('wiki body', $clone->revisionBody(1), 'wiki-body-revision');
+        $clone = $manager->findById($article->id);
+        $this->assertEquals(2, $clone?->revision(), 'wiki-n-revision');
+        $this->assertEquals('wiki body', $clone?->revisionBody(1), 'wiki-body-revision');
     }
 
     public function testConfigureAccess(): void {

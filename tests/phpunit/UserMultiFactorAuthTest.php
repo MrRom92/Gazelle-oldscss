@@ -39,7 +39,8 @@ class UserMultiFactorAuthTest extends TestCase {
 
         $this->assertEquals(0, $this->countTokens(), 'utest-no-mfa');
         $recovery = $mfa->create($manager, $secret);
-        $this->assertCount(10, $recovery, 'utest-setup-mfa');
+        $this->assertIsArray($recovery, 'utest-setup-mfa-array');
+        $this->assertCount(10, $recovery, 'utest-setup-mfa-count');
         $this->assertTrue($this->user->auditTrail()->hasEvent(UserAuditEvent::mfa), 'utest-mfa-audit');
 
         $burn = array_pop($recovery);

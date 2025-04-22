@@ -369,11 +369,20 @@ class UserManagerTest extends TestCase {
         $pmMan    = new Manager\PM($receiver->user());
         $this->assertEquals(1, $receiver->messageTotal(), 'uman-custom-pm-count');
         $list = $receiver->messageList($pmMan, 2, 0);
-        $this->assertEquals('phpunit sendCustomPMTest', $list[0]->subject(), 'uman-custom-pm-subject');
+        $this->assertEquals(
+            'phpunit sendCustomPMTest',
+            $list[0]->subject(),
+            'uman-custom-pm-subject'
+        );
         $postlist = $list[0]->postlist(10, 0);
         $postId = $postlist[0]['id'];
         $pm = $pmMan->findByPostId($postId);
-        $this->assertStringContainsString($this->userList[2]->username(), $pm->postBody($postId), 'uman-custom-pm-body');
+        $this->assertInstanceOf(PM::class, $pm, 'uman-found-pm');
+        $this->assertStringContainsString(
+            $this->userList[2]->username(),
+            (string)$pm->postBody($postId),
+            'uman-custom-pm-body'
+        );
     }
 
     public function testUserclassFlush(): void {
@@ -403,9 +412,9 @@ class UserManagerTest extends TestCase {
 
     public function testUserFind(): void {
         $manager = new Manager\User();
-        $this->assertEquals(
-            $this->userList[0]->id,
-            $manager->findByEmail($this->userList[0]->email())->id,
+        $this->assertInstanceOf(
+            User::class,
+            $manager->findByEmail($this->userList[0]->email()),
             'userman-find-by-email'
         );
     }

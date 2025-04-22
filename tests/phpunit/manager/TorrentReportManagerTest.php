@@ -45,6 +45,7 @@ class TorrentReportManagerTest extends TestCase {
     public function testWorkflowReport(): void {
         $torMan = new Manager\Torrent();
         $torrent = $torMan->findById($this->tgroup->torrentIdList()[0]);
+        $this->assertInstanceOf(Torrent::class, $torrent, 'trep-workflow-found');
         $title = [
             'torrent extra 1 ' . randomString(10),
             'torrent extra 2 ' . randomString(10),
@@ -61,14 +62,16 @@ class TorrentReportManagerTest extends TestCase {
                 title:  $title[1],
             ),
         ];
-        $extraIdList = [$extra[0]->id(), $extra[1]->id()];
+        $extraIdList = [$extra[0]->id, $extra[1]->id];
         $manager     = new Manager\Torrent\Report($torMan);
         $typeManager = new Manager\Torrent\ReportType();
+        $type        = $typeManager->findByName('other');
+        $this->assertInstanceOf(Torrent\ReportType::class, $type, 'trep-type-found');
         $this->assertCount(8, $manager->categories(), 'trep-categories');
         $report = $manager->create(
             torrent:     $torrent,
             user:        $this->userList[1],
-            reportType:  $typeManager->findByName('other'),
+            reportType:  $type,
             reason:      'phpunit other report',
             otherIdList: implode(' ', $extraIdList),
             irc:         new Util\Irc(),
@@ -78,28 +81,28 @@ class TorrentReportManagerTest extends TestCase {
             'trep-recent',
         );
 
-        $this->assertEquals(
-            $report->id,
-            $manager->findById($report->id)->id,
+        $this->assertInstanceOf(
+            Torrent\Report::class,
+            $manager->findById($report->id),
             'trep-find-by-id'
         );
-        $this->assertEquals(
-            $report->id,
-            $manager->findNewest()->id,
+        $this->assertInstanceOf(
+            Torrent\Report::class,
+            $manager->findNewest(),
             'trep-newest'
         );
 
         $this->assertTrue(Helper::recentDate($report->created()), 'trep-created');
         $this->assertCount(0, $report->externalLink(), 'trep-external-link');
         $this->assertCount(0, $report->trackList(), 'trep-track-list');
-        $this->assertStringEndsWith("id={$report->id()}", $report->location(), 'trep-location');
+        $this->assertStringEndsWith("id={$report->id}", $report->location(), 'trep-location');
         $this->assertEquals('phpunit other report', $report->reason(), 'trep-reason');
-        $this->assertEquals($this->userList[1]->id(), $report->reporterId(), 'trep-reporter-id');
+        $this->assertEquals($this->userList[1]->id, $report->reporterId(), 'trep-reporter-id');
         $this->assertEquals('New', $report->status(), 'trep-report-status');
         $this->assertEquals('Other', $report->reportType()->name(), 'trep-report-type-name');
         $this->assertEquals('other', $report->type(), 'trep-name');
         $this->assertEquals($this->tgroup->torrentIdList()[2], $report->torrentId(), 'trep-torrent-id');
-        $this->assertEquals($this->tgroup->torrentIdList()[2], $report->torrent()->id(), 'trep-torrent-object');
+        $this->assertEquals($this->tgroup->torrentIdList()[2], $report->torrent()?->id, 'trep-torrent-object');
         $other = current(array_filter($manager->newSummary(), fn ($r) => $r['type'] === 'other'));
         $this->assertEquals(1, $other['total'], 'trep-new-summary-other');
         $this->assertEquals(
@@ -154,10 +157,14 @@ class TorrentReportManagerTest extends TestCase {
     public function testModeratorResolve(): void {
         $torMan = new Manager\Torrent();
         $manager = new Manager\Torrent\Report($torMan);
+        $torrent = $torMan->findById($this->tgroup->torrentIdList()[0]);
+        $this->assertInstanceOf(Torrent::class, $torrent, 'trep-mod-resolver-found');
+        $reportType = (new Manager\Torrent\ReportType())->findByName('other');
+        $this->assertInstanceOf(Torrent\ReportType::class, $reportType, 'trep-report-type-search-found');
         $report = $manager->create(
-            torrent:     $torMan->findById($this->tgroup->torrentIdList()[0]),
+            torrent:     $torrent,
             user:        $this->userList[1],
-            reportType:  (new Manager\Torrent\ReportType())->findByName('other'),
+            reportType:  $reportType,
             reason:      'phpunit other report',
             otherIdList: '123 234',
             irc:         new Util\Irc(),
@@ -175,10 +182,13 @@ class TorrentReportManagerTest extends TestCase {
         $torMan = new Manager\Torrent();
         $manager = new Manager\Torrent\Report($torMan);
         $torrent = $torMan->findById($this->tgroup->torrentIdList()[0]);
+        $this->assertInstanceOf(Torrent::class, $torrent, 'trep-search-found');
+        $reportType = (new Manager\Torrent\ReportType())->findByName('other');
+        $this->assertInstanceOf(Torrent\ReportType::class, $reportType, 'trep-report-type-search-found');
         $report = $manager->create(
             torrent:     $torrent,
             user:        $this->userList[1],
-            reportType:  (new Manager\Torrent\ReportType())->findByName('other'),
+            reportType:  $reportType,
             reason:      'phpunit search report',
             otherIdList: '1234 5678',
             irc:         new Util\Irc(),
@@ -200,6 +210,7 @@ class TorrentReportManagerTest extends TestCase {
 
     public function testModifyReport(): void {
         $reportType = (new Manager\Torrent\ReportType())->findByName('other');
+        $this->assertInstanceOf(Torrent\ReportType::class, $reportType, 'report-torrent-found');
         $reportType->setChangeset($this->userList[0], [['field' => 'is_admin', 'old' => $reportType->isAdmin(), 'new' => 0]]);
         $this->assertFalse($reportType->setField('is_admin', false)->modify(), 'trep-modify');
     }
@@ -215,6 +226,7 @@ class TorrentReportManagerTest extends TestCase {
 
         $torrentId = $this->tgroup->torrentIdList()[0];
         $torrent = $torMan->findById($torrentId);
+        $this->assertInstanceOf(Torrent::class, $torrent, 'trep-torrent-find');
         $report = (new Manager\Torrent\Report($torMan))->create(
             torrent:     $torrent,
             user:        $this->userList[1],
@@ -226,6 +238,7 @@ class TorrentReportManagerTest extends TestCase {
         $this->assertEquals([], $torrent->labelList($this->userList[0]), 'uploader-report-label');
 
         $urgent = $torMan->findById($torrentId);
+        $this->assertInstanceOf(Torrent::class, $urgent, 'trep-urgent-find');
         $labelList = $urgent->labelList($this->userList[1]);
         $this->assertCount(1, $labelList, 'reporter-report-label');
         $this->assertStringContainsString('Reported', $labelList[0], 'reporter-report-urgent');
@@ -245,6 +258,7 @@ class TorrentReportManagerTest extends TestCase {
         );
 
         $dupe = $manager->findById(1);
+        $this->assertInstanceOf(Torrent\ReportType::class, $dupe, 'trep-dupe-find');
         $this->assertEquals(
             'Dupe',
             $dupe->name(),
@@ -257,12 +271,12 @@ class TorrentReportManagerTest extends TestCase {
         );
         $this->assertEquals(
             'dupe',
-            $manager->findByName('Dupe')->type(),
+            $manager->findByName('Dupe')?->type(),
             'trep-type-find-by-name',
         );
         $this->assertEquals(
             1,
-            $manager->findByType('dupe')->id,
+            $manager->findByType('dupe')?->id,
             'trep-type-find-by-type',
         );
 

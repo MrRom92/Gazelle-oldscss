@@ -87,6 +87,11 @@ class NotificationUploadTest extends TestCase {
         ];
 
         // create some notification filters for the users
+        $this->assertInstanceOf(
+            ArtistRole\TGroup::class,
+            $this->torrent->group()->artistRole(),
+            'filter-tgroup-artist-role'
+        );
         $artistName = $this->torrent->group()->artistRole()->idList()[ARTIST_MAIN][0]['name'];
         $artistFilter = (new Notification\Filter())
             ->setLabel('Artists')
@@ -207,13 +212,15 @@ class NotificationUploadTest extends TestCase {
         // it should be pending, so make it active
         $this->assertNull($ticketManager->findByExclusion(NotificationTicketState::Pending, exclude: [$this->torrent->id()]), 'ntick-pending-exclude');
         $ticket = $ticketManager->findByExclusion(NotificationTicketState::Pending, exclude: []);
-        $this->assertEquals($this->torrent->id(), $ticket->torrentId(), 'ntick-pending-torrent-id');
-        $ticket->setActive();
-        $this->assertEquals($ticket->state(), NotificationTicketState::Active, 'ntick-active-value');
+        $this->assertEquals($this->torrent->id(), $ticket?->torrentId(), 'ntick-pending-torrent-id');
+        $ticket?->setActive();
+        $this->assertEquals($ticket?->state(), NotificationTicketState::Active, 'ntick-active-value');
         $this->assertEquals(1, (new Manager\Notification())->ticketStats()['active']['total'], 'notifier-ticket-stats-now-active');
 
         // send the IRC notification
-        $notification = new Notification\Upload($this->torMan->findById($ticket->torrentId()));
+        $torrent = $this->torMan->findById((int)$ticket?->torrentId());
+        $this->assertInstanceOf(Torrent::class, $torrent, 'ntick-torrent-found');
+        $notification = new Notification\Upload($torrent);
         $message = $notification->ircNotification();
         $this->assertStringContainsString($this->torrent->group()->name(), $message, 'ntick-irc-tgroup-name');
         $this->assertStringContainsString(implode(',', $this->torrent->group()->tagNameList()), $message, 'ntick-irc-tgroup-taglist');
@@ -308,7 +315,7 @@ class NotificationUploadTest extends TestCase {
         // ticket has been handled
         unset($ticket);
         $ticket = $ticketManager->findById($this->torrent->id());
-        $this->assertTrue($ticket->isDone(), 'ntick-is-done');
+        $this->assertTrue($ticket?->isDone(), 'ntick-is-done');
     }
 
     public function testProcessBacklog(): void {
@@ -337,7 +344,7 @@ class NotificationUploadTest extends TestCase {
         // ticket has been handled
         unset($ticket);
         $ticket = $ticketManager->findById($this->torrent->id());
-        $this->assertTrue($ticket->isDone(), 'backlog-is-done');
+        $this->assertTrue($ticket?->isDone(), 'backlog-is-done');
 
         $rss  = (new Feed())->byFeedName($this->userList['backlog'], 'torrents_music');
         $link = SITE_URL . "/torrents.php?id={$this->torrent->groupId()}&amp;torrentid={$this->torrent->id()}&amp;action=download&amp;torrent_pass={$this->userList['backlog']->announceKey()}";
@@ -366,12 +373,12 @@ class NotificationUploadTest extends TestCase {
 
         unset($ticket);
         $ticket = $ticketManager->findById($this->torrent->id());
-        $this->assertTrue($ticket->isPending(), 'ntick-stale-is-pending');
+        $this->assertTrue($ticket?->isPending(), 'ntick-stale-is-pending');
 
         $manager->processBacklog($ticketManager, $this->torMan);
         unset($ticket);
         $ticket = $ticketManager->findById($this->torrent->id());
-        $this->assertTrue($ticket->isStale(), 'ntick-stale-is-stale');
+        $this->assertTrue($ticket?->isStale(), 'ntick-stale-is-stale');
     }
 
     public function testNewGroup(): void {

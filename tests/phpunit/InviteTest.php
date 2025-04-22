@@ -66,13 +66,13 @@ class InviteTest extends TestCase {
         $this->assertTrue($manager->inviteExists($invite->key()), 'invite-key-found');
         $this->invitee = Helper::makeUserByInvite('invitee.' . randomString(6), $invite->key());
         $this->assertInstanceOf(User::class, $this->invitee, 'invitee-class');
-        $this->assertEquals($this->user->id, $this->invitee->inviter()->id(), 'invitee-invited-by');
+        $this->assertEquals($this->user->id, $this->invitee->inviter()?->id, 'invitee-invited-by');
         $this->assertEquals($this->user->id, $this->invitee->inviterId(), 'invitee-invited-id');
         $this->assertEquals(1, $this->user->stats()->invitedTotal(), 'invite-total-1');
         $this->assertEquals(0, $this->user->flush()->invite()->pendingTotal(), 'invite-pending-back-to-0');
         $inviteList = $this->user->invite()->page('um.ID', 'ASC', 1, 0);
         $this->assertCount(1, $inviteList, 'invite-invite-list-total');
-        $this->assertEquals($this->invitee->id(), $inviteList[0], 'invite-list-has-invitee');
+        $this->assertEquals($this->invitee->id, $inviteList[0], 'invite-list-has-invitee');
 
         $this->assertTrue($this->invitee->isUnconfirmed(), 'invitee-unconfirmed');
         $this->assertInstanceOf(
@@ -87,7 +87,7 @@ class InviteTest extends TestCase {
         $this->assertTrue($inviteTree->hasInvitees(), 'invite-tree-has-invitees');
         $list = $inviteTree->inviteeList();
         $this->assertCount(1, $list, 'invite-tree-list');
-        $this->assertEquals($this->invitee->id(), $list[0], 'invite-tree-user-id');
+        $this->assertEquals($this->invitee->id, $list[0], 'invite-tree-user-id');
 
         // new invite tree functionality
         $summary = $inviteTree->summary();
@@ -119,6 +119,7 @@ class InviteTest extends TestCase {
             reason: '',
             source: '',
         );
+        $this->assertInstanceOf(Invite::class, $invite, 'invite-ancestor-found');
         $this->invitee = (new UserCreator())
             ->setUsername('create.' . randomString(6))
             ->setEmail(randomString(6) . '@example.com')
@@ -177,6 +178,7 @@ class InviteTest extends TestCase {
             reason: '',
             source: '',
         );
+        $this->assertInstanceOf(Invite::class, $invite, 'invite-manipulate-found');
         $this->invitee = (new UserCreator())
             ->setUsername('create.' . randomString(6))
             ->setEmail(randomString(6) . '@example.com')
@@ -335,6 +337,7 @@ class InviteTest extends TestCase {
             reason: $profile,
             source: $sourceName,
         );
+        $this->assertInstanceOf(Invite::class, $invite, 'invite-source-found');
         $this->assertEquals(
             1,
             $inviteSourceMan->createPendingInviteSource($sourceId, $invite->key()),
@@ -365,11 +368,11 @@ class InviteTest extends TestCase {
         $this->assertCount(1, $inviteeList, 'invite-source-invited-list');
         $this->assertEquals(
             [
-                "user_id"          => $this->invitee->id(),
+                "user_id"          => $this->invitee->id,
                 "invite_source_id" => $sourceId,
                 "name"             => $sourceName,
             ],
-            $inviteeList[$this->invitee->id()],
+            $inviteeList[$this->invitee->id],
             'invite-source-invited-invitee'
         );
 
@@ -391,8 +394,8 @@ class InviteTest extends TestCase {
         // change the invitee source and profile
         $newProfile = $profile . "/new";
         $new = [
-            $this->invitee->id() => [
-                "user_id" => $this->invitee->id(),
+            $this->invitee->id => [
+                "user_id" => $this->invitee->id,
                 "source"  => 0,
                 "profile" => $newProfile,
             ]
@@ -406,11 +409,11 @@ class InviteTest extends TestCase {
         $inviteeList = $inviteSourceMan->userSource($this->user);
         $this->assertEquals(
             [
-                "user_id"          => $this->invitee->id(),
+                "user_id"          => $this->invitee->id,
                 "invite_source_id" => null,
                 "name"             => null,
             ],
-            $inviteeList[$this->invitee->id()],
+            $inviteeList[$this->invitee->id],
             'invite-source-invitee-unsourced'
         );
 
@@ -443,8 +446,14 @@ class InviteTest extends TestCase {
             'unittest invite remove reason',
             ''
         );
-        $this->assertTrue($manager->removeInviteKey($invite->key()), 'invite-remove-key');
-        $this->assertNull($manager->findUserByKey($invite->key()), 'invite-removed-key');
+        $this->assertTrue(
+            $manager->removeInviteKey((string)$invite?->key()),
+            'invite-remove-key'
+        );
+        $this->assertNull(
+            $manager->findUserByKey((string)$invite?->key()),
+            'invite-removed-key'
+        );
     }
 
     public function testExpireInvite(): void {
@@ -464,7 +473,7 @@ class InviteTest extends TestCase {
             UPDATE invites SET
                 Expires = now() - INTERVAL 1 SECOND
             WHERE InviteKey = ?
-            ", $invite->key()
+            ", (string)$invite?->key()
         );
         $this->assertEquals(1, DB::DB()->affected_rows(), 'invite-modify-expiry');
         $this->assertEquals(1, $manager->expire(), 'invite-manager-expire');
@@ -495,7 +504,7 @@ class InviteTest extends TestCase {
         );
         $this->assertEquals(
             $this->user->id,
-            $manager->findUserByKey($invite->key(), new Manager\User())->id,
+            (int)$manager->findUserByKey((string)$invite?->key(), new Manager\User())?->id,
             'invite-manager-find-by-key',
         );
         $pending = $manager->pendingInvites(1, 0);
@@ -506,7 +515,7 @@ class InviteTest extends TestCase {
             'invite-pending-array-keys',
         );
         $this->assertEquals($this->user->id, $pending[0]['user_id'], 'invite-pending-id');
-        $this->assertEquals($invite->key(), $pending[0]['key'], 'invite-pending-id');
+        $this->assertEquals((string)$invite?->key(), $pending[0]['key'], 'invite-pending-id');
         $this->assertTrue(
             $manager->emailExists($this->user, $email),
             'invite-email-exists',
@@ -518,7 +527,7 @@ class InviteTest extends TestCase {
         );
         $this->assertEquals(
             2,
-            $this->user->invite()->revoke($invite->key()),
+            $this->user->invite()->revoke((string)$invite?->key()),
             'invite-revoke-existing',
         );
         $this->assertEquals(

@@ -51,6 +51,7 @@ class RequestTest extends TestCase {
         $this->assertStringNotContainsString(' (bonus VIP)', $this->request->urlencodeTitle(), 'request-urlencode-title');
         $artistMan  = new Manager\Artist();
         $artistName = 'phpunit req ' . randomString(6);
+        $this->assertInstanceOf(ArtistRole\Request::class, $this->request->artistRole(), 'request-add-artist-role');
         $this->assertEquals(
             1,
             $this->request->artistRole()->set(

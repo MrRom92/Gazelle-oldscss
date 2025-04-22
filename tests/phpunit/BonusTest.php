@@ -47,6 +47,7 @@ class BonusTest extends TestCase {
         $itemList = (new Manager\Bonus())->itemList();
         $this->assertArrayHasKey('token-1', $itemList, 'item-token-1');
         $token = $giver->item('token-1');
+        $this->assertArrayHasKey('Price', $token, 'item-price-1');
         $price = $token['Price'];
         $this->assertEquals($price, $giver->effectivePrice('token-1'), 'item-price-token-1');
 

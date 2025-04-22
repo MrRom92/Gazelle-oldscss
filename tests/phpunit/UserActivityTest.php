@@ -78,7 +78,7 @@ class UserActivityTest extends TestCase {
 
         // send a message from admin to user
         $pm = $user->inbox()->create($admin, 'unit test message', 'unit test body');
-        $this->assertGreaterThan(0, $pm->id(), 'alert-inbox-send');
+        $this->assertInstanceOf(PM::class, $pm, 'alert-inbox-send');
 
         // check out the notifications
         $notifier = new User\Notification($user);
@@ -115,7 +115,8 @@ class UserActivityTest extends TestCase {
         $this->assertGreaterThan(0, $newsId, 'alert-news-create');
         $this->assertNull($manager->fetch(-1), 'alert-no-news-is-null-news');
         $info = $manager->fetch($newsId);
-        $this->assertCount(2, $info, 'alert-latest-news');
+        $this->assertIsArray($info, 'alert-latest-news-array');
+        $this->assertCount(2, $info, 'alert-latest-news-count');
 
         $notifier = new User\Notification($this->userList['user']);
         // if this fails, the CI database has drifted (or another UT has clobbered the expected value here)

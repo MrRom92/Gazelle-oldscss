@@ -173,8 +173,12 @@ class SearchReportAutoTest extends TestCase {
     public function testId(): void {
         $search = new Search\ReportAuto(self::$raMan, self::$ratMan);
         $search->setId(self::$report->id());
-
-        $this->matchThingList($search->typeTotalList(), self::$ratMan->findById(self::$report->typeId()), 1, 'id-1');
+        $this->matchThingList(
+            $search->typeTotalList(),
+            self::$ratMan->findById(self::$report->typeId()),
+            1,
+            'id-1'
+        );
     }
 
     public function testIdNoExist(): void {

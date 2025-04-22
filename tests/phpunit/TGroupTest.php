@@ -88,7 +88,7 @@ class TGroupTest extends TestCase {
         $this->assertEquals($this->catalogueNumber, $this->tgroup->catalogueNumber(), 'tgroup-create-catalogue-number');
         $this->assertEquals(0, $this->tgroup->unresolvedReportsTotal(), 'tgroup-create-unresolved-reports');
         $this->assertEquals($this->tgroup->name(), $this->tgroup->flush()->name(), 'tgroup-create-flush');
-        $this->assertStringStartsWith('https://example.com/', $this->tgroup->image(), 'tgroup-create-image');
+        $this->assertStringStartsWith('https://example.com/', (string)$this->tgroup->image(), 'tgroup-create-image');
         $this->assertStringStartsWith('https://example.com/', $this->tgroup->cover(), 'tgroup-create-cover');
 
         $this->assertTrue($this->tgroup->isOwner($this->userList['user']), 'tgroup-user-is-owner');
@@ -102,6 +102,7 @@ class TGroupTest extends TestCase {
 
         $torMan = new Manager\Torrent();
         $torrent = $torMan->findById($this->tgroup->torrentIdList()[0]);
+        $this->assertInstanceOf(Torrent::class, $torrent, 'tgroup-found-torrent');
         $this->assertEquals(1, $torrent->tokenCount(), 'tgroup-torrent-fl-cost');
         $this->assertFalse($this->userList['user']->canSpendFLToken($torrent), 'tgroup-user-no-fltoken');
 
@@ -146,12 +147,16 @@ class TGroupTest extends TestCase {
         $this->assertEquals($artistName, $first['name'], 'tgroup-artist-first-name');
 
         $foundByArtist = $this->manager->findByArtistReleaseYear(
-            $this->tgroup->artistRole()->text(),
+            (string)$this->tgroup->artistRole()?->text(),
             $this->tgroup->name(),
-            $this->tgroup->releaseType(),
-            $this->tgroup->year(),
+            (int)$this->tgroup->releaseType(),
+            (int)$this->tgroup->year(),
         );
-        $this->assertEquals($this->tgroup->id, $foundByArtist->id, 'tgroup-find-name');
+        $this->assertEquals(
+            $this->tgroup->id,
+            $foundByArtist?->id,
+            'tgroup-find-name'
+        );
 
         $this->assertEquals(
             2,
@@ -161,6 +166,11 @@ class TGroupTest extends TestCase {
                 $artMan,
             ),
             'tgroup-artist-add-2'
+        );
+        $this->assertInstanceOf(
+            ArtistRole\TGroup::class,
+            $this->tgroup->artistRole(),
+            'tgroup-has-artistrole'
         );
         $this->assertEquals(
             [
@@ -172,25 +182,30 @@ class TGroupTest extends TestCase {
         );
 
         /* turn the two Main and Guest into DJs */
-        $roleList = $this->tgroup->artistRole()->roleList();
+        $roleList = $this->tgroup->artistRole()?->roleList();
+        $this->assertIsArray($roleList, 'tgroup-dj-role');
         $roleAliasList = [
             ...array_map(fn ($artist) => [ARTIST_MAIN, $artist['aliasid']], $roleList['main']),
             ...array_map(fn ($artist) => [ARTIST_GUEST, $artist['aliasid']], $roleList['guest']),
         ];
         $this->assertEquals(
             3,
-            $this->tgroup->artistRole()->modifyList($roleAliasList, ARTIST_DJ, $user),
+            $this->tgroup->artistRole()?->modifyList($roleAliasList, ARTIST_DJ, $user),
             'tgroup-a-dj-saved-my-life'
         );
-        $this->assertEquals('Various DJs', $this->tgroup->flush()->artistRole()->text(), 'tgroup-2manydjs');
+        $this->assertEquals(
+            'Various DJs',
+            $this->tgroup->flush()->artistRole()?->text(),
+            'tgroup-2manydjs'
+        );
         $this->assertEquals(
             1,
-            $this->tgroup->artistRole()->removeList([[ARTIST_DJ, $roleAliasList[0][1]]], $user),
+            $this->tgroup->artistRole()?->removeList([[ARTIST_DJ, $roleAliasList[0][1]]], $user),
             'tgroup-hang-the-dj'
         );
         $this->assertEquals(
             "$artistName-2 and $artistName-guest",
-            $this->tgroup->flush()->artistRole()->text(),
+            $this->tgroup->flush()->artistRole()?->text(),
             'tgroup-dj-final'
         );
     }

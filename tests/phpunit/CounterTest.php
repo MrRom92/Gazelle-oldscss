@@ -17,6 +17,7 @@ class CounterTest extends TestCase {
         $this->assertEquals(1, $counter->value(), 'counter-final-increment');
 
         $clone = $manager->find($counter->name());
+        $this->assertInstanceOf(Counter::class, $clone, 'counter-found');
         $this->assertEquals($name, $clone->name(), 'counter-find');
         $this->assertEquals(2, $clone->increment(), 'counter-clone-increment');
 

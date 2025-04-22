@@ -48,6 +48,7 @@ class ContestTest extends TestCase {
     public function test00ContestBasic(): void {
         $manager = new Manager\Contest();
         $contestTypes = $manager->contestTypes();
+        $this->assertIsArray($contestTypes, 'conteest-manager-array-of-types');
         $this->assertCount(4, array_keys($contestTypes), 'contest-manager-types');
         // these may be a bit fragile, time will tell
         $this->assertEquals(1, $contestTypes[1]['id'], 'contest-type-id');
@@ -80,7 +81,11 @@ class ContestTest extends TestCase {
         $this->assertEquals(0, $this->contest->totalEntries(), 'contest-no-entries-yet');
         $this->assertNull($this->contest->rank($this->userList[0]), 'contest-no-rank-yet');
         $this->assertEquals('none', $this->contest->bonusStatus(), 'contest-status-no-bonus-pool');
-        $this->assertEquals($this->contest->id, $manager->findById($this->contest->id)->id, 'contest-find-by-id');
+        $this->assertEquals(
+            $this->contest->id,
+            $manager->findById($this->contest->id)?->id,
+            'contest-find-by-id',
+        );
 
         $this->assertEquals(1, $this->contest->remove(), 'contest-remove');
         unset($this->contest);
@@ -221,6 +226,11 @@ class ContestTest extends TestCase {
         $donorBonus = new User\Bonus($donor);
         $points = 100000;
         $donorBonus->setPoints($points);
+        $this->assertInstanceOf(
+            BonusPool::class,
+            $this->contest->bonusPool(),
+            'ct-up-flac-bonus-pool'
+        );
         $this->assertTrue(
             $donorBonus->donate($this->contest->bonusPool(), $points),
             'ct-up-flac-pool-donate',
@@ -385,6 +395,11 @@ class ContestTest extends TestCase {
         // payout
         $donorBonus = new User\Bonus($this->userList[0]);
         $donorBonus->setPoints(1000);
+        $this->assertInstanceOf(
+            BonusPool::class,
+            $this->contest->bonusPool(),
+            'ct-reqfill-bonus-pool'
+        );
         $donorBonus->donate($this->contest->bonusPool(), 1000);
         $this->contest->paymentReady();
         $this->assertGreaterThanOrEqual(
@@ -465,6 +480,11 @@ class ContestTest extends TestCase {
         // payout
         $donorBonus = new User\Bonus($this->userList[1]);
         $donorBonus->setPoints(1000);
+        $this->assertInstanceOf(
+            BonusPool::class,
+            $this->contest->bonusPool(),
+            'ct-up-nosng;-bonus-pool'
+        );
         $donorBonus->donate($this->contest->bonusPool(), 1000);
         $this->contest->paymentReady();
         $this->assertGreaterThanOrEqual(
@@ -544,6 +564,11 @@ class ContestTest extends TestCase {
 
         $donorBonus = new User\Bonus($this->userList[0]);
         $donorBonus->setPoints(1000);
+        $this->assertInstanceOf(
+            BonusPool::class,
+            $this->contest->bonusPool(),
+            'ct-perfect-bonus-pool'
+        );
         $donorBonus->donate($this->contest->bonusPool(), 1000);
         $this->contest->paymentReady();
         $this->assertGreaterThanOrEqual(

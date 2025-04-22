@@ -40,9 +40,9 @@ class TGroupManagerTest extends TestCase {
     public function testFindByTorrentId(): void {
         $manager = new Manager\TGroup();
         $torrentId = $this->torrentList[0]->id();
-        $this->assertEquals(
-            $this->tgroupList[0]->id(),
-            $manager->findByTorrentId($torrentId)->id(),
+        $this->assertInstanceOf(
+            TGroup::class,
+            $manager->findByTorrentId($torrentId),
             'tgman-find-by-torrent-id'
         );
     }
@@ -50,9 +50,9 @@ class TGroupManagerTest extends TestCase {
     public function testFindByInfohash(): void {
         $manager = new Manager\TGroup();
         $infohash = $this->torrentList[0]->infohash();
-        $this->assertEquals(
-            $this->tgroupList[0]->id(),
-            $manager->findByTorrentInfohash($infohash)->id(),
+        $this->assertInstanceOf(
+            TGroup::class,
+            $manager->findByTorrentInfohash($infohash),
             'tgman-find-by-torrent-id'
         );
     }

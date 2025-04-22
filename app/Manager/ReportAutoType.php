@@ -30,42 +30,31 @@ class ReportAutoType extends \Gazelle\BaseManager {
     /**
      * $name must be a valid php class name (class does not have to exist)
      *
-     * returns > 0 on success, null otherwise (including if the category already exists)
+     * returns > 0 on success
      */
-    public function createCategory(string $name): ?int {
+    public function createCategory(string $name): int {
         return $this->pg()->scalar("
             INSERT INTO report_auto_category (name) VALUES (?)
-            ON CONFLICT (name) DO NOTHING
-            RETURNING id_report_auto_category", // does not work for DO NOTHING
-        $name);
+            RETURNING id_report_auto_category
+        ", $name);
     }
 
-    /**
-     * returns newly created type, null on error or if type with name already exists
-     */
-    public function create(string $name, string $description, string|null $category = null): ?\Gazelle\ReportAuto\Type {
+    public function create(string $name, string $description, string|null $category = null): \Gazelle\ReportAuto\Type {
         if ($category) {
             $catId = $this->findCategory($category);
             if (!$catId) {
                 $catId = $this->createCategory($category);
-                if (!$catId) {  // probably invalid name
-                    return null;
-                }
             }
         } else {
             $catId = null;
         }
-        try {
-            return $this->findById($this->pg()->scalar("
-                INSERT INTO report_auto_type
-                    (name, id_report_auto_category, description)
-                VALUES
-                    (?,    ?,                       ?)
-                RETURNING id_report_auto_type
-            ", $name, $catId, $description));
-        } catch (\PDOException) {
-            return null;
-        }
+        return $this->findById($this->pg()->scalar("
+            INSERT INTO report_auto_type
+                (name, id_report_auto_category, description)
+            VALUES
+                (?,    ?,                       ?)
+            RETURNING id_report_auto_type
+        ", $name, $catId, $description));
     }
 
     protected function findCategory(string $name): ?int {

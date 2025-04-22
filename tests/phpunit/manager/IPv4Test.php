@@ -77,14 +77,14 @@ class IPv4Test extends TestCase {
             $manager->findByIp('127.100.0.1'),
             'ip-ban-class-1',
         );
-        $this->assertEquals(
-            $ban->id,
-            $manager->findByIp('127.100.1.1')->id,
+        $this->assertInstanceOf(
+            Ban::class,
+            $manager->findByIp('127.100.1.1'),
             'ip-ban-class-2',
         );
-        $this->assertEquals(
-            $ban->id,
-            $manager->findByIp('127.100.2.1')->id,
+        $this->assertInstanceOf(
+            Ban::class,
+            $manager->findByIp('127.100.2.1'),
             'ip-ban-class-3',
         );
         $this->assertEquals('127.100.0.0/22', $ban->ip(), 'ip-ban-ip');

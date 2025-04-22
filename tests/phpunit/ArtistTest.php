@@ -58,7 +58,7 @@ class ArtistTest extends TestCase {
         // If the following test fails locally:
         // before test run: TRUNCATE TABLE artist_usage;
         // after test run: (new Stats\Artists)->updateUsage();
-        $this->assertEquals($artist->id, $manager->findRandom()->id, 'artist-find-random');
+        $this->assertEquals($artist->id, $manager->findRandom()?->id, 'artist-find-random');
         $this->assertNull($manager->findByIdAndRevision($artist->id, -666), 'artist-find-revision-fail');
 
         $this->assertGreaterThan(0, $artist->id, 'artist-create-artist-id');
@@ -113,6 +113,7 @@ class ArtistTest extends TestCase {
         $this->assertEquals('phpunit body test', $artistV1->body(), 'artist-body-rev-1');
 
         $artistV2 = $manager->findByIdAndRevision($artist->id, $rev2);
+        $this->assertInstanceOf(Artist::class, $artistV2, 'artist-found-by-id-and-rev');
         $this->assertEquals('https://example.com/artist-revised.jpg', $artistV2->image(), 'artist-image-rev-2');
 
         $list = $artist->revisionList();
@@ -130,8 +131,8 @@ class ArtistTest extends TestCase {
         $this->artistIdList[] = $artist->id;
 
         $this->assertEquals($artist->id, $artist->id, 'artist-find-by-alias-id');
-        $this->assertEquals($artist->id, $manager->findByName($artist->name())->id, 'artist-find-by-alias-name');
-        $this->assertEquals($artist->aliasId(), $manager->findByName($artist->name())->aliasId(), 'artist-find-aliasid-by-alias-name');
+        $this->assertEquals($artist->id, $manager->findByName($artist->name())?->id, 'artist-find-by-alias-name');
+        $this->assertEquals($artist->aliasId(), $manager->findByName($artist->name())?->aliasId(), 'artist-find-aliasid-by-alias-name');
         $this->assertEquals(1, $manager->aliasUseTotal($artist->aliasId()), 'artist-sole-alias');
         $this->assertCount(0, $manager->tgroupList($artist->aliasId(), new Manager\TGroup()), 'artist-no-tgroup');
 
@@ -140,9 +141,9 @@ class ArtistTest extends TestCase {
         $this->assertEquals($artist->aliasId() + 1, $newId, 'artist-new-alias');
         $this->assertEquals(2, $manager->aliasUseTotal($artist->aliasId()), 'artist-two-alias');
 
-        $artist = $manager->findByName($aliasName);
-        $this->assertEquals($artist->id, $artist->id, 'artist-fetch-artist-id');
-        $this->assertEquals($newId, $artist->aliasId(), 'artist-fetch-alias-id');
+        $alias = $manager->findByName($aliasName);
+        $this->assertEquals($artist->id, $alias?->id, 'artist-fetch-artist-id');
+        $this->assertEquals($newId, $alias?->aliasId(), 'artist-fetch-alias-id');
 
         $this->assertEquals(1, $artist->removeAlias($newId), 'artist-remove-alias');
     }
@@ -227,7 +228,7 @@ class ArtistTest extends TestCase {
 
         // FIXME: flushed collage objects cannot be refreshed
         $merged = $collMan->findById($this->collage->id);
-        $this->assertEquals([$new->id], $merged->entryList(), 'art-merge-collage');
+        $this->assertEquals([$new->id], $merged?->entryList(), 'art-merge-collage');
 
         $comment = new Comment\Artist($new->id, 1, 0);
         $comment->load(); // FIXME: load() should not be necessary
@@ -305,7 +306,7 @@ class ArtistTest extends TestCase {
         $request = $requestMan->create(
             user:            $this->user,
             bounty:          100 * 1024 ** 2,
-            categoryId:      (new Manager\Category())->findIdByName('Music'),
+            categoryId:      (int)(new Manager\Category())->findIdByName('Music'),
             year:            (int)date('Y'),
             title:           'phpunit smart rename ' . randomString(6),
             image:           '',
@@ -319,6 +320,11 @@ class ArtistTest extends TestCase {
             logCue:          'Log (100%) + Cue',
             checksum:        true,
             oclc:            '',
+        );
+        $this->assertInstanceOf(
+            ArtistRole\Request::class,
+            $request->artistRole(),
+            'request-rename-has-artistrole'
         );
         $request->artistRole()->set(
             [ARTIST_MAIN => [$artist->name()]],
@@ -352,6 +358,11 @@ class ArtistTest extends TestCase {
         $this->assertEquals($post->id, $threadList[0]['postId'], 'artist-renamed-comments');
 
         $request->flush();
+        $this->assertInstanceOf(
+            ArtistRole\Request::class,
+            $request->artistRole(),
+            'request-has-artistrole'
+        );
         $idList = $request->artistRole()->idList();
         $this->assertEquals($artist->id, $idList[ARTIST_MAIN][0]['id'], 'artist-renamed-request');
         $request->remove();

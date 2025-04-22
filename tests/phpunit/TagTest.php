@@ -61,12 +61,12 @@ class TagTest extends TestCase {
         $this->user->requestContext()->setViewer($this->user);
         $tag = $manager->create($name, $this->user);
         $this->assertInstanceOf(Tag::class, $tag, 'tag-find-by-id');
-        $this->assertEquals($tag->id(), $manager->findByName($tag->name())->id(), 'tag-method-lookup');
+        $this->assertEquals($tag->id, $manager->findByName($tag->name())?->id, 'tag-method-lookup');
         $this->assertEquals($name, $tag->name(), 'tag-method-name');
-        $this->assertEquals($name, $manager->findByName($tag->name())->name(), 'tag-find-by-name');
+        $this->assertEquals($name, $manager->findByName($tag->name())?->name(), 'tag-find-by-name');
 
-        $find = $manager->findById($tag->id());
-        $this->assertEquals($tag->id(), $find->id(), 'tag-find-by-id');
+        $find = $manager->findById($tag->id);
+        $this->assertEquals($tag->id, $find?->id, 'tag-find-by-id');
 
         $this->user->addBounty(500 * 1024 ** 3);
         $this->request = Helper::makeRequestMusic($this->user, 'phpunit tag create request');
@@ -76,20 +76,29 @@ class TagTest extends TestCase {
         $new = "$name." . randomString(4);
         $this->assertNull($manager->findByName($new), 'tag-lookup-new-fail');
         $newTag = $manager->softCreate($new, $this->user);
+        $this->assertInstanceOf(\Gazelle\Tag::class, $newTag, 'tag-new-found');
         $this->assertEquals(
             1,
             $manager->rename( $tag, [$newTag], $this->user),
             'tag-rename'
         );
         $find = $manager->findByName($new);
-        $this->assertInstanceOf(\Gazelle\Tag::class, $find, 'tag-find');
-        $this->assertEquals($find->id(), $newTag->id(), 'tag-lookup-new-success');
+        $this->assertInstanceOf(\Gazelle\Tag::class, $find, 'tag-found');
+        $this->assertEquals($find->id, $newTag->id, 'tag-lookup-new-success');
 
         // rename to an existing tag
         $new2    = "$name." . randomString(5);
         $new2Tag = $manager->create($new2, $this->user);
-        $this->assertEquals(1, $manager->rename($newTag, [$new2Tag], $this->user), 'tag-existing-rename');
-        $this->assertEquals($new2Tag->id(), $manager->findByName($new2Tag->name())->id(), 'tag-lookup-existing-success');
+        $this->assertEquals(
+            1,
+            $manager->rename($newTag, [$new2Tag], $this->user),
+            'tag-existing-rename'
+        );
+        $this->assertEquals(
+            $new2Tag->id,
+            (int)$manager->findByName($new2Tag->name())?->id,
+            'tag-lookup-existing-success'
+        );
 
         // Is empty because vote counts below 10 are ignored,
         // but at least we know the SQL is syntactically valid.
@@ -104,7 +113,9 @@ class TagTest extends TestCase {
         $this->assertTrue($manager->validName($valid), 'tag-valid-name');
         $t1 = $manager->softCreate($valid, $this->user);
         $t2 = $manager->softCreate($valid, $this->user);
-        $this->assertEquals($t1->id(), $t2->id(), 'tag-soft-create-valid');
+        $this->assertInstanceOf(Tag::class, $t1, 'tag-t1-found');
+        $this->assertInstanceOf(Tag::class, $t2, 'tag-t2-found');
+        $this->assertEquals($t1->id, $t2->id, 'tag-soft-create-valid');
     }
 
     public function testAlias(): void {
@@ -113,7 +124,7 @@ class TagTest extends TestCase {
 
         $bad  = $manager->create(self::PREFIX . randomString(10), $this->user);
         $good = $manager->create(self::PREFIX . randomString(10), $this->user);
-        $this->assertNotEquals($bad->id(), $good->id(), 'tag-just-try-again');
+        $this->assertNotEquals($bad->id, $good->id, 'tag-just-try-again');
         $aliasId =  $manager->createAlias($bad->name(), $good->name());
         $this->assertEquals($aliasId, $manager->lookupBad($bad->name()), 'tag-lookup-bad');
 
@@ -186,19 +197,19 @@ class TagTest extends TestCase {
         $manager    = new Manager\Tag();
         $this->user = Helper::makeUser('tag.' . randomString(6), 'tag');
         $tag        = $manager->create(self::PREFIX . randomString(10), $this->user);
-        $this->assertEquals($tag->id(), $manager->officialize($tag->name(), $this->user)->id(), 'tag-officalize-existing');
+        $this->assertEquals($tag->id, $manager->officialize($tag->name(), $this->user)->id, 'tag-officalize-existing');
         $list = array_filter($manager->genreList(), fn($t) => $t == $tag->name());
         $this->assertCount(1, $list, 'tag-genre-list');
 
         $official = $manager->officialize(self::PREFIX . 'off.' . randomString(10), $this->user);
-        $this->assertNotEquals($tag->id(), $official->id(), 'tag-officialize-new');
+        $this->assertNotEquals($tag->id, $official->id, 'tag-officialize-new');
         $officialName = $official->name();
         $list = array_filter(
             $manager->officialList(),
             fn($t) => $t->name() == $officialName
         );
         $this->assertCount(1, $list, 'tag-official-list');
-        $this->assertEquals(1, $manager->unofficialize([$official->id()]), 'tag-unofficialize');
+        $this->assertEquals(1, $manager->unofficialize([$official->id]), 'tag-unofficialize');
         $this->assertCount(
             0,
             array_filter($manager->officialList(), fn($t) => $t->name() == $officialName),
@@ -222,15 +233,17 @@ class TagTest extends TestCase {
 
         $manager = new Manager\Tag();
         $folk = $manager->findByName('phpunit.folk');
+        $this->assertInstanceOf(Tag::class, $folk, 'tag-folk-found');
         $this->assertFalse(
             $folk->hasVoteTGroup($this->tgroup, $this->user),
             'tag-has-no-vote'
         );
         $tag    = $manager->findByName('phpunit.electronic');
+        $this->assertInstanceOf(Tag::class, $tag, 'tag-tag-found');
         $result = $tag->tgroupList();
         $item   = current($result);
         $this->assertCount(1, $result, 'tag-torrent-lookup');
-        $this->assertEquals($this->tgroup->id(), $item['torrentGroupId'], 'tag-found-tgroup');
+        $this->assertEquals($this->tgroup->id, $item['torrentGroupId'], 'tag-found-tgroup');
         $this->assertEquals(
             1,
             $folk->voteTGroup($this->tgroup, $this->user, 'up'),
@@ -307,7 +320,7 @@ class TagTest extends TestCase {
         $this->assertNull($manager->findByName($name), 'tag-new-gone');
         $this->assertEquals(
             2,
-            $manager->findByName("$name.2")->uses(),
+            $manager->findByName("$name.2")?->uses(),
             'tag-new-uses',
         );
     }
@@ -358,7 +371,7 @@ class TagTest extends TestCase {
         $this->assertNull($manager->findByName($name), 'tag-existing-gone');
         $this->assertEquals(
             2,
-            $manager->findByName("$name.3")->uses(),
+            $manager->findByName("$name.3")?->uses(),
             'tag-existing-uses',
         );
     }

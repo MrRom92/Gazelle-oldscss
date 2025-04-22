@@ -39,6 +39,7 @@ class UserTest extends TestCase {
     public function testUserFind(): void {
         $userMan = new Manager\User();
         $admin = $userMan->find('@' . $this->user->username());
+        $this->assertInstanceOf(User::class, $admin, 'user-find-@');
         $this->user->setField('PermissionID', SYSOP)->modify();
         $this->assertTrue($admin->isStaff(), 'admin-is-admin');
         $this->assertTrue($admin->permitted('site_upload'), 'admin-permitted-site_upload');
@@ -50,6 +51,7 @@ class UserTest extends TestCase {
     public function testFindById(): void {
         $userMan = new Manager\User();
         $user = $userMan->findById($this->user->id);
+        $this->assertInstanceOf(User::class, $user, 'user-find-by-id');
         $this->assertFalse($user->isStaff(), 'user-is-not-admin');
         $this->assertStringStartsWith('user.', $user->username(), 'user-username');
         $this->assertStringEndsWith('@user.example.com', $user->email(), 'user-email');
@@ -260,33 +262,55 @@ class UserTest extends TestCase {
         $this->assertTrue($this->modifyAvatarRender(AvatarDisplay::none, AvatarSynthetic::robot1), 'utest-avatar-update-none');
         $this->assertEquals(AvatarDisplay::none, $this->user->avatarMode(), 'utest-has-avatar-none');
         $new = $userMan->findById($this->user->id);
-        $this->assertEquals(USER_DEFAULT_AVATAR, $new->avatarComponentList($this->user->flush())['image'], 'utest-avatar-none');
+        $this->assertEquals(
+            USER_DEFAULT_AVATAR,
+            $new?->avatarComponentList($this->user->flush())['image'],
+            'utest-avatar-none'
+        );
 
         $url = 'https://www.example.com/avatar.jpg';
         $this->assertTrue($this->user->setField('avatar', $url)->modify(), 'utest-avatar-set');
         $this->assertEquals($url, $this->user->avatar(), 'utest-avatar-url');
         $new = $userMan->findById($this->user->id);
-        $this->assertEquals(USER_DEFAULT_AVATAR, $new->avatarComponentList($this->user->flush())['image'], 'utest-avatar-override-none');
-
-        $this->assertTrue($this->modifyAvatarRender(AvatarDisplay::forceSynthetic, AvatarSynthetic::identicon), 'utest-avatar-update-synthetic-identicon');
-        $this->assertEquals(AvatarDisplay::forceSynthetic, $this->user->flush()->avatarMode(), 'utest-clone-avatar-forceSynthetic');
-
-        $this->assertTrue($this->modifyAvatarRender(AvatarDisplay::show, AvatarSynthetic::robot1), 'utest-avatar-update-show');
+        $this->assertEquals(
+            USER_DEFAULT_AVATAR,
+            $new?->avatarComponentList($this->user->flush())['image'],
+            'utest-avatar-override-none'
+        );
+        $this->assertTrue(
+            $this->modifyAvatarRender(AvatarDisplay::forceSynthetic,
+            AvatarSynthetic::identicon),
+            'utest-avatar-update-synthetic-identicon'
+        );
+        $this->assertEquals(
+            AvatarDisplay::forceSynthetic,
+            $this->user->flush()->avatarMode(),
+            'utest-clone-avatar-forceSynthetic'
+        );
+        $this->assertTrue(
+            $this->modifyAvatarRender(AvatarDisplay::show,
+            AvatarSynthetic::robot1),
+            'utest-avatar-update-show'
+        );
         $new = $userMan->findById($this->user->id);
-        $this->assertEquals('https://www.example.com/avatar.jpg', $new->avatarComponentList($this->user->flush())['image'], 'utest-avatar-show');
+        $this->assertEquals(
+            'https://www.example.com/avatar.jpg',
+            $new?->avatarComponentList($this->user->flush())['image'],
+            'utest-avatar-show'
+        );
     }
 
     public function testLastAccess(): void {
         $this->assertNull($this->user->lastAccess(), 'utest-no-last-access');
         $this->assertEquals(1, $this->user->refreshLastAccess(), 'utest-refresh-last-access');
         $this->assertTrue(
-            Helper::recentDate($this->user->lastAccessRealtime()),
+            Helper::recentDate((string)$this->user->lastAccessRealtime()),
             'utest-realtime-last-access'
         );
         $userMan = new Manager\User();
         $this->assertGreaterThan(0, $userMan->refreshLastAccess(), 'utest-userman-refresh-last-access');
         $this->assertTrue(
-            Helper::recentDate($this->user->lastAccess()),
+            Helper::recentDate((string)$this->user->lastAccess()),
             'utest-has-last-access'
         );
     }
@@ -309,23 +333,28 @@ class UserTest extends TestCase {
 
         $manager = new Manager\User();
         $next = $this->user->nextClass($manager);
+        $this->assertIsArray($next, 'user-next-array');
         $this->assertEquals('Member', $next['class'], 'user-next-class-is-member');
 
         $goal = $next['goal'];
-        $this->assertCount(3, $goal, 'user-next-requirements');
+        $this->assertIsArray($goal, 'user-next-requirements-array');
+        $this->assertCount(3, $goal, 'user-next-requirements-count');
         $this->assertStringContainsString('100%', $goal['Ratio']['percent'],  'user-next-ratio');
         $this->assertStringContainsString('0%',   $goal['Time']['percent'],   'user-next-time');
         $this->assertStringContainsString('30%',  $goal['Upload']['percent'], 'user-next-upload');
 
         $this->user->setField('created', date('Y-m-d H:i:s', strtotime('-2 day')))->modify();
         $next = $this->user->nextClass($manager);
+        $this->assertIsArray($next, 'user-next-requirements-next-array');
         $this->assertStringContainsString('29%', $next['goal']['Time']['percent'], 'user-next-closer-time');
         $this->user->setField('created', date('Y-m-d H:i:s', strtotime('-7 day')))->modify();
         $next = $this->user->nextClass($manager);
+        $this->assertIsArray($next, 'user-next-requirements-next-2-array');
         $this->assertStringContainsString('100%', $next['goal']['Time']['percent'], 'user-next-has-time');
 
         $this->user->addBounty(7 * 1024 * 1024 * 1024);
         $next = $this->user->nextClass($manager);
+        $this->assertIsArray($next, 'user-next-requirements-next-3-array');
         $this->assertStringContainsString('100%',  $next['goal']['Upload']['percent'], 'user-next-has-upload');
 
         $manager->promote();

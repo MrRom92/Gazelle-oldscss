@@ -41,14 +41,14 @@ class CategoryTest extends TestCase {
                 ['description' => 'Abridged version'],
             ]
         );
-        $idList = array_map(fn($t) => $t->id(), $torrentList);
+        $idList = array_map(fn($t) => $t->id, $torrentList);
 
         // move one torrent to new category
         $artistName = 'new artist ' . randomString(6);
         $new = $tgMan->changeCategory(
             old:         $tgroup,
             torrent:     $torrentList[1],
-            categoryId:  (new Manager\Category())->findIdByName('Music'),
+            categoryId:  (int)(new Manager\Category())->findIdByName('Music'),
             name:        'phpunit category new ' . randomString(6),
             year:        (int)date('Y'),
             artistName:  $artistName,
@@ -59,24 +59,28 @@ class CategoryTest extends TestCase {
         $this->assertInstanceOf(TGroup::class, $new, 'cat-change-to-music');
         $this->assertTrue($new->hasArtistRole(), 'tgroup-cat-is-music');
         $artist = (new Manager\Artist())->findByName($artistName);
-        $this->assertEquals($artistName, $artist->name(), 'cat-new-artist');
+        $this->assertInstanceOf(Artist::class, $artist, 'cat-new-artist-found');
         $this->assertEquals(
             [
-                ARTIST_MAIN => [
-                    ['id' => $artist->id(), 'name' => $artist->name(), 'aliasid' => $artist->aliasId()],
-                ],
+                ARTIST_MAIN => [[
+                    'id'      => $artist->id,
+                    'name'    => $artist->name(),
+                    'aliasid' => $artist->aliasId()
+                ]],
             ],
-            $new->artistRole()->idList(),
+            $new->artistRole()?->idList(),
             'cat-new-artist-role'
         );
 
         $tgroup->flush();
 
         // rebuild the torrent object caches
-        $torrentList = array_map(fn($id) => $torMan->findById($id), $idList);
+        $torrentList = array_map(fn ($id) => $torMan->findById($id), $idList);
+        $this->assertInstanceOf(Torrent::class, $torrentList[0], 'cat-old-t0-found');
+        $this->assertInstanceOf(Torrent::class, $torrentList[1], 'cat-old-t1-found');
 
-        $this->assertEquals([$torrentList[0]->id()], $tgroup->torrentIdList(), 'cat-old-tidlist');
-        $this->assertEquals($torrentList[1]->groupId(), $new->id(), 'cat-new-groupid');
+        $this->assertEquals([$torrentList[0]->id], $tgroup->torrentIdList(), 'cat-old-tidlist');
+        $this->assertEquals($torrentList[1]->groupId(), $new->id, 'cat-new-groupid');
 
         // move remaining torrent to same category
         $new = $tgMan->changeCategory(
@@ -93,11 +97,11 @@ class CategoryTest extends TestCase {
         $this->assertNull($new, 'cat-change-to-same');
 
         // move last torrent to new category, nuking old group
-        $tgroupId = $tgroup->id();
+        $tgroupId = $tgroup->id;
         $new = $tgMan->changeCategory(
             old:         $tgroup,
             torrent:     $torrentList[0],
-            categoryId:  (new Manager\Category())->findIdByName('Comedy'),
+            categoryId:  (int)(new Manager\Category())->findIdByName('Comedy'),
             name:        'phpunit category new ' . randomString(6),
             year:        (int)date('Y'),
             artistName:  null,
@@ -112,7 +116,7 @@ class CategoryTest extends TestCase {
 
         // clean up
         foreach ($torrentList as $torrent) {
-            $torrent->removeTorrent($user, 'phpunit');
+            $torrent?->removeTorrent($user, 'phpunit');
         }
         $tgroup->remove();
         $this->assertEquals(0, (int)DB::DB()->scalar("

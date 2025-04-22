@@ -48,7 +48,7 @@ class Helper {
         return (new \Gazelle\Manager\Request())->create(
             user:            $user,
             bounty:          100 * 1024 ** 3,
-            categoryId:      (new \Gazelle\Manager\Category())->findIdByName('Music'),
+            categoryId:      (int)(new \Gazelle\Manager\Category())->findIdByName('Music'),
             year:            (int)date('Y'),
             title:           $title,
             image:           $image,
@@ -69,7 +69,7 @@ class Helper {
         string $name,
     ): \Gazelle\TGroup {
         return (new \Gazelle\Manager\TGroup())->create(
-            categoryId:      (new \Gazelle\Manager\Category())->findIdByName('E-Books'),
+            categoryId:      (int)(new \Gazelle\Manager\Category())->findIdByName('E-Books'),
             name:            $name,
             description:     'phpunit ebook description',
             image:           '',
@@ -88,7 +88,7 @@ class Helper {
         int $releaseType = 1
     ): \Gazelle\TGroup {
         $tgroup = (new \Gazelle\Manager\TGroup())->create(
-            categoryId:      (new \Gazelle\Manager\Category())->findIdByName('Music'),
+            categoryId:      (int)(new \Gazelle\Manager\Category())->findIdByName('Music'),
             releaseType:     $releaseType,
             name:            $name,
             description:     'phpunit music description',

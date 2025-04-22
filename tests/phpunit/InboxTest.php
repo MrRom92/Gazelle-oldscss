@@ -117,6 +117,7 @@ class InboxTest extends TestCase {
         $postList = $rlist[2]->postList(2, 0);
         $postId = $postList[0]['id'];
         $pm = $pmReceiverManager->findByPostId($postId);
+        $this->assertInstanceOf(PM::class, $pm, 'inbox-pm-found');
         $this->assertEquals($bodyList[1], $pm->postBody($postId), 'inbox-pm-post-body');
 
         // unread first
@@ -193,7 +194,7 @@ class InboxTest extends TestCase {
             Helper::makeUser('inbox.recv.' . randomString(6), 'inbox'),
         ];
         $pm = $this->userList[0]->inbox()->createSystem('system', 'body');
-        $this->assertEquals(0, $pm->senderId(), 'inbox-system-sender-id');
-        $this->assertEquals(1, $pm->remove(), 'inbox-system-remove');
+        $this->assertEquals(0, $pm?->senderId(), 'inbox-system-sender-id');
+        $this->assertEquals(1, $pm?->remove(), 'inbox-system-remove');
     }
 }

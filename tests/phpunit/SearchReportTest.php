@@ -28,7 +28,7 @@ class SearchReportTest extends TestCase {
         $this->request = (new Manager\Request())->create(
             user:            $this->userList[1],
             bounty:          REQUEST_MIN * 1024 * 1024,
-            categoryId:      (new Manager\Category())->findIdByName('Music'),
+            categoryId:      (int)(new Manager\Category())->findIdByName('Music'),
             year:            (int)date('Y'),
             title:           'phpunit request report',
             image:           '',

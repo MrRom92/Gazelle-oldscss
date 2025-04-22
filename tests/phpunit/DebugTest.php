@@ -39,7 +39,7 @@ class DebugTest extends TestCase {
         $this->assertEquals(["a", "b"], $case->trace(), 'errorlog-trace');
         $this->assertEquals(
             $case->id,
-            $manager->findByDigest("a\nb", [])->id,
+            $manager->findByDigest("a\nb", [])?->id,
             'errorlog-find-by-digest',
         );
 

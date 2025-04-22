@@ -64,6 +64,7 @@ class ForumTest extends TestCase {
         $this->assertCount($initial + 2, $fcatMan->usageList(), 'forum-cat-usage-list');
 
         $find = $fcatMan->findById($this->category->id);
+        $this->assertInstanceOf(ForumCategory::class, $find, 'forum-category-found');
         $find->setField('Name', 'phpunit renamed')->modify();
         $this->assertEquals($this->category->id, $find->id, 'forum-cat-find');
         $this->assertEquals('phpunit renamed', $find->name(), 'forum-cat-name');
@@ -116,7 +117,7 @@ class ForumTest extends TestCase {
         $this->assertNull($this->forum->lastThreadName(), 'forum-last-thread-name');
 
         $find = $forumMan->findById($this->forum->id);
-        $this->assertEquals($this->forum->id, $find->id, 'forum-forum-find');
+        $this->assertEquals($this->forum->id, $find?->id, 'forum-forum-find');
 
         $this->extra = Helper::makeForum(
             user:           $this->userList['admin'],
@@ -250,7 +251,7 @@ class ForumTest extends TestCase {
         (new Manager\Subscription())->flushThread($thread);
         $this->assertEquals(
             $thread->id,
-            $threadMan->findByPostId($reply->id)->id,
+            $threadMan->findByPostId($reply->id)?->id,
             'fpost-find-thread',
         );
 
@@ -264,7 +265,11 @@ class ForumTest extends TestCase {
         $page = $quote->page(10, 0);
         $this->assertCount(1, $page, 'fpost-quote-page-count');
         $this->assertEquals($admin->id, $page[0]['quoter_id'], 'fpost-quote-page-0-quoter');
-        $this->assertEquals($postMan->findById($reply->id)->url(), $page[0]['jump'], 'fpost-quote-page-0-jump');
+        $this->assertEquals(
+            $postMan->findById($reply->id)?->url(),
+            $page[0]['jump'],
+            'fpost-quote-page-0-jump',
+        );
 
         $this->assertEquals(1, $quote->clearThread($thread, $post->id, $reply->id), 'fpost-clear-thread');
         $this->assertEquals(0, $quote->total(), 'fpost-quote-admin-total-clear');
@@ -502,7 +507,7 @@ class ForumTest extends TestCase {
         $this->assertEquals($answer[1], $poll->vote()[1]['answer'], 'forum-poll-vote-1');
 
         $find = $pollMan->findById($poll->id);
-        $this->assertEquals($poll->id, $find->id, 'forum-poll-find-by-id');
+        $this->assertEquals($poll->id, $find?->id, 'forum-poll-find-by-id');
 
         $this->assertEquals(1, $poll->addAnswer('sushi'), 'forum-poll-add-answer');
 
@@ -593,13 +598,18 @@ class ForumTest extends TestCase {
         $this->assertEquals(1, $thread->postTotalSummary(), 'fthread-post-total-summary');
         $slice = $thread->slice(1, 1);
         $post = (new Manager\ForumPost())->findById($slice[0]['ID']);
+        $this->assertInstanceOf(ForumPost::class, $post, 'thread-initial-found');
         $this->assertEquals($thread->body(), $post->body(), 'thread-initial-body');
         $post->setField('Body', 'edit')->modify();
         // flush thread object to pick up out-of-band modification
         $this->assertEquals('edit', $thread->flush()->body(), 'thread-edit-body');
         $this->assertEquals($post->created(), $thread->lastPostTime(), 'thread-last-post-date');
 
-        $this->assertEquals(1, $thread->mergePost($post, $user, 'merge this'), 'thread-merge-post');
+        $this->assertEquals(
+            1,
+            $thread->mergePost($post, $user, 'merge this'),
+            'thread-merge-post'
+        );
         $newBody = "edit\n\nmerge this";
         $this->assertEquals($newBody, $post->body());
         $this->assertEquals(1, $thread->postTotalSummary(), 'fthread-merge-post-total-summary');
@@ -607,7 +617,7 @@ class ForumTest extends TestCase {
         $slice = $thread->slice(1, 1);
         $this->assertEquals($newBody, $slice[0]['Body'], 'thread-merge-post-slice');
         $merged = (new Manager\ForumPost())->findById($slice[0]['ID']);
-        $this->assertEquals($newBody, $merged->body(), 'thread-merged-body');
+        $this->assertEquals($newBody, $merged?->body(), 'thread-merged-body');
 
         $post = $thread->addPost($user, 'second');
         $this->assertEquals(2, $thread->postTotalSummary(), 'fthread-merge-post-add-summary');

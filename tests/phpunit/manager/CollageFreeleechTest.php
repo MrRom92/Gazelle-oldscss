@@ -60,7 +60,8 @@ class CollageFreeleechTest extends TestCase {
         foreach ($this->tgroupList as $tgroup) {
             $this->collage->removeEntry($tgroup);
             foreach ($tgroup->torrentIdList() as $torrentId) {
-                $torMan->findById($torrentId)->removeTorrent($this->user, 'collfree unit test');
+                $torMan->findById($torrentId)
+                    ?->removeTorrent($this->user, 'collfree unit test');
             }
             $tgroup->remove($this->user);
         }
@@ -89,10 +90,25 @@ class CollageFreeleechTest extends TestCase {
             ++$n;
             $idList = $tgroup->torrentIdList();
             sort($idList);
-            $torrentList = array_map(fn($id) => $torMan->findById($id)->flush(), $idList);
-            $this->assertEquals(LeechType::Free, $torrentList[0]->leechType(), "collfree-t0-free-$n");
-            $this->assertEquals(LeechType::Neutral, $torrentList[1]->leechType(), "collfree-t1-neutral-$n");
-            $this->assertEquals(LeechType::Normal, $torrentList[2]->leechType(), "collfree-t2-normal-$n");
+            $torrentList = array_map(
+                fn ($id) => $torMan->findById($id)?->flush(),
+                $idList
+            );
+            $this->assertEquals(
+                LeechType::Free,
+                $torrentList[0]?->leechType(),
+                "collfree-t0-free-$n"
+            );
+            $this->assertEquals(
+                LeechType::Neutral,
+                $torrentList[1]?->leechType(),
+                "collfree-t1-neutral-$n"
+            );
+            $this->assertEquals(
+                LeechType::Normal,
+                $torrentList[2]?->leechType(),
+                "collfree-t2-normal-$n"
+            );
         }
 
         $this->assertEquals(
@@ -108,8 +124,14 @@ class CollageFreeleechTest extends TestCase {
         );
         $n = 0;
         foreach ($this->tgroupList as $tgroup) {
-            foreach (array_map(fn($id) => $torMan->findById($id)->flush(), $tgroup->torrentIdList()) as $torrent) {
+            foreach (
+                array_map(
+                    fn ($id) => $torMan->findById($id)?->flush(),
+                    $tgroup->torrentIdList(),
+                ) as $torrent
+            ) {
                 ++$n;
+                $this->assertInstanceOf(Torrent::class, $torrent, "collfree-tgroup-found-$n");
                 $this->assertEquals(LeechType::Normal, $torrent->leechType(), "collfree-now-normal-$n");
             }
         }

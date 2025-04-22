@@ -54,30 +54,53 @@ class PrivilegeTest extends TestCase {
         );
         $find = $manager->findByLevel(FAKE_LEVEL);
         $this->assertInstanceOf(Privilege::class, $find, 'privilege-find-by-level');
-        $this->assertEquals($privilege->id(), $find->id(), 'privilege-found-self');
+        $this->assertEquals($privilege->id, $find->id, 'privilege-found-self');
         $this->assertEquals($badge, $privilege->badge(), 'privilege-badge');
         $this->assertEquals(FAKE_LEVEL, $privilege->level(), 'privilege-level');
         $this->assertCount(0, $privilege->permittedForums(), 'privilege-permitted-forums');
         $this->assertFalse($privilege->displayStaff(), 'privilege-display-staff');
         $this->assertTrue($privilege->isSecondary(), 'privilege-is-secondary');
-        $this->assertEquals($privilege->id(), $manager->findById($privilege->id())->id(), 'privilege-find-by-id');
-        $this->assertNull($manager->findById(1 + $privilege->id()), 'privilege-find-null');
+        $this->assertInstanceOf(
+            Privilege::class,
+            $manager->findById($privilege->id),
+            'privilege-find-by-id'
+        );
+        $this->assertNull(
+            $manager->findById(1 + $privilege->id),
+            'privilege-find-null'
+        );
 
         // assign privilege to user
         $this->assertEquals(0, $privilege->userTotal(), 'privilege-has-no-users-yet');
-        $this->assertEquals(0, $this->userList['user']->privilege()->secondaryClassesList()[$privilege->name()]['isSet'], 'privilege-user-no-secondary-yet');
-        $this->assertEquals(1, $this->userList['user']->addClasses([$privilege->id()]), 'privilege-add-secondary');
-        $this->assertEquals(1, $this->userList['user']->privilege()->secondaryClassesList()[$privilege->name()]['isSet'], 'privilege-user-no-secondary-yet');
-        $this->assertEquals(1, $privilege->flush()->userTotal(), 'privilege-has-one-user');
+        $this->assertEquals(
+            0,
+            $this->userList['user']->privilege()->secondaryClassesList()[$privilege->name()]['isSet'],
+            'privilege-user-no-secondary-yet'
+        );
+        $this->assertEquals(
+            1,
+            $this->userList['user']->addClasses([$privilege->id]),
+            'privilege-add-secondary'
+        );
+        $this->assertEquals(
+            1,
+            $this->userList['user']->privilege()->secondaryClassesList()[$privilege->name()]['isSet'],
+            'privilege-user-no-secondary-yet'
+        );
+        $this->assertEquals(
+            1,
+            $privilege->flush()->userTotal(),
+            'privilege-has-one-user'
+        );
 
         // TODO: User\Privilege should take care of adding and removing secondary classes
         $userPriv = $this->userList['user']->privilege();
         $this->assertEquals(FAKE_LEVEL, $userPriv->maxSecondaryLevel(), 'privilege-user-max-level');
-        $this->assertEquals([$privilege->id() => $name], $userPriv->secondaryClassList(), 'privilege-user-list');
+        $this->assertEquals([$privilege->id => $name], $userPriv->secondaryClassList(), 'privilege-user-list');
         $this->assertEquals([$badge => $name], $userPriv->badgeList(), 'privilege-user-badge');
 
         // revoke privilege
-        $this->assertEquals(1, $this->userList['user']->removeClasses([$privilege->id()]), 'privilege-remove-secondary');
+        $this->assertEquals(1, $this->userList['user']->removeClasses([$privilege->id]), 'privilege-remove-secondary');
         $this->assertEquals(0, $this->userList['user']->privilege()->secondaryClassesList()[$privilege->name()]['isSet'], 'privilege-user-no-more-secondary');
         $this->assertEquals(0, $privilege->flush()->userTotal(), 'privilege-has-no-users');
 
@@ -101,10 +124,10 @@ class PrivilegeTest extends TestCase {
         $this->assertEquals(1, $user->privilege()->addSecondaryClass($privilegeId, "privilege-add-$label"));
         $this->assertTrue($user->$method(), "privilege-user-now-$label");
         // TODO: the method name and parameter could be improved
-        $this->assertTrue($user->privilege()->hasSecondaryClassId($privilege->id()), "privilege-has-secondary-$label");
+        $this->assertTrue($user->privilege()->hasSecondaryClassId($privilege->id), "privilege-has-secondary-$label");
         $this->assertEquals(1, $user->removeClasses([$privilegeId]), "privilege-remove-$label");
         $this->assertFalse($user->$method(), "privilege-user-no-longer-$label");
-        $this->assertFalse($user->privilege()->hasSecondaryClassId($privilege->id()), "privilege-no-longerhas-secondary-$label");
+        $this->assertFalse($user->privilege()->hasSecondaryClassId($privilege->id), "privilege-no-longerhas-secondary-$label");
     }
 
     public function testPrivilegeBadge(): void {

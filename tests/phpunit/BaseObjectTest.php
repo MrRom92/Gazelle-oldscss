@@ -38,7 +38,7 @@ class BaseObjectTest extends TestCase {
         $date = $object->banDate();
         $this->assertTrue($object->setFieldNow('BanDate')->modify(), 'base-object-aux-now');
         $this->assertNotEquals($date, $object->banDate(), 'base-object-aux-remodified');
-        $this->assertTrue(Helper::recentDate($object->banDate()), 'base-object-aux-recent');
+        $this->assertTrue(Helper::recentDate((string)$object->banDate()), 'base-object-aux-recent');
     }
 
     public function testObjectGenerator(): void {

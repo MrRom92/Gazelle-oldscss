@@ -37,7 +37,7 @@ class BlogTest extends TestCase {
         );
         $this->assertEquals(
             $this->blog->id,
-            $manager->findById($this->blog->id)->id,
+            $manager->findById($this->blog->id)?->id,
             'blog-find'
         );
         $this->assertEquals($this->blog->id, $manager->latestId(), 'blog-latest');
@@ -56,12 +56,20 @@ class BlogTest extends TestCase {
             'blog-link'
         );
 
-        $this->assertEquals(min(20, 1 + count($initial)), count($manager->headlines()), 'blog-headlines');
-        $this->assertEquals($this->blog->id, $manager->latest()->id, 'blog-latest');
+        $this->assertEquals(
+            min(20, 1 + count($initial)),
+            count($manager->headlines()),
+            'blog-headlines'
+        );
         $this->assertEquals($this->blog->id, $manager->latestId(), 'blog-id-latest');
+        $this->assertEquals($this->blog->id, $manager->latest()?->id, 'blog-latest');
         $find = $manager->findById($this->blog->id);
-        $this->assertEquals($this->blog->id, $find->id, 'blog-find');
-        $this->assertEquals((int)strtotime($find->created()), $manager->latestEpoch(), 'blog-epoch');
+        $this->assertEquals($this->blog->id, $find?->id, 'blog-find');
+        $this->assertEquals(
+            (int)strtotime((string)$find?->created()),
+            $manager->latestEpoch(),
+            'blog-epoch'
+        );
 
         $this->assertInstanceOf(Blog::class, $this->blog->flush(), 'blog-flush');
         $this->assertEquals(1, $this->blog->remove(), 'blog-remove');
@@ -86,7 +94,7 @@ class BlogTest extends TestCase {
         $this->assertFalse($this->blog->notify(), 'blog-no-notify');
         $this->assertEquals(
             "thread $title title",
-            $this->blog->thread()->title(),
+            $this->blog->thread()?->title(),
             'blog-thread-title',
         );
         $this->assertEquals(1, $this->blog->removeThread(), 'blog-thread-detach');
