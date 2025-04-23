@@ -107,15 +107,13 @@ class DownloadTest extends TestCase {
         $this->assertTrue($user->hasToken($this->torrent), 'redown-user-has-token');
 
         // time goes by and the user downloads the torrent
-        $db = DB::DB();
-        $db->prepared_query("
-            INSERT INTO xbt_snatched (uid, fid, IP, seedtime, tstamp)
-            VALUES                   (?,   ?, '127.0.0.1', 1, unix_timestamp(now()))
-            ", $user->id, $this->torrent->id()
-        );
+        Helper::generateTorrentSnatch($this->torrent, $user);
         $this->assertEquals(1, $this->torrent->expireToken($user), 'redown-expire-token');
         $this->assertFalse($user->flush()->hasToken($this->torrent), 'redown-user-no-more-token');
         $this->assertFalse($this->torrent->isFreeleechPersonal(), 'redown-torrent-is-not-pfl');
+        $tracker = $user->history()->trackerIPv4();
+        $this->assertCount(1, $tracker, 'tracker-history-total');
+        $this->assertEquals('127.0.0.1', $tracker[0]['ipv4'], 'tracker-history-ipv4');
 
         $list = $this->torrent->snatchList($user, 2, 0);
         $this->assertCount(1, $list, 'snatch-torrent-list');
@@ -133,6 +131,15 @@ class DownloadTest extends TestCase {
         (new Stats\Users())->refresh();
         $this->assertEquals(2, $user->stats()->downloadTotal(), 'redown-user-download-total');
         $this->assertEquals(1, $user->stats()->downloadUnique(), 'redown-user-download-unique');
+
+        $this->assertEquals(2, $user->history()->resetDownloaded(), 'redown-reset-downloaded');
+        $this->assertEquals(1, $user->history()->resetSnatched(), 'redown-reset-snatched');
+        (new Stats\Users())->refresh();
+        $this->assertEquals(
+            0,
+            $user->flush()->stats()->downloadTotal(),
+            'redown-user-reset-download-total'
+        );
     }
 
     public function testRecentTotal(): void {

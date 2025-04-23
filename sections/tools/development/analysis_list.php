@@ -5,6 +5,7 @@
 declare(strict_types=1);
 
 namespace Gazelle;
+ini_set('memory_limit', '256M');
 
 if (!$Viewer->permitted('site_analysis')) {
     Error403::error();

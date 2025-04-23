@@ -2,6 +2,16 @@
 
 namespace Gazelle\User;
 
+use Gazelle\UserCreator;
+use Gazelle\Search\ASN;
+use Gazelle\Util\Irc;
+use Gazelle\Util\Mail;
+
+/**
+ * This class deals with the storage of previous announce keys, email address
+ * and passwords.
+ */
+
 class History extends \Gazelle\BaseUser {
     public function __construct(
         \Gazelle\User $user,
@@ -16,14 +26,123 @@ class History extends \Gazelle\BaseUser {
         return $this;
     }
 
+    /***** ANNOUNCE KEYS *****/
+
+    public function announceKeyTotal(): int {
+        return (int)$this->pg()->scalar("
+            select count(*) from history_announce where id_user = ?
+            ", $this->user->id
+        );
+    }
+
+    public function announceKeyList(): array {
+        return $this->pg()->all("
+            SELECT previous,
+                created,
+                ip,
+                useragent
+            from history_announce
+            where id_user = ?
+            order by created desc
+            ", $this->user->id
+        );
+    }
+
+    /**
+     * Set a new user announce key. Requires calling User::modify() to persist change.
+     */
+    public function modifyAnnounceKey(string $old, string $new): int {
+        $this->user->setField('torrent_pass', $new);
+        $id = $this->pg()->insert("
+            insert into history_announce
+                   (id_user, previous, ip, useragent)
+            values (?,      ?,          ?,          ?)
+            ", $this->user->id, $old,
+                $this->requestContext()->remoteAddr(),
+                $this->requestContext()->useragent(),
+        );
+        self::$cache->delete_value("user_passkey_count_{$this->user->id}");
+        return $id;
+    }
+
+    /***** PASSWORDS *****/
+
+    public function passwordAge(): int {
+        return (int)$this->user->getSinglePgValue('user_pw_epoch', "
+            select extract(epoch from now())
+                - extract(epoch from coalesce(max(hp.created), um.created))
+            from relay.users_main um
+            left join history_password hp on (hp.id_user = um.\"ID\")
+            where um.\"ID\" = ?
+            group by um.created
+        ");
+    }
+
+    public function passwordList(): array {
+        return $this->pg()->all("
+            select created,
+                ip,
+                useragent
+            from history_password
+            where id_user = ?
+            order by created desc
+            ", $this->user->id
+        );
+    }
+
+    public function passwordTotal(): int {
+        return (int)$this->pg()->scalar("
+            select count(*) from history_password where id_user = ?
+            ", $this->user->id
+        );
+    }
+
+    /**
+     * Set a new user password. Requires calling User::modify() to persist.
+     */
+    public function modifyPassword(
+        #[\SensitiveParameter] string $new,
+        bool $notify,
+        Mail $mail = new Mail(),
+    ): static {
+        $this->user->setField('PassHash', UserCreator::hashPassword($new));
+        $ipaddr    = $this->requestContext()->remoteAddr();
+        $useragent = $this->requestContext()->useragent();
+        $this->pg()->insert("
+            insert into history_password
+                   (id_user, ip,      useragent)
+            VALUES (?,       ?::inet, ?)
+            ", $this->user->id, $ipaddr, $useragent
+        );
+        self::$cache->delete_value("user_pw_count_{$this->user->id}");
+        if ($notify) {
+            Irc::sendMessage(
+                $this->user->username(),
+                "Security alert: Your password was changed via $ipaddr with $useragent"
+            );
+            $mail->send(
+                $this->user->email(),
+                'Password changed information for ' . SITE_NAME,
+                self::$twig->render('email/password-change.twig', [
+                    'ipaddr'    => $ipaddr,
+                    'useragent' => $useragent,
+                    'username'  => $this->user->username(),
+                ])
+            );
+        }
+        return $this;
+    }
+
+    /***** EMAIL ADDRESSES *****/
+
     /**
      * Email history
      *
      * @return array [email address, ip, date, useragent, country code, AS, AS name]
      */
-    public function email(\Gazelle\Search\ASN $asn): array {
+    public function email(ASN $asn = new ASN()): array {
         self::$db->prepared_query("
-            SELECT h.Email  AS email,
+            select h.Email  AS email,
                 h.created   AS created,
                 h.IP        AS ipv4,
                 h.useragent AS useragent
@@ -48,7 +167,7 @@ class History extends \Gazelle\BaseUser {
      *
      * @return array of array of [id, email, user_id, created, ipv4, \User user]
      */
-    public function emailDuplicate(\Gazelle\Search\ASN $asn): array {
+    public function emailDuplicate(ASN $asn = new ASN()): array {
         // Get history of matches
         self::$db->prepared_query("
             SELECT users_history_emails_id AS id,
@@ -190,7 +309,7 @@ class History extends \Gazelle\BaseUser {
         );
     }
 
-    public function siteIPv4(\Gazelle\Search\ASN $asn): array {
+    public function siteIPv4(ASN $asn = new ASN()): array {
         $dir = $this->direction === 'down' ? 'desc' : 'asc';
         $orderBy = match ($this->column) {
             'first' => "first_seen $dir, ip $dir, last_seen $dir",
@@ -215,7 +334,7 @@ class History extends \Gazelle\BaseUser {
         return $result;
     }
 
-    public function trackerIPv4(\Gazelle\Search\ASN $asn): array {
+    public function trackerIPv4(ASN $asn = new ASN()): array {
         $dir = $this->direction === 'down' ? 'DESC' : 'ASC';
         $orderBy = match ($this->column) {
             'first' => "from_unixtime(min(tstamp)) $dir, inet_aton(IP) $dir, from_unixtime(max(tstamp)) $dir",
@@ -267,16 +386,20 @@ class History extends \Gazelle\BaseUser {
             ", $this->user->id
         );
         $n += self::$db->affected_rows();
-        self::$db->prepared_query("
-            UPDATE users_history_passwords SET ChangerIP = '', useragent = 'reset-ip-history' WHERE UserID = ?
+        $n += $this->pg()->prepared_query("
+            update history_password set
+                ip = '0.0.0.0',
+                useragent = 'reset-ip-history'
+            where id_user = ?
             ", $this->user->id
         );
-        $n += self::$db->affected_rows();
-        self::$db->prepared_query("
-            UPDATE users_history_passkeys SET ChangerIP = '' WHERE UserID = ?
+        $n += $this->pg()->prepared_query("
+            update history_announce set
+                ip = '0.0.0.0',
+                useragent = 'reset-ip-history'
+            where id_user = ?
             ", $this->user->id
         );
-        $n += self::$db->affected_rows();
         self::$db->prepared_query("
             UPDATE users_sessions SET IP = '127.0.0.1' WHERE UserID = ?
             ", $this->user->id
@@ -288,8 +411,7 @@ class History extends \Gazelle\BaseUser {
 
     public function resetDownloaded(): int {
         self::$db->prepared_query('
-            DELETE FROM users_downloads
-            WHERE UserID = ?
+            DELETE FROM users_downloads WHERE UserID = ?
             ', $this->user->id
         );
         return self::$db->affected_rows();
@@ -310,8 +432,7 @@ class History extends \Gazelle\BaseUser {
 
     public function resetSnatched(): int {
         self::$db->prepared_query("
-            DELETE FROM xbt_snatched
-            WHERE uid = ?
+            DELETE FROM xbt_snatched WHERE uid = ?
             ", $this->user->id
         );
         $this->user->snatch()->flush();

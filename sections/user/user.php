@@ -200,7 +200,7 @@ if ($user->propertyVisibleMulti($previewer, ['artistsadded', 'collagecontribs+',
     }
     if ($Viewer->permitted('users_view_keys')) {
 ?>
-                <li>Announce keys: <?=number_format($user->announceKeyCount())?> <a href="userhistory.php?action=passkeys&amp;userid=<?=$userId?>" class="brackets">View</a></li>
+                <li>Announce keys: <?=number_format($user->history()->announceKeyTotal())?> <a href="userhistory.php?action=passkeys&amp;userid=<?=$userId?>" class="brackets">View</a></li>
 <?php
     }
     if ($Viewer->permitted('users_mod')) {
@@ -208,7 +208,7 @@ if ($user->propertyVisibleMulti($previewer, ['artistsadded', 'collagecontribs+',
 ?>
                 <li><span class="tooltip" title="User requested a password reset by email">Password reset expiry: <?= time_diff($resetToken->expiry()) ?></li>
 <?php   } ?>
-                <li>Password history: <?=number_format($user->passwordCount())?> <a href="userhistory.php?action=passwords&amp;userid=<?=$userId?>" class="brackets">View</a></li>
+                <li>Password history: <?=number_format($user->history()->passwordTotal())?> <a href="userhistory.php?action=passwords&amp;userid=<?=$userId?>" class="brackets">View</a></li>
                 <li>Stats: N/A <a href="userhistory.php?action=stats&amp;userid=<?=$userId?>" class="brackets">View</a></li>
 <?php } ?>
             </ul>

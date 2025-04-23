@@ -41,7 +41,7 @@ class UserManagerTest extends TestCase {
 
     public function testDisableUserList(): void {
         $userMan = new Manager\User();
-        $idList  = array_map(fn($u) => $u->id(), $this->userList);
+        $idList  = array_map(fn ($u) => $u->id, $this->userList);
 
         $this->assertEquals(
             3,
@@ -66,27 +66,27 @@ class UserManagerTest extends TestCase {
         $this->userList[2]->setField('Enabled', UserStatus::disabled->value)->modify();
 
         $this->assertEquals(
-            "<a href=\"user.php?id={$this->userList[1]->id()}\">{$this->userList[1]->username()}</a>",
-            $userMan->displayUsername($this->userList[1]->id(), $this->userList[0]),
+            "<a href=\"user.php?id={$this->userList[1]->id}\">{$this->userList[1]->username()}</a>",
+            $userMan->displayUsername($this->userList[1]->id, $this->userList[0]),
             'uman-display-user-short'
         );
         $this->assertEquals(
-            "<a class=\"username\" href=\"user.php?id={$this->userList[1]->id()}\">{$this->userList[1]->username()}</a>&nbsp;<span class=\"tooltip secondary_class\" title=\"First Line Support\">FLS</span> (User)",
-            $userMan->displayUsername($this->userList[1]->id(), $this->userList[0], true),
+            "<a class=\"username\" href=\"user.php?id={$this->userList[1]->id}\">{$this->userList[1]->username()}</a>&nbsp;<span class=\"tooltip secondary_class\" title=\"First Line Support\">FLS</span> (User)",
+            $userMan->displayUsername($this->userList[1]->id, $this->userList[0], true),
             'uman-display-user-secondary'
         );
         $this->assertEquals(
-            "<a class=\"username\" href=\"user.php?id={$this->userList[2]->id()}\">{$this->userList[2]->username()}</a><a href=\"rules.php\"><img loading=\"lazy\" class=\"tooltip\" src=\""
+            "<a class=\"username\" href=\"user.php?id={$this->userList[2]->id}\">{$this->userList[2]->username()}</a><a href=\"rules.php\"><img loading=\"lazy\" class=\"tooltip\" src=\""
                 . STATIC_SERVER
                 . "/common/symbols/disabled.png\" alt=\"Banned\" title=\"Disabled\" /></a> (User)",
-            $userMan->displayUsername($this->userList[2]->id(), $this->userList[0], true),
+            $userMan->displayUsername($this->userList[2]->id, $this->userList[0], true),
             'uman-display-user-disabled'
         );
     }
 
     public function testModifyUserAttr(): void {
         $userMan = new Manager\User();
-        $idList  = array_map(fn($u) => $u->id(), $this->userList);
+        $idList  = array_map(fn ($u) => $u->id, $this->userList);
         $this->assertFalse($this->userList[0]->hasAttr('hide-tags'), 'uman-attr-no-attr');
 
         $this->assertEquals(3, $userMan->modifyAttr($idList, 'hide-tags', true), 'uman-attr-modify');
@@ -95,7 +95,7 @@ class UserManagerTest extends TestCase {
 
     public function testModifyUserMassToken(): void {
         $userMan = new Manager\User();
-        $idList  = array_map(fn($u) => $u->id(), $this->userList);
+        $idList  = array_map(fn ($u) => $u->id, $this->userList);
         $this->assertEquals(0, $this->userList[0]->tokenCount(), 'uman-masstoken-initial');
 
         $userMan->addMassTokens(10, allowLeechDisabled: false);
@@ -136,7 +136,7 @@ class UserManagerTest extends TestCase {
             1,
             $userMan->disableUserList(
                 new Tracker(),
-                [$this->userList[2]->id()],
+                [$this->userList[2]->id],
                 UserAuditEvent::activity,
                 'phpunit fltoken',
                 \Gazelle\Manager\User::DISABLE_MANUAL,
@@ -189,7 +189,7 @@ class UserManagerTest extends TestCase {
             UPDATE users_main SET
                 created = created - INTERVAL 8 DAY
             WHERE ID IN (?, ?)
-            ", $user0->id(), $user1->id()
+            ", $user0->id, $user1->id
         );
         // 11GiB to be eligible for User => Member promotion
         $user0->setField('leech_upload', 11 * 1024 ** 3)->modify();
@@ -231,13 +231,14 @@ class UserManagerTest extends TestCase {
     }
 
     public function testUserRatioWatch(): void {
-        $db      = DB::DB();
         $tracker = new Tracker();
         $userMan = new Manager\User();
-        $idList  = array_map(fn($u) => $u->id(), $this->userList);
+        $this->userList[] = Helper::makeUser('um4.' . randomString(10), 'userman', enable: true, clearInbox: true);
+        $idList  = array_map(fn ($u) => $u->id, $this->userList);
 
         // put users onto ratio watch
         $GiB50 = 50 * 1_105_507_304;
+        $db = DB::DB();
         $db->prepared_query("
             UPDATE users_leech_stats SET
                 Downloaded = ?
@@ -250,9 +251,9 @@ class UserManagerTest extends TestCase {
             VALUES " . placeholders($idList, '(?, 1, unix_timestamp(now()), 259200)') . "
             ", ...$idList
         );
-        $this->assertEquals(3, $userMan->updateRatioRequirements(), 'uman-ratiowatch-update');
+        $this->assertEquals(4, $userMan->updateRatioRequirements(), 'uman-ratiowatch-update');
         $this->assertEquals($idList, $userMan->ratioWatchSetList(), 'uman-ratiowatch-set-list');
-        $this->assertEquals(3, $userMan->ratioWatchSet(), 'uman-ratiowatch-set-action');
+        $this->assertEquals(4, $userMan->ratioWatchSet(), 'uman-ratiowatch-set-action');
         foreach ($this->userList as $user) {
             $user->flush();
         }
@@ -280,10 +281,10 @@ class UserManagerTest extends TestCase {
                 ui.RatioWatchDownload = ?,
                 uls.Downloaded = uls.Downloaded + ?
             WHERE ui.UserID = ?
-            ", $GiB50, $GiB50, $this->userList[0]->id()
+            ", $GiB50, $GiB50, $this->userList[0]->id
         );
         $this->userList[0]->flush();
-        $this->assertEquals([$this->userList[0]->id()], $userMan->ratioWatchBlockList(), 'uman-ratiowatch-block-list');
+        $this->assertEquals([$this->userList[0]->id], $userMan->ratioWatchBlockList(), 'uman-ratiowatch-block-list');
         $this->assertEquals(1, $userMan->ratioWatchBlock($tracker), 'uman-ratiowatch-do-block');
         $this->userList[0]->flush();
 
@@ -299,7 +300,7 @@ class UserManagerTest extends TestCase {
             UPDATE users_leech_stats SET
                 Uploaded = Uploaded + ?
             WHERE UserID = ?
-            ", $GiB50, $this->userList[1]->id()
+            ", $GiB50, $this->userList[1]->id
         );
 
         // ratio watch ends
@@ -314,7 +315,7 @@ class UserManagerTest extends TestCase {
         }
 
         // user[1] is cleared
-        $this->assertEquals([$this->userList[1]->id()], $userMan->ratioWatchClearList(), 'uman-ratiowatch-clear-list');
+        $this->assertEquals([$this->userList[1]->id], $userMan->ratioWatchClearList(), 'uman-ratiowatch-clear-list');
         $this->assertEquals(1, $userMan->ratioWatchClear($tracker), 'uman-ratiowatch-do-clear');
         $this->assertEquals(0, $userMan->ratioWatchClear($tracker), 'uman-ratiowatch-reprocess-clear');
         $this->userList[1]->flush();
@@ -326,8 +327,15 @@ class UserManagerTest extends TestCase {
         $this->assertEquals('You have been taken off Ratio Watch', $list[0]->subject(), 'uman-ratiowatch-pm-clear-subject');
         $this->assertTrue($this->userList[1]->canLeech(), 'uman-user1-canleech');
 
+        // user[3] is cleared
+        $this->assertEquals(
+            1,
+            $this->userList[3]->history()->resetRatioWatch(),
+            'uman-ratiowatch-reset'
+        );
+
         // user[2] did nothing, loses download privileges
-        $this->assertEquals([$this->userList[2]->id()], $userMan->ratioWatchEngageList(), 'uman-ratiowatch-engage-list');
+        $this->assertEquals([$this->userList[2]->id], $userMan->ratioWatchEngageList(), 'uman-ratiowatch-engage-list');
         $this->assertEquals(1, $userMan->ratioWatchEngage($tracker), 'uman-ratiowatch-do-engage');
         $this->assertEquals(0, $userMan->ratioWatchEngage($tracker), 'uman-ratiowatch-reprocess-engage');
         $this->userList[2]->flush();
@@ -336,7 +344,11 @@ class UserManagerTest extends TestCase {
         $pmMan    = new Manager\PM($receiver->user());
         $this->assertEquals(1, $receiver->messageTotal(), 'uman-ratiowatch-pm-engage-count');
         $list = $receiver->messageList($pmMan, 2, 0);
-        $this->assertEquals('Your downloading privileges have been suspended', $list[0]->subject(), 'uman-ratiowatch-pm-engage-subject');
+        $this->assertEquals(
+            'Your downloading privileges have been suspended',
+            $list[0]->subject(),
+            'uman-ratiowatch-pm-engage-subject'
+        );
         $this->assertFalse($this->userList[2]->canLeech(), 'uman-user2-no-canleech');
     }
 
@@ -348,7 +360,7 @@ class UserManagerTest extends TestCase {
                 $this->userList[0],
                 'phpunit sendCustomPMTest',
                 'phpunit sendCustomPMTest %USERNAME% message',
-                [$this->userList[1]->id(), $this->userList[2]->id()],
+                [$this->userList[1]->id, $this->userList[2]->id],
             ),
             'uman-send-custom-pm'
         );
@@ -366,8 +378,14 @@ class UserManagerTest extends TestCase {
 
     public function testUserclassFlush(): void {
         $userMan = new Manager\User();
-        $administratorId = (int)current(array_filter($userMan->classList(), fn($class) => $class['Name'] == 'Administrator'))['ID'];
-        $alphaTeamId = (int)current(array_filter($userMan->classList(), fn($class) => $class['Name'] == 'Alpha Team'))['ID'];
+        $administratorId = (int)current(array_filter(
+            $userMan->classList(),
+            fn ($class) => $class['Name'] == 'Administrator'
+        ))['ID'];
+        $alphaTeamId = (int)current(
+            array_filter($userMan->classList(),
+            fn ($class) => $class['Name'] == 'Alpha Team'
+        ))['ID'];
 
         $this->userList[0]->addClasses([$administratorId]);
         $this->userList[1]->addClasses([$alphaTeamId]);

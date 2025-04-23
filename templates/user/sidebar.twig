@@ -28,7 +28,7 @@
 {% endif %}
 
 {%- if viewer.permitted('users_view_ips') %}
-    {% include 'user/ip.twig' with {'user': user} %}
+{%  include 'user/ip.twig' with {'user': user} %}
 {% endif %}
 
 {%- if own_profile or viewer.permitted('users_view_keys') %}
@@ -77,7 +77,7 @@
 
 {%- if own_profile or viewer.permitted('users_mod') or viewer.isFLS %}
     <li{% if not own_profile %} class="paranoia_override"{% endif %} id="torrent-client">Torrent clients: {{ user.clients|join('; ') }}</li>
-    <li{% if not own_profile %} class="paranoia_override"{% endif %}>Password age: {{ user.passwordAge|time_interval }}</li>
+    <li{% if not own_profile %} class="paranoia_override"{% endif %}>Password age: {{ user.history.passwordAge|time_interval }}</li>
 {% endif %}
 
 </ul>

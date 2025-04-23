@@ -36,9 +36,8 @@ if (!empty($_REQUEST['password'])) {
             exit;
         } else {
             // set new secret and password.
-            $userToken->user()
-                ->updatePassword($_REQUEST['password'], true)
-                ->modify();
+            $userToken->user()->history()->modifyPassword($_REQUEST['password'], true);
+            $userToken->user()->modify();
             $userToken->user()->logoutEverywhere();
             $success = true;
         }

@@ -6,8 +6,6 @@ use Gazelle\Enum\AvatarDisplay;
 use Gazelle\Enum\UserAuditEvent;
 use Gazelle\Enum\UserStatus;
 use Gazelle\User\MultiFactorAuth;
-use Gazelle\Util\Irc;
-use Gazelle\Util\Mail;
 use Gazelle\Util\Time;
 
 class User extends BaseObject {
@@ -73,6 +71,10 @@ class User extends BaseObject {
      */
     public function inbox(): User\Inbox {
         return new User\Inbox($this);
+    }
+
+    public function history(): User\History {
+        return new User\History($this);
     }
 
     public function invite(): User\Invite {
@@ -1172,82 +1174,10 @@ class User extends BaseObject {
         return $success;
     }
 
-    /**
-     * Set a new user password. Requires calling modify() to persist new password.
-     */
-    public function updatePassword(#[\SensitiveParameter] string $pw, bool $notify): static {
-        $this->setField('PassHash', UserCreator::hashPassword($pw));
-        $ipaddr    = $this->requestContext()->remoteAddr();
-        $useragent = $this->requestContext()->useragent();
-        self::$db->prepared_query("
-            INSERT INTO users_history_passwords
-                   (UserID, ChangerIP, useragent)
-            VALUES (?,      ?,         ?)
-            ", $this->id, $ipaddr, $useragent
-        );
-        self::$cache->delete_value('user_pw_count_' . $this->id);
-        if ($notify) {
-            Irc::sendMessage(
-                $this->username(),
-                "Security alert: Your password was changed via $ipaddr with $useragent"
-            );
-            (new Mail())->send(
-                $this->email(),
-                'Password changed information for ' . SITE_NAME,
-                self::$twig->render('email/password-change.twig', [
-                    'ipaddr'    => $ipaddr,
-                    'now'       => date('Y-m-d H:i:s'),
-                    'useragent' => $useragent,
-                    'username'  => $this->username(),
-                ])
-            );
-        }
-        return $this;
-    }
-
-    public function passwordHistory(): array {
-        self::$db->prepared_query("
-            SELECT ChangeTime AS date,
-                ChangerIP     AS ipaddr,
-                useragent
-            FROM users_history_passwords
-            WHERE UserID = ?
-            ORDER BY ChangeTime DESC
-            ", $this->id
-        );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
-    }
-
     public function onRatioWatch(): bool {
         return $this->info()['RatioWatchEndsEpoch'] !== false
             && time() > $this->info()['RatioWatchEndsEpoch']
             && $this->uploadedSize() <= $this->downloadedSize() * $this->requiredRatio();
-    }
-
-    public function modifyAnnounceKeyHistory(string $oldPasskey, string $newPasskey): int {
-        self::$db->prepared_query("
-            INSERT INTO users_history_passkeys
-                   (UserID, OldPassKey, NewPassKey, ChangerIP)
-            VALUES (?,      ?,          ?,          ?)
-            ", $this->id, $oldPasskey, $newPasskey, $this->requestContext()->remoteAddr()
-        );
-        $affected = self::$db->affected_rows();
-        self::$cache->delete_value("user_passkey_count_{$this->id}");
-        return $affected;
-    }
-
-    public function announceKeyHistory(): array {
-        self::$db->prepared_query("
-            SELECT OldPassKey AS old,
-                NewPassKey    AS new,
-                ChangeTime    AS date,
-                ChangerIP     AS ipaddr
-            FROM users_history_passkeys
-            WHERE UserID = ?
-            ORDER BY ChangeTime DESC
-            ", $this->id
-        );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
 
     public function supportCount(int $newClassId, int $levelClassId): int {
@@ -1544,16 +1474,14 @@ class User extends BaseObject {
         return $value;
     }
 
-    public function passwordCount(): int {
-        return (int)$this->getSingleValue('user_pw_count', '
-            SELECT count(*) FROM users_history_passwords WHERE UserID = ?
-        ');
-    }
-
-    public function announceKeyCount(): int {
-        return (int)$this->getSingleValue('user_passkey_count', '
-            SELECT count(*) FROM users_history_passkeys WHERE UserID = ?
-        ');
+    // needs to be public for UserHistory
+    public function getSinglePgValue($cacheKey, $query): string {
+        $cacheKey .= '_' . $this->id;
+        if ($this->forceCacheFlush || ($value = self::$cache->get_value($cacheKey)) === false) {
+            $value = (string)$this->pg()->scalar($query, $this->id);
+            self::$cache->cache_value($cacheKey, $value, 3600);
+        }
+        return $value;
     }
 
     public function trackerIPCount(): int {
@@ -1590,15 +1518,6 @@ class User extends BaseObject {
 
     public function unusedInviteTotal(): int {
         return $this->disableInvites() ? 0 : $this->info()['Invites'];
-    }
-
-    public function passwordAge(): int {
-        return time() - (int)$this->getSingleValue('user_pw_epoch', "
-            SELECT unix_timestamp(coalesce(max(uhp.ChangeTime), um.created))
-            FROM users_main um
-            LEFT JOIN users_history_passwords uhp ON (uhp.UserID = um.ID)
-            WHERE um.ID = ?
-        ");
     }
 
     public function forumWarning(): ?string {

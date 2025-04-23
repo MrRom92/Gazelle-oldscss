@@ -537,10 +537,10 @@ if ($Viewer->permitted('users_edit_reset_keys')) {
         $editSummary[] = 'authkey reset';
     }
     if ($resetPasskey == 1) {
+        $oldPasskey = $user->announceKey();
         $passkey = randomString();
-        $user->modifyAnnounceKeyHistory($user->announceKey(), $passkey);
-        $user->setField('torrent_pass', $passkey);
-        $tracker->modifyPasskey(old: $user->announceKey(), new: $passkey);
+        $user->history()->modifyAnnounceKey(old: $oldPasskey, new: $passkey);
+        $tracker->modifyPasskey(old: $oldPasskey, new: $passkey);
         $editSummary[] = 'passkey reset';
     }
 }
@@ -612,7 +612,7 @@ if ($addedClasses) {
 }
 
 if ($changePassword && $Viewer->permitted('users_edit_password')) {
-    $user->updatePassword($_POST['ChangePassword'], false);
+    $user->history()->modifyPassword($_POST['ChangePassword'], false);
     (new \Gazelle\User\Session($user))->dropAll();
 }
 

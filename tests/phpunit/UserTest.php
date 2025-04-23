@@ -142,10 +142,11 @@ class UserTest extends TestCase {
 
     public function testPassword(): void {
         $password = randomString(30);
-        $this->user->updatePassword($password, true)->modify();
+        $this->user->history()->modifyPassword($password, true)->user()->modify();
+        $this->assertLessThan(1, $this->user->history()->passwordAge(), 'utest-password-age');
         $this->assertTrue($this->user->validatePassword($password), 'utest-password-validate-new');
-        $this->assertCount(1, $this->user->passwordHistory(), 'utest-password-history');
-        $this->assertEquals(1, $this->user->passwordCount(), 'utest-password-count');
+        $this->assertCount(1, $this->user->history()->passwordList(), 'utest-password-list');
+        $this->assertEquals(1, $this->user->history()->passwordTotal(), 'utest-password-count');
     }
 
     public function testUserBasic(): void {
@@ -432,6 +433,8 @@ class UserTest extends TestCase {
         $this->assertCount(1, $page, 'loginwatch-ip-page');
         $this->assertEquals($ban->id, $page[0]['id'], 'loginwatch-ip-id-page');
         $this->assertEquals(1, $ban->remove(), 'loginwatch-ip-ban-clear');
+
+        $this->assertEquals(3, $this->user->history()->resetIp(), 'user-reset-ip');
     }
 
     public function testParanoia(): void {
@@ -445,25 +448,27 @@ class UserTest extends TestCase {
         $key = $this->user->announceKey();
         $url = $this->user->announceUrl();
 
-        $this->assertEquals(0, $this->user->announceKeyCount(), 'utest-announce-key-count');
+        $this->assertEquals(0, $this->user->history()->announceKeyTotal(), 'utest-announce-key-count');
         $this->assertEquals(32, strlen($key), 'utest-announce-key');
         $this->assertStringStartsWith(ANNOUNCE_HTTPS_URL, $url, 'utest-announce-url-begin');
         $this->assertStringEndsWith('/announce', $url, 'utest-announce-url-end');
-        $this->assertCount(0, $this->user->announceKeyHistory(), 'utest-announce-key-history');
+        $this->assertCount(0, $this->user->history()->announceKeyList(), 'utest-announce-key-list');
 
         $new = randomString(32);
-        $this->assertEquals(1, $this->user->modifyAnnounceKeyHistory($key, $new), 'utest-announce-key-modify');
-        $this->assertEquals(1, $this->user->announceKeyCount(), 'utest-announce-key-new-count');
-        $this->assertCount(1, $this->user->announceKeyHistory(), 'utest-announce-key-new-history');
-        $history = current($this->user->announceKeyHistory());
-        $this->assertEquals($key, $history['old'], 'utest-announce-key-history-old');
-        $this->assertEquals($new, $history['new'], 'utest-announce-key-history-new');
+        $id  = $this->user->history()->modifyAnnounceKey($key, $new);
+        $this->assertGreaterThan(0, $id, 'utest-announce-key-modify');
+        $this->user->modify();
+        $this->assertEquals($new, $this->user->announceKey(), 'utest-new-announce-key');
+        $this->assertEquals(1, $this->user->history()->announceKeyTotal(), 'utest-announce-key-new-count');
+        $history = current($this->user->history()->announceKeyList());
+        $this->assertCount(4, $history, 'utest-announce-key-new-history');
+        $this->assertEquals($key, $history['previous'], 'utest-announce-key-history-old');
         $this->assertEquals(
             $this->user->requestContext()->remoteAddr(),
-            $history['ipaddr'],
+            $history['ip'],
             'utest-announce-key-history-ipaddr'
         );
-        $this->assertTrue(Helper::recentDate($history['date']), 'utest-announce-key-history-date');
+        $this->assertTrue(Helper::recentDate($history['created']), 'utest-announce-key-history-date');
     }
 
     public function testInactive(): void {

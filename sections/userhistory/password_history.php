@@ -16,6 +16,5 @@ if (is_null($user)) {
 }
 
 echo $Twig->render('user/password-history.twig', [
-    'list' => $user->passwordHistory(),
     'user' => $user,
 ]);

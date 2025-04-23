@@ -175,7 +175,7 @@ if (!empty($_POST['password']) && !empty($_POST['new_pass_1']) && !empty($_POST[
         } elseif ($_POST['new_pass_1'] !== $_POST['new_pass_2']) {
             Error400::error('You did not enter the same password twice.');
         }
-        $user->updatePassword($_POST['new_pass_1'], true);
+        $user->history()->modifyPassword($_POST['new_pass_1'], true);
         $ResetPassword = true;
     }
 }
@@ -270,8 +270,7 @@ if ($newEmail) {
 if (isset($_POST['resetpasskey'])) {
     $oldPasskey = $user->announceKey();
     $newPasskey = randomString();
-    $user->setField('torrent_pass', $newPasskey);
-    $user->modifyAnnounceKeyHistory($oldPasskey, $newPasskey);
+    $user->history()->modifyAnnounceKey(old: $oldPasskey, new: $newPasskey);
     (new Tracker())->modifyPasskey(old: $oldPasskey, new: $newPasskey);
 }
 
