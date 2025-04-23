@@ -573,7 +573,7 @@ abstract class TorrentAbstract extends BaseObject {
         if ($this->isDeleted()) {
             return [];
         }
-        $key = sprintf(self::CACHE_REPORTLIST, $this->id());
+        $key = sprintf(self::CACHE_REPORTLIST, $this->id);
         $list = self::$cache->get_value($key);
         if ($list === false) {
             $qid = self::$db->get_query_id();
@@ -592,7 +592,7 @@ abstract class TorrentAbstract extends BaseObject {
             self::$cache->cache_value($key, $list, 7200);
         }
         if (!$viewer->isStaff()) {
-            $list = array_filter($list, fn($r) => $r['is_invisible'] == 0 || $r['reporter_id'] == $viewer->id());
+            $list = array_filter($list, fn($r) => $r['is_invisible'] == 0 || $r['reporter_id'] == $viewer->id);
         }
         return array_column($list, 'id');
     }
@@ -677,23 +677,39 @@ abstract class TorrentAbstract extends BaseObject {
     public function addFlag(TorrentFlag $flag, User $user): int {
         self::$db->prepared_query("
             INSERT IGNORE INTO torrent_has_attr
-                (TorrentID, TorrentAttrID, UserID)
-            VALUES (?, (SELECT ID FROM torrent_attr WHERE Name = ?), ?)
-            ", $this->id, $flag->value, $user->id
+                (TorrentID, TorrentAttrID)
+            VALUES (?, (SELECT ID FROM torrent_attr WHERE Name = ?))
+            ", $this->id, $flag->value
         );
-        $this->flush();
-        return self::$db->affected_rows();
+        $affected = self::$db->affected_rows();
+        if ($affected) {
+            $this->logger()->torrent(
+                $this,
+                $user,
+                "\"{$flag->label()}\" flag added to torrent {$this->id}",
+            );
+            $this->flush();
+        }
+        return $affected;
     }
 
-    public function removeFlag(TorrentFlag $flag): int {
+    public function removeFlag(TorrentFlag $flag, User $user): int {
         self::$db->prepared_query("
             DELETE FROM torrent_has_attr
             WHERE TorrentID = ?
                 AND TorrentAttrID = (SELECT ID FROM torrent_attr WHERE Name = ?)
             ", $this->id, $flag->value
         );
-        $this->flush();
-        return self::$db->affected_rows();
+        $affected = self::$db->affected_rows();
+        if ($affected) {
+            $this->logger()->torrent(
+                $this,
+                $user,
+                "\"{$flag->label()}\" flag removed from torrent {$this->id}",
+            );
+            $this->flush();
+        }
+        return $affected;
     }
 
     public function hasUploadLock(): bool {

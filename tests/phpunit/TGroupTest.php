@@ -73,7 +73,7 @@ class TGroupTest extends TestCase {
     }
 
     public function testTGroupCreate(): void {
-        $this->assertGreaterThan(1, $this->tgroup->id(), 'tgroup-create-id');
+        $this->assertGreaterThan(1, $this->tgroup->id, 'tgroup-create-id');
 
         $this->assertTrue($this->tgroup->categoryGrouped(), 'tgroup-create-category-grouped');
         $this->assertFalse($this->tgroup->isShowcase(), 'tgroup-create-showcase');
@@ -96,9 +96,9 @@ class TGroupTest extends TestCase {
         $this->assertFalse($this->tgroup->isOwner($this->userList['nope']), 'tgroup-nope-not-owner');
 
         $this->assertNull($this->manager->findById(-666), 'tgroup-no-instance-of');
-        $find = $this->manager->findById($this->tgroup->id());
+        $find = $this->manager->findById($this->tgroup->id);
         $this->assertInstanceOf(TGroup::class, $find, 'tgroup-instance-of');
-        $this->assertEquals($this->tgroup->id(), $find->id(), 'tgroup-create-find');
+        $this->assertEquals($this->tgroup->id, $find->id, 'tgroup-create-find');
 
         $torMan = new Manager\Torrent();
         $torrent = $torMan->findById($this->tgroup->torrentIdList()[0]);
@@ -151,7 +151,7 @@ class TGroupTest extends TestCase {
             $this->tgroup->releaseType(),
             $this->tgroup->year(),
         );
-        $this->assertEquals($this->tgroup->id(), $foundByArtist->id(), 'tgroup-find-name');
+        $this->assertEquals($this->tgroup->id, $foundByArtist->id, 'tgroup-find-name');
 
         $this->assertEquals(
             2,
@@ -274,7 +274,7 @@ class TGroupTest extends TestCase {
 
     public function testTGroupSubscription(): void {
         $sub = new User\Subscription($this->userList['user']);
-        $this->assertTrue($sub->subscribeComments('torrents', $this->tgroup->id()));
+        $this->assertTrue($sub->subscribeComments('torrents', $this->tgroup->id));
 
         $text       = 'phpunit tgroup subscribe ' . randomString();
         $commentMan = new Manager\Comment();
@@ -282,7 +282,7 @@ class TGroupTest extends TestCase {
         // TODO: should this be 1?
         $this->assertEquals(0, $comment->pageNum(), 'tgroup-comment-page-num');
 
-        $this->assertEquals([['torrents', $this->tgroup->id()]], $sub->commentSubscriptions(), 'tgroup-tgroup-comment-sub');
+        $this->assertEquals([['torrents', $this->tgroup->id]], $sub->commentSubscriptions(), 'tgroup-tgroup-comment-sub');
         $this->assertEquals(1, $sub->commentTotal(), 'tgroup-tgroup-comment-all');
     }
 
@@ -292,7 +292,7 @@ class TGroupTest extends TestCase {
 
         $tagMan = new Manager\Tag();
         $tag = $tagMan->create($name, $user);
-        $this->assertGreaterThan(1, $tag->id(), 'tgroup-tag-create');
+        $this->assertGreaterThan(1, $tag->id, 'tgroup-tag-create');
         $this->assertEquals(1, $tag->addTGroup($this->tgroup, $user, 10), 'tgroup-tag-add-one');
 
         $tag2 = $tagMan->create('phpunit.' . randomString(6), $user);
@@ -340,7 +340,7 @@ class TGroupTest extends TestCase {
             user:            $user,
             catalogueNumber: 'UA-MG-1',
         );
-        $oldId   = $this->tgroupExtra->id();
+        $oldId   = $this->tgroupExtra->id;
         $oldName = $this->tgroupExtra->name();
 
         (new User\Bookmark($admin))->create('torrent', $oldId);
@@ -361,26 +361,26 @@ class TGroupTest extends TestCase {
             'tgroup-music-merge'
         );
 
-        $siteLog = new Manager\SiteLog(new Manager\User());
+        $siteLog = new Manager\SiteLog();
         $siteLog->relay();
-        $list = $siteLog->tgroupLogList($this->tgroup->id());
+        $list = $siteLog->tgroupLogList($this->tgroup->id);
         $event = end($list);
         $this->assertStringContainsString("($oldName)", $event['info'], 'tgroup-merge-old-name');
         $this->assertStringContainsString("({$this->tgroup->name()})", $event['info'], 'tgroup-merge-new-name');
 
         $general = current($siteLog->page(1, 0, ''));
         $this->assertEquals(
-            "Group <a href=\"torrents.php?id=$oldId\">$oldId</a> deleted following merge to {$this->tgroup->id()}.",
+            "Group <a href=\"torrents.php?id=$oldId\">$oldId</a> deleted following merge to {$this->tgroup->id}.",
             $general['message'],
             'tgroup-merge-general'
         );
 
         $this->assertTrue(
-            (new User\Bookmark($admin))->isTorrentBookmarked($this->tgroup->id()),
+            (new User\Bookmark($admin))->isTorrentBookmarked($this->tgroup->id),
             'tgroup-merge-bookmark'
         );
 
-        $comment = new Comment\Torrent($this->tgroup->id(), 1, 0);
+        $comment = new Comment\Torrent($this->tgroup->id, 1, 0);
 
         // create new vote objects to pick up the state change
         unset($adminVote);
@@ -472,7 +472,7 @@ class TGroupTest extends TestCase {
         // test increment
         $total = $stats->bookmarkTotal();
         $bookmark = new User\Bookmark($this->userList['user']);
-        $bookmark->create('torrent', $this->tgroup->id());
+        $bookmark->create('torrent', $this->tgroup->id);
 
         (new Stats\TGroups())->refresh();
         $stats->flush();

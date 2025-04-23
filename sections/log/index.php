@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$siteLog = new Manager\SiteLog(new Manager\User());
+$siteLog = new Manager\SiteLog();
 $page    = (int)($_GET['page'] ?? 1);
 if (!$Viewer->permitted('site_search_many')) {
     $page = min($page, (int)(MAX_LOG_DEPTH / LOG_ENTRIES_PER_PAGE));

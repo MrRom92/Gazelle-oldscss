@@ -27,7 +27,7 @@ class Log extends Base {
             INSERT INTO group_log
                    (GroupID, UserID, Info, TorrentID, Hidden)
             VALUES (?,       ?,      ?,    0,         0)
-            ", $tgroup->id(), $user?->id(), $message
+            ", $tgroup->id(), $user?->id, $message
         );
         self::$db->set_query_id($qid);
         return $this;
@@ -36,13 +36,13 @@ class Log extends Base {
     /**
      * Write a torrent entry
      */
-    public function torrent(Torrent $torrent, ?User $user, string $message): static {
+    public function torrent(TorrentAbstract $torrent, ?User $user, string $message): static {
         $qid = self::$db->get_query_id();
         self::$db->prepared_query("
             INSERT INTO group_log
                    (GroupID, TorrentID, UserID, Info, Hidden)
             VALUES (?,       ?,         ?,      ?,    0)
-            ", $torrent->groupId(), $torrent->id(), $user?->id(), $message
+            ", $torrent->groupId(), $torrent->id, $user?->id, $message
         );
         self::$db->set_query_id($qid);
         return $this;
@@ -53,7 +53,7 @@ class Log extends Base {
             UPDATE group_log SET
                 GroupID = ?
             WHERE GroupID = ?
-            ", $new->id(), $old->id()
+            ", $new->id, $old->id
         );
         return self::$db->affected_rows();
     }

@@ -45,7 +45,7 @@ class RequestTest extends TestCase {
         $title         = 'phpunit ' . randomString(6) . ' Test Sessions (bonus VIP)';
         $image         = 'https://example.com/req.jpg';
         $this->request = Helper::makeRequestMusic($admin, $title, image: $image);
-        $id = $this->request->id();
+        $id = $this->request->id;
 
         $this->assertInstanceOf(Request::class, $this->request, 'request-create');
         $this->assertStringNotContainsString(' (bonus VIP)', $this->request->urlencodeTitle(), 'request-urlencode-title');
@@ -76,13 +76,13 @@ class RequestTest extends TestCase {
         );
 
         // Request::info() will now succeed
-        $this->assertEquals($admin->id(), $this->request->userId(), 'request-user-id');
-        $this->assertEquals($admin->id(), $this->request->ajaxInfo()['requestorId'], 'request-ajax-user-id');
+        $this->assertEquals($admin->id, $this->request->userId(), 'request-user-id');
+        $this->assertEquals($admin->id, $this->request->ajaxInfo()['requestorId'], 'request-ajax-user-id');
         $year = date('Y');
         $this->assertEquals("$artistName – $title [$year]", $this->request->text(), 'request-text');
         $find = $manager->findByArtist($artistMan->findByName($artistName));
         $this->assertCount(1, $find, 'request-find-by-artist');
-        $this->assertEquals($id, $find[0]->id(), 'request-find-id');
+        $this->assertEquals($id, $find[0]->id, 'request-find-id');
 
         $this->assertEquals(1, $this->request->releaseType(), 'request-release-type-id');
         $location = "requests.php?action=view&id=$id";
@@ -266,7 +266,7 @@ class RequestTest extends TestCase {
         $this->assertTrue(Helper::recentDate($this->request->lastVoteDate()), 'request-last-vote-date');
         $this->assertEquals(2, $this->request->userVotedTotal(), 'request-user-voted-total');
         $this->assertEquals(
-            [$admin->id(), $user->id],
+            [$admin->id, $user->id],
             array_column($this->request->userIdVoteList(), 'user_id'),
             'request-user-id-vote-list'
         );
@@ -301,7 +301,7 @@ class RequestTest extends TestCase {
         $this->assertEquals($fillBefore['bounty-size'] + $taxedBounty * 2, $user->stats()->requestBountySize(), 'request-fill-receive-bounty');
         $this->assertEquals($fillBefore['bounty-total'] + 1, $user->stats()->requestBountyTotal(), 'request-fill-receive-total');
         $this->assertTrue(Helper::recentDate($this->request->fillDate()), 'request-fill-date');
-        $this->assertEquals($this->request->id(), $torrent->requestFills($requestMan)[0]->id(), 'request-torrent-fills');
+        $this->assertEquals($this->request->id, $torrent->requestFills($requestMan)[0]->id, 'request-torrent-fills');
 
         $statsReq->flush();
         $this->assertEquals($before['total'] + 1, $statsReq->total(), 'request-stats-now-total');
@@ -315,21 +315,21 @@ class RequestTest extends TestCase {
         $this->assertEquals($fillBefore['bounty-total'], $this->userList['user']->stats()->requestBountyTotal(), 'request-fill-unfill-total');
         $this->assertFalse($this->request->isFilled(), 'request-unfilled');
 
-        $siteLog = new Manager\SiteLog(new Manager\User());
+        $siteLog = new Manager\SiteLog();
         $siteLog->relay();
         $page = $siteLog->page(2, 0, $this->request->title());
         $this->assertStringStartsWith(
-            "Request <a href=\"{$this->request->url()}\">{$this->request->id()}</a> ({$this->request->title()})",
+            "Request <a href=\"{$this->request->url()}\">{$this->request->id}</a> ({$this->request->title()})",
             $page[0]['message'],
             'request-log-unfill-title'
         );
         $this->assertStringContainsString(
-            "was unfilled by user {$admin->id()} ({$admin->link()}) for the reason",
+            "was unfilled by user {$admin->id} ({$admin->link()}) for the reason",
             $page[0]['message'],
             'request-log-unfill-by'
         );
         $this->assertStringContainsString(
-            "was filled by user {$user->id} ({$user->link()}) with the torrent <a href=\"torrents.php?torrentid={$torrent->id()}\">{$torrent->id()}</a>",
+            "was filled by user {$user->id} ({$user->link()}) with the torrent <a href=\"torrents.php?torrentid={$torrent->id}\">{$torrent->id}</a>",
             $page[1]['message'],
             'request-log-fill-by'
         );
@@ -482,7 +482,7 @@ class RequestTest extends TestCase {
         $this->assertEquals($bounty + 15, $votes[0]['bounty'], 'request-vote-bounty1');
         $this->assertEquals($bounty + 1, $votes[2]['bounty'], 'request-vote-bounty2');
         $this->assertEquals($user->id, $votes[0]['user_id'], 'request-vote-user1');
-        $this->assertEquals($user2->id(), $votes[2]['user_id'], 'request-vote-user2');
+        $this->assertEquals($user2->id, $votes[2]['user_id'], 'request-vote-user2');
     }
 
     public function testBookmark(): void {
@@ -512,13 +512,13 @@ class RequestTest extends TestCase {
         );
         (new Manager\Tag())->softCreate('classical.era', $this->userList['admin'])->addRequest($this->request);
         $this->assertTrue(
-            (new User\Bookmark($this->userList['user']))->create('request', $this->request->id()),
+            (new User\Bookmark($this->userList['user']))->create('request', $this->request->id),
             'request-bookmark-add'
         );
         $this->assertEquals(1, $this->request->updateBookmarkStats(), 'request-bookmark-update');
         $find = $manager->findUnfilledByUser($this->userList['admin'], 2);
         $this->assertCount(1, $find, 'request-find-unfilled');
-        $this->assertEquals($this->request->id(), $find[0]->id(), 'request-found');
+        $this->assertEquals($this->request->id, $find[0]->id, 'request-found');
     }
 
     public function testReport(): void {
@@ -536,14 +536,14 @@ class RequestTest extends TestCase {
 
         $title = 'phpunit request report';
         $report = (new Manager\Report(new Manager\User()))->create(
-            $this->userList['user'], $this->request->id(), 'request', $title
+            $this->userList['user'], $this->request->id, 'request', $title
         );
         $this->assertEquals('phpunit request report', $report->reason(), 'request-report-reason');
-        $requestReport = new Report\Request($report->id(), $this->request);
+        $requestReport = new Report\Request($report->id, $this->request);
         $this->assertStringStartsWith('Request Report: ', $requestReport->titlePrefix(), 'request-report-title');
         $this->assertEquals('report/request.twig', $requestReport->template(), 'request-report-template');
         $this->assertEquals(
-            "the request [url=requests.php?action=view&amp;id={$this->request->id()}]{$title}[/url]",
+            "the request [url=requests.php?action=view&amp;id={$this->request->id}]{$title}[/url]",
             $requestReport->bbLink(),
             'request-report-bb-link'
         );
@@ -568,7 +568,7 @@ class RequestTest extends TestCase {
             $this->request,
             $this->userList['user'],
             new User\Bookmark($this->userList['user']),
-            new Comment\Request($this->request->id(), 1, 0),
+            new Comment\Request($this->request->id, 1, 0),
             new Manager\User(),
         );
         $payload = $json->payload();

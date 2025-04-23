@@ -39,13 +39,48 @@ class TorrentTest extends TestCase {
     }
 
     public function testFlag(): void {
-        $this->assertFalse($this->torrent->hasFlag(TorrentFlag::badFile), 'torrent-no-bad-file-flag');
-        $this->assertEquals(1, $this->torrent->addFlag(TorrentFlag::badFile, $this->user), 'torrent-add-bad-file-flag');
-        $this->assertTrue($this->torrent->hasFlag(TorrentFlag::badFile), 'torrent-has-bad-file-flag');
+        $this->assertFalse(
+            $this->torrent->hasFlag(TorrentFlag::badFile),
+            'torrent-no-bad-file-flag',
+        );
+        $this->assertEquals(
+            1,
+            $this->torrent->addFlag(TorrentFlag::badFile, $this->user),
+            'torrent-add-bad-file-flag',
+        );
+        $this->assertTrue(
+            $this->torrent->hasFlag(TorrentFlag::badFile),
+            'torrent-has-bad-file-flag',
+        );
 
-        $this->assertEquals(1, $this->torrent->removeFlag(TorrentFlag::badFile), 'torrent-remove-bad-file-flag');
-        $this->assertEquals(0, $this->torrent->removeFlag(TorrentFlag::badFolder), 'torrent-remove-no-flag');
-        $this->assertFalse($this->torrent->hasFlag(TorrentFlag::badFile), 'torrent-no-more--bad-file-flag');
+        $this->assertEquals(
+            1,
+            $this->torrent->removeFlag(TorrentFlag::badFile, $this->user),
+            'torrent-remove-bad-file-flag',
+        );
+        $this->assertEquals(
+            0,
+            $this->torrent->removeFlag(TorrentFlag::badFolder, $this->user),
+            'torrent-remove-no-flag',
+        );
+        $this->assertFalse(
+            $this->torrent->hasFlag(TorrentFlag::badFile),
+            'torrent-no-more-bad-file-flag',
+        );
+
+        $log = (new Manager\SiteLog())->tgroupLogList($this->torrent->groupId());
+        $this->assertCount(3, $log, 'torrent-flag-log-count');
+        // reverse chronological, remove then add
+        $this->assertEquals(
+            "\"Bad Files\" flag removed from torrent {$this->torrent->id}",
+            $log[0]['info'],
+            'torrent-flag-log-add',
+        );
+        $this->assertEquals(
+            "\"Bad Files\" flag added to torrent {$this->torrent->id}",
+            $log[1]['info'],
+            'torrent-flag-log-add',
+        );
     }
 
     public function testContents(): void {

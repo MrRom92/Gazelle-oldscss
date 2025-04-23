@@ -34,7 +34,7 @@ class LogTest extends TestCase {
     }
 
     public function testGeneralLog(): void {
-        $siteLog = new Manager\SiteLog(new Manager\User());
+        $siteLog = new Manager\SiteLog();
         $this->assertGreaterThanOrEqual(0, $siteLog->relay(), 'sitelog-relay-init');
         $message = self::PREFIX . "general torrent 123457890 " . randomString();
         $siteLog->logger()->general($message);
@@ -62,10 +62,10 @@ class LogTest extends TestCase {
             [[ARTIST_MAIN], ['phpunit log artist ' . randomString(6)]],
             ['log.jam']
         );
-        $tgroupId = $this->tgroup->id();
+        $tgroupId = $this->tgroup->id;
         $logger->group($this->tgroup, $this->user, self::PREFIX . "group first " . randomString());
 
-        $siteLog = new Manager\SiteLog(new Manager\User());
+        $siteLog = new Manager\SiteLog();
         $this->assertCount(2, $siteLog->tgroupLogList($tgroupId), 'grouplog-intial');
         $result = $siteLog->tgroupLogList($tgroupId);
         $latest = current($result);
@@ -89,7 +89,7 @@ class LogTest extends TestCase {
 
         $messageList = array_map(
             fn($m) => $m['info'],
-            $siteLog->tgroupLogList($this->tgroupNew->id()),
+            $siteLog->tgroupLogList($this->tgroupNew->id),
         );
 
         $this->assertStringStartsWith(self::PREFIX . 'group merge ', $messageList[0], 'grouplog-merge-line-0');
@@ -116,14 +116,14 @@ class LogTest extends TestCase {
         );
         $logger->torrent($torrent, $this->user, self::PREFIX . "torrent " . randomString());
 
-        $siteLog = new Manager\SiteLog(new Manager\User());
-        $this->assertCount(2, $siteLog->tgroupLogList($this->tgroup->id()), 'torrentlog-has-log');
+        $siteLog = new Manager\SiteLog();
+        $this->assertCount(2, $siteLog->tgroupLogList($this->tgroup->id), 'torrentlog-has-log');
 
         $torrent->removeTorrent($this->user, 'phpunit log delete');
-        $result = $siteLog->tgroupLogList($this->tgroup->id());
+        $result = $siteLog->tgroupLogList($this->tgroup->id);
         $latest = current($result);
         $this->assertEquals(1, $latest['deleted'], 'torrentlog-latest-is-deleted');
-        $this->assertEquals($torrent->id(), $latest['torrent_id'], 'torrentlog-latest-torrent-id');
+        $this->assertEquals($torrent->id, $latest['torrent_id'], 'torrentlog-latest-torrent-id');
         $this->assertEquals($this->user->id, $latest['user_id'], 'torrentlog-latest-user-id');
     }
 
@@ -133,7 +133,7 @@ class LogTest extends TestCase {
         $message = self::PREFIX . "general " . randomString();
         $logger->general($message);
 
-        $siteLog   = new Manager\SiteLog(new Manager\User());
+        $siteLog   = new Manager\SiteLog();
         $siteLog->relay();
         $paginator = new Util\Paginator(LOG_ENTRIES_PER_PAGE, 1);
         $page      = $siteLog->page($paginator->page(), $paginator->offset(), '');

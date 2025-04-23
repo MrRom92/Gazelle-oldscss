@@ -40,7 +40,7 @@ $better = match ($type) {
 if (isset($_GET['remove']) && $better instanceof Better\Bad && $Viewer->permitted('admin_reports')) {
     $torrent = (new Manager\Torrent())->findById((int)$_GET['remove']);
     if ($torrent) {
-        $torrent->removeFlag($better->torrentFlag());
+        $torrent->removeFlag($better->torrentFlag(), $Viewer);
     }
 }
 

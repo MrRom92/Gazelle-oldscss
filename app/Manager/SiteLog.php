@@ -11,7 +11,7 @@ class SiteLog extends \Gazelle\Base {
         // the User manager is only needed for the page() method, but
         // it is a major hassle to pass it in at that point and then
         // carry it down to the method that actually needs it.
-        protected \Gazelle\Manager\User $userMan,
+        protected User $userMan = new User(),
     ) {}
 
     protected function configure(string $searchTerm): array {

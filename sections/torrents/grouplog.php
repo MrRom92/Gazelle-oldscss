@@ -16,5 +16,5 @@ $tgroup = (new Manager\TGroup())->findById($tgroupId);
 echo $Twig->render('tgroup/group-log.twig', [
     'id'     => $tgroupId,
     'tgroup' => $tgroup,
-    'log'    => (new Manager\SiteLog(new Manager\User()))->tgroupLogList($tgroupId),
+    'log'    => (new Manager\SiteLog())->tgroupLogList($tgroupId),
 ]);

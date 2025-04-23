@@ -252,11 +252,9 @@ if ($Viewer->permitted('users_mod')) {
         }
         $exists = $torrent->hasFlag($flag);
         if (!$exists && $Properties[$flag->value]) {
-            $change[] = "{$flag->label()} checked";
             $torrent->addFlag($flag, $Viewer);
         } elseif ($exists && !$Properties[$flag->value]) {
-            $change[] = "{$flag->label()} cleared";
-            $torrent->removeFlag($flag);
+            $torrent->removeFlag($flag, $Viewer);
         }
     }
 }
