@@ -47,6 +47,10 @@ if (isset($_GET['mode']) && $_GET['mode'] === 'userrank') {
         'egid'             => gid(posix_getegid()),
         'openssl_strong'   => $strong,
         'mysql_version'    => $db->version(),
+        'index' => [
+            'redundant' => $db->redundantIndexList(),
+            'unused'    => $db->unusedIndexList(),
+        ],
         'pg_checkpoint'    => $pg->checkpointInfo(),
         'pg_version'       => $pg->version(),
         'php_version'      => phpversion(),

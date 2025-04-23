@@ -47,11 +47,13 @@
         <tr>
             <th>Index name</th>
             <th>Rows read</th>
+            <th>Column list and cardinalities</th>
         </tr>
 {% for r in index_read %}
         <tr>
-            <td>{{ r.INDEX_NAME }}</td>
-            <td>{{ r.ROWS_READ|number_format }}</td>
+            <td>{{ r.index_name }}</td>
+            <td>{{ r.rows_read|number_format }}</td>
+            <td>{{ r.column_list }}</td>
         </tr>
 {% endfor %}
     </table>

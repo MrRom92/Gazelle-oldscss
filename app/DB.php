@@ -198,4 +198,52 @@ class DB extends Base {
             Direction::descending->value => Direction::descending,
         };
     }
+
+    public function redundantIndexList(): array {
+        self::$db->prepared_query("
+            SELECT sri.table_name,
+                concat(sri.dominant_index_name, ' (', sri.dominant_index_columns, ')')   AS covering_index,
+                concat(sri.redundant_index_name, ' (', sri.redundant_index_columns, ')') AS redundant_index,
+                coalesce(c.rows_read, 0) AS covering_read,
+                coalesce(r.rows_read, 0) AS redundant_read
+            FROM sys.schema_redundant_indexes sri
+            LEFT JOIN information_schema.index_statistics c
+                ON (c.table_name = sri.table_name and c.index_name = sri.dominant_index_name)
+            LEFT JOIN information_schema.index_statistics r
+                ON (r.table_name = sri.table_name and r.index_name = sri.redundant_index_name)
+            WHERE sri.table_schema = ?
+            ORDER BY table_name, covering_index, redundant_index
+            ", MYSQL_DB
+        );
+        $list = [];
+        foreach (self::$db->to_array(false, MYSQLI_ASSOC, false) as $r) {
+            $r['covering_read'] = (int)$r['covering_read'];
+            $r['redundant_read'] = (int)$r['redundant_read'];
+            $list[] = $r;
+        }
+        return $list;
+    }
+
+    public function unusedIndexList(): array {
+        self::$db->prepared_query("
+             SELECT sui.object_name AS table_name,
+                sui.index_name,
+                group_concat(
+                    concat(s.column_name, ' {', s.cardinality, '}')
+                    ORDER BY s.seq_in_index
+                    SEPARATOR ', '
+                ) AS column_list
+            FROM sys.schema_unused_indexes sui
+            INNER JOIN information_schema.statistics s on (
+                s.table_schema = sui.object_schema
+                AND s.table_name = sui.object_name
+                AND s.index_name = sui.index_name
+            )
+            WHERE sui.object_schema = ?
+            GROUP BY table_name, index_name
+            ORDER BY table_name, index_name
+            ", MYSQL_DB
+        );
+        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+    }
 }

@@ -1,8 +1,8 @@
 From: Spine
 To: Developers
-Date: 2020-03-21
+Date: 2024-12-07
 Subject: Orpheus Development Papers #1 - Mysql Roles
-Version: 1
+Version: 2
 
 The default Gazelle installation defines a single Mysql role (with full
 privileges) and used for everything: the website, Ocelot and Sphinx. If any
@@ -68,3 +68,7 @@ GRANT CREATE TEMPORARY TABLES, DELETE, INSERT, SELECT, UPDATE ON `gazelle`.* TO 
 GRANT DROP ON `gazelle`.`drives` TO 'www'@'localhost';
 GRANT EXECUTE ON FUNCTION `gazelle`.`binomial_ci` TO 'www'@'localhost';
 GRANT EXECUTE ON FUNCTION `gazelle`.`bonus_accrual` TO 'www'@'localhost';
+GRANT SELECT ON `sys`.`schema_unused_indexes` TO 'www'@'localhost';
+GRANT SELECT ON `performance_schema`.`table_io_waits_summary_by_index_usage` TO 'www'@'localhost';
+GRANT SELECT ON `sys`.`schema_redundant_indexes` TO 'www'@'localhost';
+GRANT SELECT ON `sys`.`x$schema_flattened_keys` TO 'www'@'localhost';

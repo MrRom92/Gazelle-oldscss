@@ -58,7 +58,14 @@ if [ -z "${MYSQL_INIT_DB-}" ]; then
         cat /opt/gazelle/mysql_schema.sql /opt/gazelle/mysql_data.sql
         cat <<EOF
 CREATE USER IF NOT EXISTS 'ro_$MYSQL_USER'@'%' IDENTIFIED BY 'ro_$MYSQL_PASSWORD';
-GRANT SELECT ON *.* TO 'ro_$MYSQL_USER'@'%';
+GRANT SELECT ON performance_schema.table_io_waits_summary_by_index_usage TO '$MYSQL_USER'@'%';
+GRANT SELECT ON sys.schema_redundant_indexes TO '$MYSQL_USER'@'%';
+GRANT SELECT ON sys.schema_unused_indexes TO '$MYSQL_USER'@'%';
+GRANT SELECT ON sys.x\$schema_flattened_keys TO '$MYSQL_USER'@'%';
+GRANT SELECT ON performance_schema.table_io_waits_summary_by_index_usage TO 'ro_$MYSQL_USER'@'%';
+GRANT SELECT ON sys.schema_redundant_indexes TO 'ro_$MYSQL_USER'@'%';
+GRANT SELECT ON sys.schema_unused_indexes TO 'ro_$MYSQL_USER'@'%';
+GRANT SELECT ON sys.x\$schema_flattened_keys TO 'ro_$MYSQL_USER'@'%';
 CREATE FUNCTION IF NOT EXISTS bonus_accrual(Size bigint, Seedtime float, Seeders integer)
   RETURNS float DETERMINISTIC NO SQL
   RETURN Size / pow(1024, 3) * (0.0433 + (0.07 * ln(1 + Seedtime/24)) / pow(greatest(Seeders, 1), 0.35));

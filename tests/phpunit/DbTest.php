@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 use GazelleUnitTest\Helper;
 use Gazelle\Enum\Direction;
 
@@ -150,6 +151,40 @@ class DbTest extends TestCase {
 
     public function testLongRunning(): void {
         $this->assertEquals(0, (new DB())->longRunning(), 'db-long-running');
+    }
+
+    public function testIndexLists(): void {
+        $tableName = 'phpunit_' . randomString(10);
+        $dbh = DB::DB();
+        $dbh->prepared_query("
+            CREATE TABLE $tableName (
+                phpunit_id int PRIMARY KEY,
+                t1 int,
+                t2 int,
+                key (t1, t2),
+                key (t1)
+            )
+        ");
+        $db = new DB();
+
+        $list = array_filter($db->redundantIndexList(), fn ($t) => $t['table_name'] === $tableName);
+        $this->assertCount(1, $list, 'db-index-redundant');
+        $redundant = current($list);
+        $this->assertEquals($tableName, $redundant['table_name'], 'redundant-table-name');
+        $this->assertEquals('t1 (t1,t2)', $redundant['covering_index'], 'covering-index-name');
+        $this->assertEquals('t1_2 (t1)', $redundant['redundant_index'], 'redundant-index-name');
+        $this->assertEquals(0, $redundant['redundant_read'], 'redundant-redundant-read');
+        $this->assertEquals(0, $redundant['covering_read'], 'redundant-covering-read');
+
+        $list = array_filter($db->unusedIndexList(), fn ($t) => $t['table_name'] === $tableName);
+        $this->assertCount(2, $list, 'db-index-unused');
+        $unused = current($list);
+        $this->assertEquals($tableName, $unused['table_name'], 'unused-table-name');
+        $this->assertEquals('t1', $unused['index_name'], 'unused-index-name');
+        $this->assertEquals('t1 {0}, t2 {0}', $unused['column_list'], 'unused-column-list');
+        $dbh->prepared_query("
+            DROP TABLE $tableName
+        ");
     }
 
     public function testPgBasic(): void {
@@ -322,6 +357,7 @@ class DbTest extends TestCase {
         ");
     }
 
+    #[Group('no-ci')]
     public function testMysqlWrite(): void {
         $db = DB::DB(readWrite: false);
         $this->expectException(\mysqli_sql_exception::class);

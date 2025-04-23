@@ -174,12 +174,19 @@ class SiteInfo extends Base {
 
     public function indexRowsRead(string $tableName): array {
         self::$db->prepared_query("
-            SELECT DISTINCT s.INDEX_NAME,
-                coalesce(si.ROWS_READ, 0) as ROWS_READ
+            SELECT s.INDEX_NAME           AS index_name,
+                coalesce(si.ROWS_READ, 0) AS rows_read,
+                group_concat(
+                    concat(s.column_name, ' {', s.cardinality, '}')
+                    ORDER BY s.seq_in_index
+                    SEPARATOR ', '
+                ) AS column_list
             FROM information_schema.statistics s
             LEFT JOIN information_schema.index_statistics si USING (TABLE_SCHEMA, TABLE_NAME, INDEX_NAME)
             WHERE s.TABLE_SCHEMA = ?
                 AND s.TABLE_NAME = ?
+            GROUP BY index_name,
+                rows_read
             ORDER BY s.TABLE_NAME,
                 s.INDEX_NAME = 'PRIMARY' DESC,
                 coalesce(si.ROWS_READ, 0) DESC,

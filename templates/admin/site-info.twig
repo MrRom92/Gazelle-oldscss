@@ -96,22 +96,82 @@ div#phpinfo hr {width: 934px; background-color: #ccc; border: 0; height: 1px;}
     <h3>Tables lacking a primary key</h3>
     <div class="box pad">
 {% for table in site_info.tablesWithoutPK %}
-    {% if loop.first %}
+{%  if loop.first %}
     <ul class="stats nobullet">
-    {% endif %}
+{%  endif %}
         <li><a href="/tools.php?action=db-mysql&table={{ table }}">{{ table }}</a></li>
-    {% if loop.last %}
+{%  if loop.last %}
     </ul>
-    {% endif %}
+{%  endif %}
 {% else %}
     <p>All tables have a primary key defined</p>
+{% endfor %}
+    </div>
+
+    <h3>Tables with redundant indexes</h3>
+    <div class="box pad">
+{% for t in index.redundant %}
+{%  if loop.first %}
+    <div class="thin">The following tables have redundant indexes (an index that
+    is covered by another wider index). If there are no reads from the redundant
+    index it is probably safe to drop it. It may also be worth determing whether
+    an index (a, b) should be rebuilt as (b, a). It is assumed that you know
+    what you are doing in either case.</div>
+    <table>
+        <tr class="colhead">
+            <td>Table</td>
+            <td>Covering index</td>
+            <td>Redundant index</td>
+            <td>Covering read</td>
+            <td>Redundant read</td>
+        </tr>
+{%  endif %}
+        <tr>
+            <td>{{ t.table_name }}</td>
+            <td>{{ t.covering_index }}</td>
+            <td>{{ t.redundant_index }}</td>
+            <td>{{ t.covering_read|number_format }}</td>
+            <td>{{ t.redundant_read|number_format }}</td>
+        </tr>
+{%  if loop.last %}
+    </table>
+{%  endif %}
+{%  else %}
+    <p>There are no redundant indexes on any of the tables</p>
+{% endfor %}
+    </div>
+
+    <h3>Tables with unused indexes</h3>
+    <div class="box pad">
+{% for t in index.unused %}
+{%  if loop.first %}
+    <div class="thin">The following indexes are unused. When removing an
+    unused column, verify that it is not used to maintain a foreign key
+    association.</div>
+    <table>
+        <tr class="colhead">
+            <td>Table</td>
+            <td>Index</td>
+            <td>Columns and cardinality</td>
+        </tr>
+{%  endif %}
+        <tr>
+            <td>{{ t.table_name }}</td>
+            <td>{{ t.index_name }}</td>
+            <td>{{ t.column_list }}</td>
+        </tr>
+{%  if loop.last %}
+    </table>
+{%  endif %}
+{%  else %}
+    <p>There are no unused indexes on any of the tables</p>
 {% endfor %}
     </div>
 
     <h3>Tables with duplicate foreign keys</h3>
     <div class="box pad">
 {% for table in site_info.tablesWithDuplicateForeignKeys %}
-    {% if loop.first %}
+{%  if loop.first %}
     <div class="thin">The following tables have redundant foreign key definitions.
     All but one of the definitions per table/column may safely be removed.</div><br />
     <table>
@@ -122,7 +182,7 @@ div#phpinfo hr {width: 934px; background-color: #ccc; border: 0; height: 1px;}
             <td>Referenced column</td>
             <td>Constraint name</td>
         </tr>
-    {% endif %}
+{%  endif %}
         <tr>
             <td>{{ table.TABLE_NAME }}</td>
             <td>{{ table.COLUMN_NAME }}</td>
@@ -133,9 +193,9 @@ div#phpinfo hr {width: 934px; background-color: #ccc; border: 0; height: 1px;}
         <tr>
             <td colspan="5">To correct: <tt>ALTER TABLE {{ table.TABLE_NAME }} DROP CONSTRAINT {{ table.CONSTRAINT_NAME }};</tt></td>
         </tr>
-    {% if loop.last %}
+{%  if loop.last %}
     </table>
-    {% endif %}
+{%  endif %}
 {% else %}
     <p>All tables have a correct foreign keys</p>
 {% endfor %}

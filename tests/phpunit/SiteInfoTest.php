@@ -31,7 +31,7 @@ class SiteInfoTest extends TestCase {
             'siteinfo-table-read'
         );
         $this->assertEquals(
-            ['INDEX_NAME', 'ROWS_READ'],
+            ['index_name', 'rows_read', 'column_list'],
             array_keys($info->indexRowsRead('users_main')[0]),
             'siteinfo-index-read',
         );

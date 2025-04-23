@@ -38,11 +38,13 @@ services:
 
   mysql:
     # remember to update misc/gitlab-ci.yml
-    image: percona:ps-8.0.40-31
+    image: percona:ps-8.0.41-32
     ports:
       - 127.0.0.1:36000:3306
     volumes:
       - mysql-data:/var/lib/mysql
+      - ./misc/docker/mysql/home:/home/mysql
+      - ./misc/docker/mysql/init:/docker-entrypoint-initdb.d
     environment:
       - MYSQL_DATABASE=gazelle
       - MYSQL_USER=gazelle
