@@ -9,12 +9,14 @@ class Log extends Base {
      * Write a general message to the system log.
      */
     public function general(string $message): static {
-        $qid = self::$db->get_query_id();
+        $this->pg()->insert("
+            insert into site_log (note) values (?)
+            ", trim($message)
+        );
         self::$db->prepared_query("
             INSERT INTO log (Message) VALUES (?)
             ", mb_substr(trim($message), 0, 800)
         );
-        self::$db->set_query_id($qid);
         return $this;
     }
 

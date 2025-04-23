@@ -39,8 +39,6 @@ class LogTest extends TestCase {
         $message = self::PREFIX . "general torrent 123457890 " . randomString();
         $siteLog->logger()->general($message);
 
-        $this->assertEquals(1, $siteLog->relay(), 'sitelog-relay-update');
-
         $result = $siteLog->page(1, 0, '');
         $latest = current($result);
         $this->assertEquals(['id', 'class', 'message', 'created'], array_keys($latest), 'sitelog-latest-keys');

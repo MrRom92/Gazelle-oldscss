@@ -229,34 +229,9 @@ class SiteLog extends \Gazelle\Base {
     }
 
     /**
-     * Relay records from Mysql to Postgres
+     * stop relaying records from Mysql to Postgres
      */
     public function relay(): int {
-        $total  = 0;
-        $insert = $this->pg()->prepare('
-            insert into site_log
-                (id_site_log, created, note)
-            select "ID",
-                "Time",
-                "Message"
-            FROM relay.log
-            WHERE "ID" > ?
-            ORDER BY "ID"
-            LIMIT 1000
-        ');
-
-        while (true) {
-            $insert->execute([
-                (int)$this->pg()->scalar("
-                    select max(id_site_log) from site_log
-                ")
-            ]);
-            $relayed = $insert->rowCount();
-            if ($relayed === 0) {
-                break;
-            }
-            $total += $relayed;
-        }
-        return $total;
+        return 0;
     }
 }
