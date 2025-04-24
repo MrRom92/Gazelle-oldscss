@@ -2,28 +2,30 @@
 
 namespace Gazelle\Manager;
 
+use Gazelle\User as User;
+
 /**
  * This class handles both the user IP site history as well as
  * the bans placed upon IP addresses.
  */
 
 class IPv4 extends \Gazelle\Base {
-    protected string $filterBegin;
-    protected string $filterEnd;
+    protected int $filterBefore;
+    protected int $filterAfter;
     protected string $filterIpaddr;
     protected string $filterIpaddrRegexp;
 
     public function flush(): static {
         unset(
-            $this->filterEnd,
-            $this->filterBegin,
+            $this->filterAfter,
+            $this->filterBefore,
             $this->filterIpaddr,
             $this->filterIpaddrRegexp,
         );
         return $this;
     }
 
-    public function register(\Gazelle\User $user, string $ipv4): int {
+    public function register(User $user, string $ipv4): int {
         $this->pg()->prepared_query("
             insert into ip_history
                    (id_user, ip, data_origin)
@@ -49,13 +51,19 @@ class IPv4 extends \Gazelle\Base {
         return $affected;
     }
 
-    public function setFilterBegin(string $begin): static {
-        $this->filterBegin = $begin;
+    /**
+     * Include records whose StartTime is prior to this many seconds ago.
+     */
+    public function setFilterBefore(int $delta): static {
+        $this->filterBefore = $delta;
         return $this;
     }
 
-    public function setFilterEnd(string $end): static {
-        $this->filterEnd   = $end;
+    /**
+     * Include records whose StartTime is after than this many seconds ago.
+     */
+    public function setFilterAfter(int $delta): static {
+        $this->filterAfter   = $delta;
         return $this;
     }
 
@@ -69,29 +77,7 @@ class IPv4 extends \Gazelle\Base {
         return $this;
     }
 
-    public function userTotal(\Gazelle\User $user): int {
-        $cond = ['uhi.UserID = ?'];
-        $args = [$user->id];
-        if (isset($this->filterIpaddrRegexp)) {
-            $cond[] = "uhi.IP REGEXP ?";
-            $args[] = $this->filterIpaddrRegexp;
-        }
-        if (isset($this->filterIpaddr)) {
-            $cond[] = "uhi.IP = ?";
-            $args[] = $this->filterIpaddr;
-        }
-        if (isset($this->filterBegin)) {
-            $cond[] = "uhi.StartTime BETWEEN FROM_UNIXTIME(?) AND FROM_UNIXTIME(?)";
-            array_push($args, $this->filterBegin, $this->filterEnd);
-        }
-        $where  = join(' AND ', $cond);
-        return (int)self::$db->scalar("
-            SELECT count(DISTINCT IP) FROM users_history_ips uhi WHERE $where
-            ", ...$args
-        );
-    }
-
-    public function duplicateTotal(\Gazelle\User $user): int {
+    public function duplicateTotal(User $user): int {
         $cacheKey = "ipv4_dup_" . str_replace('.', '_', $user->ipaddr());
         $value = self::$cache->get_value($cacheKey);
         if ($value === false) {
@@ -104,10 +90,38 @@ class IPv4 extends \Gazelle\Base {
         return max(0, (int)$value - 1);
     }
 
-    /**
-     * returns array of userids that match filters, excluding specified user
-     */
-    public function userOther(\Gazelle\User $user): array {
+    public function userTotalConfig(User $user): array {
+        $cond = ['uhi.UserID = ?'];
+        $args = [$user->id];
+        if (isset($this->filterIpaddrRegexp)) {
+            $cond[] = "uhi.IP REGEXP ?";
+            $args[] = $this->filterIpaddrRegexp;
+        }
+        if (isset($this->filterIpaddr)) {
+            $cond[] = "uhi.IP = ?";
+            $args[] = $this->filterIpaddr;
+        }
+        if (isset($this->filterBefore)) {
+            $cond[] = "uhi.StartTime <= now() - INTERVAL ? SECOND";
+            $args[] = $this->filterBefore;
+        }
+        if (isset($this->filterAfter)) {
+            $cond[] = "uhi.StartTime >= now() - INTERVAL ? SECOND";
+            $args[] = $this->filterAfter;
+        }
+        return [
+            "SELECT count(DISTINCT IP) FROM users_history_ips uhi WHERE "
+                . implode(' AND ', $cond),
+            $args
+        ];
+    }
+
+    public function userTotal(User $user): int {
+        [$sql, $args] = $this->userTotalConfig($user);
+        return (int)self::$db->scalar($sql, ...$args);
+    }
+
+    public function userOtherConfig(User $user): array {
         $cond = ['uhi.UserID != ?'];
         $args = [$user->id];
         if (isset($this->filterIpaddrRegexp)) {
@@ -118,22 +132,31 @@ class IPv4 extends \Gazelle\Base {
             $cond[] = "uhi.IP = ?";
             $args[] = $this->filterIpaddr;
         }
-        if (isset($this->filterBegin)) {
-            $cond[] = "uhi.StartTime BETWEEN ? AND ?";
-            array_push($args, $this->filterBegin, $this->filterEnd);
+        if (isset($this->filterBefore)) {
+            $cond[] = "uhi.StartTime <= now() - INTERVAL ? SECOND";
+            $args[] = $this->filterBefore;
         }
-        $where  = join(' AND ', $cond);
-        self::$db->prepared_query("
-            SELECT DISTINCT UserID FROM users_history_ips uhi WHERE $where
-            ", ...$args
-        );
-        return array_map(
-            fn ($v) => $v['UserID'],
-            self::$db->to_array(false, MYSQLI_ASSOC, false)
-        );
+        if (isset($this->filterAfter)) {
+            $cond[] = "uhi.StartTime >= now() - INTERVAL ? SECOND";
+            $args[] = $this->filterAfter;
+        }
+        return [
+            "SELECT DISTINCT UserID FROM users_history_ips uhi WHERE "
+                . implode(' AND ', $cond),
+            $args,
+        ];
     }
 
-    public function userPage(\Gazelle\User $user, int $limit, int $offset): array {
+    /**
+     * returns array of userids that match filters, excluding specified user
+     */
+    public function userOther(User $user): array {
+        [$sql, $args] = $this->userOtherConfig($user);
+        self::$db->prepared_query($sql, ...$args);
+        return self::$db->collect(0, false);
+    }
+
+    public function userPage(User $user, int $limit, int $offset): array {
         self::$db->prepared_query("SET SESSION group_concat_max_len = 50000");
         $cond = ['i.UserID = ?'];
         $args = [$user->id];
@@ -145,7 +168,7 @@ class IPv4 extends \Gazelle\Base {
             $cond[] = "i.IP = ?";
             $args[] = $this->filterIpaddr;
         }
-        $where  = join(' AND ', $cond);
+        $where  = implode(' AND ', $cond);
         $args[] = $limit;
         $args[] = $offset;
         self::$db->prepared_query("

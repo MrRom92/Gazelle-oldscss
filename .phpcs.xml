@@ -53,7 +53,8 @@
                 <element key="extract" value="null"/>
                 <!-- use is_int() instead -->
                 <element key="is_integer" value="null"/>
-                <!-- use hash('sha256', ...) instead -->
+                <!-- use implode(...) instead -->
+                <element key="join" value="null"/>
                 <element key="md5" value="null"/>
                 <element key="sha1" value="null"/>
                 <element key="uniqid" value="null"/>

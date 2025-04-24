@@ -126,24 +126,39 @@ class IPv4Test extends TestCase {
     }
 
     public function testUserOther(): void {
-        $user2 = Helper::makeUser('ipv4.' . randomString(10), 'ipv4man');
-        $user3 = Helper::makeUser('ipv4.' . randomString(10), 'ipv4man');
-        $this->userList[] = $user2;
-        $this->userList[] = $user3;
-        $ipv4    = new Manager\IPv4();
-        $ip      = '1.2.3.4';
-        $ipOther = '4.3.2.1';
+        $this->userList[] = Helper::makeUser('ipv4.' . randomString(10), 'ipv4man');
+        $ipv4 = new Manager\IPv4();
+        $ip   = '0.1.2.3';
         $ipv4->register($this->userList[0], $ip);
-        $ipv4->register($user2, $ip);
-        $ipv4->register($user3, $ipOther);
+        $ipv4->register($this->userList[1], $ip);
+        $ipv4->setFilterIpaddr($ip);
 
-        $now = time();
-        $ipv4->setFilterBegin(date('Y-m-d H:i:s', $now - 10))
-            ->setFilterEnd(date('Y-m-d H:i:s', $now + 10))
-            ->setFilterIpaddr($ip);
-        $this->assertEquals([$user2->id()], $ipv4->userOther($this->userList[0]), 'ipv4-other-success');
+        $db = DB::DB();
+        $db->prepared_query("
+            UPDATE users_history_ips SET
+                StartTime = StartTime - INTERVAL 1 MINUTE
+            WHERE UserID = ?
+            ", $this->userList[1]->id
+        );
 
-        $ipv4->setFilterIpaddr($ipOther);
-        $this->assertCount(0, $ipv4->userOther($user3), 'ipv4-other-noresult');
+        $this->assertEquals(
+            [$this->userList[1]->id],
+            $ipv4->userOther($this->userList[0]),
+            'ipv4-other-success'
+        );
+
+        $ipv4->setFilterBefore(90); // before 1m30 ago
+        $this->assertEquals(
+            [],
+            $ipv4->userOther($this->userList[0]),
+            'ipv4-other-too-late'
+        );
+
+        $ipv4->setFilterBefore(0)->setFilterAfter(30); // after 30s ago
+        $this->assertEquals(
+            [],
+            $ipv4->userOther($this->userList[0]),
+            'ipv4-other-too-early'
+        );
     }
 }
