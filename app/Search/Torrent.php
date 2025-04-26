@@ -231,7 +231,7 @@ class Torrent {
         $Offset = ($this->Page - 1) * $ResultLimit;
         $MaxMatches = $Offset + $ResultLimit;
         $this->SphQL->from('torrents, delta')
-            ->limit($Offset, $ResultLimit, $MaxMatches); /** @phpstan-ignore-line sphinx must die */
+            ->limit($Offset, $ResultLimit, $MaxMatches);
     }
 
     /**

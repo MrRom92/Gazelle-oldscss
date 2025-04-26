@@ -377,7 +377,6 @@ class TGroupTest extends TestCase {
         );
 
         $siteLog = new Manager\SiteLog();
-        $siteLog->relay();
         $list = $siteLog->tgroupLogList($this->tgroup->id);
         $event = end($list);
         $this->assertStringContainsString("($oldName)", $event['info'], 'tgroup-merge-old-name');

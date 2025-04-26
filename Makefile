@@ -136,7 +136,7 @@ phpstan-analyse:
 
 .PHONY: phpstan-baseline
 phpstan-baseline:
-	vendor/bin/phpstan analyse --memory-limit=1024M --configuration=misc/phpstan.neon --generate-baseline misc/phpstan-baseline.neon
+	vendor/bin/phpstan analyse --memory-limit=1024M --configuration=misc/phpstan.neon -vv --generate-baseline misc/phpstan-baseline.neon
 
 .PHONY: rector
 rector:

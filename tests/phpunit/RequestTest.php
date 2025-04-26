@@ -317,7 +317,6 @@ class RequestTest extends TestCase {
         $this->assertFalse($this->request->isFilled(), 'request-unfilled');
 
         $siteLog = new Manager\SiteLog();
-        $siteLog->relay();
         $page = $siteLog->page(2, 0, $this->request->title());
         $this->assertStringStartsWith(
             "Request <a href=\"{$this->request->url()}\">{$this->request->id}</a> ({$this->request->title()})",

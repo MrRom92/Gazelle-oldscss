@@ -1,261 +1,493 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Match expression does not handle remaining value\\: string$#"
+			message: '#^Strict comparison using \=\=\= between false and false will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: ../app/DB/Mysql.php
+
+		-
+			message: '#^Match expression does not handle remaining value\: string$#'
+			identifier: match.unhandled
 			count: 2
 			path: ../app/Feed.php
 
 		-
-			message: "#^Parameter \\#2 \\$timestamp of function date expects int\\|null, int\\|false given\\.$#"
+			message: '#^Parameter \#2 \$timestamp of function date expects int\|null, int\|false given\.$#'
+			identifier: argument.type
 			count: 1
 			path: ../app/Feed.php
 
 		-
-			message: "#^Argument of an invalid type array\\<int, string\\>\\|false supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: ../app/File/RipLog.php
+			message: '#^Parameter \#1 \$array of function array_keys expects array, array\|false given\.$#'
+			identifier: argument.type
+			count: 2
+			path: ../app/Search/Torrent.php
 
 		-
-			message: "#^Argument of an invalid type array\\<int, string\\>\\|false supplied for foreach, only iterables are supported\\.$#"
+			message: '#^Parameter \#1 \$array of function array_slice expects array, array\|false given\.$#'
+			identifier: argument.type
 			count: 1
-			path: ../app/File/RipLogHTML.php
+			path: ../app/Search/Torrent.php
 
 		-
-			message: "#^Method Gazelle\\\\Util\\\\Proxy\\:\\:fetch\\(\\) has no return type specified\\.$#"
+			message: '#^Parameter \#1 \$value of function count expects array\|Countable, array\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: ../app/Search/Torrent.php
+
+		-
+			message: '#^If condition is always false\.$#'
+			identifier: if.alwaysFalse
+			count: 1
+			path: ../app/Torrent/Report.php
+
+		-
+			message: '#^Method Gazelle\\Torrent\\Report\:\:torrent\(\) should return Gazelle\\TorrentAbstract\|null but returns Gazelle\\TorrentAbstract\|false\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: ../app/Torrent/Report.php
+
+		-
+			message: '#^Method Gazelle\\Util\\Proxy\:\:fetch\(\) has no return type specified\.$#'
+			identifier: missingType.return
 			count: 1
 			path: ../app/Util/Proxy.php
 
 		-
-			message: "#^Method Gazelle\\\\Util\\\\Proxy\\:\\:urlDecode\\(\\) has no return type specified\\.$#"
+			message: '#^Method Gazelle\\Util\\Proxy\:\:urlDecode\(\) has no return type specified\.$#'
+			identifier: missingType.return
 			count: 1
 			path: ../app/Util/Proxy.php
 
 		-
-			message: "#^Method Gazelle\\\\Util\\\\Proxy\\:\\:urlEncode\\(\\) has no return type specified\\.$#"
+			message: '#^Method Gazelle\\Util\\Proxy\:\:urlEncode\(\) has no return type specified\.$#'
+			identifier: missingType.return
 			count: 1
 			path: ../app/Util/Proxy.php
 
 		-
-			message: "#^Parameter \\#1 \\$num of function base_convert expects string, int\\|false given\\.$#"
+			message: '#^Cannot call method setAttribute\(\) on DOMElement\|false\.$#'
+			identifier: method.nonObject
+			count: 4
+			path: ../app/Util/Text.php
+
+		-
+			message: '#^Parameter \#1 \$node of method DOMNode\:\:replaceChild\(\) expects DOMNode, \(DOMElement\|false\) given\.$#'
+			identifier: argument.type
+			count: 12
+			path: ../app/Util/Text.php
+
+		-
+			message: '#^Parameter \#1 \$num of function base_convert expects string, int\|false given\.$#'
+			identifier: argument.type
 			count: 3
 			path: ../app/Util/Twig.php
 
 		-
-			message: "#^Parameter \\#2 \\$timestamp of function date expects int\\|null, string\\|null given\\.$#"
+			message: '#^Parameter \#2 \$timestamp of function date expects int\|null, string\|null given\.$#'
+			identifier: argument.type
 			count: 1
 			path: ../app/Util/Twig.php
 
 		-
-			message: "#^Method Sphinxql\\:\\:error\\(\\) has no return type specified\\.$#"
+			message: '#^Method Sphinxql\:\:error\(\) has no return type specified\.$#'
+			identifier: missingType.return
 			count: 1
 			path: ../classes/sphinxql.class.php
 
 		-
-			message: "#^Method Sphinxql\\:\\:register_query\\(\\) has no return type specified\\.$#"
+			message: '#^Method Sphinxql\:\:register_query\(\) has no return type specified\.$#'
+			identifier: missingType.return
 			count: 1
 			path: ../classes/sphinxql.class.php
 
 		-
-			message: "#^Method Sphinxql\\:\\:sph_connect\\(\\) has no return type specified\\.$#"
+			message: '#^Method Sphinxql\:\:sph_connect\(\) has no return type specified\.$#'
+			identifier: missingType.return
 			count: 1
 			path: ../classes/sphinxql.class.php
 
 		-
-			message: "#^Property Sphinxql\\:\\:\\$Connected has no type specified\\.$#"
+			message: '#^Property Sphinxql\:\:\$Connected has no type specified\.$#'
+			identifier: missingType.property
 			count: 1
 			path: ../classes/sphinxql.class.php
 
 		-
-			message: "#^Property Sphinxql\\:\\:\\$Connections has no type specified\\.$#"
+			message: '#^Property Sphinxql\:\:\$Connections has no type specified\.$#'
+			identifier: missingType.property
 			count: 1
 			path: ../classes/sphinxql.class.php
 
 		-
-			message: "#^Property Sphinxql\\:\\:\\$Ident has no type specified\\.$#"
+			message: '#^Property Sphinxql\:\:\$Ident has no type specified\.$#'
+			identifier: missingType.property
 			count: 1
 			path: ../classes/sphinxql.class.php
 
 		-
-			message: "#^Property Sphinxql\\:\\:\\$Queries has no type specified\\.$#"
+			message: '#^Property Sphinxql\:\:\$Queries has no type specified\.$#'
+			identifier: missingType.property
 			count: 1
 			path: ../classes/sphinxql.class.php
 
 		-
-			message: "#^Property Sphinxql\\:\\:\\$Time has no type specified\\.$#"
+			message: '#^Property Sphinxql\:\:\$Time has no type specified\.$#'
+			identifier: missingType.property
 			count: 1
 			path: ../classes/sphinxql.class.php
 
 		-
-			message: "#^Cannot call method to_pair\\(\\) on SphinxqlResult\\|false\\.$#"
+			message: '#^Cannot call method to_pair\(\) on SphinxqlResult\|false\.$#'
+			identifier: method.nonObject
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Method SphinxqlQuery\\:\\:build_query\\(\\) has no return type specified\\.$#"
+			message: '#^Method SphinxqlQuery\:\:build_query\(\) has no return type specified\.$#'
+			identifier: missingType.return
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Method SphinxqlQuery\\:\\:error\\(\\) has no return type specified\\.$#"
+			message: '#^Method SphinxqlQuery\:\:error\(\) has no return type specified\.$#'
+			identifier: missingType.return
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Method SphinxqlQuery\\:\\:error\\(\\) has parameter \\$Msg with no type specified\\.$#"
+			message: '#^Method SphinxqlQuery\:\:error\(\) has parameter \$Msg with no type specified\.$#'
+			identifier: missingType.parameter
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Method SphinxqlQuery\\:\\:get_meta\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: '#^Method SphinxqlQuery\:\:get_meta\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Method SphinxqlQuery\\:\\:reset\\(\\) has no return type specified\\.$#"
+			message: '#^Method SphinxqlQuery\:\:reset\(\) has no return type specified\.$#'
+			identifier: missingType.return
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Method SphinxqlQuery\\:\\:where_between\\(\\) has parameter \\$Values with no value type specified in iterable type array\\.$#"
+			message: '#^Method SphinxqlQuery\:\:where_between\(\) has parameter \$Values with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Parameter \\#1 \\$Result of class SphinxqlResult constructor expects mysqli_result, null given\\.$#"
+			message: '#^Parameter \#1 \$Result of class SphinxqlResult constructor expects mysqli_result, null given\.$#'
+			identifier: argument.type
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Parameter \\#2 \\$Meta of class SphinxqlResult constructor expects array, null given\\.$#"
+			message: '#^Parameter \#2 \$Meta of class SphinxqlResult constructor expects array, null given\.$#'
+			identifier: argument.type
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Parameter \\#3 \\$Socket of static method Sphinxql\\:\\:init_connection\\(\\) expects string, string\\|false given\\.$#"
+			message: '#^Parameter \#3 \$Socket of static method Sphinxql\:\:init_connection\(\) expects string, string\|false given\.$#'
+			identifier: argument.type
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Property SphinxqlQuery\\:\\:\\$Errors has no type specified\\.$#"
+			message: '#^Property SphinxqlQuery\:\:\$Errors has no type specified\.$#'
+			identifier: missingType.property
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Property SphinxqlQuery\\:\\:\\$Expressions has no type specified\\.$#"
+			message: '#^Property SphinxqlQuery\:\:\$Expressions has no type specified\.$#'
+			identifier: missingType.property
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Property SphinxqlQuery\\:\\:\\$Filters has no type specified\\.$#"
+			message: '#^Property SphinxqlQuery\:\:\$Filters has no type specified\.$#'
+			identifier: missingType.property
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Property SphinxqlQuery\\:\\:\\$GroupBy has no type specified\\.$#"
+			message: '#^Property SphinxqlQuery\:\:\$GroupBy has no type specified\.$#'
+			identifier: missingType.property
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Property SphinxqlQuery\\:\\:\\$Indexes has no type specified\\.$#"
+			message: '#^Property SphinxqlQuery\:\:\$Indexes has no type specified\.$#'
+			identifier: missingType.property
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Property SphinxqlQuery\\:\\:\\$Limits has no type specified\\.$#"
+			message: '#^Property SphinxqlQuery\:\:\$Limits has no type specified\.$#'
+			identifier: missingType.property
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Property SphinxqlQuery\\:\\:\\$Options has no type specified\\.$#"
+			message: '#^Property SphinxqlQuery\:\:\$Options has no type specified\.$#'
+			identifier: missingType.property
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Property SphinxqlQuery\\:\\:\\$QueryString has no type specified\\.$#"
+			message: '#^Property SphinxqlQuery\:\:\$QueryString has no type specified\.$#'
+			identifier: missingType.property
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Property SphinxqlQuery\\:\\:\\$Select has no type specified\\.$#"
+			message: '#^Property SphinxqlQuery\:\:\$Select has no type specified\.$#'
+			identifier: missingType.property
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Property SphinxqlQuery\\:\\:\\$SortBy has no type specified\\.$#"
+			message: '#^Property SphinxqlQuery\:\:\$SortBy has no type specified\.$#'
+			identifier: missingType.property
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Property SphinxqlQuery\\:\\:\\$SortGroupBy has no type specified\\.$#"
+			message: '#^Property SphinxqlQuery\:\:\$SortGroupBy has no type specified\.$#'
+			identifier: missingType.property
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Property SphinxqlQuery\\:\\:\\$Sphinxql has no type specified\\.$#"
+			message: '#^Property SphinxqlQuery\:\:\$Sphinxql has no type specified\.$#'
+			identifier: missingType.property
 			count: 1
 			path: ../classes/sphinxqlquery.class.php
 
 		-
-			message: "#^Method SphinxqlResult\\:\\:__construct\\(\\) has parameter \\$Meta with no value type specified in iterable type array\\.$#"
+			message: '#^Method SphinxqlResult\:\:__construct\(\) has parameter \$Meta with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: ../classes/sphinxqlresult.class.php
 
 		-
-			message: "#^Method SphinxqlResult\\:\\:collect\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: '#^Method SphinxqlResult\:\:collect\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: ../classes/sphinxqlresult.class.php
 
 		-
-			message: "#^Method SphinxqlResult\\:\\:to_array\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: '#^Method SphinxqlResult\:\:to_array\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: ../classes/sphinxqlresult.class.php
 
 		-
-			message: "#^Method SphinxqlResult\\:\\:to_pair\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: '#^Method SphinxqlResult\:\:to_pair\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: ../classes/sphinxqlresult.class.php
 
 		-
-			message: "#^Function \\w+\\\\payload\\(\\) has parameter \\$details with no value type specified in iterable type array\\.$#"
+			message: '#^Call to method getName\(\) of internal class WhichBrowser\\Model\\Primitive\\NameVersion from outside its root namespace WhichBrowser\.$#'
+			identifier: method.internalClass
+			count: 1
+			path: ../lib/util.php
+
+		-
+			message: '#^Call to method getVersion\(\) of internal class WhichBrowser\\Model\\Primitive\\NameVersion from outside its root namespace WhichBrowser\.$#'
+			identifier: method.internalClass
+			count: 2
+			path: ../lib/util.php
+
+		-
+			message: '#^Offset ''userid'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: ../sections/ajax/bookmarks/torrents.php
+
+		-
+			message: '#^Offset ''userid'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: ../sections/ajax/requests.php
+
+		-
+			message: '#^Function Gazelle\\payload\(\) has parameter \$details with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: ../sections/ajax/top10/torrents.php
 
 		-
-			message: "#^Call to an undefined method object\\:\\:run\\(\\)\\.$#"
+			message: '#^Offset ''hash'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: ../sections/ajax/torrent.php
+
+		-
+			message: '#^Call to an undefined method object\:\:run\(\)\.$#'
+			identifier: method.notFound
 			count: 1
 			path: ../sections/api/index.php
 
 		-
-			message: "#^Call to an undefined method Gazelle\\\\Better\\\\ArtistCollage\\|Gazelle\\\\Better\\\\ArtistDescription\\|Gazelle\\\\Better\\\\ArtistDiscogs\\|Gazelle\\\\Better\\\\ArtistImage\\|Gazelle\\\\Better\\\\Artwork\\|Gazelle\\\\Better\\\\Bad\\|Gazelle\\\\Better\\\\Checksum\\|Gazelle\\\\Better\\\\SingleSeeded\\:\\:setUploader\\(\\)\\.$#"
+			message: '#^Offset ''aid'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: ../sections/api/index.php
+
+		-
+			message: '#^Offset ''token'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: ../sections/api/index.php
+
+		-
+			message: '#^Call to an undefined method Gazelle\\Better\\ArtistCollage\|Gazelle\\Better\\ArtistDescription\|Gazelle\\Better\\ArtistDiscogs\|Gazelle\\Better\\ArtistImage\|Gazelle\\Better\\Artwork\|Gazelle\\Better\\Bad\|Gazelle\\Better\\Checksum\|Gazelle\\Better\\SingleSeeded\:\:setUploader\(\)\.$#'
+			identifier: method.notFound
 			count: 1
 			path: ../sections/better/better.php
 
 		-
-			message: "#^Variable \\$info might not be defined\\.$#"
+			message: '#^Offset ''userid'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: ../sections/bonus/bprates.php
+
+		-
+			message: '#^Offset ''userid'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: ../sections/bonus/history.php
+
+		-
+			message: '#^Offset ''userid'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: ../sections/bookmarks/edit_torrents.php
+
+		-
+			message: '#^Offset ''userid'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: ../sections/bookmarks/torrents.php
+
+		-
+			message: '#^Offset ''groupid'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: ../sections/collages/manage_handle.php
+
+		-
+			message: '#^Offset ''id'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: ../sections/comments/comments.php
+
+		-
+			message: '#^Variable \$info might not be defined\.$#'
+			identifier: variable.undefined
 			count: 1
 			path: ../sections/recovery/save.php
 
 		-
-			message: "#^Variable \\$recovery might not be defined\\.$#"
+			message: '#^Variable \$recovery might not be defined\.$#'
+			identifier: variable.undefined
 			count: 4
 			path: ../sections/recovery/save.php
 
 		-
-			message: "#^Function Gazelle\\\\print_or_return\\(\\) has no return type specified\\.$#"
+			message: '#^Offset ''bitrates'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: ../sections/requests/edit_handle.php
+
+		-
+			message: '#^Offset ''formats'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: ../sections/requests/edit_handle.php
+
+		-
+			message: '#^Offset ''media'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: ../sections/requests/edit_handle.php
+
+		-
+			message: '#^Function Gazelle\\print_or_return\(\) has no return type specified\.$#'
+			identifier: missingType.return
 			count: 1
 			path: ../sections/requests/fill_handle.php
 
 		-
-			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
+			message: '#^Offset ''convid'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: ../sections/staffpm/viewconv_handle.php
+
+		-
+			message: '#^Variable \$post might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: ../sections/tools/development/referral_sandbox.php
+
+		-
+			message: '#^Variable \$url might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: ../sections/tools/development/referral_sandbox.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
 			count: 1
 			path: ../sections/tools/managers/ajax_take_enable_request.php
 
 		-
-			message: "#^Variable \\$post might not be defined\\.$#"
+			message: '#^Offset ''leech_type'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
 			count: 1
-			path: ../sections/tools/development/referral_sandbox.php
+			path: ../sections/torrents/nonwikiedit.php
 
 		-
-			message: "#^Variable \\$url might not be defined\\.$#"
+			message: '#^Offset ''tags_type'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
 			count: 2
-			path: ../sections/tools/development/referral_sandbox.php
+			path: ../sections/torrents/user.php
+
+		-
+			message: '#^Offset ''html'' on non\-empty\-array in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: ../sections/upload/parse_html.php
+
+		-
+			message: '#^Offset ''album_desc'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: ../sections/upload/upload_handle.php
+
+		-
+			message: '#^Offset ''desc'' on non\-empty\-array on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: ../sections/upload/upload_handle.php
+
+		-
+			message: '#^Method GazelleUnitTest\\Helper\:\:makeTGroupMusic\(\) has parameter \$artistName with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: ../tests/helper.php
+
+		-
+			message: '#^Method GazelleUnitTest\\Helper\:\:makeTGroupMusic\(\) has parameter \$tagName with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: ../tests/helper.php

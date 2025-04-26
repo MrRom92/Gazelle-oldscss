@@ -13,6 +13,9 @@ class RipLogHTML extends \Gazelle\File {
         [$torrentId, $logId] = $id;
         if (is_null($logId)) {
             $htmlfiles = glob($this->path([$torrentId, '*']));
+            if ($htmlfiles === false) {
+                return false;
+            }
             foreach ($htmlfiles as $path) {
                 if (preg_match('/(\d+)\.log/', $path, $match)) {
                     $logId = $match[1];

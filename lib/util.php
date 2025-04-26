@@ -303,7 +303,7 @@ function byte_arithmetic(string $expression): int {
     }
     $size = get_bytes($match[1]);
     if (count($match) === 4) {
-        $size += get_bytes($match[3]) * ($match[2] === '-' ? -1 : 1); /** @phpstan-ignore-line the array offsets are valid */
+        $size += get_bytes($match[3]) * ($match[2] === '-' ? -1 : 1);
     }
     return $size;
 }

@@ -4,9 +4,6 @@ includes:
 
 parameters:
     level: 7
-    checkAlwaysTrueCheckTypeFunctionCall: true
-    checkAlwaysTrueInstanceof: true
-    checkAlwaysTrueStrictComparison: true
     checkBenevolentUnionTypes: true
     checkDynamicProperties: true
     checkExplicitMixedMissingReturn: true
@@ -76,7 +73,15 @@ parameters:
         - SHOW_PUBLIC_INDEX
         - STACKABLE_FREELEECH_TOKENS
         - USER_LIMIT
+
     ignoreErrors:
+
+    -
+      message: '#^Cannot unset property \S+ because it might have hooks in a subclass\.$#'
+      reportUnmatched: false
+      paths:
+        -  ../app/*
+        -  ../tests/phpunit/*
     -
       message: '/^Function \w+\(\) (?:has parameter \$\w+ with|return type has) no value type specified in iterable type array\.$/'
       paths:
@@ -86,7 +91,7 @@ parameters:
       paths:
         -  ../app/*
         -  ../classes/text.class.php
-        -  ../tests/*
+        -  ../tests/phpunit/*
     -
       message: '/^Method [^:]+::\w+\(\) return type has no value type specified in iterable type array\.$/'
       paths:

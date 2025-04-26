@@ -35,7 +35,6 @@ class LogTest extends TestCase {
 
     public function testGeneralLog(): void {
         $siteLog = new Manager\SiteLog();
-        $this->assertGreaterThanOrEqual(0, $siteLog->relay(), 'sitelog-relay-init');
         $message = self::PREFIX . "general torrent 123457890 " . randomString();
         $siteLog->logger()->general($message);
 
@@ -132,7 +131,6 @@ class LogTest extends TestCase {
         $logger->general($message);
 
         $siteLog   = new Manager\SiteLog();
-        $siteLog->relay();
         $paginator = new Util\Paginator(LOG_ENTRIES_PER_PAGE, 1);
         $page      = $siteLog->page($paginator->page(), $paginator->offset(), '');
         $paginator->setTotal($siteLog->total(''));
