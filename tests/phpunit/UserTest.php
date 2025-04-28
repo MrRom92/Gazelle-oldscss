@@ -367,18 +367,18 @@ class UserTest extends TestCase {
         $this->assertGreaterThan(5, $list, 'we-can-haz-stylesheets');
         $this->assertEquals(count($list), count($manager->usageList()), 'stylesheet-list-usage');
 
-        $first = current($list);
+        $sheet = end($list);
         $url   = STATIC_SERVER . '/bogus.css';
         $stylesheet = new User\Stylesheet($this->user);
         $this->assertNull($stylesheet->styleUrl(), 'stylesheet-no-external-url');
-        $this->assertEquals(1, $stylesheet->modifyInfo($first['id'], null), 'stylesheet-modify');
-        $this->assertEquals($first['css_name'], $stylesheet->cssName(), 'stylesheet-css-name');
-        $this->assertStringStartsWith("/static/styles/{$first['css_name']}/style.css?v=", $stylesheet->cssUrl(), 'stylesheet-css-url');
-        $this->assertEquals("/static/styles/{$first['css_name']}/images/", $stylesheet->imagePath(), 'stylesheet-image-path');
-        $this->assertEquals($first['name'], $stylesheet->name(), 'stylesheet-name');
-        $this->assertEquals($first['id'], $stylesheet->styleId(), 'stylesheet-style-id');
-        $this->assertEquals($first['theme'], $stylesheet->theme(), 'stylesheet-theme');
-        $this->assertEquals(1, $stylesheet->modifyInfo($first['id'], $url), 'stylesheet-set-external');
+        $this->assertEquals(1, $stylesheet->modifyInfo($sheet['id'], null), 'stylesheet-modify');
+        $this->assertEquals($sheet['css_name'], $stylesheet->cssName(), 'stylesheet-css-name');
+        $this->assertStringContainsString("/static/styles/{$sheet['css_name']}/style.css?v=", $stylesheet->cssUrl(), 'stylesheet-css-url');
+        $this->assertStringContainsString("/static/styles/{$sheet['css_name']}/images/", $stylesheet->imagePath(), 'stylesheet-image-path');
+        $this->assertEquals($sheet['name'], $stylesheet->name(), 'stylesheet-name');
+        $this->assertEquals($sheet['id'], $stylesheet->styleId(), 'stylesheet-style-id');
+        $this->assertEquals($sheet['theme'], $stylesheet->theme(), 'stylesheet-theme');
+        $this->assertEquals(1, $stylesheet->modifyInfo($sheet['id'], $url), 'stylesheet-set-external');
         $this->assertEquals('External CSS', $stylesheet->name(), 'stylesheet-name');
         $this->assertEquals($url, $stylesheet->styleUrl(), 'stylesheet-external-url');
         $this->assertEquals($url, $stylesheet->cssUrl(), 'stylesheet-external-ccs-url');

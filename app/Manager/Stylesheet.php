@@ -6,7 +6,7 @@ use Gazelle\Enum\UserStatus;
 use Gazelle\Util\SortableTableHeader;
 
 class Stylesheet extends \Gazelle\Base {
-    final protected const CACHE_KEY = 'csslist';
+    final protected const CACHE_KEY = 'csslist2';
 
     protected array $info;
 
@@ -32,7 +32,7 @@ class Stylesheet extends \Gazelle\Base {
                         Name AS name,
                         theme
                     FROM stylesheets
-                    ORDER BY ID ASC
+                    ORDER BY NAME ASC
                 ");
                 $info = self::$db->to_array(false, MYSQLI_ASSOC, false);
                 self::$cache->cache_value(self::CACHE_KEY, $info, 0);

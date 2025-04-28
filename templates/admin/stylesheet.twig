@@ -1,7 +1,7 @@
 {{ header('Manage Stylesheets') }}
 {% set heading = manager.heading %}
 <div class="thin">
-{% for s in manager.list %}
+{% for s in manager.usageList %}
 {%  if loop.first %}
 <table width="100%">
     <tr class="colhead">
