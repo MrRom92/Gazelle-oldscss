@@ -873,7 +873,7 @@ function image_cache_encode(
         return $url;
     }
     $encode = urlencode_safe($url) . ($proxy ? '/proxy' : '');
-    $sig    = image_cache_signature($bucket->value . '/' . $encode, $epoch, $secret);
+    $sig    = image_cache_signature("{$bucket->value}/$encode", $epoch, $secret);
     if ($proxy) {
         $spec = 'full';
     } else {
@@ -883,6 +883,20 @@ function image_cache_encode(
         };
     }
     return IMAGE_CACHE_HOST . "/{$bucket->value}/$spec/$sig/$encode";
+}
+
+/**
+ * Test whether an image cache url is valid (check the signature)
+ */
+function image_cache_valid(
+    string $url,
+    int|null $epoch = null,
+    string $secret = IMAGE_CACHE_SECRET
+): bool {
+    // skip over slashes in http://xxx/
+    // if the /proxy specifier has been used, it is combined in $encode
+    [,,, $bucket, $spec, $sig, $encode] = explode('/', $url, 7);
+    return $sig === image_cache_signature($bucket . '/' . $encode, $epoch, $secret);
 }
 
 /**
@@ -901,16 +915,6 @@ function ISO3166_2(): array {
 function worldTopology(): array {
     $data = file_get_contents(__DIR__ . '/../misc/world.topo.json');
     return $data === false ? [] : json_decode($data, true);
-}
-
-/**
- * Test whether an image cache url is valid (check the signature)
- */
-function image_cache_valid(string $url, int|null $epoch = null, string $secret = IMAGE_CACHE_SECRET): bool {
-    // skip over slashes in http://xxx/
-    // if the /proxy specifier has been used, it is combined in $encode
-    [,,, $cache_bucket, $spec, $sig, $encode] = explode('/', $url, 7);
-    return $sig === image_cache_signature($cache_bucket . '/' . $encode, $epoch, $secret);
 }
 
 function object_generator(\Gazelle\BaseManager $manager, array $idList): \Generator {

@@ -132,14 +132,13 @@ $forMan->flushToc();
 
 // clean torrents and torrent groups
 $db->prepared_query("
-    SELECT g.ID as gid, t.ID as tid
-    FROM torrents_group g
-    LEFT JOIN torrents t on (t.GroupID = g.ID)
-    WHERE g.Name regexp '^(?:phpunit (?:category new|collfree|notify|reaper|request|seedbox|tgvote|torman|torrent) [a-z]{6}|php(?: split title|unit artist merge[12]) [a-z]{10}|Some [a-z]{8} songs)$'
+    SELECT tg.ID as gid, t.ID as tid
+    FROM torrents_group tg
+    LEFT JOIN torrents t on (t.GroupID = tg.ID)
+    WHERE tg.Name regexp '^(?:phpunit (?:category new|collfree|live in|notify|reaper|request|seedbox|tgvote|torman|torrent) [a-z]{6}|(?:php(?: split title|unit artist (?:autocomp|merge[12]))|tracker) [a-z]{10}|Some (?:(?:boppy|live|more) )?[a-z]{8} (?:contest )?songs)$'
 ");
 $groupList   = $db->collect('gid', false);
 $torrentList = $db->collect('tid', false);
-
 $torMan = new Manager\Torrent();
 foreach ($torrentList as $torrentId) {
     $torrent = $torMan->findById((int)$torrentId);
@@ -164,10 +163,9 @@ foreach ($groupList as $tgroupId) {
 $db->prepared_query("
     SELECT um.ID
     FROM users_main um
-    WHERE um.Username regexp '^(?:(?:(?:admin|bb|bo(?:nus(?:g|r|stat))?|collage|contest|create|donor|download|inbox\.(?:recv|send)|forum|friend[1-3]|invitee?|mod|priv[12]|sitelog|tag|text|tgroup\.[anu]|trk(?:fl)?|u(?:[1-3]|pload|ser(?:hist)?)|wiki)\.[a-z]{6}|tag\.[a-z]{8}|(?:admin|art(?:2|ist|y)|backlog|blog|collfree|comment|dnu|dupip|email[1-3]?|enc\.med|feat|fls|invite|ipv4|merge|mod|nav|new(?:\.grp|s)|phpunit|re(?:aper|clab|g[1-5]|lease|portg?|q)|sbox|searchrep|spec|tag(?:no|2(?:no|yes))?|text|tg(?:cat|vote|man)|token|torman|torrent|trk(?:down|fl|free)?|ul[1-3]|um[123]|uploader|user|year|xva)\.[a-z]{10}|notf(?:\.(new|enc))?\.[^.]+)|spm_(?:fls|mod|sysop|user)_[a-z]{10})$'
+    WHERE um.Username regexp '^(?:(?:(?:admin|base|bb|bo(?:nus(?:g|r|stat))?|collage|contest|create|donor|download|error|inbox\.(?:recv|send)|forum|friend[1-3]|invitee?|logchecker|mod|priv[12]|sitelog|stats|tag|text|tgroup\.[anu]|trk(?:fl)?|twig|u(?:[1-3]|pload|ser(?:hist)?)|wiki)\.[a-z]{6}|tag\.[a-z]{8}|(?:admin|art(?:2|ist|y)|backlog|blog|collfree|comment|dnu|dupip|email[1-3]?|enc\.med|feat|fls|geodist|invite|ipv4|merge|mfa|mod|nav|new(?:\.grp|s)|ord|phpunit|re(?:aper|clab|g[1-5]|lease|portg?|q)|sbox|searchrep|spec|stats|tag(?:no|2(?:no|yes))?|text|tg(?:cat|vote|man)|token|torman|torrent|trk(?:down|fl|free)?|uat|ul[0-3]|um[123]|uploader|user|year|xva)\.[a-z]{10}|notf(?:\.(new|enc))?\.[^.]+)|spm_(?:fls|mod|sysop|user)_[a-z]{10})$'
 ");
 $userMan = new Manager\User();
-
 foreach ($db->collect(0, false) as $userId) {
     $user = $userMan->findById($userId);
     $db->prepared_query("DELETE FROM forums_topics WHERE LastPostAuthorID = ?", $userId);
@@ -186,26 +184,38 @@ foreach ($db->collect(0, false) as $userId) {
 }
 
 $db->prepared_query("
-    DELETE uf
-    FROM users_freeleeches uf
-    LEFT JOIN users_main um ON (um.ID = uf.UserID)
+    DELETE u
+    FROM users_freeleeches u
+    LEFT JOIN users_main um ON (um.ID = u.UserID)
     WHERE um.ID IS NULL
 ");
 $db->prepared_query("
-    DELETE uhi
-    FROM users_history_ips uhi
-    LEFT JOIN users_main um ON (um.ID = uhi.UserID)
+    DELETE u
+    FROM users_history_ips u
+    LEFT JOIN users_main um ON (um.ID = u.UserID)
     WHERE um.ID IS NULL
 ");
 $db->prepared_query("
-    DELETE ula
-    FROM user_last_access_delta ula
-    LEFT JOIN users_main um ON (um.ID = ula.user_id)
+    DELETE u
+    FROM user_last_access_delta u
+    LEFT JOIN users_main um ON (um.ID = u.user_id)
     WHERE um.ID IS NULL
 ");
 $db->prepared_query("
-    DELETE ula
-    FROM user_last_access ula
-    LEFT JOIN users_main um ON (um.ID = ula.user_id)
+    DELETE u
+    FROM users_stats_daily u
+    LEFT JOIN users_main um ON (um.ID = u.UserID)
+    WHERE um.ID IS NULL
+");
+$db->prepared_query("
+    DELETE u
+    FROM users_stats_monthly u
+    LEFT JOIN users_main um ON (um.ID = u.UserID)
+    WHERE um.ID IS NULL
+");
+$db->prepared_query("
+    DELETE u
+    FROM users_stats_yearly u
+    LEFT JOIN users_main um ON (um.ID = u.UserID)
     WHERE um.ID IS NULL
 ");

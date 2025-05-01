@@ -49,7 +49,7 @@ composer-live-update:
 
 .PHONY: coverage
 coverage:
-	 docker compose exec -e XDEBUG_MODE=coverage web vendor/bin/phpunit -c misc/phpunit.xml -d memory_limit=2G --coverage-html coverage/
+	 docker compose exec -e XDEBUG_MODE=coverage web vendor/bin/paratest -c misc/phpunit.xml --coverage-html coverage/
 
 .PHONY: css
 css:
@@ -148,7 +148,7 @@ rector-dry-run:
 
 .PHONY: test
 test:
-	docker compose exec -T web php -d xdebug.mode=coverage vendor/bin/phpunit -c misc/phpunit.xml
+	docker compose exec -T web php -d xdebug.mode=coverage vendor/bin/paratest -c misc/phpunit.xml
 
 .PHONY: twig-flush
 twig-flush:
