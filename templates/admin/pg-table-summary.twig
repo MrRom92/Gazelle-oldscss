@@ -7,7 +7,7 @@
 </div>
 
 <div class="pad"><div class="box pad">
-    <h3>Rows read</h3>
+    <h3>Postgresql tables</h3>
     <table>
         <tr>
             <th>{{ header|column('table_name') }}</th>
@@ -23,7 +23,8 @@
         </tr>
 {% for r in list %}
         <tr>
-            <td>{{ r.table_name }}</td>
+            <td><a href="tools.php?action=db-pg&amp;table={{ r.table_name }}">{{
+                r.table_name }}</a></td>
             <td>{{ r.table_size|octet_size }}</td>
             <td>{{ r.index_size|octet_size }}</td>
             <td>{{ r.live|number_format }}</td>

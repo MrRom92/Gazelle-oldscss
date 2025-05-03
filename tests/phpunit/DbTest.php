@@ -5,7 +5,6 @@ namespace Gazelle;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Group;
 use GazelleUnitTest\Helper;
-use Gazelle\Enum\Direction;
 
 class DbTest extends TestCase {
     use Pg;
@@ -277,6 +276,121 @@ class DbTest extends TestCase {
         $this->assertCount(1, $errorList, 'db-pg-error-count');
         $this->assertEquals('computer says no', $errorList[0]['query'], 'db-pg-error-query');
         $this->assertArrayHasKey('epoch', $errorList[0], 'db-pg-error-epoch');
+    }
+
+    public function testMysqlDuplicateException(): void {
+        $this->expectException(DB\MysqlDuplicateKeyException::class);
+        DB::DB()->prepared_query("
+            INSERT INTO users_main
+                   (ID, Username, Email, PassHash, torrent_pass, IP, PermissionID, Enabled, Invites, ipcc, auth_key, stylesheet_id)
+            VALUES (1,  'phpunit', '',   '',       '',           '', 0,            '0',     0,       '',   '',       0)
+        ");
+    }
+
+    public function testMysqlTable(): void {
+        $bad = new DB\MysqlTable('nosuchtable');
+        $this->assertFalse($bad->exists(), 'mysql-table-does-not-exist');
+
+        $table = new DB\MysqlTable('users_main');
+        $this->assertTrue($table->exists(), 'mysql-table-exists');
+        $this->assertEquals(
+            "tools.php?action=db-mysql&table={$table->name}",
+            $table->location(),
+            'mysql-table-location',
+        );
+        $this->assertEquals(
+            "<a href=\"tools.php?action=db-mysql&amp;table=users_main\">users_main</a>",
+            $table->link(),
+            'mysql-table-link',
+        );
+        $this->assertStringStartsWith(
+            'CREATE TABLE `' . $table->name . '` (',
+            $table->definition(),
+            'mysql-table-definition',
+        );
+
+        // if this fails, check the permissions on information_schema.table_statistics
+        $this->assertEquals(
+            [
+                "ROWS_READ", "ROWS_CHANGED", "ROWS_CHANGED_X_INDEXES",
+            ],
+            array_keys($table->tableRead()),
+            'mysql-table-table-read',
+        );
+        $this->assertEquals(
+            [
+                "index_name", "rows_read", "column_list",
+            ],
+            array_keys($table->indexRead()[0]),
+            'mysql-table-index-read',
+        );
+        $this->assertEquals(
+            [
+                "TABLE_ROWS", "AVG_ROW_LENGTH", "DATA_LENGTH", "INDEX_LENGTH",
+                "DATA_FREE", "ROWS_READ", "ROWS_CHANGED", "ROWS_CHANGED_X_INDEXES",
+            ],
+            array_keys($table->stats()),
+            'mysql-table-stats',
+        );
+    }
+
+    public function testPgTable(): void {
+        $bad = new DB\PgTable('nosuchtable');
+        $this->assertFalse($bad->exists(), 'pg-table-does-not-exist');
+
+        $table = new DB\PgTable('user_audit_trail');
+        $this->assertTrue($table->exists(), 'pg-table-exists');
+        $this->assertEquals(
+            "tools.php?action=db-pg&table={$table->name}",
+            $table->location(),
+            'pg-table-location',
+        );
+        $this->assertEquals(
+            "<a href=\"tools.php?action=db-pg&amp;table=user_audit_trail\">user_audit_trail</a>",
+            $table->link(),
+            'pg-table-link',
+        );
+        $this->assertStringStartsWith(
+            "create table public.{$table->name} (",
+            $table->definition(),
+            'pg-table-definition',
+        );
+
+        $this->assertEquals(
+            [
+                "seq_scan", "last_seq_scan", "seq_tup_read", "idx_scan",
+                "last_idx_scan", "idx_tup_fetch", "n_tup_ins", "n_tup_upd",
+                "n_tup_del", "n_tup_hot_upd", "n_tup_newpage_upd",
+                "n_live_tup", "n_dead_tup", "n_ins_since_vacuum",
+                "last_vacuum", "last_autovacuum", "vacuum_count",
+                "autovacuum_count", "n_mod_since_analyze", "analyze_count",
+                "autoanalyze_count",
+            ],
+            array_keys($table->tableRead()),
+            'pg-table-table-read',
+        );
+
+        $indexRead = $table->indexRead();
+        $this->assertCount(4, $indexRead, 'pg-table-index-read-total');
+        $index = $indexRead[0];
+        $this->assertEquals(
+            [
+                "indexrelname", "idx_scan", "idx_tup_read",
+                "idx_tup_fetch", "last_idx_scan",
+            ],
+            array_keys($index),
+            'pg-table-index-read'
+        );
+
+        $this->assertEquals(
+            [
+                "table_size", "index_size", "live", "dead", "dead_ratio",
+                "analyze_delta", "vacuum_delta", "analyze_total",
+                "vacuum_total",
+            ],
+            array_keys($table->stats()),
+            'pg-table-stats',
+        );
     }
 
     public function testPgByteaScalar(): void {

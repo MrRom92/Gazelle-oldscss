@@ -6,40 +6,30 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-use Gazelle\Enum\Direction;
-use Gazelle\Enum\MysqlInfoOrderBy;
-use Gazelle\Enum\MysqlTableMode;
-
 if (!$Viewer->permitted('site_database_specifics')) {
     Error403::error();
 }
 
 // View table definition
-$db = DB::DB();
-if (!empty($_GET['table']) && preg_match('/([\w-]+)/', $_GET['table'], $match)) {
-    $tableName = $match[1];
-    $siteInfo = new SiteInfo();
-    if (!$siteInfo->tableExists($tableName)) {
-        Error404::error("No such table");
+if (preg_match('/([\w-]+)/', $_GET['table'] ?? '', $match)) {
+    $table = new DB\MysqlTable($match[1]);
+    if (!$table->exists()) {
+        Error404::error("No such Mysql table {$match[1]}");
     }
     echo $Twig->render('admin/mysql-table.twig', [
-        'definition' => $db->row('SHOW CREATE TABLE ' . $tableName)[1],
-        'table_name' => $tableName,
-        'table_read' => $siteInfo->tableRowsRead($tableName),
-        'index_read' => $siteInfo->indexRowsRead($tableName),
-        'stats'      => $siteInfo->tableStats($tableName),
+        'table' => $table,
     ]);
     exit;
 }
 
 $info = (new DB\MysqlInfo(
-    DB\MysqlInfo::lookupTableMode($_GET['mode'] ?? MysqlTableMode::all->value),
-    DB\MysqlInfo::lookupOrderby($_GET['order'] ?? MysqlInfoOrderBy::tableName->value),
-    DB::lookupDirection($_GET['sort'] ?? Direction::ascending->value))
+    DB\MysqlInfo::lookupTableMode($_GET['mode'] ?? Enum\MysqlTableMode::all->value),
+    DB\MysqlInfo::lookupOrderby($_GET['order'] ?? Enum\MysqlInfoOrderBy::tableName->value),
+    DB::lookupDirection($_GET['sort'] ?? Enum\Direction::ascending->value))
 );
 $list = $info->info();
-$column = $info->orderBy() == MysqlInfoOrderBy::tableName
-    ? MysqlInfoOrderBy::tableRows->value
+$column = $info->orderBy() == Enum\MysqlInfoOrderBy::tableName
+    ? Enum\MysqlInfoOrderBy::tableRows->value
     : $info->orderBy()->value;
 $data = [];
 foreach ($list as $t) {
@@ -48,7 +38,7 @@ foreach ($list as $t) {
 
 echo $Twig->render('admin/mysql-table-summary.twig', [
     'header' => new Util\SortableTableHeader(
-        MysqlInfoOrderBy::tableName->value,
+        Enum\MysqlInfoOrderBy::tableName->value,
         DB\MysqlInfo::columnList(),
     ),
     'list'  => $list,

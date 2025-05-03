@@ -14,6 +14,10 @@ class MysqlInfoTest extends TestCase {
         $this->assertEquals(MysqlInfoOrderBy::tableName, DB\MysqlInfo::lookupOrderby('wut'), 'mysqlfo-orderby-default');
     }
 
+    public function testMysqlInfoColumn(): void {
+        $this->assertCount(9, DB\MysqlInfo::columnList(), 'myinfo-column-list');
+    }
+
     public function testMysqlInfoList(): void {
         $mysqlInfo = new DB\MysqlInfo(
             MysqlTableMode::all,

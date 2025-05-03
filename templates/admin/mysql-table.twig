@@ -1,4 +1,4 @@
-{{ header('Database Specifics - ' ~ table_name) }}
+{{ header('Database Specifics - ' ~ table.name) }}
 <div class="linkbox">
     <a href="tools.php?action=service_stats" class="brackets">Cache/DB stats</a>
     <a href="tools.php?action=clear_cache" class="brackets">Cache inspector</a>
@@ -8,9 +8,9 @@
 </div>
 
 <div class="pad"><div class="box pad">
-    <h3>Table {{ table_name }} definition</h3>
-    <pre>{{ definition }}</pre>
-    <a href="tools.php?action=db_sandbox&amp;table={{ table_name }}" class="brackets">Inspect</a>
+    <h3>Mysql table {{ table.name }} definition</h3>
+    <pre>{{ table.definition }}</pre>
+    <a href="tools.php?action=db_sandbox&amp;table={{ table.name }}" class="brackets">Inspect</a>
 </div></div>
 
 <div class="pad"><div class="box pad">
@@ -26,18 +26,16 @@
             <th>Rows changed</th>
             <th>Rows changed per index</th>
         </tr>
-{% for r in table_read %}
         <tr>
-            <td>{{ stats.TABLE_ROWS|number_format }}</td>
-            <td>{{ stats.AVG_ROW_LENGTH|number_format }}</td>
-            <td>{{ stats.DATA_LENGTH|octet_size }}</td>
-            <td>{{ stats.INDEX_LENGTH|octet_size }}</td>
-            <td>{{ stats.DATA_FREE|octet_size }}</td>
-            <td>{{ stats.ROWS_READ|number_format }}</td>
-            <td>{{ stats.ROWS_CHANGED|number_format }}</td>
-            <td>{{ stats.ROWS_CHANGED_X_INDEXES|number_format }}</td>
+            <td>{{ table.stats.TABLE_ROWS|number_format }}</td>
+            <td>{{ table.stats.AVG_ROW_LENGTH|number_format }}</td>
+            <td>{{ table.stats.DATA_LENGTH|octet_size }}</td>
+            <td>{{ table.stats.INDEX_LENGTH|octet_size }}</td>
+            <td>{{ table.stats.DATA_FREE|octet_size }}</td>
+            <td>{{ table.stats.ROWS_READ|number_format }}</td>
+            <td>{{ table.stats.ROWS_CHANGED|number_format }}</td>
+            <td>{{ table.stats.ROWS_CHANGED_X_INDEXES|number_format }}</td>
         </tr>
-{% endfor %}
     </table>
 </div></div>
 
@@ -49,7 +47,7 @@
             <th>Rows read</th>
             <th>Column list and cardinalities</th>
         </tr>
-{% for r in index_read %}
+{% for r in table.indexRead %}
         <tr>
             <td>{{ r.index_name }}</td>
             <td>{{ r.rows_read|number_format }}</td>

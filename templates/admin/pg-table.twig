@@ -1,0 +1,70 @@
+{{ header('Database Specifics - Postgresql ' ~ table.name) }}
+<div class="linkbox">
+    <a href="tools.php?action=service_stats" class="brackets">Cache/DB stats</a>
+    <a href="tools.php?action=clear_cache" class="brackets">Cache inspector</a>
+    <a href="tools.php?action=db-mysql" class="brackets">Mysql inspector</a>
+    <a href="tools.php?action=db-pg" class="brackets">Postgresql inspector</a>
+    <a href="tools.php?action=db_sandbox" class="brackets">DB sandbox</a>
+</div>
+
+<div class="pad"><div class="box pad">
+    <h3>Postgresql table {{ table.name }} definition</h3>
+    <pre>{{ table.definition }}</pre>
+    <a href="tools.php?action=db_sandbox&amp;src=pg&amp;table={{ table.name }}" class="brackets">Inspect</a>
+</div></div>
+
+<div class="pad"><div class="box pad">
+    <h3>Rows read</h3>
+    <table>
+        <tr>
+            <th>Live tuples</th>
+            <th>Dead tuples</th>
+            <th>Ratio</th>
+            <th>Table</th>
+            <th>Index</th>
+            <th>Analyzed</th>
+            <th>Vacuumed</th>
+            <th>Analyze total</th>
+            <th>Vacuum total</th>
+        </tr>
+        <tr>
+            <td>{{ table.stats.live|number_format }}</td>
+            <td>{{ table.stats.dead|number_format }}</td>
+            <td>{{ (table.stats.dead == 0
+                ? 0
+                : (table.stats.dead / table.stats.live) * 100)|number_format(2)
+                }}</td>
+            <td>{{ table.stats.table_size|octet_size }}</td>
+            <td>{{ table.stats.index_size|octet_size }}</td>
+            <td>{{ table.stats.analyze_delta|time_diff }}</td>
+            <td>{{ table.stats.vacuum_delta|time_diff }}</td>
+            <td>{{ table.stats.analyze_total|number_format }}</td>
+            <td>{{ table.stats.vacuum_total|number_format }}</td>
+        </tr>
+    </table>
+</div></div>
+
+<div class="pad"><div class="box pad">
+    <h3>Index reads</h3>
+    <table>
+        <tr>
+            <th>Index name</th>
+            <th>Calls</th>
+            <th>Tuples read</th>
+            <th>Tuples fetched</th>
+            <th>Last use</th>
+            <th>Column list and cardinalities</th>
+        </tr>
+{% for r in table.indexRead %}
+        <tr>
+            <td>{{ r.indexrelname }}</td>
+            <td>{{ r.idx_scan|number_format }}</td>
+            <td>{{ r.idx_tup_read|number_format }}</td>
+            <td>{{ r.idx_tup_fetch|number_format }}</td>
+            <td>{{ r.last_idx_scan|time_diff }}</td>
+            <td>todo</td>
+        </tr>
+{% endfor %}
+    </table>
+</div></div>
+{{ footer() }}
