@@ -29,7 +29,7 @@ parameters:
         - ../app
         - ../bin
         - ../classes
-        - ../misc/phinx
+        - ../misc
         - ../tests
         - ../sections
     parallel:

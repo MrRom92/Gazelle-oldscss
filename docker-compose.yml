@@ -18,7 +18,7 @@ services:
 
   memcached:
     # remember to update misc/gitlab-ci.yml
-    image: memcached:1.6.34-alpine
+    image: memcached:1.6.38-alpine
 
   pg:
     image: postgres:orpheus

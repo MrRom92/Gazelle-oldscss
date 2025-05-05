@@ -830,7 +830,7 @@ function httpProxy(): ?string {
     $proxy = getenv('HTTP_PROXY');
     if ($proxy !== false) {
         return (string)$proxy;
-    } elseif (HTTP_PROXY !== false) {
+    } elseif (HTTP_PROXY != false) {
         return (string)HTTP_PROXY;
     }
     return null;

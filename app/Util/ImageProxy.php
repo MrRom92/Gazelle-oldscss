@@ -19,7 +19,7 @@ class ImageProxy {
      * @param string $url Link to an image
      */
     public function badHost(string $url): ?string {
-        foreach (IMAGE_HOST_BANNED as $host) { /** @phpstan-ignore-line */
+        foreach (IMAGE_HOST_BANNED as $host) {
             if (stripos($url, $host) !== false) {
                 return $host;
             }

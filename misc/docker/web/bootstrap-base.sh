@@ -82,13 +82,6 @@ if ! FKEY_MY_DATABASE=1 LOCK_MY_DATABASE=1 "${CI_PROJECT_DIR}/vendor/bin/phinx" 
     exit 1
 fi
 
-if [ -n "${MYSQL_INIT_DB-}" ]; then
-    if ! "${CI_PROJECT_DIR}/vendor/bin/phinx" seed:run; then
-        echo "phinx encountered a fatal error in the Mysql seeds"
-        exit 1
-    fi
-fi
-
 echo "Run Postgresql migrations..."
 if ! "${CI_PROJECT_DIR}/vendor/bin/phinx" migrate -c ./misc/phinx-pg.php; then
     echo "phinx encountered a fatal error in the Postgresql migrations"

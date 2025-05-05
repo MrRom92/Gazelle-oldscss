@@ -24,7 +24,6 @@ __MACOSX/
 /misc/docker/data/
 /misc/mysql-dump.sql
 /misc/postgresql-dump.sql
-/misc/phinx/seeded.txt
 /node_modules
 /public/static/font/
 /public/static/local/
@@ -33,7 +32,7 @@ __MACOSX/
 /npm-debug.log
 /yarn-error.log
 
-/misc/docker/mysql-home/.mysql_history
+/misc/docker/mysql/home/.mysql_history
 !/misc/docker/mysql-home/.my.cnf
 
 /public/static/styles/**/*.css

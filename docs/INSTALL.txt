@@ -45,9 +45,10 @@ see expired unfetched activity.
 5. Review lib/config.php. Edit lib/override.config.php as needed.
    You should be able to launch boris from the command line.
 
-6. Run the phinx migrations and seeds to populate the database.
+6. Run the phinx migrations to populate the database.
 
     vendor/bin/phinx migrate
+    vendor/bin/phinx migrate -c misc/phinx-pg.php
 
 7. Configure Sphinx - we recommend you use the included misc/docker/sphinxsearch/sphinx.conf
    You can copy this to /etc/sphinx/sphinx.conf. You need to fill in the

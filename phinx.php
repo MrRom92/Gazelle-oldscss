@@ -5,7 +5,6 @@ require_once __DIR__ . '/lib/config.php';
 return [
     'paths' => [
         'migrations' => '%%PHINX_CONFIG_DIR%%/misc/my-migrations',
-        'seeds'      => '%%PHINX_CONFIG_DIR%%/misc/phinx/seeds'
     ],
     'environments' => [
         'migration_table'     => 'phinxlog',

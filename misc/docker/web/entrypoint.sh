@@ -35,15 +35,6 @@ if ! FKEY_MY_DATABASE=1 LOCK_MY_DATABASE=1 /var/www/vendor/bin/phinx migrate; th
     exit 1
 fi
 
-if [ ! -f /var/www/misc/phinx/seeded.txt ]; then
-    if ! /var/www/vendor/bin/phinx seed:run; then
-        echo "phinx encountered a fatal error in the Mysql seeds"
-        exit 1
-    fi
-    echo "Seeds have been run, delete to rerun" > /var/www/misc/phinx/seeded.txt
-    chmod 400 /var/www/misc/phinx/seeded.txt
-fi
-
 echo "Run postgres migrations..."
 if ! /var/www/vendor/bin/phinx migrate -c ./misc/phinx-pg.php; then
     echo "phinx encountered a fatal error in the Postgresql migrations"

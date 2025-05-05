@@ -1,0 +1,4 @@
+#! /bin/bash
+# copy to .git/hooks/pre-commit and ensure it is executable
+
+exec bin/lint-staged
