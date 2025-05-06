@@ -5,6 +5,11 @@
     bootstrap="phpunit-autoload.php"
     cacheDirectory="../cache/phpunit"
 >
+  <php>
+    <const name="IMAGE_CACHE_HOST" value="http://image.host" />
+    <const name="IMAGE_CACHE_SECRET" value="phpunit" />
+    <const name="LOGIN_SLEEP_USEC" value="100" />
+  </php>
   <testsuites>
     <testsuite name="unit">
       <directory>../tests/phpunit</directory>
@@ -20,8 +25,4 @@
     </include>
     <exclude/>
   </source>
-  <php>
-    <const name="IMAGE_CACHE_HOST" value="http://image.host" />
-    <const name="IMAGE_CACHE_SECRET" value="phpunit" />
-  </php>
 </phpunit>

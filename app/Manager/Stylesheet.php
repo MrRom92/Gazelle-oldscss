@@ -6,7 +6,7 @@ use Gazelle\Enum\UserStatus;
 use Gazelle\Util\SortableTableHeader;
 
 class Stylesheet extends \Gazelle\Base {
-    final protected const CACHE_KEY = 'csslist2';
+    final public const CACHE_KEY = 'csslist2';
 
     protected array $info;
 

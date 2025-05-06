@@ -110,7 +110,7 @@ class Ban extends \Gazelle\Base {
     }
 
     public function findByIp(string $ip): ?\Gazelle\Ban {
-        $banId = $this->pg()->scalar("
+        $banId = (int)$this->pg()->scalar("
             select id_ip_ban from ip_ban where ip && ?::inet
             ", $ip
         );

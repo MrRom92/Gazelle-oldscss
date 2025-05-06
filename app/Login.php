@@ -2,8 +2,6 @@
 
 namespace Gazelle;
 
-use Gazelle\Enum\UserAuditEvent;
-
 class Login extends Base {
     final public const NO_ERROR = 0;
     final public const ERR_CREDENTIALS = 1;
@@ -14,7 +12,7 @@ class Login extends Base {
     protected bool $persistent = false;
     protected int $userId = 0;
     protected string $password;
-    protected string $twofa;
+    protected string $mfa;
     protected string $username;
     protected LoginWatch $watch;
 
@@ -43,13 +41,13 @@ class Login extends Base {
         string $password,
         LoginWatch $watch,
         bool $persistent = false,
-        string $twofa    = '',
+        string $mfa    = '',
     ): ?User {
         $this->username   = trim($username);
         $this->password   = $password;
         $this->watch      = $watch;
         $this->persistent = $persistent;
-        $this->twofa      = trim($twofa);
+        $this->mfa        = trim($mfa);
 
         $begin  = microtime(true);
         $user   = $this->attemptLogin();
@@ -89,7 +87,7 @@ class Login extends Base {
                 );
             }
         }
-        usleep((int)(600000 - (microtime(true) - $begin)));
+        usleep((int)(LOGIN_SLEEP_USEC - (microtime(true) - $begin)));
         return $user;
     }
 
@@ -118,12 +116,12 @@ class Login extends Base {
         }
 
         // password checks out, if they have 2FA, does that check out?
-        $mfa = $user->MFA();
+        $userMfa = $user->MFA();
         if (
-            $mfa->enabled() && !(
-                $this->twofa && $mfa->verify($this->twofa)
+            $userMfa->enabled() && !(
+                $this->mfa && $userMfa->verify($this->mfa)
             )
-            || !$mfa->enabled() && $this->twofa
+            || !$userMfa->enabled() && $this->mfa
         ) {
             $this->error = self::ERR_CREDENTIALS;
             return null;
@@ -140,7 +138,7 @@ class Login extends Base {
             $userMan->disableUserList(
                 new Tracker(),
                 [$user->id],
-                UserAuditEvent::activity,
+                Enum\UserAuditEvent::activity,
                 "Logged in via Tor ($ipaddr)",
                 Manager\User::DISABLE_TOR
             );

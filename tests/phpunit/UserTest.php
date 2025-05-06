@@ -360,9 +360,9 @@ class UserTest extends TestCase {
     }
 
     public function testStylesheet(): void {
-        $manager = new Manager\Stylesheet();
         global $Cache;
-        $Cache->delete_value('csslist');
+        $Cache->delete_value(Manager\Stylesheet::CACHE_KEY);
+        $manager = new Manager\Stylesheet();
         $list = $manager->list();
         $this->assertGreaterThan(5, $list, 'we-can-haz-stylesheets');
         $this->assertEquals(count($list), count($manager->usageList()), 'stylesheet-list-usage');

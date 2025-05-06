@@ -622,6 +622,9 @@ defined('LOGIN_ATTEMPT_BACKOFF') or define('LOGIN_ATTEMPT_BACKOFF', [
     86400 * 7,
 ]);
 
+// Login sleep time to prevent timing attacks
+defined('LOGIN_SLEEP_USEC') or define('LOGIN_SLEEP_USEC', 600000);
+
 // Releases and collages with these tags are hidden by default
 defined('HIDDEN_TAGS') or define('HIDDEN_TAGS', [0]);
 

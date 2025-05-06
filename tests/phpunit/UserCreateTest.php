@@ -61,21 +61,54 @@ class UserCreateTest extends TestCase {
         $watch = new LoginWatch($login->requestContext()->remoteAddr());
         $watch->clearAttempts();
 
-        $result = $login->login($this->user->username(), 'not-the-password!', $watch);
-        $this->assertNull($result, 'user-create-login-bad-pw-null');
-        $this->assertEquals(Login::ERR_CREDENTIALS, $login->error(), 'user-create-login-bad-pw-error');
+        $this->assertNull(
+            $login->login($this->user->username(), 'not-the-password!', $watch),
+            'user-create-login-bad-pw-null'
+        );
+        $this->assertEquals(
+            Login::ERR_CREDENTIALS,
+            $login->error(),
+            'user-create-login-bad-pw-error'
+        );
 
-        $result = $login->login($this->user->username(), 'password', $watch);
-        $this->assertNull($result, 'user-create-login-unconfirmed-null');
-        $this->assertEquals(Login::ERR_UNCONFIRMED, $login->error(), 'user-create-login-unconfirmed-error');
+        $this->assertNull(
+            $login->login($this->user->username(), 'password', $watch),
+            'user-create-login-unconfirmed-null'
+        );
+        $this->assertEquals(
+            Login::ERR_UNCONFIRMED,
+            $login->error(),
+            'user-create-login-unconfirmed-error',
+        );
 
         $this->assertEquals(2, $watch->nrAttempts(), 'user-create-two-login-attempts');
-        $this->user->setField('Enabled', '2')->modify();
+        $this->user->setField('Enabled', Enum\UserStatus::enabled->value)->modify();
 
         $enabledUser = $login->login($this->user->username(), 'password', $watch);
         $this->assertInstanceOf(User::class, $enabledUser, 'user-create-login-success');
         $this->assertEquals(0, $watch->nrAttempts(), 'user-create-two-login-cleared');
+        // check the table if this fails
         $this->assertEquals(0, $watch->nrBans(), 'user-create-two-login-banned');
+
+        $relogin = new Login();
+        $watch->clearAttempts();
+        foreach (range(1, 11) as $nr) {
+            $relogin->login($this->user->username(), "multi-fail-$nr", $watch);
+        }
+        $inbox = $this->user->inbox();
+        $this->assertEquals(1, $inbox->messageTotal(), 'user-login-fail-inbox');
+        $list    = $inbox->messageList(new Manager\PM($this->user), 3, 0);
+        $warning = end($list);
+        $this->assertEquals(
+            'Too many login attempts on your account',
+            $warning->subject(),
+            'user-login-pm-subject'
+        );
+        $this->assertEquals(
+            1,
+            $watch->setClear([$watch->id()], $this->user),
+            'user-login-watch-clear',
+        );
     }
 
     public function testZeroFailure(): void {

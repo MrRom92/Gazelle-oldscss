@@ -86,7 +86,10 @@ class MultiFactorAuth extends \Gazelle\BaseUser {
             && $userToken->type() === UserTokenType::mfa
             && $userToken->consume()
         ) {
-            $this->user->auditTrail()->addEvent(UserAuditEvent::mfa, "used recovery token $token");
+            $this->user->auditTrail()->addEvent(
+                UserAuditEvent::mfa,
+                "used recovery token $token from {$this->user->requestContext()->remoteAddr()}"
+            );
             return true;
         }
         return false;

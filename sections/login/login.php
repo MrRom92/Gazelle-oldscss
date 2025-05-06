@@ -19,7 +19,7 @@ if (!empty($_POST['username']) && !empty($_POST['password'])) {
         username:   $_POST['username'],
         password:   $_POST['password'],
         watch:      $watch,
-        twofa:      $_POST['twofa'] ?? '',
+        mfa:        $_POST['twofa'] ?? '',
         persistent: isset($_POST['keeplogged']),
     );
 

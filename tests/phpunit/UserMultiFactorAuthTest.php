@@ -23,30 +23,34 @@ class UserMultiFactorAuthTest extends TestCase {
 
     protected function countTokens(): int {
         return $this->pg()->scalar('
-            select count(*) from user_token
-            where id_user = ?
-              and type = ?
-              and expiry > now()
+            select count(*)
+            from user_token
+            where expiry > now()
+                and id_user = ?
+                and type = ?
             ', $this->user->id, UserTokenType::mfa->value
         );
     }
 
     public function testMFA(): void {
-        $auth = new \RobThree\Auth\TwoFactorAuth();
-        $secret = $auth->createSecret();
-        $mfa = $this->user->MFA();
+        $auth    = new \RobThree\Auth\TwoFactorAuth();
+        $secret  = $auth->createSecret();
+        $mfa     = $this->user->MFA();
         $manager = new Manager\UserToken();
 
         $this->assertEquals(0, $this->countTokens(), 'utest-no-mfa');
         $recovery = $mfa->create($manager, $secret);
         $this->assertIsArray($recovery, 'utest-setup-mfa-array');
         $this->assertCount(10, $recovery, 'utest-setup-mfa-count');
-        $this->assertTrue($this->user->auditTrail()->hasEvent(UserAuditEvent::mfa), 'utest-mfa-audit');
+        $this->assertTrue(
+            $this->user->auditTrail()->hasEvent(UserAuditEvent::mfa),
+            'utest-mfa-audit'
+        );
 
         $burn = array_pop($recovery);
         $this->assertFalse($mfa->burnRecovery('no such key'), 'utest-no-burn-mfa');
         $this->assertTrue($mfa->burnRecovery($burn), 'utest-burn-mfa');
-        Helper::sleepTick(); // pg table's time resolution is too low and causes race
+        Helper::sleepTick(); // wait until the next second
         $this->assertEquals(9, $this->countTokens(), 'utest-less-mfa');
         $this->assertFalse($mfa->burnRecovery($burn), 'utest-burn-twice-mfa');
 
@@ -66,7 +70,11 @@ class UserMultiFactorAuthTest extends TestCase {
         );
         $this->assertCount(4, $mfaList, 'utest-audit-mfa-list');
         $this->assertStringStartsWith('removed', $mfaList[0]['note'], 'utest-audit-mfa-0');
-        $this->assertEquals("used recovery token $burn", $mfaList[1]['note'], 'utest-audit-mfa-1');
+        $this->assertEquals(
+            "used recovery token $burn from {$this->user->requestContext()->remoteAddr()}",
+            $mfaList[1]['note'],
+            'utest-audit-mfa-1'
+        );
         $this->assertStringStartsWith('configured', $mfaList[3]['note'], 'utest-audit-mfa-2');
         $this->assertFalse($mfa->enabled(), 'utest-no-mfa-key');
     }
