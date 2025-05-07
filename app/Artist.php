@@ -592,8 +592,8 @@ class Artist extends BaseObject implements CollageEntry {
                 stem              = VALUES(stem),
                 name              = VALUES(name),
                 user_id           = VALUES(user_id)
-            ", $discogs->id(), $this->id, (int)($this->homonymCount() == 0),
-            $discogs->sequence(), $discogs->stem(), $discogs->name(), $this->updateUser->id()
+            ", $discogs->id, $this->id, (int)($this->homonymCount() == 0),
+            $discogs->sequence(), $discogs->stem(), $discogs->name(), $this->updateUser->id
         );
         return self::$db->affected_rows();
     }
@@ -618,18 +618,17 @@ class Artist extends BaseObject implements CollageEntry {
         self::$db->begin_transaction();
 
         // Get the ids of the objects that need to be flushed
-        $oldId = $old->id();
         $oldName = $old->name();
         self::$db->prepared_query("
             SELECT UserID FROM bookmarks_artists WHERE ArtistID = ?
-            ", $oldId
+            ", $old->id
         );
         $bookmarkList = self::$db->collect(0, false);
         self::$db->prepared_query("
             SELECT ca.CollageID
             FROM collages_artists AS ca
             WHERE ca.ArtistID = ?
-            ", $oldId
+            ", $old->id
         );
         $artistCollageList = self::$db->collect(0, false);
         self::$db->prepared_query("
@@ -637,7 +636,7 @@ class Artist extends BaseObject implements CollageEntry {
             FROM torrents_artists ta
             INNER JOIN artists_alias aa ON (ta.AliasID = aa.AliasID)
             WHERE aa.ArtistID = ?
-            ", $oldId
+            ", $old->id
         );
         $groupList = self::$db->collect(0, false);
         self::$db->prepared_query("
@@ -645,7 +644,7 @@ class Artist extends BaseObject implements CollageEntry {
             FROM requests_artists ra
             INNER JOIN artists_alias aa ON (ra.AliasID = aa.AliasID)
             WHERE aa.ArtistID = ?
-            ", $oldId
+            ", $old->id
         );
         $requestList = self::$db->collect(0, false);
 
@@ -656,7 +655,7 @@ class Artist extends BaseObject implements CollageEntry {
             INNER JOIN torrents_artists ta USING (GroupID)
             INNER JOIN artists_alias    aa ON (ta.AliasID = aa.AliasID)
             WHERE aa.ArtistID = ?
-            ", $oldId
+            ", $old->id
         );
         $collageList = self::$db->collect(0, false);
 
@@ -664,28 +663,28 @@ class Artist extends BaseObject implements CollageEntry {
         // if it does not yet exists there. Delete any remaining old ids
         // as the new id is already present in the target object.
         // In Postgresql this will be handled by a merge statement.
-        $newId = $this->id();
+        $newId = $this->id;
         self::$db->prepared_query("
             UPDATE bookmarks_artists
             LEFT JOIN (SELECT UserID FROM bookmarks_artists WHERE ArtistID = ?) X USING (UserID)
             SET ArtistID = ?
             WHERE ArtistID = ? AND X.UserID IS NULL;
-            ", $newId, $newId, $oldId
+            ", $newId, $newId, $old->id
         );
         self::$db->prepared_query("
             DELETE FROM bookmarks_artists WHERE ArtistID = ?
-            ", $oldId
+            ", $old->id
         );
         self::$db->prepared_query("
             UPDATE collages_artists Old
             LEFT JOIN (SELECT CollageID from collages_artists where ArtistID = ?) New using (CollageID)
             SET Old.ArtistID = ?
             WHERE Old.ArtistID = ? AND New.CollageID IS NULL
-            ", $newId, $newId, $oldId
+            ", $newId, $newId, $old->id
         );
         self::$db->prepared_query("
             DELETE FROM collages_artists WHERE ArtistID = ?
-            ", $oldId
+            ", $old->id
         );
 
         // Merge all of this artist's aliases with the new artist
@@ -693,7 +692,7 @@ class Artist extends BaseObject implements CollageEntry {
             UPDATE artists_alias SET
                 ArtistID = ?
             WHERE ArtistID = ?
-            ", $newId, $oldId
+            ", $newId, $old->id
         );
 
         if ($redirect) {
@@ -722,7 +721,7 @@ class Artist extends BaseObject implements CollageEntry {
             );
         }
 
-        $commMan->merge('artist', $oldId, $newId);
+        $commMan->merge('artist', $old->id, $newId);
 
         // Cache clearing
         self::$cache->delete_multi([array_map(fn ($id) => "notify_artists_$id", $bookmarkList)]);
@@ -740,16 +739,16 @@ class Artist extends BaseObject implements CollageEntry {
         // Delete the old artist
         self::$db->prepared_query("
             DELETE FROM artists_group WHERE ArtistID = ?
-            ", $oldId
+            ", $old->id
         );
         $affected = self::$db->affected_rows();
         self::$db->commit();
         $this->logger()->general(
-            "The artist $oldId ($oldName) was made into a "
+            "The artist {$old->id} ($oldName) was made into a "
             . ($redirect ? "" : "non-")
             . "redirecting alias of artist $newId ({$this->name()}) by user {$user->label()}"
         );
-        self::$cache->delete_value("zz_a_$oldId");
+        self::$cache->delete_value("zz_a_{$old->id}");
         $this->flush();
         $old->flush();
         return $affected;

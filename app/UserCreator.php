@@ -107,7 +107,7 @@ class UserCreator extends Base {
             'auth_key'
         ];
         $mainArgs = [
-            (int)$inviter?->id(),
+            (int)$inviter?->id,
             $this->username,
             current($this->email),
             $this->passHash,
@@ -149,28 +149,6 @@ class UserCreator extends Base {
             VALUES (?)
             ",  $this->id
         );
-
-        if ($inviter) {
-            (new Manager\InviteSource())->resolveInviteSource($this->inviteKey, $user);
-            $inviter->stats()->increment('invited_total');
-            $user->externalProfile()->modifyProfile($inviterReason);
-            self::$db->prepared_query("
-                DELETE FROM invites WHERE InviteKey = ?
-                ", $this->inviteKey
-            );
-        }
-
-        if (isset($this->inviteKey)) {
-            self::$db->prepared_query("
-                UPDATE referral_users SET
-                    UserID = ?,
-                    Active = 1,
-                    Joined = now(),
-                    InviteKey = ''
-                WHERE InviteKey = ?
-                ", $this->id, $this->inviteKey
-            );
-        }
 
         // Log the one or two email addresses known to be associated with the user.
         // Each additional previous email address is staggered one second back in the past.
@@ -218,6 +196,28 @@ class UserCreator extends Base {
                 insert into user_has_attr (id_user, id_user_attr)
                 values (?, (select id_user_attr from user_attr where name like ?))
             ", $this->id, "{$attr}-pop");
+        }
+
+        if ($inviter) {
+            (new Manager\InviteSource())->resolveInviteSource($this->inviteKey, $user);
+            $inviter->stats()->increment('invited_total');
+            $user->externalProfile()->modifyProfile($inviterReason);
+            self::$db->prepared_query("
+                DELETE FROM invites WHERE InviteKey = ?
+                ", $this->inviteKey
+            );
+        }
+
+        if (isset($this->inviteKey)) {
+            self::$db->prepared_query("
+                UPDATE referral_users SET
+                    Active    = 1,
+                    InviteKey = '',
+                    Joined    = now(),
+                    UserID    = ?
+                WHERE InviteKey = ?
+                ", $this->id, $this->inviteKey
+            );
         }
 
         self::$db->commit();

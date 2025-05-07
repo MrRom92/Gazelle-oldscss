@@ -7,7 +7,7 @@ class Discogs extends \Gazelle\Base {
     protected array $info;
 
     public function __construct(
-        protected int $id,
+        public readonly int $id,
         ?int $sequence = null,
         ?string $name = null,
         ?string $stem = null,

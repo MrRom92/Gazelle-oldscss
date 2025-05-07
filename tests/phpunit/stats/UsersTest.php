@@ -12,13 +12,7 @@ class UsersTest extends TestCase {
     public function tearDown(): void {
         if (isset($this->userList)) {
             foreach ($this->userList as $user) {
-                if (isset($user)) {
-                    DB::DB()->prepared_query("
-                        DELETE FROM users_stats_daily WHERE UserID = ?
-                        ", $user->id
-                    );
-                    $user->remove();
-                }
+                $user?->remove();
             }
         }
     }

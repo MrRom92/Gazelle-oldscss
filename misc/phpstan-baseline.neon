@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Strict comparison using \=\=\= between false and false will always evaluate to true\.$#'
-			identifier: identical.alwaysTrue
-			count: 1
-			path: ../app/DB/Mysql.php
-
-		-
 			message: '#^Match expression does not handle remaining value\: string$#'
 			identifier: match.unhandled
 			count: 2
@@ -17,36 +11,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: ../app/Feed.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_keys expects array, array\|false given\.$#'
-			identifier: argument.type
-			count: 2
-			path: ../app/Search/Torrent.php
-
-		-
-			message: '#^Parameter \#1 \$array of function array_slice expects array, array\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../app/Search/Torrent.php
-
-		-
-			message: '#^Parameter \#1 \$value of function count expects array\|Countable, array\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: ../app/Search/Torrent.php
-
-		-
-			message: '#^If condition is always false\.$#'
-			identifier: if.alwaysFalse
-			count: 1
-			path: ../app/Torrent/Report.php
-
-		-
-			message: '#^Method Gazelle\\Torrent\\Report\:\:torrent\(\) should return Gazelle\\TorrentAbstract\|null but returns Gazelle\\TorrentAbstract\|false\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: ../app/Torrent/Report.php
 
 		-
 			message: '#^Method Gazelle\\Util\\Proxy\:\:fetch\(\) has no return type specified\.$#'

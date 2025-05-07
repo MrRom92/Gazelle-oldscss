@@ -17,14 +17,6 @@ class UserTest extends TestCase {
 
     public function tearDown(): void {
         if (isset($this->user)) {
-            DB::DB()->prepared_query("
-                DELETE FROM user_read_forum WHERE user_id = ?
-                ", $this->user->id
-            );
-            DB::DB()->prepared_query("
-                DELETE FROM users_stats_daily WHERE UserID = ?
-                ", $this->user->id
-            );
             $this->user->remove();
         }
     }

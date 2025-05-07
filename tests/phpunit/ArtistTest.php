@@ -582,19 +582,25 @@ class ArtistTest extends TestCase {
         $artist = $manager->create('phpunit.' . randomString(12));
         $this->artistIdList[] = $artist->id;
 
-        $id = -100000 + random_int(1, 100000);
+        $id = (int)DB::DB()->scalar("
+            SELECT 1+coalesce(max(artist_discogs_id), 0) FROM artist_discogs
+        ");
+        $name = 'discogs phpunit ' . randomString(10);
         $discogs = new Util\Discogs(
             id: $id,
-            stem: 'discogs phpunit',
-            name: 'discogs phpunit',
+            stem: $name,
+            name: $name,
             sequence: 2,
         );
-        $this->assertEquals($id, $discogs->id(), 'artist-discogs-id');
-        $this->assertEquals('discogs phpunit', $discogs->name(), 'artist-discogs-name');
-        $this->assertEquals('discogs phpunit', $discogs->stem(), 'artist-discogs-stem');
+        $this->assertEquals($id, $discogs->id, 'artist-discogs-id');
+        $this->assertEquals($name, $discogs->name(), 'artist-discogs-name');
+        $this->assertEquals($name, $discogs->stem(), 'artist-discogs-stem');
         $this->assertEquals(2, $discogs->sequence(), 'artist-discogs-sequence');
-
-        $artist->setField('discogs', $discogs)->setUpdateUser($this->user)->modify();
-        $this->assertEquals('discogs phpunit', $artist->discogs()->name(), 'artist-self-discogs-name');
+        $this->assertTrue(
+            $artist->setField('discogs', $discogs)->setUpdateUser($this->user)->modify(),
+            'artist-add-discogs'
+        );
+        $this->assertEquals($name, $artist->discogs()->name(), 'artist-self-discogs-name');
+        $this->assertEquals(1, $artist->removeDiscogsRelation(), 'artist-discogs-remove');
     }
 }

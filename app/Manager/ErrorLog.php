@@ -22,6 +22,11 @@ class ErrorLog extends BaseManager {
         array $request,
         array $errorList,
     ): \Gazelle\ErrorLog {
+        $len = strlen($trace);
+        if ($len > 4000) {
+            $clipped = $len - 4000;
+            $trace = substr($trace, 0, 4000) . "[...$clipped chars clipped]";
+        }
         $id = $this->pg()->scalar("
             merge into error_log using (
                 select ? as uri,
@@ -51,7 +56,7 @@ class ErrorLog extends BaseManager {
     }
 
     /**
-     * Get an eror log based on its ID
+     * Get an error log based on its ID
      */
     public function findById(int $id): ?\Gazelle\ErrorLog {
         $errorId = (int)$this->pg()->scalar("
@@ -62,7 +67,7 @@ class ErrorLog extends BaseManager {
     }
 
     /**
-     * Get an eror log based on its digest
+     * Get an error log based on its digest
      */
     public function findByDigest(string $trace, array $errorList): ?\Gazelle\ErrorLog {
         $id = (int)$this->pg()->scalar("

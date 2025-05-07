@@ -344,21 +344,24 @@ class User extends BaseObject {
      * Twig will use these pieces to construct the markup for their avatar.
      */
     public function avatarComponentList(User $viewed): array {
-        $viewedId = $viewed->id();
-        if (!isset($this->avatarCache[$viewedId])) {
+        if (!isset($this->avatarCache[$viewed->id])) {
             $donor = new User\Donor($viewed);
-            $this->avatarCache[$viewedId] = [
+            $this->avatarCache[$viewed->id] = [
                 'image' => match ($this->avatarMode()) {
-                    AvatarDisplay::show              => $viewed->avatar() ?: USER_DEFAULT_AVATAR,
-                    AvatarDisplay::fallbackSynthetic => $viewed->avatar() ?: (new User\SyntheticAvatar($this))->avatar($viewed->username()),
-                    AvatarDisplay::forceSynthetic    => (new User\SyntheticAvatar($this))->avatar($viewed->username()),
-                    AvatarDisplay::none              => USER_DEFAULT_AVATAR, /** @phpstan-ignore-line */
+                    AvatarDisplay::show
+                        => $viewed->avatar() ?: USER_DEFAULT_AVATAR,
+                    AvatarDisplay::fallbackSynthetic
+                        => $viewed->avatar() ?: (new User\SyntheticAvatar($this))->avatar($viewed->username()),
+                    AvatarDisplay::forceSynthetic
+                        => (new User\SyntheticAvatar($this))->avatar($viewed->username()),
+                    AvatarDisplay::none /** @phpstan-ignore-line */
+                        => USER_DEFAULT_AVATAR,
                 },
                 'hover' => $donor->avatarHover(),
                 'text'  => $donor->avatarHoverText(),
             ];
         }
-        return $this->avatarCache[$viewedId];
+        return $this->avatarCache[$viewed->id];
     }
 
     public function banDate(): ?string {
@@ -384,7 +387,7 @@ class User extends BaseObject {
      * This method returns a hash of the current modified date
      * and state of the audit trail. This is used to verify that
      * a staff member is not operating on an out-of-date version
-     * of a user.
+     * of a user profile page.
      */
     public function checkpoint(): string {
         return signature(
@@ -717,7 +720,7 @@ class User extends BaseObject {
      * returns PARANOIA_HIDE, PARANOIA_OVERRIDDEN, PARANOIA_ALLOWED
      */
     public function propertyVisible(User $viewer, string $property): int {
-        if ($this->id === $viewer->id()) {
+        if ($this->id === $viewer->id) {
             return PARANOIA_ALLOWED;
         }
 
@@ -852,7 +855,7 @@ class User extends BaseObject {
             );
             $this->lastRead = self::$db->to_pair('TopicID', 'PostID', false);
         }
-        return $this->lastRead[$thread->id()] ?? 0;
+        return $this->lastRead[$thread->id] ?? 0;
     }
 
     /**
@@ -1660,7 +1663,7 @@ class User extends BaseObject {
             }
             $this->tokenCache = $tokenCache;
         }
-        return isset($this->tokenCache[$torrent->id()]);
+        return isset($this->tokenCache[$torrent->id]);
     }
 
     /**
@@ -1860,7 +1863,7 @@ class User extends BaseObject {
             WHERE uid = ?
                 AND fid = ?
             LIMIT 1;
-            ", $this->id, $torrent->id()
+            ", $this->id, $torrent->id
         );
     }
 
@@ -1973,6 +1976,22 @@ class User extends BaseObject {
         $username = $this->username();
         // Many, but not all, of the associated user tables will drop their entries via foreign key cascades.
         // But some won't. If this call fails, you will need to decide what to do about the tables in question.
+        DB::DB()->prepared_query("
+            DELETE FROM user_read_forum WHERE user_id = ?
+            ", $this->id
+        );
+        self::$db->prepared_query("
+            DELETE FROM users_stats_daily WHERE UserID = ?
+            ", $this->id
+        );
+        self::$db->prepared_query("
+            DELETE FROM users_stats_monthly WHERE UserID = ?
+            ", $this->id
+        );
+        self::$db->prepared_query("
+            DELETE FROM users_stats_yearly WHERE UserID = ?
+            ", $this->id
+        );
         $affected = parent::remove();
         self::$cache->delete_multi([
             sprintf(Manager\User::ID_KEY, $this->id),
