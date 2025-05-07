@@ -38,7 +38,7 @@ class User extends AbstractAPI {
                 coalesce(ub.points, 0) as BonusPoints,
                 p.Name as ClassName,
                 p.Level,
-                GROUP_CONCAT(ul.PermissionID SEPARATOR ',') AS SecondaryClasses
+                coalesce(GROUP_CONCAT(ul.PermissionID SEPARATOR ','), '') AS SecondaryClasses
             FROM users_main AS um
             INNER JOIN users_leech_stats AS uls ON (uls.UserID = um.ID)
             INNER JOIN permissions AS p ON (p.ID = um.PermissionID)

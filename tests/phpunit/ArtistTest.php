@@ -81,6 +81,22 @@ class ArtistTest extends TestCase {
         $this->assertTrue($artist->isLocked(), 'artist-is-locked');
     }
 
+    public function testArtistAPI(): void {
+        $manager = new Manager\Artist();
+        $artist = $manager->create('phpunit.' . randomString(12));
+        $this->artistIdList[] = $artist->id;
+        $_GET['req']       = 'artist';
+        $_GET['artist_id'] = $artist->id;
+        $this->assertEquals(
+            [
+                'ArtistID' => $artist->id(),
+                'Name' => $artist->name(),
+            ],
+            new API\Artist([])->run(),
+            'artist-api',
+        );
+    }
+
     public function testArtistRevision(): void {
         $manager = new Manager\Artist();
         $artist = $manager->create('phpunit.' . randomString(12));

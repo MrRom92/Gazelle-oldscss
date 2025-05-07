@@ -142,7 +142,43 @@ class TGroupTest extends TestCase {
 
         $main = $idList[ARTIST_MAIN];
         $this->assertCount(1, $main, 'tgroup-artist-role-main');
-
+        $artist = $artMan->findByName($artistName);
+        $this->assertEquals(
+            [
+                "artists" => [[
+                    "id"      => $artist->id,
+                    "aliasid" => $artist->aliasId(),
+                    "name"    => $artist->name(),
+                ]],
+                "with"      => [],
+                "remixedBy" => [],
+                "composers" => [],
+                "conductor" => [],
+                "dj"        => [],
+                "producer"  => [],
+                "arranger"  => [],
+            ],
+            $artistRole->roleListByType(),
+            'tgroup-artist-role-by-type',
+        );
+        $this->assertEquals(
+            [
+                "1" => [[
+                    "id"      => $artist->id,
+                    "aliasid" => $artist->aliasId(),
+                    "name"    => $artist->name(),
+                ]],
+                "2" => null,
+                "3" => null,
+                "4" => null,
+                "5" => null,
+                "6" => null,
+                "7" => null,
+                "8" => null,
+            ],
+            $artistRole->legacyList(),
+            'tgroup-artist-role-legacy',
+        );
         $first = current($main);
         $this->assertEquals($artistName, $first['name'], 'tgroup-artist-first-name');
 

@@ -301,6 +301,29 @@ class CollageTest extends TestCase {
         );
     }
 
+    public function testCollageAPI(): void {
+        $manager = new Manager\Collage();
+        $this->collageList[] = $manager->create(
+            user:        $this->userList['u1'],
+            categoryId:  CollageType::label->value,
+            name:        'phpunit collage api ' . randomString(20),
+            description: 'phpunit collage api description',
+            tagList:     implode(' ', $this->tagList(3)),
+        );
+        $_GET['req']       = 'collage';
+        $_GET['collage_id'] = $this->collageList[0]->id;
+        $this->assertEquals(
+            [
+                'ID'         => $this->collageList[0]->id(),
+                'Name'       => $this->collageList[0]->name(),
+                'CategoryID' => $this->collageList[0]->categoryId(),
+                'Category'   => null,
+            ],
+            new API\Collage([])->run(),
+            'collage-api',
+        );
+    }
+
     public function testCollageContribute(): void {
         $manager = new Manager\Collage();
         $this->collageList[] = $manager->create(

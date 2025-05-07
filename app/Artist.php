@@ -690,8 +690,8 @@ class Artist extends BaseAttrObject implements CollageEntry {
         $commMan->merge('artist', $old->id, $newId);
 
         // Cache clearing
-        self::$cache->delete_multi([array_map(fn ($id) => "notify_artists_$id", $bookmarkList)]);
-        self::$cache->delete_multi([array_map(fn ($id) => sprintf(Collage::CACHE_KEY, $id), $collageList)]);
+        self::$cache->delete_multi(array_map(fn ($id) => "notify_artists_$id", $bookmarkList));
+        self::$cache->delete_multi(array_map(fn ($id) => sprintf(Collage::CACHE_KEY, $id), $collageList));
         foreach ($artistCollageList as $collageId) {
             $collMan->findById($collageId)?->flush();
         }

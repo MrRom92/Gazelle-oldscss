@@ -61,9 +61,14 @@ class RequestTest extends TestCase {
             ),
             'request-add-artist-role'
         );
-        $this->assertInstanceOf(ArtistRole\Request::class, $this->request->artistRole(), 'request-artist-role');
+        $this->assertInstanceOf(ArtistRole\Request::class, $this->request->artistRole(), 'request-has-artist-role');
         $this->assertInstanceOf(Request\LogCue::class, $this->request->logCue(), 'request-log-cue');
         $this->assertStringContainsString('+', $this->request->urlencodeArtist(), 'request-urlencode-artist');
+        $this->assertEquals(
+            [ARTIST_MAIN => [$artistName]],
+            $this->request->artistRole()->roleNameList(),
+            'request-artist-role-name-list',
+        );
 
         $this->assertCount(0, $this->request->tagNameList());
         $nameList = ['phpunit.' . randomString(6), 'phpunit.' . randomString(6)];

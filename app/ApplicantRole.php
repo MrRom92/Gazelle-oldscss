@@ -95,7 +95,7 @@ class ApplicantRole extends BaseObject {
                    (RoleID, UserID, Body, ThreadID)
             VALUES (?,      ?,      ?,    ?)
             ", $this->id, $user->id, $body,
-                (new Manager\Thread())->createThread('staff-role')->id()
+                (new Manager\Thread())->createThread('staff-role')->id
         );
         (new Manager\Applicant())->flush();
         (new Manager\ApplicantRole())->flush();
@@ -105,14 +105,19 @@ class ApplicantRole extends BaseObject {
     public function modify(): bool {
         $modified = false;
         $userMan  = new Manager\User();
-        $list = preg_split('/\s+/', $this->clearField('viewer_list'));
-        $viewerList = empty($list)
-            ? []
-            : array_filter(
-                array_map(fn($name) => $userMan->find($name)?->id(), $list),
-                fn($user) => is_int($user)
+        $list = $this->clearField('viewer_list');
+        if (!is_string($list)) {
+            $viewerList = [];
+        } else {
+            $viewerList = array_filter(
+                array_map(
+                    fn ($name) => $userMan->find($name)?->id,
+                    preg_split('/\s+/', $list) /** @phpstan-ignore-line */
+                ),
+                fn ($user) => is_int($user)
             );
-        sort($viewerList);
+            sort($viewerList);
+        }
         if ($viewerList != $this->viewerList()) {
             self::$db->begin_transaction();
             self::$db->prepared_query("
