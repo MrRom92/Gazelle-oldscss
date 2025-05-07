@@ -9,6 +9,11 @@ class Torrent extends TorrentAbstract {
     final public const CACHE_KEY_PEERLIST_PAGE = 'peerlist_page_%d_%d';
     final public const USER_RECENT_UPLOAD      = 'u_recent_up_%d';
 
+    final protected const ObjectName   = 'torrent';
+    final protected const PkColumn     = 'ID';
+    final protected const JoinColumn   = 'TorrentAttrID';
+    final protected const ObjectColumn = 'TorrentID';
+
     public function location(): string {
         return "torrents.php?id={$this->groupId()}&torrentid={$this->id}#torrent{$this->id}";
     }
@@ -474,8 +479,10 @@ class Torrent extends TorrentAbstract {
     }
 
     /**
-     * Remove a torrent. There is additional context required that prevents the standard
-     * mechanism from being used.
+     * Remove a torrent. There is additional context required that prevents the
+     * standard mechanism from being called directly. This method performs the
+     * necessary housekeeping in the tables and then calls the
+     * BaseAttrObject::remove() to do the rest.
      */
     public function removeTorrent(?User $user, string $reason, int $trackerReason = -1, bool $removePoints = true): array {
         $qid = self::$db->get_query_id();
@@ -485,6 +492,7 @@ class Torrent extends TorrentAbstract {
             (new User\Bonus($this->uploader()))->removePointsForUpload($this);
         }
 
+        // copy the metadata that will be needed after the row has been removed
         $edition  = $this->edition();
         $groupId  = $this->group()->id();
         $infohash = $this->infohash();
@@ -501,13 +509,14 @@ class Torrent extends TorrentAbstract {
 
         $manager = new DB();
         $manager->relaxConstraints(true);
-        [$ok, $message] = $manager->softDelete(MYSQL_DB, 'torrents_leech_stats', [['TorrentID', $this->id]], false);
+        [$ok, $message] = $manager->softDelete(
+            MYSQL_DB, 'torrents_leech_stats', 'TorrentID', $this->id, delete: true
+        );
         if (!$ok) {
             self::$db->rollback();
             return [false, $message];
         }
-        $manager->softDelete(MYSQL_DB, 'torrent_has_attr', [['TorrentID', $this->id]]);
-        $manager->softDelete(MYSQL_DB, 'torrents', [['ID', $this->id]]);
+        $manager->softDelete(MYSQL_DB, 'torrents', 'ID', $this->id, delete: false);
         $manager->relaxConstraints(false);
 
         self::$db->prepared_query("
@@ -517,6 +526,10 @@ class Torrent extends TorrentAbstract {
 
         self::$db->prepared_query("
             DELETE FROM torrent_unseeded_claim WHERE torrent_id = ?
+            ", $this->id
+        );
+        self::$db->prepared_query("
+            DELETE FROM ratelimit_torrent WHERE torrent_id = ?
             ", $this->id
         );
 
@@ -554,7 +567,6 @@ class Torrent extends TorrentAbstract {
             ", $this->id
         );
         $deleteKeys = self::$db->collect('ck', false);
-        $manager->softDelete(MYSQL_DB, 'users_notify_torrents', [['TorrentID', $this->id]]);
 
         if (!is_null($user)) {
             $key = sprintf(self::USER_RECENT_UPLOAD, $user->id);
@@ -581,13 +593,13 @@ class Torrent extends TorrentAbstract {
             ->general(
                 "Torrent {$this->id} ($name) [$edition] ($sizeMB $infohash) was deleted$userInfo for reason: $reason"
             );
+        parent::remove();
         self::$db->commit();
 
         array_push($deleteKeys, "zz_t_" . $this->id, sprintf(self::CACHE_KEY, $this->id), "torrent_group_" . $groupId);
         self::$cache->delete_multi($deleteKeys);
         self::$cache->decrement('stats_torrent_count');
         $this->group()->refresh();
-        $this->flush();
 
         self::$db->set_query_id($qid);
         return [true, "torrent " . $this->id . " removed"];

@@ -53,20 +53,16 @@ class UserTest extends TestCase {
 
         $id       = $this->user->id;
         $username = $this->user->username();
-        $this->assertEquals(1, $this->user->remove(), 'user-remove');
+        $this->assertEquals(1, $this->user->remove(), 'user-remove-exists');
         $this->assertNull((new Manager\User())->findById($id), 'user-is-removed');
         $this->assertNull((new Manager\User())->findByUsername($username), 'username-is-removed');
         unset($this->user);
     }
 
     public function testAttr(): void {
-        $this->assertFalse($this->user->hasUnlimitedDownload(), 'uattr-hasUnlimitedDownload');
-        $this->user->toggleUnlimitedDownload(true);
-        $this->assertTrue($this->user->hasUnlimitedDownload(), 'uattr-not-hasUnlimitedDownload');
-
-        $this->assertTrue($this->user->hasAcceptFL(), 'uattr-has-FL');
-        $this->user->toggleAcceptFL(false);
-        $this->assertFalse($this->user->hasAcceptFL(), 'uattr-has-not-FL');
+        $this->assertFalse($this->user->hasAttr('unlimited-download'), 'uattr-hasUnlimitedDownload');
+        $this->user->toggleAttr('unlimited-download', true);
+        $this->assertTrue($this->user->hasAttr('unlimited-download'), 'uattr-not-hasUnlimitedDownload');
 
         $this->assertNull($this->user->option('nosuchoption'), 'uattr-nosuchoption');
 

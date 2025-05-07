@@ -91,7 +91,7 @@
             <strong>FL Tokens</strong>
         </td>
         <td >
-            <input type="checkbox" name="acceptfltoken" id="acceptfltoken"{{ checked(user.HasAcceptFL) }} />
+            <input type="checkbox" name="acceptfltoken" id="acceptfltoken"{{ checked(not user.hasAttr('no-fl-gifts')) }} />
             <label for="acceptfltoken">Accept FL Tokens from members and accept site-wide bonus point handouts</label>
         </td>
     </tr>

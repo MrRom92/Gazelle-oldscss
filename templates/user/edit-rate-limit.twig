@@ -1,7 +1,7 @@
 {% from 'macro/form.twig' import checked %}
 <tr id="comm_unlimited_download">
     <td class="label tooltip" title="">Unlimited Torrent Downloads</td>
-    <td><input type="checkbox" name="unlimitedDownload" id="unlimitedDownload"{{ checked(user.hasUnlimitedDownload) }} />
+    <td><input type="checkbox" name="unlimitedDownload" id="unlimitedDownload"{{ checked(user.hasAttr('unlimited-download')) }} />
     If checked, user is not subject to rate limiting of torrent files (i.e. [DL] links).
     <p>
 {% if prl.userclassFactor is null and prl.userclassOvershoot is null %}

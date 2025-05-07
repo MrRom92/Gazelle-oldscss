@@ -102,6 +102,7 @@ class Artist extends AbstractCollage {
     }
 
     public function remove(): int {
+        // flush all the artists in this collage so that their collage stats are refreshed
         self::$db->prepared_query("
             SELECT ArtistID FROM collages_artists WHERE CollageID = ?
             ", $this->id

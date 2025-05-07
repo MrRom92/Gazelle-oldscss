@@ -4,12 +4,17 @@ namespace Gazelle;
 
 use Gazelle\Intf\CollageEntry;
 
-class Artist extends BaseObject implements CollageEntry {
+class Artist extends BaseAttrObject implements CollageEntry {
     final public const pkName               = 'ArtistID';
     final public const tableName            = 'artists_group';
     final public const CACHE_REQUEST_ARTIST = 'artists_requests_%d';
 
     protected const CACHE_PREFIX    = 'artist_%d';
+
+    final protected const ObjectName   = 'artist';
+    final protected const PkColumn     = 'artist_attr_id';
+    final protected const JoinColumn   = 'artist_attr_id';
+    final protected const ObjectColumn = 'artist_id';
 
     protected array $artistRole;
 
@@ -50,7 +55,7 @@ class Artist extends BaseObject implements CollageEntry {
             ...self::$db->collect(0, false)
         ]);
         unset($this->info);
-        return $this;
+        return parent::flush();
     }
 
     public function link(): string {
@@ -101,15 +106,6 @@ class Artist extends BaseObject implements CollageEntry {
                 ", $this->id
             );
             $info['alias'] = self::$db->to_array('alias_id', MYSQLI_ASSOC, false);
-
-            self::$db->prepared_query("
-                SELECT aa.name, aa.artist_attr_id
-                FROM artist_attr aa
-                INNER JOIN artist_has_attr aha USING (artist_attr_id)
-                WHERE aha.artist_id = ?
-                ", $this->id
-            );
-            $info['attr'] = self::$db->to_pair('name', 'artist_attr_id', false);
 
             $info['homonyms'] = (int)self::$db->scalar('
                 SELECT count(*) FROM artist_discogs WHERE stem = ?
@@ -258,35 +254,6 @@ class Artist extends BaseObject implements CollageEntry {
             $this->stats = new Stats\Artist($this->id);
         }
         return $this->stats;
-    }
-
-    public function hasAttr(string $name): bool {
-        return isset($this->info()['attr'][$name]);
-    }
-
-    public function toggleAttr(string $attr, bool $flag): bool {
-        $hasAttr = $this->hasAttr($attr);
-        $toggled = false;
-        if (!$flag && $hasAttr) {
-            self::$db->prepared_query("
-                DELETE FROM artist_has_attr
-                WHERE artist_id = ?
-                    AND artist_attr_id = (SELECT artist_attr_id FROM artist_attr WHERE name = ?)
-                ", $this->id, $attr
-            );
-            $toggled = self::$db->affected_rows() === 1;
-        } elseif ($flag && !$hasAttr) {
-            self::$db->prepared_query("
-                INSERT INTO artist_has_attr (artist_id, artist_attr_id)
-                    SELECT ?, artist_attr_id FROM artist_attr WHERE name = ?
-                ", $this->id, $attr
-            );
-            $toggled = self::$db->affected_rows() === 1;
-        }
-        if ($toggled) {
-            $this->flush();
-        }
-        return $toggled;
     }
 
     public function createRevision(
@@ -887,15 +854,12 @@ class Artist extends BaseObject implements CollageEntry {
      * Does NOT delete their requests or torrents.
      */
     public function remove(): int {
-        $qid  = self::$db->get_query_id();
         $id   = $this->id;
         $name = $this->name();
-        $this->flush();
         $db = new DB();
 
         self::$db->begin_transaction();
         $db->relaxConstraints(true);
-        self::$db->prepared_query("DELETE FROM artist_has_attr WHERE artist_id = ?", $id);
         self::$db->prepared_query("DELETE FROM artists_alias WHERE ArtistID = ?", $id);
         self::$db->prepared_query("DELETE FROM artists_group WHERE ArtistID = ?", $id);
         self::$db->prepared_query("DELETE FROM artists_tags WHERE ArtistID = ?", $id);
@@ -903,6 +867,8 @@ class Artist extends BaseObject implements CollageEntry {
         $db->relaxConstraints(false);
 
         (new Manager\Comment())->remove('artist', $id);
+        $this->flush();
+        $affected = parent::remove();
         $this->logger()->general(
             "Artist $id ($name) was deleted by {$this->viewer()->username()}"
         );
@@ -911,8 +877,7 @@ class Artist extends BaseObject implements CollageEntry {
         self::$cache->delete_value('zz_a_' . $id);
         self::$cache->decrement('stats_artist_count');
 
-        self::$db->set_query_id($qid);
-        return 1;
+        return $affected;
     }
 
     /* STATIC METHODS - for when you do not yet have an ID, e.g. during creation */

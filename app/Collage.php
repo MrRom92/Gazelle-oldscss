@@ -7,7 +7,7 @@ use Gazelle\Enum\LeechType;
 use Gazelle\Enum\LeechReason;
 use Gazelle\Intf\CollageEntry;
 
-class Collage extends BaseObject {
+class Collage extends BaseAttrObject {
     /**
      * A Gazelle\Collage is a holder object that delegates most functionality to
      * an underlying Gazelle\Collage\AbstractCollage object. The latter knows
@@ -19,6 +19,11 @@ class Collage extends BaseObject {
     final public const CACHE_KEY    = 'collagev4_%d';
     final public const SUBS_KEY     = 'collage_subs_user_%d';
     final public const SUBS_NEW_KEY = 'collage_subs_user_new_%d';
+
+    final protected const ObjectName   = 'collage';
+    final protected const PkColumn     = 'ID';
+    final protected const JoinColumn   = 'CollageAttrID';
+    final protected const ObjectColumn = 'CollageID';
 
     protected bool  $lockedForUser = false;
     protected array $userSubscriptions;
@@ -37,7 +42,7 @@ class Collage extends BaseObject {
         self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->id));
         unset($this->userSubscriptions);
         unset($this->info);
-        return $this;
+        return parent::flush();
     }
 
     public function link(): string {
@@ -74,15 +79,6 @@ class Collage extends BaseObject {
                 ", $this->id
             );
             $info['tag_list'] = explode(' ', $info['tag_string']);
-
-            self::$db->prepared_query("
-                SELECT ca.Name, ca.ID
-                FROM collage_attr ca
-                INNER JOIN collage_has_attr cha ON (cha.CollageAttrID = ca.ID)
-                WHERE cha.CollageID = ?
-                ", $this->id
-            );
-            $info['attr'] = self::$db->to_pair('Name', 'ID', false);
             self::$cache->cache_value($key, $info, 7200);
         }
         $this->info = $info;
@@ -171,10 +167,6 @@ class Collage extends BaseObject {
 
     public function sequence(int $entryId): int {
         return $this->collage->sequence($entryId); /** @phpstan-ignore-line */
-    }
-
-    public function hasAttr(string $name): bool {
-        return isset($this->info()['attr'][$name]);
     }
 
     public function sortNewest(): bool {
@@ -471,41 +463,17 @@ class Collage extends BaseObject {
         return parent::modify();
     }
 
-    public function toggleAttr(string $attr, bool $flag): bool {
-        $hasAttr = $this->hasAttr($attr);
-        $toggled = false;
-        if (!$flag && $hasAttr) {
-            self::$db->prepared_query("
-                DELETE FROM collage_has_attr
-                WHERE CollageID = ?
-                    AND CollageAttrID = (SELECT ID FROM collage_attr WHERE Name = ?)
-                ", $this->id, $attr
-            );
-            $toggled = self::$db->affected_rows() === 1;
-        } elseif ($flag && !$hasAttr) {
-            self::$db->prepared_query("
-                INSERT INTO collage_has_attr (CollageID, CollageAttrID)
-                    SELECT ?, ID FROM collage_attr WHERE Name = ?
-                ", $this->id, $attr
-            );
-            $toggled = self::$db->affected_rows() === 1;
-        }
-        if ($toggled) {
-            $this->flush();
-        }
-        return $toggled;
-    }
-
     public function hardRemove(): int {
+        $affected = parent::remove(); // attribute entries
         self::$db->prepared_query("
             DELETE c, ca, ct
             FROM collages c
-            LEFT JOIN collages_artists ca ON (ca.CollageID = c.ID)
+            LEFT JOIN collages_artists  ca ON (ca.CollageID = c.ID)
             LEFT JOIN collages_torrents ct ON (ct.CollageID = c.ID)
             WHERE c.ID = ?
             ", $this->id
         );
-        $affected = self::$db->affected_rows();
+        $affected += self::$db->affected_rows();
         $this->flush();
         self::$cache->delete_multi([
             sprintf(self::CACHE_KEY, $this->id),

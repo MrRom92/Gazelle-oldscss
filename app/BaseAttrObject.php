@@ -1,0 +1,114 @@
+<?php
+
+namespace Gazelle;
+
+/**
+ * Classes that inherit from this class acquire the ability to
+ * store and use attributes, which are best described as boolean
+ * flags. This helps to avoid adding endless boolean columns to
+ * the principal table.
+ * As a prerequisite, there must exist <class>_attr and
+ * <class>_has_attr table in the database.
+ */
+
+abstract class BaseAttrObject extends BaseObject {
+    /**
+     * Note:
+     * The naming of attribute columns in Mysql is a bit of a mess. The early
+     * tables were created at a time when the framework was much less
+     * developed and this present factorization was a distant possibility.
+     *
+     * The right approach to naming is shown in the artist_attr and
+     * artist_has_attr tables, since all the column names can be derived
+     * trivially from the stem 'artist'. For the older tables (collage, user
+     * and torrent group), a bit more string munging trickery is required,
+     * so for the time being, the clearest approach is simply to define the
+     * names in full as constants.
+     *
+     * In time, this blight will disappear when everything is fully
+     * migrated to Postgresql.
+     */
+    // these must be overridden in the concrete class
+    protected const ObjectName   = 'unknown';
+    protected const PkColumn     = 'unknown';
+    protected const JoinColumn   = 'unknown';
+    protected const ObjectColumn = 'unknown';
+
+    protected array $attr;
+
+    protected function attrCacheKey(): string {
+        return sprintf('attr_%s_%d', static::ObjectName, $this->id);
+    }
+
+    public function flush(): static {
+        self::$cache->delete_value($this->attrCacheKey());
+        unset($this->attr);
+        return $this;
+    }
+
+    public function attr(): array {
+        if (isset($this->attr)) {
+            return $this->attr;
+        }
+        $key  = $this->attrCacheKey();
+        $attr = self::$cache->get_value($key);
+        if ($attr === false) {
+            self::$db->prepared_query("
+                SELECT a." . static::PkColumn . " AS id, a.name AS name FROM "
+                . static::ObjectName . "_attr a INNER JOIN "
+                . static::ObjectName . "_has_attr ha ON (ha."
+                . static::JoinColumn . ' = a.' . static::PkColumn
+                . ") WHERE ha." . static::ObjectColumn . " = ?
+                ", $this->id
+            );
+            $attr = self::$db->to_pair('name', 'id', false);
+            self::$cache->cache_value($key, $attr, 7200);
+        }
+        $this->attr = $attr;
+        return $attr;
+    }
+
+    public function hasAttr(string $name): bool {
+        return isset($this->attr()[$name]);
+    }
+
+    public function toggleAttr(string $attr, bool $enable): bool {
+        $hasAttr = $this->hasAttr($attr);
+        $toggled = false;
+        if (!$enable && $hasAttr) {
+            self::$db->prepared_query($sql = "
+                DELETE FROM " . static::ObjectName . "_has_attr WHERE "
+                . static::ObjectColumn . " = ? AND " . static::JoinColumn
+                . " = (SELECT " . static::PkColumn . " FROM "
+                . static::ObjectName . "_attr WHERE name = ?)
+                ", $this->id, $attr
+            );
+            $toggled = self::$db->affected_rows() === 1;
+        } elseif ($enable && !$hasAttr) {
+            self::$db->prepared_query($sql = "
+                INSERT INTO " . static::ObjectName . "_has_attr ("
+                . static::ObjectColumn . ", " . static::JoinColumn
+                . ") SELECT ?, " . static::PkColumn . " FROM "
+                . static::ObjectName . "_attr WHERE name = ?
+                ", $this->id, $attr
+            );
+            $toggled = self::$db->affected_rows() === 1;
+        }
+        if ($toggled) {
+            $this->flush();
+        }
+        return $toggled;
+    }
+
+    public function remove(): int {
+        self::$db->prepared_query("
+            DELETE FROM " . static::ObjectName . "_has_attr WHERE "
+                . static::ObjectColumn . " = ?",
+                $this->id
+        );
+        $affected = self::$db->affected_rows();
+        $affected += parent::remove(); // BaseObject
+        $this->flush();
+        return $affected;
+    }
+}

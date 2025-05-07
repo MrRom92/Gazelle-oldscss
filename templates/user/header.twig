@@ -80,7 +80,7 @@
 </div>
 {% endif %}
 
-{% if user.isEnabled and user.hasAcceptFL and (freeleech.item or freeleech.other) %}
+{% if user.isEnabled and (not user.hasAttr('no-fl-gifts')) and (freeleech.item or freeleech.other) %}
 <div class="box box_info box_userinfo_give_FL">
 {%  if freeleech.other %}
     <div class="head colhead_dark">Freeleech Tokens Given</div>

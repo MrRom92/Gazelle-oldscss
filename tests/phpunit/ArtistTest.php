@@ -22,11 +22,7 @@ class ArtistTest extends TestCase {
     public function tearDown(): void {
         $manager = new Manager\Artist();
         foreach ($this->artistIdList as $artistId) {
-            $artist = $manager->findById($artistId);
-            if ($artist) {
-                $artist->toggleAttr('locked', false);
-                $artist->remove();
-            }
+            $manager->findById($artistId)?->remove();
         }
         if (isset($this->extra)) {
             $this->extra->remove();
@@ -276,7 +272,7 @@ class ArtistTest extends TestCase {
         $this->assertCount(2, $artist->revisionList());
     }
 
-    public function testArtistRename(): void {
+    public function testArtistRenameBasic(): void {
         $manager = new Manager\Artist();
         $artist = $manager->create('phpunit.' . randomString(12));
         $this->artistIdList[] = $artist->id;

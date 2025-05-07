@@ -219,7 +219,7 @@ class Helper {
         foreach ($tgroup->torrentIdList() as $torrentId) {
             $torMan->findById($torrentId)?->removeTorrent($user, 'phpunit teardown');
         }
-        $tgroup->remove();
+        $tgroup->removeTGroup();
     }
 
     public static function makeUser(string $username, string $tag, bool $enable = false, bool $clearInbox = false): \Gazelle\User {
@@ -261,7 +261,7 @@ class Helper {
         foreach ($user->recentUploadList(100, true) as $tgroupId) {
             $tgroup = $tgMan->findById($tgroupId);
             if ($tgroup) {
-                self::removeTGroup($tgroup, $user);
+                static::removeTGroup($tgroup, $user);
             }
         }
         $user->remove();

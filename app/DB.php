@@ -125,15 +125,16 @@ class DB extends Base {
     }
 
     /**
-     * Soft delete a row from a table <t> by inserting it into deleted_<t> and then delete from <t>
-     * @param string $schema the schema name
-     * @param string $table the table name
-     * @param array $condition Must be an array of arrays, e.g. [[column_name, column_value]] or [[col1, val1], [col2, val2]]
-     *                         Will be used to identify the row (or rows) to delete
-     * @param boolean $delete whether to delete the matched rows
-     * @return array 2 elements, true/false and message if false
+     * Soft delete a row from a table <t> by inserting it into deleted_<t> and optionally deleting from <t>
+     * The selection of the row is handled by the name of the primary key column and value.
      */
-    public function softDelete(string $schema, string $table, array $condition, bool $delete = true) {
+    public function softDelete(
+        string $schema,
+        string $table,
+        string $pkColumn,
+        int $pkId,
+        bool $delete = true,
+    ): array {
         $softDeleteTable = "deleted_$table";
         [$ok, $message] = $this->checkStructureMatch($schema, $table, $softDeleteTable);
         if (!$ok) {
@@ -141,16 +142,13 @@ class DB extends Base {
         }
         $columnList = $message;
 
-        $conditionList = implode(' AND ', array_map(fn($c) => "{$c[0]} = ?", $condition));
-        $argList = array_map(fn($c) => $c[1], $condition);
-
         $sql = "INSERT INTO $softDeleteTable
                   ($columnList)
             SELECT $columnList
             FROM $table
-            WHERE $conditionList";
+            WHERE $pkColumn = ?";
         try {
-            self::$db->prepared_query($sql, ...$argList);
+            self::$db->prepared_query($sql, $pkId);
             if (self::$db->affected_rows() == 0) {
                 return [false, "condition selected 0 rows"];
             }
@@ -162,8 +160,8 @@ class DB extends Base {
             return [true, "rows affected: " . self::$db->affected_rows()];
         }
 
-        $sql = "DELETE FROM $table WHERE $conditionList";
-        self::$db->prepared_query($sql, ...$argList);
+        $sql = "DELETE FROM $table WHERE $pkColumn = ?";
+        self::$db->prepared_query($sql, $pkId);
         return [true, "rows deleted: " . self::$db->affected_rows()];
     }
 

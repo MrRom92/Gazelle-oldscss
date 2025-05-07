@@ -193,8 +193,8 @@ if (
     $editSummary[] = "bonus points changed from {$user->bonusPointsTotal()} to {$bonusPoints}";
 }
 
-if ($unlimitedDownload !== $user->hasUnlimitedDownload() && $Viewer->permitted('admin_rate_limit_manage')) {
-    if ($user->toggleUnlimitedDownload($unlimitedDownload)) {
+if ($unlimitedDownload !== $user->hasAttr('unlimited-download') && $Viewer->permitted('admin_rate_limit_manage')) {
+    if ($user->toggleAttr('unlimited-download', $unlimitedDownload)) {
         $editSummary[] = "unlimited download " . strtolower(enabledStatus($unlimitedDownload ? '1' : '0'));
     }
 }

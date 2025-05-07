@@ -254,6 +254,7 @@ abstract class AbstractCollage extends \Gazelle\Base {
     }
 
     public function remove(): int {
+        // soft delete
         self::$db->prepared_query("
             UPDATE collages SET
                 Deleted = '1'

@@ -84,8 +84,8 @@ $db->prepared_query("
 // clean collages
 $db->prepared_query("
     SELECT ID
-    FROM collages c
-    WHERE c.Name regexp '^phpunit (?:freeleech|collage (?:ajax|comment|report)) '
+    FROM collages
+    WHERE Name regexp '^(phpunit collage (?:ajax|artist|comment|contrib|personal|report) )'
 ");
 $collageMan = new Manager\Collage();
 foreach ($db->collect(0, false) as $collageId) {

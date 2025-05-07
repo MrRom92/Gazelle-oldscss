@@ -67,9 +67,9 @@ class TGroupVoteTest extends TestCase {
         $this->assertCount(3, $vote[0]->ranking($this->tgroupList[0], true), 'tgroup-vote-ranking');
 
         $top = $vote[0]->topVotes();
-        $this->assertEquals(1, $top[$this->tgroupList[0]->id()]['sequence'], 'tgroup-vote-top-1');
-        $this->assertEquals(2, $top[$this->tgroupList[1]->id()]['sequence'], 'tgroup-vote-top-2');
-        $this->assertEquals(1, $top[$this->tgroupList[1]->id()]['Ups'], 'tgroup-vote-up-2');
+        $this->assertEquals(1, $top[$this->tgroupList[0]->id]['sequence'], 'tgroup-vote-top-1');
+        $this->assertEquals(2, $top[$this->tgroupList[1]->id]['sequence'], 'tgroup-vote-top-2');
+        $this->assertEquals(1, $top[$this->tgroupList[1]->id]['Ups'], 'tgroup-vote-up-2');
 
         $this->assertCount(2, $vote[1]->userVotes(), 'tgroup-vote-user-count');
 
@@ -88,7 +88,7 @@ class TGroupVoteTest extends TestCase {
         $this->assertTrue($result[0], 'tg-upvote-result');
         $this->assertEquals("voted", $result[1], 'tg-upvote-text');
         $this->assertStringContainsString(
-            "<a href=\"#\" data-id=\"{$this->tgroupList[0]->id()}\" class=\"tooltip small_upvote hidden\" title=\"Upvote\">",
+            "<a href=\"#\" data-id=\"{$this->tgroupList[0]->id}\" class=\"tooltip small_upvote hidden\" title=\"Upvote\">",
             $vote[0]->links($this->tgroupList[0]),
             'tgroup-vote-link'
         );
@@ -108,12 +108,29 @@ class TGroupVoteTest extends TestCase {
         $this->assertEquals(0.32115, round($vote[0]->score($this->tgroupList[0]), 5), 'tg-vote-3-1');
 
         $top = $vote[0]->topVotes();
-        $this->assertEquals(2, $top[$this->tgroupList[0]->id()]['Ups'], 'tgroup-downvote-top-up');
-        $this->assertEquals(3, $top[$this->tgroupList[0]->id()]['Total'], 'tgroup-downvote-top-total');
+        $this->assertEquals(2, $top[$this->tgroupList[0]->id]['Ups'], 'tgroup-downvote-top-up');
+        $this->assertEquals(3, $top[$this->tgroupList[0]->id]['Total'], 'tgroup-downvote-top-total');
         $this->assertEquals(3, $vote[0]->total($this->tgroupList[0]), 'tgroup-downvote-all');
         $this->assertEquals(2, $vote[0]->totalUp($this->tgroupList[0]), 'tgroup-downvote-total-up');
         $this->assertEquals(1, $vote[0]->totalDown($this->tgroupList[0]), 'tgroup-downvote-total-down');
 
-        $this->assertEquals(['Ups', 'Total', 'Score'], array_keys($vote[0]->tgroupInfo($this->tgroupList[0])), 'tgroup-downvote-tgroup-info');
+        $this->assertEquals(
+            ['Ups', 'Total', 'Score'],
+            array_keys($vote[0]->tgroupInfo($this->tgroupList[0])),
+            'tgroup-downvote-tgroup-info'
+        );
+
+        $page = $vote[0]->userPage(new Manager\TGroup(), User\Vote::UPVOTE, 10, 0);
+        $first = current($page);
+        $this->assertEquals(
+            ['group_id', 'upvote', 'tgroup'],
+            array_keys($first),
+            'tgroup-downvote-user-page-first',
+        );
+        $this->assertEquals(
+            $this->tgroupList[0]->id,
+            $first['group_id'],
+            'tgroup-downvote-user-page-id',
+        );
     }
 }

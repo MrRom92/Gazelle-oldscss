@@ -8,12 +8,17 @@ use Gazelle\Enum\UserStatus;
 use Gazelle\User\MultiFactorAuth;
 use Gazelle\Util\Time;
 
-class User extends BaseObject {
+class User extends BaseAttrObject {
     final public const tableName             = 'users_main';
     final protected const CACHE_KEY          = 'u_%d';
     final protected const CACHE_NOTIFY       = 'u_notify_%d';
     final protected const CACHE_REFERRAL     = 'u_refer_%d';
     final protected const USER_RECENT_UPLOAD = 'u_recent_up_%d';
+
+    final protected const ObjectName   = 'user';
+    final protected const PkColumn     = 'ID';
+    final protected const JoinColumn   = 'UserAttrID';
+    final protected const ObjectColumn = 'UserID';
 
     protected bool $forceCacheFlush = false;
     protected int $lastReadForum;
@@ -45,7 +50,7 @@ class User extends BaseObject {
         $this->ordinal()->flush();
         $this->privilege()->flush();
         unset($this->info, $this->invite, $this->ordinal, $this->privilege, $this->stats, $this->tokenCache);
-        return $this;
+        return parent::flush();
     }
 
     public function link(): string {
@@ -200,15 +205,6 @@ class User extends BaseObject {
         $this->info['RatioWatchEndsEpoch'] = $this->info['RatioWatchEnds']
             ? strtotime($this->info['RatioWatchEnds']) : 0;
 
-        self::$db->prepared_query("
-            SELECT ua.Name, ua.ID
-            FROM user_attr ua
-            INNER JOIN user_has_attr uha ON (uha.UserAttrID = ua.ID)
-            WHERE uha.UserID = ?
-            ", $this->id
-        );
-        $this->info['attr'] = self::$db->to_pair('Name', 'ID', false);
-
         $this->info['warning_expiry'] = (new User\Warning($this))->warningExpiry();
 
         self::$cache->cache_value($key, $this->info, 3600);
@@ -255,59 +251,6 @@ class User extends BaseObject {
             }
         }
         return false;
-    }
-
-    public function hasAttr(string $name): bool {
-        return isset($this->info()['attr'][$name]);
-    }
-
-    public function toggleAttr(string $attr, bool $flag): bool {
-        $hasAttr = $this->hasAttr($attr);
-        $toggled = false;
-        if (!$flag && $hasAttr) {
-            self::$db->prepared_query("
-                DELETE FROM user_has_attr
-                WHERE UserID = ?
-                    AND UserAttrID = (SELECT ID FROM user_attr WHERE Name = ?)
-                ", $this->id, $attr
-            );
-            $toggled = self::$db->affected_rows() === 1;
-        } elseif ($flag && !$hasAttr) {
-            self::$db->prepared_query("
-                INSERT INTO user_has_attr (UserID, UserAttrID)
-                    SELECT ?, ID FROM user_attr WHERE Name = ?
-                ", $this->id, $attr
-            );
-            $toggled = self::$db->affected_rows() === 1;
-        }
-        if ($toggled) {
-            $this->flush();
-        }
-        return $toggled;
-    }
-
-    /**
-     * toggle Unlimited Download setting
-     */
-    public function toggleUnlimitedDownload(bool $flag): bool {
-        return $this->toggleAttr('unlimited-download', $flag);
-    }
-
-    public function hasUnlimitedDownload(): bool {
-        return $this->hasAttr('unlimited-download');
-    }
-
-    /**
-     * toggle Accept FL token setting
-     * If user accepts FL tokens and the refusal attribute is found, delete it.
-     * If user refuses FL tokens and the attribute is not found, insert it.
-     */
-    public function toggleAcceptFL($flag): bool {
-        return $this->toggleAttr('no-fl-gifts', !$flag);
-    }
-
-    public function hasAcceptFL(): bool {
-        return !$this->hasAttr('no-fl-gifts');
     }
 
     public function announceKey(): string {
@@ -1976,6 +1919,7 @@ class User extends BaseObject {
         $username = $this->username();
         // Many, but not all, of the associated user tables will drop their entries via foreign key cascades.
         // But some won't. If this call fails, you will need to decide what to do about the tables in question.
+        // Calling BaseObject::remove() removes the attribute rows and the row in users_main.
         DB::DB()->prepared_query("
             DELETE FROM user_read_forum WHERE user_id = ?
             ", $this->id
@@ -1993,6 +1937,7 @@ class User extends BaseObject {
             ", $this->id
         );
         $affected = parent::remove();
+        $this->flush();
         self::$cache->delete_multi([
             sprintf(Manager\User::ID_KEY, $this->id),
             sprintf(Manager\User::USERNAME_KEY, $username),

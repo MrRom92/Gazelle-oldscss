@@ -7,13 +7,18 @@ use Gazelle\Enum\LeechType;
 use Gazelle\Intf\CategoryHasArtist;
 use Gazelle\Intf\CollageEntry;
 
-class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
+class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
     final public const tableName            = 'torrents_group';
     final public const CACHE_KEY            = 'tg_%d';
     final public const CACHE_TLIST_KEY      = 'tlist_%d';
     final public const CACHE_COVERART_KEY   = 'tg_cover_%d';
     final public const USER_RECENT_UPLOAD   = 'u_recent_up_%d';
     final public const CACHE_REQUEST_TGROUP = 'req_tg_%d';
+
+    final protected const ObjectName   = 'torrent_group';
+    final protected const PkColumn     = 'ID';
+    final protected const JoinColumn   = 'TorrentGroupAttrID';
+    final protected const ObjectColumn = 'TorrentGroupID';
 
     final protected const USER_RECENT_SNATCH = 'u_recent_snatch_%d';
 
@@ -24,8 +29,6 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
     protected Stats\TGroup      $stats;
 
     public function flush(): static {
-        $this->info = [];
-        unset($this->artistRole);
         self::$cache->delete_multi([
             sprintf(self::CACHE_KEY, $this->id),
             sprintf(self::CACHE_TLIST_KEY, $this->id),
@@ -34,7 +37,8 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
             "torrent_group_{$this->id}",
             "groups_artists_{$this->id}",
         ]);
-        return $this;
+        unset($this->artistRole, $this->info);
+        return parent::flush();
     }
 
     public function link(): string {
@@ -153,7 +157,7 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
      * @return array of many things
      */
     public function info(int $revisionId = 0): ?array {
-        if (isset($this->info) && !empty($this->info)) {
+        if (isset($this->info)) {
             return $this->info;
         }
         $key = sprintf(self::CACHE_KEY, $this->id);
@@ -867,7 +871,7 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
             (new Manager\Comment())->merge('torrents', $oldId, $this->id);
             (new Manager\Vote())->merge($old, $this, new Manager\User());
             $this->logger()->merge($old, $this);
-            $old->remove();
+            $old->removeTGroup();
         }
         $this->logger()
             ->group(
@@ -926,7 +930,11 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
         return self::$db->to_array(false, MYSQLI_ASSOC, false);
     }
 
-    public function remove(): int {
+    /**
+     * In order to let the BaseObject remove() machinery do its job, a certain
+     * number of preparatory operations need to be performed first.
+     */
+    public function removeTGroup(): int {
         $isMusic = ($this->categoryName() === 'Music');
 
         // Artists
@@ -1000,10 +1008,6 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
         }
 
         self::$db->prepared_query("
-            DELETE FROM torrent_group_has_attr WHERE TorrentGroupID = ?
-            ", $this->id
-        );
-        self::$db->prepared_query("
             DELETE FROM torrents_tags WHERE GroupID = ?
             ", $this->id
         );
@@ -1017,10 +1021,16 @@ class TGroup extends BaseObject implements CategoryHasArtist, CollageEntry {
         );
 
         $manager = new DB();
-        [$ok, $message] = $manager->softDelete(MYSQL_DB, 'torrents_group', [['ID', $this->id]]);
+        $manager->relaxConstraints(true);
+        // we don´t delete the row just yet
+        [$ok, $message] = $manager->softDelete(
+            MYSQL_DB, 'torrents_group', 'ID', $this->id, delete: false
+        );
+        $manager->relaxConstraints(false);
         if (!$ok) {
             return 0;
         }
+        parent::remove();
 
         if ($isMusic) {
             self::$cache->decrement('stats_album_count');

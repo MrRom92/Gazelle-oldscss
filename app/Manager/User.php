@@ -1637,12 +1637,13 @@ class User extends \Gazelle\BaseManager {
         self::$db->prepared_query("
             SELECT um.ID
             FROM users_main um
-            LEFT JOIN user_has_attr fl ON (fl.UserID = um.ID AND fl.UserAttrID = ?)
-            WHERE fl.UserID IS NULL
+            LEFT JOIN user_has_attr noFL ON (noFL.UserID = um.ID AND noFL.UserAttrId
+                = (SELECT ua.ID FROM user_attr ua WHERE ua.Name = ?)
+            )
+            WHERE noFL.UserID IS NULL
                 AND um.Enabled = ?
                 $leech
-            ", (int)self::$db->scalar(" SELECT ID FROM user_attr WHERE Name = ?  ", 'no-fl-gifts'),
-                UserStatus::enabled->value
+            ", 'no-fl-gifts', UserStatus::enabled->value
         );
         $idList = array_map('intval', self::$db->collect(0, false));
         if ($idList) {

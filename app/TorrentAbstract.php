@@ -6,7 +6,7 @@ use Gazelle\Enum\LeechReason;
 use Gazelle\Enum\LeechType;
 use Gazelle\Enum\TorrentFlag;
 
-abstract class TorrentAbstract extends BaseObject {
+abstract class TorrentAbstract extends BaseAttrObject {
     final public const CACHE_LOCK           = 'torrent_lock_%d';
     final public const CACHE_REPORTLIST     = 't_rpt2_%d';
     final public const CACHE_FILELIST_COUNT = 't_filelist_t_%d';
