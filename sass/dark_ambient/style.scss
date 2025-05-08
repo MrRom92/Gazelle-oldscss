@@ -44,19 +44,19 @@ a img {
 }
 
 #footer {
-  padding: 20px 0 20px 0;
-  color: #a5a5a5;
-  text-align: left;
   border-left: 1px solid #181818;
   border-right: 1px solid #181818;
   border-bottom: 1px solid #181818;
   background: #252525 url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAPCAIAAACqfTKuAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAACtJREFUeNpiVlVVZWJgYIBjGGBmZgZjFhYWJiTAzMnJycTBwcHEyMgIEGAAJaoBAuttDrwAAAAASUVORK5CYII=") bottom left repeat-x;
-  position: relative;
-  margin: 0 auto;
-  z-index: 1;
+  color: #a5a5a5;
+  margin-top: 0;
+  margin-left: 28px;
   overflow: hidden;
-  clear: both;
+  padding: 20px 0 20px 0;
+  text-align: left;
+  position: relative;
   width: 958px;
+  z-index: 1;
 }
 
 #footer #disclaimer_container {

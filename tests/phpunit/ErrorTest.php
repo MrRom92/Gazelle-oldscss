@@ -26,7 +26,7 @@ class ErrorTest extends TestCase {
 
     public function testOutputErrorDetails(): void {
         $detail = randomString();
-        $this->expectOutputRegex("#<p>Additional details: $detail</p>#");
+        $this->expectOutputRegex("/Additional details: $detail/");
         echo Error400::payload($detail);
     }
 

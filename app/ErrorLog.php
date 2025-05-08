@@ -12,11 +12,11 @@ class ErrorLog extends BasePgObject {
     }
 
     public function link(): string {
-        return '';
+        return "<a href=\"{$this->url()}\">Case #{$this->id}</a>";
     }
 
     public function location(): string {
-        return '';
+        return "tools.php?action=analysis&amp;case={$this->id}";
     }
 
     public function info(): array {

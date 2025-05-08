@@ -47,6 +47,12 @@ class DebugTest extends TestCase {
     }
 
     public function testCase(): void {
+        global $Cache;
+        $key = 'phpunit_' . randomString();
+        $Cache->cache_value($key, 'phpunit', 60);
+        $Cache->get_value($key);
+        DB::DB()->scalar('select now()');
+
         global $Debug;
         $case = $Debug->saveCase('phpunit-case-1');
         $this->assertGreaterThan(0, $case->id, 'php-case-is-saved');
@@ -61,6 +67,20 @@ class DebugTest extends TestCase {
         $this->assertEquals(0, $case->userId(), 'debug-case-user-id');
         $this->assertTrue(Helper::recentDate($case->created()), 'debug-case-created');
         $this->assertTrue(Helper::recentDate($case->updated()), 'debug-case-updated');
+        $this->assertGreaterThan(0.0, $case->duration(), 'debug-case-duration');
+        $this->assertGreaterThan(1000000, $case->memory(), 'debug-case-memory');
+        $this->assertGreaterThan(0, $case->nrCache(), 'debug-case-nr-cache');
+        $this->assertGreaterThan(0, $case->nrQuery(), 'debug-case-nr-query');
+        $this->assertStringContainsString(
+            "Case #{$case->id}",
+            $case->link(),
+            'debug-case-link',
+        );
+        $this->assertStringContainsString(
+            "case={$case->id}",
+            $case->location(),
+            'debug-case-location',
+        );
         $case->remove();
     }
 

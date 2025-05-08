@@ -7,14 +7,14 @@ namespace Gazelle;
 
 $way = trim($_GET['way']);
 if (!in_array($way, ['up', 'down'])) {
-    Error::error('Missing artist vote decision');
+    Error400::error('Missing artist vote decision');
 }
 
 $artistMan = new Manager\Artist();
 $artist    = $artistMan->findById((int)($_GET['artistid'] ?? 0));
 $similar   = $artistMan->findById((int)($_GET['similarid'] ?? 0));
 if (is_null($artist) || is_null($similar)) {
-    Error::error("One of the artists was not found");
+    Error404::error("One of the artists was not found");
 }
 $artist->similar()->voteSimilar($Viewer, $similar, $way === 'up');
 

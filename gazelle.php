@@ -167,10 +167,10 @@ $Cache->cache_value('php_' . getmypid(), [
 register_shutdown_function(
     function () {
         if (preg_match(DEBUG_URI, $_SERVER['REQUEST_URI'])) {
-            include DEBUG_TRACE;
+            include DEBUG_TRACE; /** @phpstan-ignore-line */
         }
         $error = error_get_last();
-        if ($error['type'] ?? 0 == E_ERROR) {
+        if ($error['type'] == E_ERROR) {
             global $Debug;
             $Debug->saveCase(str_replace(SERVER_ROOT . '/', '', $error['message']));
         }
@@ -195,10 +195,11 @@ try {
         DB::DB()->rollback();
     }
     $errorLog = $Debug->saveError($e);
-    $message = DEBUG_MODE || $Viewer?->permitted('site_debug')
-        ? ($e->getMessage() . " (case $errorLog->id)")
-        : "That is not supposed to happen, you can a thread in the Bugs forum explaining what you were doing and referencing Error ID $errorLog->id";
-    Error500::error($message);
+    Error500::error(
+        DEBUG_MODE || $Viewer?->permitted('site_debug')
+            ? ($e->getMessage() . " ({$errorLog->link()})")
+            : "That is not supposed to happen. Check to see whether someone has created a thread in the the Bugs forum, or create a new thread to explain what you were doing and reference the Error ID {$errorLog->id}."
+    );
 } finally {
     $Debug->mark('send to user');
     if (!is_null($Viewer)) {

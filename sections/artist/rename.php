@@ -46,7 +46,7 @@ $result = $artist->renameAlias(
 );
 
 if (is_null($result)) {
-    Error::error("The specified name is already in use.");
+    Error400::error("The specified name is already in use.");
 }
 
 header("Location: artist.php?artistid={$artist->id()}&action=edit");

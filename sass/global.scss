@@ -1041,6 +1041,18 @@ td.forum-post-head a.username {
   row-gap: 2px;
 }
 
+figure.user-error {
+  margin: 0 auto;
+  padding: 24px 0 12px 0;
+  width: 700px;
+}
+
+.user-error figcaption {
+  color: orange;
+  font-size: 1.4em;
+  padding-top: 15px;
+}
+
 .xdebug-error {
   font-size: 12px;
   width: 95%;
