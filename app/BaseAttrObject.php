@@ -61,7 +61,7 @@ abstract class BaseAttrObject extends BaseObject {
                 . ") WHERE ha." . static::ObjectColumn . " = ?
                 ", $this->id
             );
-            $attr = self::$db->to_pair('name', 'id', false);
+            $attr = self::$db->to_pair('name', 'id');
             self::$cache->cache_value($key, $attr, 7200);
         }
         $this->attr = $attr;

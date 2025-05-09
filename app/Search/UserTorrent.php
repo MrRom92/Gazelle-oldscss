@@ -36,6 +36,6 @@ class UserTorrent extends \Gazelle\Base {
                     "WHERE t.UserID = ?",
             }, $this->user->id
         );
-        return self::$db->collect(0, false);
+        return self::$db->collect(0);
     }
 }

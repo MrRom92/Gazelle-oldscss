@@ -40,6 +40,6 @@ class DuplicateIP extends \Gazelle\Base {
             LIMIT ? OFFSET ?
             ", $threshold, $limit, $offset
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

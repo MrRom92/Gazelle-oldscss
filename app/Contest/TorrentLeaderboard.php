@@ -29,7 +29,7 @@ trait TorrentLeaderboard {
                 LIMIT ? OFFSET ?
                 ", UserStatus::enabled->value, $this->id, $limit, $offset
             );
-            $leaderboard = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $leaderboard = self::$db->to_array(false, MYSQLI_ASSOC);
 
             $torMan = new \Gazelle\Manager\Torrent();
             for ($i = 0, $leaderboardCount = count($leaderboard); $i < $leaderboardCount; $i++) {

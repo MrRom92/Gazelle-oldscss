@@ -52,7 +52,7 @@ class Torrent extends \Gazelle\Base {
             LIMIT ? OFFSET ?
             ", ...$args
         );
-        $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $list = self::$db->to_array(false, MYSQLI_ASSOC);
         self::$db->prepared_query('
             UPDATE users_notify_torrents SET
                 UnRead = ?

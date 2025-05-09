@@ -83,6 +83,6 @@ class Staff extends BaseUser {
             ORDER BY spc.Date DESC
             ", $user->id, $this->user->privilege()->effectiveClassLevel(), $this->user->id
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

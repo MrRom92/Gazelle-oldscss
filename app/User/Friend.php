@@ -85,7 +85,7 @@ class Friend extends \Gazelle\BaseUser {
             LIMIT ? OFFSET ?
             ", $this->user->id, $this->user->id, $limit, $offset
         );
-        $list = self::$db->to_array('id', MYSQLI_ASSOC, false);
+        $list = self::$db->to_array('id', MYSQLI_ASSOC);
         foreach (array_map('intval', array_keys($list)) as $id) {
             $list[$id]['user'] = $userMan->findById($id);
         }
@@ -102,6 +102,6 @@ class Friend extends \Gazelle\BaseUser {
             ORDER BY u.Username ASC
             ", $this->user->id
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

@@ -100,7 +100,7 @@ class Subscription extends \Gazelle\BaseUser {
                 SELECT TopicID FROM users_subscriptions WHERE UserID = ?
                 ', $this->user->id
             );
-            $list = self::$db->collect(0, false);
+            $list = self::$db->collect(0);
             self::$cache->cache_value("subscriptions_user_" . $this->user->id, $list, 0);
         }
         $this->threadList = $list;
@@ -121,7 +121,7 @@ class Subscription extends \Gazelle\BaseUser {
                 WHERE UserID = ?
                 ', $this->user->id
             );
-            $list = self::$db->to_array(false, MYSQLI_NUM, false);
+            $list = self::$db->to_array(false, MYSQLI_NUM);
             self::$cache->cache_value("subscriptions_comments_user_" . $this->user->id, $list, 0);
         }
         self::$db->set_query_id($qid);
@@ -307,6 +307,6 @@ class Subscription extends \Gazelle\BaseUser {
         LIMIT ? OFFSET ?
             ", $userId, $userId, $userId, ...$args
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

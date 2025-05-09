@@ -173,7 +173,7 @@ switch ($_GET['type']) {
             Error403::error();
         }
         $join = "INNER JOIN xbt_snatched AS xs ON (xs.fid =  t.ID)";
-        $time = 'xs.tstamp';
+        $time = 'from_unixtime(xs.tstamp)';
         $userField = 'xs.uid';
         break;
     case 'snatched-unseeded':
@@ -183,7 +183,7 @@ switch ($_GET['type']) {
         $join = "INNER JOIN xbt_snatched AS xs ON (xs.fid = t.ID)
             LEFT JOIN xbt_files_users AS xfu USING (uid, fid)";
         $cond[] = 'xfu.fid IS NULL';
-        $time = 'xs.tstamp';
+        $time = 'from_unixtime(xs.tstamp)';
         $userField = 'xs.uid';
         break;
     case 'seeding':
@@ -192,7 +192,7 @@ switch ($_GET['type']) {
         }
         $join = "INNER JOIN xbt_files_users AS xfu ON (xfu.fid = t.ID)";
         $cond[] = 'xfu.active = 1 AND xfu.Remaining = 0';
-        $time = '(xfu.mtime - xfu.timespent)';
+        $time = 'from_unixtime(xfu.mtime - xfu.timespent)';
         $userField = 'xfu.uid';
         break;
     case 'leeching':
@@ -201,7 +201,7 @@ switch ($_GET['type']) {
         }
         $join = "INNER JOIN xbt_files_users AS xfu ON (xfu.fid = t.ID)";
         $cond[] = 'xfu.active = 1 AND xfu.Remaining > 0';
-        $time = '(xfu.mtime - xfu.timespent)';
+        $time = 'from_unixtime(xfu.mtime - xfu.timespent)';
         $userField = 'xfu.uid';
         break;
     case 'uploaded':
@@ -209,7 +209,7 @@ switch ($_GET['type']) {
             Error403::error();
         }
         $join = "";
-        $time = 'unix_timestamp(t.created)';
+        $time = 't.created';
         $userField = 't.UserID';
         break;
     case 'uploaded-unseeded':
@@ -218,7 +218,7 @@ switch ($_GET['type']) {
         }
         $join = "LEFT JOIN xbt_files_users AS xfu ON (xfu.fid = t.ID AND xfu.uid = t.UserID)";
         $cond[] = 'xfu.fid IS NULL';
-        $time = 'unix_timestamp(t.created)';
+        $time = 't.created';
         $userField = 't.UserID';
         break;
     case 'downloaded':
@@ -226,7 +226,7 @@ switch ($_GET['type']) {
             Error403::error();
         }
         $join = "INNER JOIN users_downloads AS ud ON (ud.TorrentID = t.ID)";
-        $time = 'unix_timestamp(ud.Time)';
+        $time = 'ud.Time';
         $userField = 'ud.UserID';
         break;
     default:

@@ -32,7 +32,7 @@ class Session extends \Gazelle\BaseUser {
                 ORDER BY LastUpdate DESC
                 ", $this->user->id
             );
-            $info = self::$db->to_array('SessionID', MYSQLI_ASSOC, false);
+            $info = self::$db->to_array('SessionID', MYSQLI_ASSOC);
             self::$cache->cache_value($key, $info, 43200);
         }
         $this->info = $info;
@@ -125,7 +125,7 @@ class Session extends \Gazelle\BaseUser {
         );
         self::$cache->delete_multi([
             sprintf(self::CACHE_KEY, $this->user->id),
-            ...self::$db->collect('ck', false)
+            ...self::$db->collect('ck')
         ]);
         self::$db->prepared_query('
             DELETE FROM users_sessions WHERE UserID = ?

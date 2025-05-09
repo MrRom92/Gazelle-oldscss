@@ -9,6 +9,6 @@ class ExpireTagSnatchCache extends \Gazelle\Task {
             FROM xbt_snatched
             WHERE tstamp > unix_timestamp(now() - INTERVAL 90 MINUTE)
         ");
-        $this->processed = count(self::$cache->delete_multi(self::$db->collect(0, false)));
+        $this->processed = count(self::$cache->delete_multi(self::$db->collect(0)));
     }
 }

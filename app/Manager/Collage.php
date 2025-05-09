@@ -105,7 +105,7 @@ class Collage extends \Gazelle\BaseManager {
             ORDER BY Featured DESC, Name ASC
             ", $user->id
         );
-        return array_map(fn($id) => $this->findById($id), self::$db->collect(0, false));
+        return array_map(fn($id) => $this->findById($id), self::$db->collect(0));
     }
 
     public function recoverById(int $id): ?\Gazelle\Collage {
@@ -187,7 +187,7 @@ class Collage extends \Gazelle\BaseManager {
                 LIMIT 5
                 ", $userId, CollageType::artist->value, $entry->id()
             );
-            $default = self::$db->collect(0, false);
+            $default = self::$db->collect(0);
 
             // Ensure that some of the other collages the user has worked on are present
             self::$db->prepared_query("
@@ -212,7 +212,7 @@ class Collage extends \Gazelle\BaseManager {
                 LIMIT 5
                 ", $userId, $userId, CollageType::artist->value, $userId, $entry->id()
             );
-            $default = array_merge($default, self::$db->collect(0, false));
+            $default = array_merge($default, self::$db->collect(0));
             self::$cache->cache_value($key, $default, 86400);
         }
         $list = [];
@@ -243,7 +243,7 @@ class Collage extends \Gazelle\BaseManager {
                 ORDER BY c.Updated DESC
                 ", $user->id, CollageType::personal->value, $entry->id()
             );
-            $default = self::$db->collect(0, false);
+            $default = self::$db->collect(0);
 
             // Ensure that some (theirs and by others) of the other collages the user has worked on are present
             self::$db->prepared_query("
@@ -267,7 +267,7 @@ class Collage extends \Gazelle\BaseManager {
                 LIMIT 5
                 ", $user->id, CollageType::personal->value, $user->id, $entry->id()
             );
-            $default = array_merge($default, self::$db->collect(0, false));
+            $default = array_merge($default, self::$db->collect(0));
             self::$cache->cache_value($key, $default, 86400);
         }
         $list = [];
@@ -327,7 +327,7 @@ class Collage extends \Gazelle\BaseManager {
                     ", CollageType::artist->value, CollageType::personal->value, $stem, $stem
                 );
             }
-            $pairs = self::$db->to_pair('ID', 'Name', false);
+            $pairs = self::$db->to_pair('ID', 'Name');
             $autocomplete = [];
             foreach ($pairs as $key => $value) {
                 $autocomplete[] = ['data' => $key, 'value' => $value];
@@ -361,7 +361,7 @@ class Collage extends \Gazelle\BaseManager {
             ", ...$args
         );
         $result = [];
-        foreach (self::$db->to_array(false, MYSQLI_ASSOC, false) as $entry) {
+        foreach (self::$db->to_array(false, MYSQLI_ASSOC) as $entry) {
             $entry['groupIds'] = is_null($entry['groupIds'])
                 ? []
                 : array_map('intval', explode(',', $entry['groupIds']));
@@ -404,7 +404,7 @@ class Collage extends \Gazelle\BaseManager {
             GROUP BY c.ID
             ", ...$args
         );
-        $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $list = self::$db->to_array(false, MYSQLI_ASSOC);
         foreach ($list as &$entry) {
             $entry['artistIds'] = is_null($entry['artistIds'])
                 ? []
@@ -448,7 +448,7 @@ class Collage extends \Gazelle\BaseManager {
                 ORDER BY c.updated DESC
                 ", CollageType::personal->value, $tgroup->id()
             );
-            $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $list = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value($key, $list, 3600 * 6);
         }
         return $this->listShuffle(COLLAGE_SAMPLE_THRESHOLD, $list);
@@ -477,7 +477,7 @@ class Collage extends \Gazelle\BaseManager {
                 ORDER BY c.updated DESC
                 ", CollageType::personal->value, $tgroup->id()
             );
-            $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $list = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value($key, $list, 3600 * 6);
         }
         return $this->listShuffle(PERSONAL_COLLAGE_SAMPLE_THRESHOLD, $list);
@@ -505,7 +505,7 @@ class Collage extends \Gazelle\BaseManager {
                 ORDER BY c.updated DESC
                 ", CollageType::artist->value, $artist->id()
             );
-            $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $list = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value($key, $list, 3600 * 6);
         }
         return $this->listShuffle(COLLAGE_SAMPLE_THRESHOLD, $list);

@@ -54,7 +54,7 @@ class User extends \Gazelle\BaseObject {
                     GROUP BY Page
                     ", $this->id
                 );
-                $commentTotal = self::$db->to_pair('Page', 'n', false);
+                $commentTotal = self::$db->to_pair('Page', 'n');
                 self::$cache->cache_value($key, $commentTotal, 3600);
             }
             $this->commentTotal = $commentTotal;
@@ -273,7 +273,7 @@ class User extends \Gazelle\BaseObject {
                     LIMIT ?
                     ", $this->id, $chart['count']
                 );
-                $stats = array_reverse(self::$db->to_array(false, MYSQLI_ASSOC, false));
+                $stats = array_reverse(self::$db->to_array(false, MYSQLI_ASSOC));
                 $timeline = array_column($stats, 'epoch');
                 foreach (['data_up', 'data_down', 'buffer', 'bp', 'uploads', 'perfect'] as $dimension) {
                     $series = array_column($stats, $dimension);

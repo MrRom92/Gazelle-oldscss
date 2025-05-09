@@ -50,7 +50,7 @@ class Report extends \Gazelle\BaseManager {
             ORDER BY ID DESC
             ", $user->id
         );
-        $reportList = self::$db->collect(0, false);
+        $reportList = self::$db->collect(0);
         return array_map(fn ($id) => $this->findById($id), $reportList);
     }
 

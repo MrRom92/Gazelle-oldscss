@@ -50,7 +50,7 @@ class UserLink extends \Gazelle\BaseUser {
         return [
             'id'      => $linkedGroupId,
             'comment' => $comment ?? '',
-            'list'    => self::$db->to_pair('user_id', 'username', false),
+            'list'    => self::$db->to_pair('user_id', 'username'),
         ];
     }
 

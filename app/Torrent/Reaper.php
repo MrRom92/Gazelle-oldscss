@@ -116,7 +116,7 @@ class Reaper extends \Gazelle\Base {
         );
 
         // Send an alert to each snatcher listing all the uploads that they could reseed
-        $snatchList = $this->expand(NOTIFY_REAPER_MAX_PER_USER, self::$db->to_array(false, MYSQLI_NUM, false));
+        $snatchList = $this->expand(NOTIFY_REAPER_MAX_PER_USER, self::$db->to_array(false, MYSQLI_NUM));
         foreach ($snatchList as $userId => $torrentIds) {
             $user = $this->userMan->findById((int)$userId);
             // cannot say !$user?->hasAttr() because !null is true
@@ -182,7 +182,7 @@ class Reaper extends \Gazelle\Base {
             LIMIT ?
             ", $interval, NOTIFY_REAPER_MAX_NOTIFICATION
         );
-        $initial = $this->expand(NOTIFY_REAPER_MAX_PER_USER, self::$db->to_array(false, MYSQLI_NUM, false));
+        $initial = $this->expand(NOTIFY_REAPER_MAX_PER_USER, self::$db->to_array(false, MYSQLI_NUM));
 
         // We have already limited the number of users visited. We don't, however, know
         // if we have received more uploads than we care to handle. We go through what
@@ -246,7 +246,7 @@ class Reaper extends \Gazelle\Base {
             GROUP BY t.UserID
             ", $interval, ReaperNotify::INITIAL->value, $state->value
         );
-        $final      = $this->expand(NOTIFY_REAPER_MAX_PER_USER, self::$db->to_array(false, MYSQLI_NUM, false));
+        $final      = $this->expand(NOTIFY_REAPER_MAX_PER_USER, self::$db->to_array(false, MYSQLI_NUM));
         $limit      = $state === ReaperState::NEVER ? MAX_NEVER_SEEDED_PER_RUN : MAX_UNSEEDED_PER_RUN;
         $torrentIds = [];
         $result     = [];
@@ -310,7 +310,7 @@ class Reaper extends \Gazelle\Base {
             GROUP BY t.UserID
             ", $interval, ReaperNotify::FINAL->value, $state->value
         );
-        return $this->expand(NOTIFY_REAPER_MAX_PER_USER, self::$db->to_array(false, MYSQLI_NUM, false));
+        return $this->expand(NOTIFY_REAPER_MAX_PER_USER, self::$db->to_array(false, MYSQLI_NUM));
     }
 
     /**
@@ -335,7 +335,7 @@ class Reaper extends \Gazelle\Base {
                         AND xs.uid != ?
                     ", $torrentId, $torrent->uploaderId()
                 );
-                foreach (self::$db->collect(0, false) as $snatcherId) {
+                foreach (self::$db->collect(0) as $snatcherId) {
                     $snatcherId = (int)$snatcherId;
                     if (!isset($userList[$snatcherId])) {
                         $userList[$snatcherId] = [];
@@ -447,7 +447,7 @@ class Reaper extends \Gazelle\Base {
                 AND xfu.remaining = 0
             ORDER BY torrent_id, xfu.timespent DESC
         ");
-        $seederList = self::$db->to_array(false, MYSQLI_NUM, false);
+        $seederList = self::$db->to_array(false, MYSQLI_NUM);
         if (empty($seederList)) {
             self::$db->commit();
             return [];
@@ -558,7 +558,7 @@ class Reaper extends \Gazelle\Base {
             FROM torrent_unseeded
             GROUP BY notify, state
         ");
-        $results = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $results = self::$db->to_array(false, MYSQLI_ASSOC);
         foreach ($results as $r) {
             if ($r['state'] == ReaperState::UNSEEDED->value && $r['notify'] == ReaperNotify::INITIAL->value) {
                 $stats['unseeded_initial'] = $r['total'];
@@ -581,7 +581,7 @@ class Reaper extends \Gazelle\Base {
             GROUP BY `day`
             ORDER BY `day` DESC
         ");
-        return self::$db->to_pair('day', 'total', false);
+        return self::$db->to_pair('day', 'total');
     }
 
     public function extendGracePeriod(array $userIdList, int $days): int {
@@ -625,6 +625,6 @@ class Reaper extends \Gazelle\Base {
             ORDER BY um.Username;
             ", ...$state
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

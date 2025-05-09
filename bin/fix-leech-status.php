@@ -18,7 +18,7 @@ $db->prepared_query('
         AND ui.RatioWatchEnds IS NULL
 ');
 
-foreach ($db->collect(0, false) as $userId) {
+foreach ($db->collect(0) as $userId) {
     $user = $userMan->findById($userId);
     $user->setField('can_leech', 1)->modify();
     $tracker->refreshUser($user);

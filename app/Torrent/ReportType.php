@@ -87,7 +87,7 @@ class ReportType extends \Gazelle\BaseObject {
             ", $this->id()
         );
         $history = [];
-        foreach (self::$db->to_array(false, MYSQLI_ASSOC, false) as $row) {
+        foreach (self::$db->to_array(false, MYSQLI_ASSOC) as $row) {
             $row['change_set'] = json_decode($row['change_set_json'], true);
             $history[] = $row;
         }

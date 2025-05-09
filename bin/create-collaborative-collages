@@ -18,7 +18,7 @@ $db->prepared_query("
     ORDER BY t.Uses DESC
     ", $min
 );
-$nameList = $db->collect(0, false);
+$nameList = $db->collect(0);
 
 foreach ($nameList as $name) {
     try {

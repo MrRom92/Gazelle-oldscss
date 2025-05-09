@@ -22,7 +22,7 @@ class Artist extends \Gazelle\Collector {
             WHERE aa.ArtistID = ?
             ", $this->artist->id()
         );
-        while ([$groupId, $role] = self::$db->next_record(MYSQLI_NUM, false)) {
+        while ([$groupId, $role] = self::$db->next_record(MYSQLI_NUM)) {
             // Get the highest importances to place the .torrents in the most relevant folders
             if (!isset($this->roleList[$groupId]) || $role < $this->roleList[$groupId]) {
                 $this->roleList[$groupId] = (int)$role;

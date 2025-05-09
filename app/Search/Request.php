@@ -285,7 +285,7 @@ class Request extends \Gazelle\Base {
                 ORDER BY $orderBy $direction
                 ", $this->bookmarkerId
             );
-            $list = self::$db->collect(0, false);
+            $list = self::$db->collect(0);
             $this->total = count($list);
         } else {
             $this->sphinxq->select('id')->from('requests, requests_delta');

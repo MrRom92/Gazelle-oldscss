@@ -431,7 +431,7 @@ class Donor extends \Gazelle\BaseUser {
             ORDER BY Time DESC
             ", $this->user->id
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function adjust(int $rankDelta, int $totalDelta, string $reason, \Gazelle\User $adjuster): int {

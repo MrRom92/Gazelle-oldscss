@@ -153,7 +153,7 @@ class IPv4 extends \Gazelle\Base {
     public function userOther(User $user): array {
         [$sql, $args] = $this->userOtherConfig($user);
         self::$db->prepared_query($sql, ...$args);
-        return self::$db->collect(0, false);
+        return self::$db->collect(0);
     }
 
     public function userPage(User $user, int $limit, int $offset): array {
@@ -192,6 +192,6 @@ class IPv4 extends \Gazelle\Base {
             LIMIT ? OFFSET ?
             ", $user->id, ...$args
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

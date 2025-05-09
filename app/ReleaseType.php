@@ -14,7 +14,7 @@ class ReleaseType extends Base {
             self::$db->prepared_query("
                 SELECT ID, Name FROM release_type ORDER BY ID
             ");
-            $list = self::$db->to_pair('ID', 'Name', false);
+            $list = self::$db->to_pair('ID', 'Name');
             self::$db->set_query_id($qid);
             self::$cache->cache_value(self::CACHE_KEY, $list, 86400 * 30);
         }

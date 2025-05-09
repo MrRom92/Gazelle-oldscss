@@ -37,7 +37,7 @@ class SnatchInfo extends Base {
             ORDER BY max(xs.tstamp) DESC
             ", $this->searchValue
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function page(int $limit, int $offset): array {
@@ -57,6 +57,6 @@ class SnatchInfo extends Base {
             LIMIT ? OFFSET ?
             ", $this->searchValue, $limit, $offset
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

@@ -64,7 +64,7 @@ class Torrent extends TorrentAbstract {
                 WHERE ha.TorrentID = ?
             ", $this->id);
             $info['attr'] = [];
-            foreach (self::$db->to_array(escape: false) as $row) {
+            foreach (self::$db->to_array(false, MYSQLI_ASSOC) as $row) {
                 $info['attr'][$row['Name']] = true;
             }
         }
@@ -274,7 +274,7 @@ class Torrent extends TorrentAbstract {
             LIMIT 100
             ", $this->id, '1'
         );
-        $notify = self::$db->to_array('id', MYSQLI_ASSOC, false);
+        $notify = self::$db->to_array('id', MYSQLI_ASSOC);
         $notify[$this->uploaderId()] = [
             'action' => 'uploaded',
             'tdate'  => $this->created(),
@@ -336,7 +336,7 @@ class Torrent extends TorrentAbstract {
             ", $this->id
         );
         $result = [];
-        foreach (self::$db->collect(0, false) as $id) {
+        foreach (self::$db->collect(0) as $id) {
             $request = $manager->findById($id);
             if ($request) {
                 $result[] = $request;
@@ -371,7 +371,7 @@ class Torrent extends TorrentAbstract {
             LIMIT ? OFFSET ?
             ", $this->id, $this->id, $this->id, $user->id, $limit, $offset
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function seederList(User $user, int $limit, int $offset): array {
@@ -410,7 +410,7 @@ class Torrent extends TorrentAbstract {
                 LIMIT ? OFFSET ?
                 ", $this->id, $this->id, $user->id, $this->id, $user->id, $limit, $offset
             );
-            $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $list = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value($key, $list, 300);
         }
         return $list;
@@ -431,7 +431,7 @@ class Torrent extends TorrentAbstract {
             LIMIT ? OFFSET ?
             ", $this->id, $this->id, $this->id, $user->id, $limit, $offset
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     /**
@@ -494,7 +494,7 @@ class Torrent extends TorrentAbstract {
 
         // copy the metadata that will be needed after the row has been removed
         $edition  = $this->edition();
-        $groupId  = $this->group()->id();
+        $tgroup   = $this->group();
         $infohash = $this->infohash();
         $sizeMB   = number_format($this->size() / (1024 * 1024), 2) . ' MiB';
         $name     = $this->name();
@@ -561,17 +561,15 @@ class Torrent extends TorrentAbstract {
             ", $this->id
         );
         self::$db->prepared_query("
-            SELECT concat('user_notify_upload_', UserID) as ck
-            FROM users_notify_torrents
-            WHERE TorrentID = ?
+            DELETE FROM users_notify_torrents WHERE TorrentID = ?
             ", $this->id
         );
-        $deleteKeys = self::$db->collect('ck', false);
 
+        $deleteKeys = [];
         if (!is_null($user)) {
             $key = sprintf(self::USER_RECENT_UPLOAD, $user->id);
             $recent = self::$cache->get_value($key);
-            if (is_array($recent) && in_array($groupId, $recent)) {
+            if (is_array($recent) && in_array($tgroup->id, $recent)) {
                 $deleteKeys[] = $key;
             }
 
@@ -596,10 +594,15 @@ class Torrent extends TorrentAbstract {
         parent::remove();
         self::$db->commit();
 
-        array_push($deleteKeys, "zz_t_" . $this->id, sprintf(self::CACHE_KEY, $this->id), "torrent_group_" . $groupId);
-        self::$cache->delete_multi($deleteKeys);
+        self::$cache->delete_multi([
+            "torrent_group_{$tgroup->id}",
+            sprintf(Manager\Torrent::ID_KEY, $this->id),
+            sprintf(self::CACHE_KEY, $this->id),
+            ...$deleteKeys
+        ]);
         self::$cache->decrement('stats_torrent_count');
-        $this->group()->refresh();
+        $this->flush();
+        $tgroup->refresh();
 
         self::$db->set_query_id($qid);
         return [true, "torrent " . $this->id . " removed"];

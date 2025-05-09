@@ -57,6 +57,6 @@ class Donation extends \Gazelle\Base {
             LIMIT ? OFFSET ?
             ", ...[...$this->args, $limit, $offset]
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

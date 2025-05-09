@@ -157,7 +157,7 @@ abstract class AbstractComment extends \Gazelle\BaseObject {
                 LIMIT ? OFFSET ?
                 ", $page, $pageId, THREAD_CATALOGUE, THREAD_CATALOGUE * $CatalogueID
             );
-            $Catalogue = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $Catalogue = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value($catKey, $Catalogue, 0);
         }
 

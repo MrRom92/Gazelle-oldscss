@@ -10,7 +10,7 @@ $db->prepared_query("
     SELECT ID FROM users_main ORDER BY ID
 ");
 
-$list = $db->collect(0, false);
+$list = $db->collect(0);
 
 foreach ($list as $userId) {
     $userCount++;

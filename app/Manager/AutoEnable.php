@@ -102,7 +102,7 @@ class AutoEnable extends \Gazelle\BaseManager {
             GROUP BY CheckedBy
             ORDER BY 2 DESC, 1
         ");
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function configureView(string $view, bool $showChecked): static {
@@ -179,7 +179,7 @@ class AutoEnable extends \Gazelle\BaseManager {
             ", ...[...$this->args, $limit, $offset]
         );
         $list = [];
-        foreach (self::$db->collect(0, false) as $id) {
+        foreach (self::$db->collect(0) as $id) {
             $list[] = $this->findById($id);
         }
         return $list;

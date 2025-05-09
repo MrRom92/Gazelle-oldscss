@@ -121,7 +121,7 @@ abstract class AbstractBetter extends \Gazelle\Base {
 
     public function list(int $limit, int $offset): array {
         self::$db->prepared_query($this->listSql(), ...[...$this->args, $limit, $offset]);
-        return array_map(fn ($id) => $this->manager->findById($id), self::$db->collect(0, false));
+        return array_map(fn ($id) => $this->manager->findById($id), self::$db->collect(0));
     }
 
     protected function totalCacheKey(): string {

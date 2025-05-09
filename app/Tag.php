@@ -104,7 +104,7 @@ class Tag extends BaseObject {
             WHERE t.TagID = ?
             ", $this->id
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function addTGroup(TGroup $tgroup, User $user, int $weight): int {
@@ -151,7 +151,7 @@ class Tag extends BaseObject {
             WHERE t.TagID = ?
             ", $this->id
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function voteTGroup(TGroup $tgroup, User $user, string $way): int {

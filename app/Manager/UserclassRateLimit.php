@@ -10,7 +10,7 @@ class UserclassRateLimit extends \Gazelle\Base {
             INNER JOIN permissions p ON (p.ID = prl.permission_id)
             ORDER BY p.Level
         ');
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function save(int $id, float $factor, int $overshoot): int {

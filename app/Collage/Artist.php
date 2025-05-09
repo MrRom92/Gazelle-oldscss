@@ -29,7 +29,7 @@ class Artist extends AbstractCollage {
             ORDER BY ca.Sort
             ", $this->holder->id()
         );
-        $artists = self::$db->to_array('ArtistID', MYSQLI_ASSOC, false);
+        $artists = self::$db->to_array('ArtistID', MYSQLI_ASSOC);
         $total = count($artists);
 
         $this->artists      = [];
@@ -98,7 +98,7 @@ class Artist extends AbstractCollage {
             LIMIT 8
             ", $this->id
         );
-        return self::$db->collect(0, false);
+        return self::$db->collect(0);
     }
 
     public function remove(): int {
@@ -110,7 +110,7 @@ class Artist extends AbstractCollage {
         $this->flushAll(
             array_merge(...array_map(
                 fn ($id) => ["artists_collages_$id", "artists_collages_personal_$id"],
-                self::$db->collect(0, false)
+                self::$db->collect(0)
             ))
         );
         return parent::remove(); // soft remove in AbstractCollage

@@ -46,7 +46,7 @@ if (!empty($_POST['action'])) {
             WHERE Name = ?
             ", $NameSearch
         );
-        [$FirstID, $Name] = $db->next_record(MYSQLI_NUM, false);
+        [$FirstID, $Name] = $db->next_record(MYSQLI_NUM);
         if (is_null($FirstID)) {
             if ($Viewer->permitted('site_advanced_search') && $Viewer->option('SearchType')) {
                 header('Location: torrents.php?action=advanced&artistname=' . urlencode($_GET['artistname']));
@@ -59,7 +59,7 @@ if (!empty($_POST['action'])) {
             header("Location: artist.php?id=$FirstID");
             exit;
         }
-        while ([$ID, $Name] = $db->next_record(MYSQLI_NUM, false)) {
+        while ([$ID, $Name] = $db->next_record(MYSQLI_NUM)) {
             if (!strcasecmp($Name, $NameSearch)) {
                 header("Location: artist.php?id=$ID");
                 exit;

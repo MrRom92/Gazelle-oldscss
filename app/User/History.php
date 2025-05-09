@@ -151,8 +151,8 @@ class History extends \Gazelle\BaseUser {
             ORDER BY h.created DESC
             ", $this->user->id
         );
-        $asnList = $asn->findByIpList(self::$db->collect('ipv4', false));
-        $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $asnList = $asn->findByIpList(self::$db->collect('ipv4'));
+        $list = self::$db->to_array(false, MYSQLI_ASSOC);
         foreach ($list as &$row) {
             $row['cc']   = $asnList[$row['ipv4']]['cc'];
             $row['n']    = $asnList[$row['ipv4']]['n'];
@@ -182,8 +182,8 @@ class History extends \Gazelle\BaseUser {
             ORDER BY uhe.Email, uhe.created DESC
             ", $this->user->id, $this->user->id
         );
-        $asnList = $asn->findByIpList(self::$db->collect('ipv4', false));
-        $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $asnList = $asn->findByIpList(self::$db->collect('ipv4'));
+        $list = self::$db->to_array(false, MYSQLI_ASSOC);
         foreach ($list as &$row) {
             $row['cc']   = $asnList[$row['ipv4']]['cc'];
             $row['n']    = $asnList[$row['ipv4']]['n'];
@@ -351,8 +351,8 @@ class History extends \Gazelle\BaseUser {
             ORDER BY $orderBy
             ", $this->user->id
         );
-        $asnList = $asn->findByIpList(self::$db->collect('ipv4', false));
-        $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $asnList = $asn->findByIpList(self::$db->collect('ipv4'));
+        $list = self::$db->to_array(false, MYSQLI_ASSOC);
         foreach ($list as &$row) {
             $row['cc']   = $asnList[$row['ipv4']]['cc'];
             $row['n']    = $asnList[$row['ipv4']]['n'];

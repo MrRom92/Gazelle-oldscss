@@ -70,7 +70,7 @@ class UserNavigation extends \Gazelle\BaseManager {
                     initial
                 FROM nav_items
             ");
-            $list = self::$db->to_array("id", MYSQLI_ASSOC, false);
+            $list = self::$db->to_array("id", MYSQLI_ASSOC);
             self::$cache->cache_value(self::LIST_KEY, $list, 0);
         }
         return $list;

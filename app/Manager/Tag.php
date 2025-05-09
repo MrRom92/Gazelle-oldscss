@@ -189,7 +189,7 @@ class Tag extends \Gazelle\BaseManager {
             ORDER BY $orderBy
             ", 'genre'
         );
-        return array_map(fn($id) => $this->findById($id), self::$db->collect(0, false));
+        return array_map(fn($id) => $this->findById($id), self::$db->collect(0));
     }
 
     /**
@@ -206,7 +206,7 @@ class Tag extends \Gazelle\BaseManager {
                 WHERE TagType = 'genre'
                 ORDER BY Name
             ");
-            $list = self::$db->collect('name', false);
+            $list = self::$db->collect('name');
             self::$cache->cache_value(self::GENRE_KEY, $list, 3600 * 24);
         }
         return $list;
@@ -221,13 +221,13 @@ class Tag extends \Gazelle\BaseManager {
             SELECT DISTINCT RequestID FROM requests_tags WHERE TagID = ?
             ", $old->id()
         );
-        $affectedRequests = self::$db->collect(0, false);
+        $affectedRequests = self::$db->collect(0);
 
         self::$db->prepared_query("
             SELECT DISTINCT GroupID FROM torrents_tags WHERE TagID = ?
             ", $old->id()
         );
-        $affectedTGroups = self::$db->collect(0, false);
+        $affectedTGroups = self::$db->collect(0);
 
         // If the torrent has the old tag, but not the replacement, add it,
         self::$db->prepared_query("
@@ -415,7 +415,7 @@ class Tag extends \Gazelle\BaseManager {
                 FROM tag_aliases
                 ORDER BY BadTag
             ");
-            $aliasList = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $aliasList = self::$db->to_array(false, MYSQLI_ASSOC);
             // Unify tag aliases to be in_this_format as tags not in.this.format
             array_walk_recursive($aliasList, function (&$val) {
                 $val = strtr($val, '.', '_');
@@ -480,7 +480,7 @@ class Tag extends \Gazelle\BaseManager {
             FROM tag_aliases
             ORDER BY $column
         ");
-        return self::$db->to_array('id', MYSQLI_ASSOC, false);
+        return self::$db->to_array('id', MYSQLI_ASSOC);
     }
 
     /**
@@ -506,7 +506,7 @@ class Tag extends \Gazelle\BaseManager {
                 LIMIT ?
                 ", $word, 10
             );
-            $suggestions = self::$db->to_array(false, MYSQLI_NUM, false);
+            $suggestions = self::$db->to_array(false, MYSQLI_NUM);
             self::$cache->cache_value($key, $suggestions, 1800 + 7200 * ($maxKeySize - $keySize)); // Can't cache things for too long in case names are edited
         }
         return array_map(fn($v) => ['value' => $v[0]], $suggestions);
@@ -528,7 +528,7 @@ class Tag extends \Gazelle\BaseManager {
             LIMIT 8
             ", $user->id
         );
-        return self::$db->collect(0, false);
+        return self::$db->collect(0);
     }
 
     /**
@@ -582,7 +582,7 @@ class Tag extends \Gazelle\BaseManager {
         if ($top === false) {
             self::$db->prepared_query($query, $limit);
             $top = [];
-            foreach (self::$db->to_array(false, MYSQLI_ASSOC, false) as $row) {
+            foreach (self::$db->to_array(false, MYSQLI_ASSOC) as $row) {
                 $top[] = [
                     'name'     => $row['name'],
                     'uses'     => $row['uses'],

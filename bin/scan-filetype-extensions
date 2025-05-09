@@ -25,7 +25,7 @@ while ($id < $max) {
         LIMIT ?
         ", $id, $chunk
     );
-    foreach ($db->collect(0, false) as $tid) {
+    foreach ($db->collect(0) as $tid) {
         $torrent = $torMan->findById($tid);
         if (is_null($torrent)) {
             continue;

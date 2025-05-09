@@ -90,7 +90,7 @@ class Inbox extends \Gazelle\Json {
         $user = [];
         $messages = [];
         $qid = self::$db->get_query_id();
-        while ([$convId, $subject, $unread, $sticky, $forwardedId, $senderId, $actionDate] = self::$db->next_record()) {
+        while ([$convId, $subject, $unread, $sticky, $forwardedId, $senderId, $actionDate] = self::$db->next_record(MYSQLI_NUM)) {
             $senderId = (int)$senderId;
             if ($senderId && !isset($user[$senderId])) {
                 $user[$senderId] = $this->userMan->findById($senderId);

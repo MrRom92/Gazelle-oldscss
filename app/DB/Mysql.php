@@ -325,42 +325,17 @@ class Mysql {
         return $this->QueryID ? mysqli_fetch_array($this->QueryID, $type) : false;
     }
 
-    public function next_record(int $Type = MYSQLI_BOTH, array|bool $escape = true): ?array {
-        // $escape can be true, false, or an array of keys to not escape
-        // If $Reverse is true, then $escape is an array of keys to escape
+    public function next_record(int $Type = MYSQLI_BOTH): ?array {
         if ($this->QueryID) {
             $this->Record = mysqli_fetch_array($this->QueryID, $Type);
             $this->Row++;
             if (!is_array($this->Record)) {
                 $this->QueryID = false;
                 $this->Record = null;
-            } elseif ($escape !== false) {
-                $this->Record = $this->display_array($this->Record, $escape);
             }
             return $this->Record;
         }
         return null;
-    }
-
-    /**
-     * Fetches next record from the result set of the previously executed query.
-     *
-     * Utility around next_record where we just return the array as MYSQLI_BOTH
-     * and require the user to explicitly define which columns to define (as opposed
-     * to all columns always being escaped, which is a bad sort of lazy). Things that
-     * need to be escaped are strings that users input (with any characters) and
-     * are not displayed inside a textarea or input field.
-     *
-     * @param mixed  $escape Boolean true/false for escaping entire/none of query
-     *                          or can be an array of array keys for what columns to escape
-     */
-    public function fetch_record(mixed ...$escape): ?array {
-        if (count($escape) === 1 && $escape[0] === true) {
-            $escape = true;
-        } elseif (count($escape) === 0) {
-            $escape = false;
-        }
-        return $this->next_record(MYSQLI_BOTH, $escape);
     }
 
     public function close(): void {
@@ -407,13 +382,10 @@ class Mysql {
     // Creates an array from a result set
     // If $Key is set, use the $Key column in the result set as the array key
     // Otherwise, use an integer
-    public function to_array(bool|string $Key = false, int $Type = MYSQLI_BOTH, array|bool $escape = true): array {
+    public function to_array(false|string $Key = false, int $Type = MYSQLI_BOTH): array {
         $Return = [];
         if ($this->QueryID) {
             while ($Row = mysqli_fetch_array($this->QueryID, $Type)) {
-                if ($escape !== false) {
-                    $Row = $this->display_array($Row, $escape);
-                }
                 if ($Key !== false) {
                     $Return[$Row[$Key]] = $Row;
                 } else {
@@ -426,18 +398,11 @@ class Mysql {
     }
 
     //  Loops through the result set, collecting the $ValField column into an array with $KeyField as keys
-    public function to_pair(string $KeyField, string $ValField, bool $escape = true): array {
+    public function to_pair(string $KeyField, string $ValField): array {
         $Return = [];
         if ($this->QueryID) {
             while ($Row = mysqli_fetch_array($this->QueryID)) {
-                if ($escape) {
-                    $Key = display_str($Row[$KeyField]);
-                    $Val = display_str($Row[$ValField]);
-                } else {
-                    $Key = $Row[$KeyField];
-                    $Val = $Row[$ValField];
-                }
-                $Return[$Key] = $Val;
+                $Return[$Row[$KeyField]] = $Row[$ValField];
             }
             mysqli_data_seek($this->QueryID, 0);
         }
@@ -445,11 +410,11 @@ class Mysql {
     }
 
     //  Loops through the result set, collecting the $Key column into an array
-    public function collect(int|string $key, bool $escape = true): array {
+    public function collect(int|string $key): array {
         $collect = [];
         if ($this->QueryID) {
             while ($row = mysqli_fetch_array($this->QueryID)) {
-                $collect[] = $escape ? display_str($row[$key]) : $row[$key];
+                $collect[] = $row[$key];
             }
             mysqli_data_seek($this->QueryID, 0);
         }
@@ -464,7 +429,7 @@ class Mysql {
     public function row(string $sql, mixed ...$args): ?array {
         $qid = $this->get_query_id();
         $this->prepared_query($sql, ...$args);
-        $result = $this->next_record(MYSQLI_NUM, false);
+        $result = $this->next_record(MYSQLI_NUM);
         $this->set_query_id($qid);
         return $result;
     }
@@ -480,7 +445,7 @@ class Mysql {
     public function rowAssoc(string $sql, mixed ...$args): ?array {
         $qid = $this->get_query_id();
         $this->prepared_query($sql, ...$args);
-        $result = $this->next_record(MYSQLI_ASSOC, false);
+        $result = $this->next_record(MYSQLI_ASSOC);
         $this->set_query_id($qid);
         return $result;
     }
@@ -494,7 +459,7 @@ class Mysql {
     public function scalar(string $sql, mixed ...$args): int|float|string|bool|null {
         $qid = $this->get_query_id();
         $this->prepared_query($sql, ...$args);
-        $result = $this->has_results() ? $this->next_record(MYSQLI_NUM, false) : [null];
+        $result = $this->has_results() ? $this->next_record(MYSQLI_NUM) : [null];
         $this->set_query_id($qid);
         return $result[0];
     }
@@ -576,21 +541,5 @@ class Mysql {
         $this->prepared_query("
             DROP TEMPORARY TABLE IF EXISTS $tableName
         ");
-    }
-
-    /**
-     * HTML escape an entire array for output.
-     * @param boolean|array $escape
-     *    if true, all keys escaped
-     *    if false, no escaping.
-     *    If array, it's a list of array keys not to escape.
-     */
-    protected function display_array(array $field, array|bool $escape): array {
-        foreach ($field as $key => $val) {
-            if ($escape === true || (is_array($escape) && !in_array($key, $escape))) {
-                $field[$key] = display_str($val);
-            }
-        }
-        return $field;
     }
 }

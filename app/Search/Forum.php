@@ -353,7 +353,7 @@ class Forum extends \Gazelle\BaseUser {
         $this->page = $paginator->page();
         array_push($args, $paginator->limit(), $paginator->offset());
         self::$db->prepared_query($sql, ...$args);
-        return self::$db->to_array(false, MYSQLI_NUM, false);
+        return self::$db->to_array(false, MYSQLI_NUM);
     }
 
     /**
@@ -397,7 +397,7 @@ class Forum extends \Gazelle\BaseUser {
             LIMIT ? OFFSET ?
             ", $this->user->id, ...$args
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function postHistoryTotal(): int {
@@ -438,6 +438,6 @@ class Forum extends \Gazelle\BaseUser {
             LIMIT ? OFFSET ?
             ", ...$args
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

@@ -12,7 +12,7 @@ $pg = new \Gazelle\DB\Pg(PG_RW_DSN);
 $db->prepared_query("
     SELECT ID FROM users_main ORDER BY 1
 ");
-$list = $db->collect(0, false);
+$list = $db->collect(0);
 
 foreach ($list as $userId) {
     $db->prepared_query('
@@ -35,7 +35,7 @@ foreach ($list as $userId) {
     $total = 0;
     $prev  = ''; // keep track of when the IP address changes
     $range = []; // date ranges of this IP
-    foreach ($db->to_array(false, MYSQLI_ASSOC, false) as $row) {
+    foreach ($db->to_array(false, MYSQLI_ASSOC) as $row) {
         if ($prev and $prev != $row['ip']) {
             persist($pg, $userId, $prev, $total, $range);
             $range = [];

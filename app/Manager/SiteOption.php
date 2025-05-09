@@ -54,7 +54,7 @@ class SiteOption extends \Gazelle\Base {
             FROM site_options
             ORDER BY Name
         ");
-        return self::$db->to_array('name', MYSQLI_ASSOC, false);
+        return self::$db->to_array('name', MYSQLI_ASSOC);
     }
 
     /**

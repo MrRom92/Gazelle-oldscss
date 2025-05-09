@@ -339,6 +339,6 @@ class Tracker extends Base {
             ) W
             LEFT JOIN torrents t USING (id);
         ");
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

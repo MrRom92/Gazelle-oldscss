@@ -497,7 +497,7 @@ abstract class TorrentAbstract extends BaseAttrObject {
             WHERE TorrentID = ?
             ", $this->id
         );
-        $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $list = self::$db->to_array(false, MYSQLI_ASSOC);
         foreach ($list as &$log) {
             $log['has_riplog'] = $ripFiler->exists([$this->id, $log['id']]);
             $log['html_log'] = $htmlFiler->get([$this->id, $log['id']]);
@@ -574,7 +574,7 @@ abstract class TorrentAbstract extends BaseAttrObject {
                     AND r.TorrentID = ?
                 ", $this->id
             );
-            $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $list = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$db->set_query_id($qid);
             self::$cache->cache_value($key, $list, 7200);
         }

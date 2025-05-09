@@ -40,7 +40,7 @@ class ClientWhitelist extends \Gazelle\Base {
                 FROM xbt_client_whitelist
                 ORDER BY peer_id ASC
             ");
-            $list = self::$db->to_array('client_id', MYSQLI_ASSOC, false);
+            $list = self::$db->to_array('client_id', MYSQLI_ASSOC);
             self::$cache->cache_value(self::CACHE_KEY, $list, 0);
         }
         return $list;

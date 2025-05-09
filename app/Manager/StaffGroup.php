@@ -39,6 +39,6 @@ class StaffGroup extends \Gazelle\BaseManager {
             FROM staff_groups
             ORDER BY Sort
         ");
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

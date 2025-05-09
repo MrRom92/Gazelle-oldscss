@@ -44,7 +44,7 @@ class TGroup extends AbstractCollage {
             ORDER BY 1 DESC, ct.AddedOn
             ", $this->holder->id()
         );
-        $this->torrentTags = self::$db->to_array('tag', MYSQLI_ASSOC, false);
+        $this->torrentTags = self::$db->to_array('tag', MYSQLI_ASSOC);
 
         self::$db->prepared_query("
             SELECT ct.GroupID,
@@ -57,7 +57,7 @@ class TGroup extends AbstractCollage {
             ORDER BY ct.Sort
             ", $this->holder->id()
         );
-        $groupContribIds = self::$db->to_array('GroupID', MYSQLI_ASSOC, false);
+        $groupContribIds = self::$db->to_array('GroupID', MYSQLI_ASSOC);
         $groupIds        = array_map('intval', array_keys($groupContribIds));
 
         $this->artists      = [];
@@ -130,7 +130,7 @@ class TGroup extends AbstractCollage {
             LIMIT 8
             ", $this->id
         );
-        return self::$db->collect(0, false);
+        return self::$db->collect(0);
     }
 
     public function remove(): int {
@@ -140,7 +140,7 @@ class TGroup extends AbstractCollage {
         );
         self::$cache->delete_multi(array_merge(...array_map(
             fn ($id) => ["torrent_collages_$id", "torrent_collages_personal_$id"],
-            self::$db->collect(0, false)
+            self::$db->collect(0)
         )));
         if (!$this->holder->isPersonal()) {
             $rows = parent::remove(); // soft remove in AbstractCollage

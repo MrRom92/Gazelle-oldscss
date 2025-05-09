@@ -82,7 +82,7 @@ class Torrent extends \Gazelle\Base {
 
         self::$db->prepared_query($query, ...$parameters);
         $topTorrents = [];
-        foreach (self::$db->to_array(false, MYSQLI_ASSOC, false) as $row) {
+        foreach (self::$db->to_array(false, MYSQLI_ASSOC) as $row) {
             $row['score'] = (float)$row['score']; // wtf
             $topTorrents[] = $row;
         }

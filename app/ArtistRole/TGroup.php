@@ -34,7 +34,7 @@ class TGroup extends \Gazelle\ArtistRole {
         $this->artistList = $this->artistList();
         $this->roleList = array_fill_keys(array_values(self::MAP), []);
         $this->idList = [];
-        while ([$role, $artistId, $artistName, $aliasId] = self::$db->next_record(MYSQLI_NUM, false)) {
+        while ([$role, $artistId, $artistName, $aliasId] = self::$db->next_record(MYSQLI_NUM)) {
             $this->idList[$role][] = [
                 'id'      => $artistId,
                 'aliasid' => $aliasId,

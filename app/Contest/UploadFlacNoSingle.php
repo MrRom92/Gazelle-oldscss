@@ -107,6 +107,6 @@ class UploadFlacNoSingle extends AbstractContest {
             ", UserStatus::enabled->value, $this->id,
                UserStatus::enabled->value, $this->id,
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

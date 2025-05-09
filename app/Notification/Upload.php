@@ -184,7 +184,7 @@ class Upload extends \Gazelle\Base {
      */
     public function userFilterList(): array {
         self::$db->prepared_query($this->sql(), ...$this->args);
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function sendUserNotification(): int {
@@ -286,7 +286,7 @@ class Upload extends \Gazelle\Base {
             WHERE b.GroupID = ?
             ", $tgroup->id()
         );
-        foreach (self::$db->collect(0, false) as $subFeed) {
+        foreach (self::$db->collect(0) as $subFeed) {
             foreach ($this->rss as $rss) {
                 $n++;
                 $feed->populate($rss, $subFeed);

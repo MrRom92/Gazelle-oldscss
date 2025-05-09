@@ -70,7 +70,7 @@ class NotificationSearch extends \Gazelle\BaseUser {
         self::$db->prepared_query($this->pageSql(), ...[...$this->args, $limit, $offset]);
         $list = [];
         $unread = [];
-        foreach (self::$db->to_array(false, MYSQLI_ASSOC, false) as $row) {
+        foreach (self::$db->to_array(false, MYSQLI_ASSOC) as $row) {
             $filterId = $row['filter_id'];
             if (!isset($list[$filterId])) {
                 $filter = new \Gazelle\NotificationFilter($filterId);

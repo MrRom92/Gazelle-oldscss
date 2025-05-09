@@ -27,7 +27,7 @@ class Subscription extends \Gazelle\Base {
             );
         }
 
-        $list = self::$db->collect('UserID', false);
+        $list = self::$db->collect('UserID');
         $affected = count($list);
         self::$cache->delete_multi(array_map(fn($id) => "subscriptions_user_new_$id", $list));
 
@@ -35,7 +35,7 @@ class Subscription extends \Gazelle\Base {
             SELECT UserID FROM users_notify_quoted WHERE Page = ?  AND PageID = ?
             ', $Page, $PageID
         );
-        $list = self::$db->collect('UserID', false);
+        $list = self::$db->collect('UserID');
 
         foreach ($list as $userId) {
             (new \Gazelle\User\Quote(new \Gazelle\User($userId)))->flush();
@@ -56,7 +56,7 @@ class Subscription extends \Gazelle\Base {
             SELECT UserID FROM users_subscriptions WHERE TopicID = ?
             ', $thread->id
         );
-        $list = self::$db->collect('UserID', false);
+        $list = self::$db->collect('UserID');
         $affected = count($list);
         self::$cache->delete_multi(
             array_map(
@@ -69,7 +69,7 @@ class Subscription extends \Gazelle\Base {
             SELECT UserID FROM users_notify_quoted WHERE Page = ?  AND PageID = ?
             ", 'forums', $thread->id
         );
-        foreach (self::$db->collect('UserID', false) as $userId) {
+        foreach (self::$db->collect('UserID') as $userId) {
             ++$affected;
             (new \Gazelle\User\Quote(new \Gazelle\User($userId)))->flush();
         }
@@ -108,7 +108,7 @@ class Subscription extends \Gazelle\Base {
                 HAVING count(1) = 2
                 ', $Page, $OldPageID, $NewPageID
             );
-            $Results = self::$db->to_array(false, MYSQLI_NUM, false);
+            $Results = self::$db->to_array(false, MYSQLI_NUM);
             // 3) update rows for those people found in 2) to the earlier post
             foreach ($Results as $Result) {
                 self::$db->prepared_query('
@@ -163,7 +163,7 @@ class Subscription extends \Gazelle\Base {
                 HAVING COUNT(*) = 2
                 ', $target->id, $source->id
             );
-            foreach (self::$db->to_array(false, MYSQLI_ASSOC, false) as $row) {
+            foreach (self::$db->to_array(false, MYSQLI_ASSOC) as $row) {
                 self::$db->prepared_query('
                     UPDATE forums_last_read_topics SET
                         PostID = ?

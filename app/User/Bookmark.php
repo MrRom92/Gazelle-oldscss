@@ -176,7 +176,7 @@ class Bookmark extends \Gazelle\BaseUser {
                 ORDER BY b.Sort, b.Time
                 ", $this->user->id
         );
-        $bookmarkList = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $bookmarkList = self::$db->to_array(false, MYSQLI_ASSOC);
         self::$cache->cache_value($key, $bookmarkList, 3600);
         return $bookmarkList;
     }
@@ -194,7 +194,7 @@ class Bookmark extends \Gazelle\BaseUser {
             LIMIT 10
             ", $this->user->id
         );
-        $result = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $result = self::$db->to_array(false, MYSQLI_ASSOC);
         $list = [];
         foreach ($result as $item) {
             $artist = $artistMan->findById($item['id']);
@@ -229,7 +229,7 @@ class Bookmark extends \Gazelle\BaseUser {
             LIMIT 10
             ", $this->user->id
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function torrentTotal(): int {
@@ -254,7 +254,7 @@ class Bookmark extends \Gazelle\BaseUser {
             ORDER BY aa.Name
             ", $this->user->id
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     /**
@@ -278,7 +278,7 @@ class Bookmark extends \Gazelle\BaseUser {
             LIMIT ? OFFSET ?
             ", $this->user->id, $limit, $offset
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function removeSnatched(): int {

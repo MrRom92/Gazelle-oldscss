@@ -19,7 +19,7 @@ while ($id < $max) {
         ORDER BY ID
         LIMIT ?
     ", $id, 1000);
-    $list = $db->collect(0, false);
+    $list = $db->collect(0);
     foreach ($list as $id) {
         try {
             $torMan->findById($id)->regenerateFilelist($filer, $encoder);

@@ -267,6 +267,12 @@ class TorrentTest extends TestCase {
     }
 
     public function testRemoveAllLogs(): void {
+        // there are no logs but at least test the SQL
+        $this->assertEquals(
+            [],
+            new Torrent\Log($this->torrent->id)->logDetails(),
+            'torrent-log-details'
+        );
         $this->assertEquals(
             0,
             $this->torrent->removeAllLogs(

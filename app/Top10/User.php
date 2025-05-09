@@ -65,7 +65,7 @@ class User extends \Gazelle\Base {
                 ", STARTING_UPLOAD, $limit
             );
 
-            $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $list = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value(sprintf(self::CACHE_KEY, $type, $limit), $list, 3600 * 12);
         }
         return $list;

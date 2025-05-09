@@ -47,7 +47,7 @@ class Ordinal extends \Gazelle\BaseUser {
                     WHERE uho.user_id = ?
                     ", $this->user->id, $this->user->id
                 );
-                $info = self::$db->to_array('name', MYSQLI_ASSOC, false);
+                $info = self::$db->to_array('name', MYSQLI_ASSOC);
                 self::$cache->cache_value($key, $info, 86400);
             }
             $this->info = $info;

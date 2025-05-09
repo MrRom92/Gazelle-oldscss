@@ -164,7 +164,7 @@ class TGroup extends \Gazelle\BaseManager {
         // GroupIDs
         self::$db->prepared_query("SELECT ID FROM torrents WHERE GroupID = ?", $old->id);
         self::$cache->delete_multi(
-            array_map(fn($id) => sprintf(\Gazelle\Torrent::CACHE_KEY, $id), self::$db->collect(0, false))
+            array_map(fn($id) => sprintf(\Gazelle\Torrent::CACHE_KEY, $id), self::$db->collect(0))
         );
 
         self::$db->begin_transaction();
@@ -190,7 +190,7 @@ class TGroup extends \Gazelle\BaseManager {
             SELECT CollageID FROM collages_torrents WHERE GroupID = ?
             ", $old->id
         );
-        $collageList = self::$db->collect(0, false);
+        $collageList = self::$db->collect(0);
         self::$db->prepared_query("
             UPDATE IGNORE collages_torrents SET
                 GroupID = ?
@@ -210,7 +210,7 @@ class TGroup extends \Gazelle\BaseManager {
             SELECT concat('request_', ID) FROM requests WHERE GroupID = ?
             ", $old->id
         );
-        self::$cache->delete_multi(self::$db->collect(0, false));
+        self::$cache->delete_multi(self::$db->collect(0));
         self::$db->prepared_query("
             UPDATE requests SET
                 GroupID = ?
@@ -306,7 +306,7 @@ class TGroup extends \Gazelle\BaseManager {
                 LIMIT 10
                 ", $tgroup->id, $tgroup->id
             );
-            $similar = self::$db->collect(0, false);
+            $similar = self::$db->collect(0);
             self::$cache->cache_value($key, $similar, 3600);
         }
         $list = [];

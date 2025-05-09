@@ -114,7 +114,7 @@ class ContestTest extends TestCase {
         DB::DB()->prepared_query($sql, ...$args);
         $this->assertEquals(
             [],
-            DB::DB()->to_array(false, MYSQLI_ASSOC, false),
+            DB::DB()->to_array(false, MYSQLI_ASSOC),
             'ct-up-flac-ranker-output'
         );
 
@@ -554,7 +554,7 @@ class ContestTest extends TestCase {
                 "last_torrent" => $this->torrentList[0]->id,
                 "user_id"      => $this->userList[0]->id,
             ]],
-            DB::DB()->to_array(false, MYSQLI_ASSOC, false),
+            DB::DB()->to_array(false, MYSQLI_ASSOC),
             'ct-perfect-ranker-output',
         );
 

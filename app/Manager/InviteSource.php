@@ -29,7 +29,7 @@ class InviteSource extends \Gazelle\Base {
             ORDER BY i.name
             ", $user->id
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     /**
@@ -46,7 +46,7 @@ class InviteSource extends \Gazelle\Base {
             ORDER BY i.name
             ", $user->id
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     /**
@@ -92,7 +92,7 @@ class InviteSource extends \Gazelle\Base {
             GROUP BY ihis.user_id
             ORDER BY um.username
         ");
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     /**
@@ -156,7 +156,7 @@ class InviteSource extends \Gazelle\Base {
             GROUP BY i.invite_source_id, i.name
             ORDER BY i.name
         ");
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     /**
@@ -174,7 +174,7 @@ class InviteSource extends \Gazelle\Base {
             WHERE um.inviter_user_id = ?
             ", $user->id
         );
-        return self::$db->to_array('user_id', MYSQLI_ASSOC, false);
+        return self::$db->to_array('user_id', MYSQLI_ASSOC);
     }
 
     /**

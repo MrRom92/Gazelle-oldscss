@@ -6,9 +6,9 @@ use Gazelle\Enum\LeechType;
 use Gazelle\Enum\LeechReason;
 
 class Torrent extends \Gazelle\BaseManager {
-    protected const ID_KEY = 'zz_t_%d';
     protected const CACHE_HIST = 'top10_hist_%s_%s';
 
+    final public const ID_KEY = 'zz_t_%d';
     final public const CACHE_KEY_LATEST_UPLOADS = 'latest_up_%d';
     final protected const CACHE_FOLDERNAME      = 'foldername_%s';
 
@@ -175,7 +175,7 @@ class Torrent extends \Gazelle\BaseManager {
             SELECT ID FROM torrents WHERE HasLog = '1' AND HasLogDB = '0' AND UserID = ?
             ", $userId
         );
-        $torrentIds = self::$db->collect(0, false);
+        $torrentIds = self::$db->collect(0);
 
         $result = [];
         foreach ($torrentIds as $torrentId) {
@@ -196,7 +196,7 @@ class Torrent extends \Gazelle\BaseManager {
             SELECT ID FROM torrents WHERE HasLog = '1' AND HasLogDB = '1' AND UserID = ?
             ", $userId
         );
-        $torrentIds = self::$db->collect(0, false);
+        $torrentIds = self::$db->collect(0);
 
         $result = [];
         foreach ($torrentIds as $torrentId) {
@@ -400,7 +400,7 @@ class Torrent extends \Gazelle\BaseManager {
         $RowNum = 0;
         $LastGroupID = 0;
         $UpdatedKeys = $UncachedGroups = 0;
-        [$TorrentID, $GroupID, $Seeders, $Leechers, $Snatches] = self::$db->next_record(MYSQLI_NUM, false);
+        [$TorrentID, $GroupID, $Seeders, $Leechers, $Snatches] = self::$db->next_record(MYSQLI_NUM);
         while ($TorrentID) {
             if ($LastGroupID != $GroupID) {
                 $CachedData = self::$cache->get_value("torrent_group_$GroupID");
@@ -435,7 +435,7 @@ class Torrent extends \Gazelle\BaseManager {
                     );
                 }
                 $LastGroupID = $GroupID;
-                [$TorrentID, $GroupID, $Seeders, $Leechers, $Snatches] = self::$db->next_record(MYSQLI_NUM, false);
+                [$TorrentID, $GroupID, $Seeders, $Leechers, $Snatches] = self::$db->next_record(MYSQLI_NUM);
             }
             if (isset($CachedData) && $Changed) {
                 self::$cache->cache_value("torrent_group_$LastGroupID", $CachedData, 7200);
@@ -500,7 +500,7 @@ class Torrent extends \Gazelle\BaseManager {
                 $max    = self::$db->record_count();
                 while ($nr < min($limit, $max)) {
                     self::$db->set_query_id($qid);
-                    $row = self::$db->next_record(MYSQLI_ASSOC, false);
+                    $row = self::$db->next_record(MYSQLI_ASSOC);
                     if (is_null($row)) {
                         break;
                     }
@@ -642,7 +642,7 @@ class Torrent extends \Gazelle\BaseManager {
         );
 
         $sequence = 0;
-        foreach (self::$db->collect(0, false) as $torrentId) {
+        foreach (self::$db->collect(0) as $torrentId) {
             $torrent = $this->findById($torrentId);
             if ($torrent) {
                 self::$db->prepared_query("
@@ -672,7 +672,7 @@ class Torrent extends \Gazelle\BaseManager {
                 ORDER BY tht.sequence ASC
                 ", $isByDay ? 'Daily' : 'Weekly', $datetime, $datetime, $isByDay ? 1 : 7
             );
-            $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $list = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value($key, $list, 3600 * 24);
         }
         foreach ($list as &$entry) {

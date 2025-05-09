@@ -20,7 +20,7 @@ $db->prepared_query("
 
 $n = 0;
 $pg->pdo()->beginTransaction();
-foreach ($db->to_array(false, MYSQLI_ASSOC, false) as $row) {
+foreach ($db->to_array(false, MYSQLI_ASSOC) as $row) {
     [$id, $action] = $pg->row("
         with add as (select network(inet_merge(?::inet, ?::inet)) as ip)
         merge into ip_ban ib using add on (ib.ip && add.ip)

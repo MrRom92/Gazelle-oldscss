@@ -38,7 +38,7 @@ class Donation extends \Gazelle\Base {
             LIMIT ? OFFSET ?
             ", ...$args
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function totalMonth(int $month): float {
@@ -97,7 +97,7 @@ class Donation extends \Gazelle\Base {
             ORDER BY Time DESC
             LIMIT 0, 17
         ");
-        $timeline =  array_reverse(self::$db->to_array(false, MYSQLI_ASSOC, false));
+        $timeline =  array_reverse(self::$db->to_array(false, MYSQLI_ASSOC));
         foreach ($timeline as &$t) {
             $t['Amount'] = (float)$t['Amount'];
         }
@@ -118,7 +118,7 @@ class Donation extends \Gazelle\Base {
             array_filter(
                 array_map(
                     fn ($id) => $userMan->findById($id),
-                    self::$db->collect(0, false)
+                    self::$db->collect(0)
                 ),
                 fn($u) => $u instanceof \Gazelle\User
             )

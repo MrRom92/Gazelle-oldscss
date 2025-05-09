@@ -188,7 +188,7 @@ class User extends BaseAttrObject {
             WHERE um.ID = ?
             ", FORUM_MOD, $this->id
         );
-        $this->info = self::$db->next_record(MYSQLI_ASSOC, false) ?? [];
+        $this->info = self::$db->next_record(MYSQLI_ASSOC) ?? [];
         self::$db->set_query_id($qid);
         if (empty($this->info)) {
             return $this->info;
@@ -204,7 +204,6 @@ class User extends BaseAttrObject {
         }
         $this->info['RatioWatchEndsEpoch'] = $this->info['RatioWatchEnds']
             ? strtotime($this->info['RatioWatchEnds']) : 0;
-
         $this->info['warning_expiry'] = (new User\Warning($this))->warningExpiry();
 
         self::$cache->cache_value($key, $this->info, 3600);
@@ -796,7 +795,7 @@ class User extends BaseAttrObject {
                 SELECT TopicID, PostID FROM forums_last_read_topics WHERE UserID = ?
                 ", $this->id
             );
-            $this->lastRead = self::$db->to_pair('TopicID', 'PostID', false);
+            $this->lastRead = self::$db->to_pair('TopicID', 'PostID');
         }
         return $this->lastRead[$thread->id] ?? 0;
     }
@@ -830,7 +829,7 @@ class User extends BaseAttrObject {
             ", $perPage, $this->id, $forum->id
         );
         $list = [];
-        foreach (self::$db->to_array('thread_id', MYSQLI_ASSOC, false) as $row) {
+        foreach (self::$db->to_array('thread_id', MYSQLI_ASSOC) as $row) {
             $row['page'] = (int)$row['page'];
             $list[$row['thread_id']] = $row;
         }
@@ -1166,7 +1165,7 @@ class User extends BaseAttrObject {
                 WHERE UserID = ?
                 ', $this->id
             );
-            $filters = self::$db->to_pair('ID', 'Label', false);
+            $filters = self::$db->to_pair('ID', 'Label');
             self::$cache->cache_value($key, $filters, 2_592_000);
         }
         return $filters;
@@ -1197,7 +1196,7 @@ class User extends BaseAttrObject {
                 LIMIT 1
                 ", 'Artist notifications', $this->id
             );
-            $info = self::$db->next_record(MYSQLI_ASSOC, false);
+            $info = self::$db->next_record(MYSQLI_ASSOC);
             if (!$info) {
                 $info = ['ID' => 0, 'Artists' => ''];
             }
@@ -1495,7 +1494,7 @@ class User extends BaseAttrObject {
                 LIMIT ?
                 ", $this->id, $limit
             );
-            $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $list = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value('user_tag_snatch_' . $this->id, $list, 86400 * 90);
         }
         return $list;
@@ -1524,7 +1523,7 @@ class User extends BaseAttrObject {
                 LIMIT ?
                 ", $this->id, $limit
             );
-            $recent = self::$db->collect(0, false);
+            $recent = self::$db->collect(0);
             if (!$forceNoCache) {
                 self::$cache->cache_value($key, $recent, 86400 * 3);
             }
@@ -1600,7 +1599,7 @@ class User extends BaseAttrObject {
                     SELECT TorrentID FROM users_freeleeches WHERE Expired = 0 AND UserID = ?
                     ", $this->id
                 );
-                $tokenCache = array_fill_keys(self::$db->collect(0, false), true);
+                $tokenCache = array_fill_keys(self::$db->collect(0), true);
                 self::$db->set_query_id($qid);
                 self::$cache->cache_value($key, $tokenCache, 3600);
             }
@@ -1647,7 +1646,7 @@ class User extends BaseAttrObject {
             ", $this->id, $limit, $offset
         );
         $list = [];
-        $torrents = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $torrents = self::$db->to_array(false, MYSQLI_ASSOC);
         foreach ($torrents as $t) {
             $torrent = $torMan->findById($t['torrent_id']);
             $t['name'] = $torrent
@@ -1852,7 +1851,7 @@ class User extends BaseAttrObject {
             ORDER BY created DESC
             ", $this->id, (int)$revoked
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function hasApiTokenByName(string $name): bool {

@@ -97,10 +97,9 @@ $b->start();
     //   'num_rows' => NULL,
     //   'type' => NULL
     // )
-    [2] ops> $db->to_array();
+    [2] ops> $db->to_array(false, MYSQLI_ASSOC);
     // array(
     //   0 => array(
-    //     0 => '14',
     //     'count(*)' => '14'
     //   )
     // )

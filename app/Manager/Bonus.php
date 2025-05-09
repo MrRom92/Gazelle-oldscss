@@ -32,7 +32,7 @@ class Bonus extends \Gazelle\Base {
                     ORDER BY sequence
                     ", $discount
                 );
-                $items = self::$db->to_array('Label', MYSQLI_ASSOC, false);
+                $items = self::$db->to_array('Label', MYSQLI_ASSOC);
                 self::$cache->cache_value(self::CACHE_ITEM, $items, 0);
             }
             $this->items = $items;
@@ -87,7 +87,7 @@ class Bonus extends \Gazelle\Base {
                     WHERE uha.UserID = um.ID
                 )
         ");
-        return $this->addMultiPoints($points, self::$db->collect('ID', false));
+        return $this->addMultiPoints($points, self::$db->collect('ID'));
     }
 
     public function addActivePoints(int $points, string $since): int {
@@ -104,7 +104,7 @@ class Bonus extends \Gazelle\Base {
                 AND ula.last_access >= ?
             ", $since
         );
-        return $this->addMultiPoints($points, self::$db->collect('ID', false));
+        return $this->addMultiPoints($points, self::$db->collect('ID'));
     }
 
     public function addUploadPoints(int $points, string $since): int {
@@ -121,7 +121,7 @@ class Bonus extends \Gazelle\Base {
                 AND t.created >= ?
             ", $since
         );
-        return $this->addMultiPoints($points, self::$db->collect('ID', false));
+        return $this->addMultiPoints($points, self::$db->collect('ID'));
     }
 
     public function addSeedPoints(int $points): int {
@@ -137,7 +137,7 @@ class Bonus extends \Gazelle\Base {
                 )
                 AND xfu.active = 1 and xfu.remaining = 0 and xfu.connectable = 1 and timespent > 0
         ");
-        return $this->addMultiPoints($points, self::$db->collect('ID', false));
+        return $this->addMultiPoints($points, self::$db->collect('ID'));
     }
 
     public function givePoints(\Gazelle\Task|null $task = null): int {
@@ -198,7 +198,7 @@ class Bonus extends \Gazelle\Base {
             SELECT concat('u_', bu.user_id) FROM bonus_update bu
         ");
         if (self::$db->has_results()) {
-            self::$cache->delete_multi(self::$db->collect(0, false));
+            self::$cache->delete_multi(self::$db->collect(0));
         }
         self::$db->dropTemporaryTable("bonus_update");
 

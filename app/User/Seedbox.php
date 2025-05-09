@@ -133,7 +133,7 @@ class Seedbox extends \Gazelle\BaseUser {
             ", $this->user->id, $this->source, $this->user->id, $this->target,
                 $limit, $offset
         );
-        $info = self::$db->to_array('fid', MYSQLI_ASSOC, false);
+        $info = self::$db->to_array('fid', MYSQLI_ASSOC);
 
         $list = [];
         foreach (array_map('intval', array_keys($info)) as $tid) {
@@ -169,7 +169,7 @@ class Seedbox extends \Gazelle\BaseUser {
             ORDER BY xfu.fid
             ", $this->user->id, $this->source, $this->user->id, $this->target
         );
-        return self::$db->collect(0, false);
+        return self::$db->collect(0);
     }
 
     /**
@@ -245,7 +245,7 @@ class Seedbox extends \Gazelle\BaseUser {
                 GROUP BY IP, useragent
                 ", $this->user->id
             );
-            $client = self::$db->to_array('client', MYSQLI_ASSOC, false);
+            $client = self::$db->to_array('client', MYSQLI_ASSOC);
             self::$cache->cache_value($key, $client, 3600);
         }
         // get the names the user has saved (no need to cache)
@@ -259,7 +259,7 @@ class Seedbox extends \Gazelle\BaseUser {
             WHERE user_id = ?
             ", $this->user->id
         );
-        $nameList = self::$db->to_array('client', MYSQLI_ASSOC, false);
+        $nameList = self::$db->to_array('client', MYSQLI_ASSOC);
         $h = $this->hashid;
         foreach ($nameList as &$n) {
             $n['id'] = $h->encode($n['id']);

@@ -67,7 +67,7 @@ class Torrent extends AbstractNotification {
             LIMIT ? OFFSET ?
             ", $this->user->id, $limit, $offset
         );
-        $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $list = self::$db->to_array(false, MYSQLI_ASSOC);
         foreach ($list as &$item) {
             $torrent = $torMan->findById($item['torrent_id']);
             if ($torrent) {

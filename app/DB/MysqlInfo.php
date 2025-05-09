@@ -52,7 +52,7 @@ class MysqlInfo extends \Gazelle\Base {
             ORDER BY {$this->orderBy->value} {$this->direction->value}
             ", MYSQL_DB
         );
-        return self::$db->to_array('table_name', MYSQLI_ASSOC, false);
+        return self::$db->to_array('table_name', MYSQLI_ASSOC);
     }
 
     public static function columnList(): array {

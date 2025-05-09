@@ -57,7 +57,7 @@ class TorrentDeleted extends TorrentAbstract {
                 WHERE ha.TorrentID = ?
             ", $this->id);
             $info['attr'] = [];
-            foreach (self::$db->to_array(escape: false) as $row) {
+            foreach (self::$db->to_array(false, MYSQLI_ASSOC) as $row) {
                 $info['attr'][$row['Name']] = true;
             }
         }

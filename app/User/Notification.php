@@ -214,7 +214,7 @@ class Notification extends \Gazelle\BaseUser {
             WHERE UserID = ?
             ", $this->user->id
         );
-        $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $list = self::$db->to_array(false, MYSQLI_ASSOC);
         foreach ($list as &$f) {
             $f['Artists']      = implode("\n", $this->valueToArray($f['Artists']));
             $f['Tags']         = implode("\n", $this->valueToArray($f['Tags']));

@@ -9,7 +9,7 @@ $db->prepared_query("
     SELECT UserID, AdminComment, WarnedTimes FROM users_info WHERE AdminComment REGEXP ' - Warn(ed|ing) '
 ");
 
-foreach ($db->to_array(false, MYSQLI_NUM, false) as [$id, $note, $count]) {
+foreach ($db->to_array(false, MYSQLI_NUM) as [$id, $note, $count]) {
     $list = array_reverse(array_filter(array_map('trim', explode("\n", $note)), fn($s) => !empty($s)));
     $reason = false;
     $current = [];

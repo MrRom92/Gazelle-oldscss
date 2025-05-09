@@ -211,7 +211,7 @@ class StaffPM extends BaseObject {
             ORDER BY spm.SentDate
             ", $this->id
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function postBody(int $postId): ?string {

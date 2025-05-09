@@ -44,7 +44,7 @@ class ApplicantRole extends \Gazelle\Base {
             self::$db->prepared_query("
                 SELECT r.ID FROM applicant_role r ORDER BY r.Title
             ");
-            $list = self::$db->collect(0, false);
+            $list = self::$db->collect(0);
             self::$cache->cache_value(self::LIST_KEY, $list, 0);
         }
         return array_map(fn ($id) => $this->findById($id), $list);

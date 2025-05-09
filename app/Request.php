@@ -91,7 +91,7 @@ class Request extends BaseObject implements CategoryHasArtist {
         );
         $affected = (int)self::$db->record_count();
         self::$cache->delete_multi([
-            ...array_map(fn ($id) => "artists_requests_$id", self::$db->collect(0, false)),
+            ...array_map(fn ($id) => "artists_requests_$id", self::$db->collect(0)),
         ]);
         return $affected;
     }
@@ -153,7 +153,7 @@ class Request extends BaseObject implements CategoryHasArtist {
             ORDER BY rv.Bounty DESC
             ", $this->id
         );
-        $info['user_vote_list'] = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $info['user_vote_list'] = self::$db->to_array(false, MYSQLI_ASSOC);
 
         self::$db->prepared_query("
             SELECT t.Name
@@ -163,7 +163,7 @@ class Request extends BaseObject implements CategoryHasArtist {
             ORDER BY rt.TagID ASC
             ", $this->id
         );
-        $info['tag'] = self::$db->collect('Name', false);
+        $info['tag'] = self::$db->collect('Name');
 
         $info['need_encoding'] = explode('|', $info['encoding_list'] ?? 'Unknown');
         $info['need_format']   = explode('|', $info['format_list']   ?? 'Unknown');
@@ -627,7 +627,7 @@ class Request extends BaseObject implements CategoryHasArtist {
             ORDER BY created DESC, requests_votes_id DESC
             ", $this->id
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function fill(User $user, Torrent $torrent): int {
@@ -659,7 +659,7 @@ class Request extends BaseObject implements CategoryHasArtist {
             SELECT DISTINCT UserID FROM requests_votes WHERE RequestID = ?
             ", $this->id
         );
-        foreach (self::$db->collect(0, false) as $userId) {
+        foreach (self::$db->collect(0) as $userId) {
             (new User($userId))->inbox()->createSystem("The request \"$name\" has been filled", $message);
         }
 
@@ -906,7 +906,7 @@ class Request extends BaseObject implements CategoryHasArtist {
             WHERE ra.RequestID = ?
             ", $this->id
         );
-        $artisIds = self::$db->collect(0, false);
+        $artisIds = self::$db->collect(0);
         self::$db->prepared_query('
             DELETE FROM requests_artists WHERE RequestID = ?', $this->id
         );

@@ -98,7 +98,7 @@ class Privilege extends BaseObject {
                 : "SELECT ID FROM users_main WHERE PermissionID = ?",
                 $this->id
             );
-            $this->userFlush(self::$db->collect(0, false));
+            $this->userFlush(self::$db->collect(0));
         }
         self::$cache->delete_multi(['user_class', 'staff_class']);
         return $modified;
@@ -110,7 +110,7 @@ class Privilege extends BaseObject {
                 SELECT DISTINCT UserID FROM users_levels WHERE PermissionID = ?
                 ", $this->id
             );
-            $this->userFlush(self::$db->collect(0, false));
+            $this->userFlush(self::$db->collect(0));
             self::$db->prepared_query("
                 DELETE FROM users_levels WHERE PermissionId = ?
                 ", $this->id

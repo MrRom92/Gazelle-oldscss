@@ -12,7 +12,7 @@ $db->prepared_query("
 ");
 
 $n = 0;
-foreach ($db->collect(0, false) as $id) {
+foreach ($db->collect(0) as $id) {
     $user = $userMan->findById($id);
     if (is_null($user)) {
         continue;

@@ -10,7 +10,7 @@ class Session extends \Gazelle\Base {
             WHERE (LastUpdate < (now() - INTERVAL 30 DAY) AND KeepLogged = '1')
                OR (LastUpdate < (now() - INTERVAL 60 MINUTE) AND KeepLogged = '0')
         ");
-        $cacheKeys = self::$db->collect('ck', false);
+        $cacheKeys = self::$db->collect('ck');
         if (!$cacheKeys) {
             return 0;
         }

@@ -108,7 +108,7 @@ class InviteTree extends \Gazelle\BaseUser {
         ];
         $this->tree = [];
         $prev_depth = 0;
-        foreach (self::$db->to_array(false, MYSQLI_ASSOC, false) as $row) {
+        foreach (self::$db->to_array(false, MYSQLI_ASSOC) as $row) {
             $this->info['downloaded'] += $row['downloaded'];
             $this->info['uploaded']   += $row['uploaded'];
             if ($row['depth'] == 1) {

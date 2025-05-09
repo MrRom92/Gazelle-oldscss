@@ -107,7 +107,7 @@ class Report extends \Gazelle\BaseManager {
             GROUP BY Type
             ORDER BY Type
         ");
-        $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $list = self::$db->to_array(false, MYSQLI_ASSOC);
         foreach ($list as &$row) {
             $row['name'] = $reportTypeMan->findByType($row['type'])->name();
         }
@@ -131,7 +131,7 @@ class Report extends \Gazelle\BaseManager {
             GROUP BY r.ResolverID
             ORDER BY total DESC
         ");
-        return $this->decorateUser($userMan, self::$db->to_array(false, MYSQLI_ASSOC, false));
+        return $this->decorateUser($userMan, self::$db->to_array(false, MYSQLI_ASSOC));
     }
 
     public function resolvedSummary(\Gazelle\Manager\User $userMan = new \Gazelle\Manager\User()): array {
@@ -143,7 +143,7 @@ class Report extends \Gazelle\BaseManager {
             GROUP BY r.ResolverID
             ORDER BY total DESC
         ");
-        return $this->decorateUser($userMan, self::$db->to_array(false, MYSQLI_ASSOC, false));
+        return $this->decorateUser($userMan, self::$db->to_array(false, MYSQLI_ASSOC));
     }
 
     protected function resolvedLastInterval(\Gazelle\Manager\User $userMan, string $interval): array {
@@ -156,7 +156,7 @@ class Report extends \Gazelle\BaseManager {
             GROUP BY r.ResolverID
             ORDER BY total DESC
         ");
-        return $this->decorateUser($userMan, self::$db->to_array(false, MYSQLI_ASSOC, false));
+        return $this->decorateUser($userMan, self::$db->to_array(false, MYSQLI_ASSOC));
     }
 
     public function resolvedLastDay(\Gazelle\Manager\User $userMan = new \Gazelle\Manager\User()): array {
@@ -329,7 +329,7 @@ class Report extends \Gazelle\BaseManager {
 
         $list = [];
         $cache = []; // Avoid looking up a user more than once
-        $result = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $result = self::$db->to_array(false, MYSQLI_ASSOC);
         foreach ($result as $r) {
             foreach (['reporter_id', 'resolver_id', 'uploader_id'] as $id) {
                 if ($r[$id] && !isset($cache[$r[$id]])) {

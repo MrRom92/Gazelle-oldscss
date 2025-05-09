@@ -68,7 +68,7 @@ class Users extends \Gazelle\Base {
                 GROUP BY dates.eom
                 ORDER BY dates.eom
             ");
-            $flow = self::$db->to_array('Month', MYSQLI_ASSOC, false);
+            $flow = self::$db->to_array('Month', MYSQLI_ASSOC);
             foreach ($flow as &$f) {
                 $f['new'] = (int)$f['new'];
             }
@@ -105,7 +105,7 @@ class Users extends \Gazelle\Base {
                 GROUP BY label
                 ORDER BY total DESC
             ");
-            $dist = self::$db->to_pair('label', 'total', false);
+            $dist = self::$db->to_pair('label', 'total');
             self::$cache->cache_value(self::USER_BROWSER, $dist, 86400);
         }
         $result = [];
@@ -148,7 +148,7 @@ class Users extends \Gazelle\Base {
                 ORDER BY p.Level
                 ", UserStatus::enabled->value
             );
-            $dist = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $dist = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value(self::USER_CLASS, $dist, 86400);
         }
         $result = [];
@@ -183,7 +183,7 @@ class Users extends \Gazelle\Base {
                 GROUP BY label
                 ORDER BY total DESC
             ");
-            $dist = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $dist = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value(self::USER_PLATFORM, $dist, 86400);
         }
         $result = [];
@@ -234,7 +234,7 @@ class Users extends \Gazelle\Base {
                 ", COUNTRY_MINIMUM, COUNTRY_STEP, COUNTRY_STEP
             );
             $info = [];
-            foreach (self::$db->to_array(false, MYSQLI_ASSOC, false) as $row) {
+            foreach (self::$db->to_array(false, MYSQLI_ASSOC) as $row) {
                 $row['public']  = (int)$row['public']; // ceil() returns a float
                 $row['country'] = isset($iso[$row['ipcc']]) ? "{$iso[$row['ipcc']]} [{$row['ipcc']}]" : "[{$row['ipcc']}]";
                 $info[]         = $row;
@@ -388,7 +388,7 @@ class Users extends \Gazelle\Base {
             LIMIT ?
             ", $limit
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function refresh(): int {
@@ -697,7 +697,7 @@ class Users extends \Gazelle\Base {
             GROUP BY name, version
             ORDER BY total DESC, name, version
         ");
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function operatingSystemList(): array {
@@ -710,7 +710,7 @@ class Users extends \Gazelle\Base {
             GROUP BY name, version
             ORDER BY total DESC, name, version
         ");
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function topDownloadList(int $limit): array {
@@ -727,7 +727,7 @@ class Users extends \Gazelle\Base {
                 LIMIT ?
                 ", UserStatus::enabled->value, $limit
             );
-            $top = self::$db->collect(0, false);
+            $top = self::$db->collect(0);
             self::$cache->cache_value($key, $top, 3600 * 12);
         }
         return $top;
@@ -747,7 +747,7 @@ class Users extends \Gazelle\Base {
                 LIMIT ?
                 ", UserStatus::enabled->value, $limit
             );
-            $top = self::$db->collect(0, false);
+            $top = self::$db->collect(0);
             self::$cache->cache_value($key, $top, 3600 * 12);
         }
         return $top;
@@ -767,7 +767,7 @@ class Users extends \Gazelle\Base {
                 LIMIT ?
                 ", UserStatus::enabled->value, $limit
             );
-            $top = self::$db->collect(0, false);
+            $top = self::$db->collect(0);
             self::$cache->cache_value($key, $top, 3600 * 12);
         }
         return $top;
@@ -787,7 +787,7 @@ class Users extends \Gazelle\Base {
                 LIMIT ?
                 ", UserStatus::enabled->value, $limit
             );
-            $top = self::$db->collect(0, false);
+            $top = self::$db->collect(0);
             self::$cache->cache_value($key, $top, 3600 * 12);
         }
         return $top;
@@ -807,7 +807,7 @@ class Users extends \Gazelle\Base {
                 LIMIT ?
                 ", UserStatus::enabled->value, $limit
             );
-            $top = self::$db->collect(0, false);
+            $top = self::$db->collect(0);
             self::$cache->cache_value($key, $top, 3600 * 12);
         }
         return $top;
@@ -828,6 +828,6 @@ class Users extends \Gazelle\Base {
             LIMIT ?
             ", UserStatus::disabled->value, $interval, $top
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

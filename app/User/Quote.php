@@ -122,7 +122,7 @@ class Quote extends \Gazelle\BaseUser {
         $cond = [
             "q.UserID = ?",
             "(q.Page != 'collages' OR c.Deleted = '0')",
-            "(q.Page != 'forums' OR " . join(' AND ', $forumCond) . ")",
+            "(q.Page != 'forums' OR " . implode(' AND ', $forumCond) . ")",
         ];
         $args = array_merge(
             [$this->user->id],
@@ -147,7 +147,7 @@ class Quote extends \Gazelle\BaseUser {
             LEFT JOIN forums         AS f ON (f.ID = t.ForumID)
             LEFT JOIN artists_group  AS a ON (a.ArtistID = q.PageID)
             LEFT JOIN collages       AS c ON (c.ID = q.PageID)
-            WHERE " . join(' AND ', $cond), ...$args
+            WHERE " . implode(' AND ', $cond), ...$args
         );
     }
 
@@ -184,12 +184,12 @@ class Quote extends \Gazelle\BaseUser {
             LEFT JOIN forums_topics  AS t ON (t.ID = q.PageID)
             LEFT JOIN forums         AS f ON (f.ID = t.ForumID)
             LEFT JOIN collages       AS c ON (c.ID = q.PageID)
-            WHERE " . join(' AND ', $cond) . "
+            WHERE " . implode(' AND ', $cond) . "
             ORDER BY q.Date DESC
             LIMIT ? OFFSET ?
             ", ...$args
         );
-        $quoteList = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $quoteList = self::$db->to_array(false, MYSQLI_ASSOC);
 
         $page    = [];
         $artistMan = new \Gazelle\Manager\Artist();

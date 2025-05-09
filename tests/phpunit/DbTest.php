@@ -26,7 +26,7 @@ class DbTest extends TestCase {
         );
 
         $dbMan = new DB();
-        foreach ($db->collect(0, false) as $tableName) {
+        foreach ($db->collect(0) as $tableName) {
             [$ok, $message] = $dbMan->checkStructureMatch(MYSQL_DB, $tableName, "deleted_$tableName");
             $this->assertTrue($ok, "mismatch -- $message");
         }
@@ -42,7 +42,7 @@ class DbTest extends TestCase {
             order by 1
             ", MYSQL_DB, '(?<!_has)_attr$'
         );
-        $mysqlAttrTableList = $db->collect(0, false);
+        $mysqlAttrTableList = $db->collect(0);
 
         $pgAttrTableList = $this->pg()->column("
             select table_name
@@ -82,7 +82,7 @@ class DbTest extends TestCase {
                     order by 1
                 ";
             $db->prepared_query($sql);
-            $mysql = $db->to_array(false, MYSQLI_ASSOC, false);
+            $mysql = $db->to_array(false, MYSQLI_ASSOC);
             $pg    = $this->pg()->all("
                 select id_$table as id, name
                 from $table

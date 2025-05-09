@@ -283,7 +283,7 @@ class Collage extends BaseAttrObject {
                     SELECT CollageID FROM users_collage_subs WHERE UserID = ?
                     ", $user->id
                 );
-                $subs = self::$db->collect(0, false);
+                $subs = self::$db->collect(0);
                 self::$cache->cache_value($key, $subs, 3600 * 12);
             }
             $this->userSubscriptions = $subs;
@@ -356,7 +356,7 @@ class Collage extends BaseAttrObject {
                 AND ct.collageid = ?
             ", 'FLAC', $this->id
         );
-        return self::$db->collect(0, false);
+        return self::$db->collect(0);
     }
 
     public function entryAllList(): array {
@@ -367,7 +367,7 @@ class Collage extends BaseAttrObject {
             WHERE ct.collageid = ?
             ", $this->id
         );
-        return self::$db->collect(0, false);
+        return self::$db->collect(0);
     }
 
     public function setFreeleech(
@@ -404,7 +404,7 @@ class Collage extends BaseAttrObject {
                     SELECT UserID FROM users_collage_subs WHERE CollageID = ?
                     ", $this->id
                 );
-        return self::$db->collect(0, false);
+        return self::$db->collect(0);
     }
 
     /*** UPDATE METHODS ***/

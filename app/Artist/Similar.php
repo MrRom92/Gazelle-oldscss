@@ -71,7 +71,7 @@ class Similar extends \Gazelle\Base {
                 LIMIT 30
                 ", $this->id()
             );
-            $info = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $info = self::$db->to_array(false, MYSQLI_ASSOC);
         }
         $this->info = $info;
         return $this->info;
@@ -240,7 +240,7 @@ class Similar extends \Gazelle\Base {
             ", $this->id()
         );
         $artistIds = self::$db->collect('artist_id') ?: [0];
-        $similar   = self::$db->to_array('artist_id', MYSQLI_ASSOC, false);
+        $similar   = self::$db->to_array('artist_id', MYSQLI_ASSOC);
         if (!$similar) {
             return [];
         }
@@ -257,7 +257,7 @@ class Similar extends \Gazelle\Base {
             GROUP BY s1.artistid
             ", ...array_merge($artistIds, $artistIds)
         );
-        $relation = self::$db->to_array('source', MYSQLI_ASSOC, false);
+        $relation = self::$db->to_array('source', MYSQLI_ASSOC);
 
         // calculate some minimax stuff to figure out line lengths
         $max = 0;

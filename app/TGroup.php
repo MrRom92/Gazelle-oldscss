@@ -85,7 +85,7 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
             ", $this->id
         );
         if (self::$db->has_results()) {
-            self::$cache->delete_multi(array_map(fn ($id) => "collagev2_$id", self::$db->collect(0, false)));
+            self::$cache->delete_multi(array_map(fn ($id) => "collagev2_$id", self::$db->collect(0)));
         }
 
         self::$db->prepared_query("
@@ -96,7 +96,7 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
             ", $this->id
         );
         if (self::$db->has_results()) {
-            self::$cache->delete_multi(array_map(fn ($id) => sprintf(self::USER_RECENT_UPLOAD, $id), self::$db->collect(0, false)));
+            self::$cache->delete_multi(array_map(fn ($id) => sprintf(self::USER_RECENT_UPLOAD, $id), self::$db->collect(0)));
         }
 
         self::$db->prepared_query("
@@ -107,7 +107,7 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
             ", $this->id
         );
         if (self::$db->has_results()) {
-            self::$cache->delete_multi(array_map(fn ($id) => sprintf(self::USER_RECENT_SNATCH, $id), self::$db->collect(0, false)));
+            self::$cache->delete_multi(array_map(fn ($id) => sprintf(self::USER_RECENT_SNATCH, $id), self::$db->collect(0)));
         }
         return $this;
     }
@@ -142,7 +142,7 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
             ORDER BY RevisionID DESC
             ", $this->id
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     /**
@@ -178,7 +178,7 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
                             t.RemasterRecordLabel, t.RemasterCatalogueNumber, t.Media, t.Format, t.Encoding, t.ID
                         ", $this->id
                     );
-                    $cached['torrent_list'] = self::$db->collect(0, false);
+                    $cached['torrent_list'] = self::$db->collect(0);
                     $refresh = true;
                 }
                 if ($refresh) {
@@ -263,7 +263,7 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
                 t.RemasterRecordLabel, t.RemasterCatalogueNumber, t.Media, t.Format, t.Encoding, t.ID
             ", $this->id
         );
-        $info['torrent_list'] = self::$db->collect(0, false);
+        $info['torrent_list'] = self::$db->collect(0);
 
         if (!$this->revisionId) {
             self::$cache->cache_value($key, $info, 0);
@@ -429,7 +429,7 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
             ", $this->id
         );
         $list = [];
-        foreach (self::$db->to_array(false, MYSQLI_BOTH, false) as $item) {
+        foreach (self::$db->to_array(false, MYSQLI_BOTH) as $item) {
             $item['id_list'] = array_map('intval', explode(',', $item['id_concat']));
             $list[] = $item;
         }
@@ -565,7 +565,7 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
                 ORDER BY Time ASC
                 ", $this->id
             );
-            $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $list = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value($key, $list, 0);
         }
         return $list;
@@ -922,7 +922,7 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
             ORDER BY remastered, year, title, record_label, catalogue_number, media
             ", $this->id
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     /**
@@ -938,7 +938,7 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
             SELECT DISTINCT AliasID FROM torrents_artists WHERE GroupID = ?
             ", $this->id
         );
-        $artistList = self::$db->collect(0, false);
+        $artistList = self::$db->collect(0);
         self::$db->prepared_query("
             DELETE FROM torrents_artists WHERE GroupID = ?
             ", $this->id
@@ -966,7 +966,7 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
             SELECT CollageID FROM collages_torrents WHERE GroupID = ?
             ", $this->id
         );
-        $CollageIDs = self::$db->collect(0, false);
+        $CollageIDs = self::$db->collect(0);
         if ($CollageIDs) {
             self::$db->prepared_query("
                 UPDATE collages SET
@@ -991,7 +991,7 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
             SELECT ID FROM requests WHERE GroupID = ?
             ", $this->id
         );
-        $Requests = self::$db->collect(0, false);
+        $Requests = self::$db->collect(0);
         self::$db->prepared_query("
             UPDATE requests SET
                 GroupID = NULL

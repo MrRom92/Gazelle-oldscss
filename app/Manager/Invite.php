@@ -100,7 +100,7 @@ class Invite extends \Gazelle\Base {
             LIMIT ? OFFSET ?
             ", ...array_merge($args, [$limit, $offset])
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     /**
@@ -129,7 +129,7 @@ class Invite extends \Gazelle\Base {
             FROM invites
             WHERE Expires < now()
         ");
-        foreach (self::$db->to_array(false, MYSQLI_ASSOC, false) as $row) {
+        foreach (self::$db->to_array(false, MYSQLI_ASSOC) as $row) {
             $user = $manager->findById($row['user_id']);
             if (is_null($user)) {
                 continue;

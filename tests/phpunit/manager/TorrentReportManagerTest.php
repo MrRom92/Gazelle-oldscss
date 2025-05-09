@@ -35,6 +35,10 @@ class TorrentReportManagerTest extends TestCase {
     public function tearDown(): void {
         Helper::removeTGroup($this->tgroup, $this->userList[0]);
         foreach ($this->userList as $user) {
+            DB::DB()->prepared_query("
+                DELETE FROM torrent_report_configuration_log WHERE user_id = ?
+                ", $user->id
+            );
             $user->remove();
         }
         DB::DB()->prepared_query("
@@ -103,6 +107,7 @@ class TorrentReportManagerTest extends TestCase {
         $this->assertEquals('other', $report->type(), 'trep-name');
         $this->assertEquals($this->tgroup->torrentIdList()[2], $report->torrentId(), 'trep-torrent-id');
         $this->assertEquals($this->tgroup->torrentIdList()[2], $report->torrent()?->id, 'trep-torrent-object');
+
         $other = current(array_filter($manager->newSummary(), fn ($r) => $r['type'] === 'other'));
         $this->assertEquals(1, $other['total'], 'trep-new-summary-other');
         $this->assertEquals(
@@ -258,10 +263,16 @@ class TorrentReportManagerTest extends TestCase {
 
         $dupe = $manager->findById(1);
         $this->assertInstanceOf(Torrent\ReportType::class, $dupe, 'trep-dupe-find');
+        $dupe->flush(); // to trigger coverage
         $this->assertEquals(
             'Dupe',
             $dupe->name(),
             'trep-type-find-by-id',
+        );
+        $this->assertStringEndsWith(
+            "id={$dupe->id}",
+            $dupe->url(),
+            'trep-type-url',
         );
         $this->assertEquals(
             'required',
@@ -278,9 +289,44 @@ class TorrentReportManagerTest extends TestCase {
             $manager->findByType('dupe')?->id,
             'trep-type-find-by-type',
         );
+        $this->assertEquals(
+            [true, false, 0],
+            $dupe->resolveOptions(),
+            'trep-resolve-options',
+        );
 
         $this->assertNull($manager->findById(0), 'trep-no-find-id');
         $this->assertNull($manager->findByName('No Such Name'), 'trep-no-find-name');
         $this->assertNull($manager->findByType('no-such-type'), 'trep-no-find-type');
+    }
+
+    public function testTorrentReportTypeHistory(): void {
+        $manager = new Manager\Torrent\ReportType();
+        $config  = $manager->findByType('description'); // a rarely used report type
+        $this->assertEquals('Applications', $config->categoryName(), 'trep-category-name');
+        $this->assertEquals(2, $config->categoryId(), 'trep-category-id');
+        $initial = count($config->history());
+
+        $old = $config->field('explanation');
+        $add = "phpuntit " . randomString(8);
+        $changeset = [[
+            'field' => 'explanation',
+            'old'   => $old,
+            'new'   => "$old\n$add",
+        ]];
+        $this->assertTrue(
+            $config->setChangeset($this->userList[0], $changeset)->modify(),
+            'trep-change',
+        );
+        $this->assertEquals(
+            $initial + 1,
+            count($config->history()),
+            'trep-history'
+        );
+        $this->assertStringContainsString(
+            $add,
+            $config->explanation(),
+            'trep-explanation',
+        );
     }
 }

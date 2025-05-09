@@ -26,7 +26,7 @@ class Request extends \Gazelle\ArtistRole {
         );
         self::$cache->delete_multi([
             "request_artists_{$this->object->id()}",
-            ...self::$db->collect(0, false)
+            ...self::$db->collect(0)
         ]);
         self::$db->prepared_query("
             DELETE FROM requests_artists WHERE RequestID = ?

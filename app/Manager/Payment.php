@@ -75,7 +75,7 @@ class Payment extends \Gazelle\Base {
                 FROM payment_reminders
                 ORDER BY Expiry
             ");
-            $list = self::$db->to_array('ID', MYSQLI_ASSOC, false);
+            $list = self::$db->to_array('ID', MYSQLI_ASSOC);
             self::$cache->cache_value(self::LIST_KEY, $list, 86400);
         }
 
@@ -153,7 +153,7 @@ class Payment extends \Gazelle\Base {
                 WHERE Active = 1 AND Expiry < now() + INTERVAL 1 WEEK
                 ORDER BY Expiry
             ');
-            $due = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $due = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value(self::DUE_KEY, $due, 3600);
         }
         return $due;

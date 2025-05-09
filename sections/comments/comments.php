@@ -261,7 +261,7 @@ View::show_header(sprintf($Title, $Username), ['js' => 'bbcode,comments']);
     echo $paginator->linkbox();
     $commentMan = new Manager\Comment();
     $db->set_query_id($Comments);
-    while ([$AuthorID, $Page, $PageID, $Name, $PostID, $Body, $AddedTime, $EditedTime, $EditedUserID] = $db->next_record(escape: false)) {
+    while ([$AuthorID, $Page, $PageID, $Name, $PostID, $Body, $AddedTime, $EditedTime, $EditedUserID] = $db->next_record(MYSQLI_NUM)) {
         $author = new User($AuthorID);
         echo $Twig->render('comment/comment.twig', [
             'added_time'  => $AddedTime,

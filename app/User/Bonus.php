@@ -146,7 +146,7 @@ class Bonus extends \Gazelle\BaseUser {
                 LIMIT ? OFFSET ?
                 ', $this->user->id, $limit, $offset
             );
-            $history = self::$db->to_array();
+            $history = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value($key, $history, 86400 * 3);
             /* since we had to fetch this page, invalidate the next one */
             self::$cache->delete_value(sprintf(self::CACHE_HISTORY, $this->user->id, $page + 1));
@@ -187,7 +187,7 @@ class Bonus extends \Gazelle\BaseUser {
                 ORDER BY p.until_date, p.name
                 ', $this->user->id
             );
-            $history = self::$db->to_array();
+            $history = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value($key, $history, 86400 * 3);
         }
         return $history;
@@ -214,7 +214,7 @@ class Bonus extends \Gazelle\BaseUser {
                 ORDER BY bi.sequence
                 ", $this->user->id
             );
-            $history = self::$db->to_array('id', MYSQLI_ASSOC, false);
+            $history = self::$db->to_array('id', MYSQLI_ASSOC);
             self::$cache->cache_value($key, $history, 86400 * 3);
         }
         return $history;
@@ -585,7 +585,7 @@ class Bonus extends \Gazelle\BaseUser {
             ", $this->user->id, $this->user->id, $limit, $offset
         );
         $list = [];
-        foreach (self::$db->to_array('ID', MYSQLI_ASSOC, false) as $r) {
+        foreach (self::$db->to_array('ID', MYSQLI_ASSOC) as $r) {
             $r['torrent'] = new \Gazelle\Torrent($r['ID']);
             $list[] = $r;
         }

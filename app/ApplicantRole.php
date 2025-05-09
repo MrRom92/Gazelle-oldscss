@@ -45,7 +45,7 @@ class ApplicantRole extends BaseObject {
                 ORDER BY user_id
                 ", $this->id
             );
-            $info['viewer_list'] = self::$db->collect(0, false);
+            $info['viewer_list'] = self::$db->collect(0);
             $info['published'] = (bool)$info['published'];
             self::$cache->cache_value($key, $info, 86400);
         }

@@ -25,7 +25,7 @@ class UserSearch extends \Gazelle\Json {
         );
 
         $payload = [];
-        foreach (self::$db->collect(0, false) as $userId) {
+        foreach (self::$db->collect(0) as $userId) {
             $user = $this->manager->findById($userId);
             $payload[] = [
                 'userId'   => $user->id,

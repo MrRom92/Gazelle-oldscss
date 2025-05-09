@@ -59,7 +59,7 @@ class StaffPM extends \Gazelle\BaseManager {
             ", $user->id
         );
         $result = [];
-        foreach (self::$db->collect(0, false) as $id) {
+        foreach (self::$db->collect(0) as $id) {
             $spm = $this->findById($id);
             if ($spm) {
                 $result[] = $spm;
@@ -114,7 +114,7 @@ class StaffPM extends \Gazelle\BaseManager {
             ORDER BY Name
         ");
         $list = [];
-        foreach (self::$db->to_array(false, MYSQLI_ASSOC, false) as $answer) {
+        foreach (self::$db->to_array(false, MYSQLI_ASSOC) as $answer) {
             $answer['editor'] = new \Gazelle\Util\Textarea(
                 "answer-{$answer['id']}", $answer['message'], 87, 10
             );
@@ -201,7 +201,7 @@ class StaffPM extends \Gazelle\BaseManager {
             GROUP BY um.ID
             ORDER BY total DESC, total2 DESC
         ", $interval, $interval, $classLevel, ...$userIds);
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function userHistory(int $classLevel, array $userIds, int $interval): array {
@@ -219,7 +219,7 @@ class StaffPM extends \Gazelle\BaseManager {
             GROUP BY um.ID
             ORDER BY total DESC, total2 DESC
         ", $interval, $interval, $classLevel, ...$userIds);
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function setSearchId(\Gazelle\User $user, int $id): static {
@@ -291,6 +291,6 @@ class StaffPM extends \Gazelle\BaseManager {
             $this->pageSql(),
             ...[...$this->args, $user->id, $limit, $offset]
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

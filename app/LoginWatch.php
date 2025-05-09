@@ -213,7 +213,7 @@ class LoginWatch extends Base {
             LIMIT ? OFFSET ?
             ", $limit, $offset
         );
-        return self::$db->to_array('id', MYSQLI_ASSOC, false);
+        return self::$db->to_array('id', MYSQLI_ASSOC);
     }
 
     /**

@@ -71,7 +71,7 @@ class Privilege extends \Gazelle\BaseUser {
             ORDER BY p.Level DESC
             ", $id
         );
-        foreach (self::$db->to_array('ID', MYSQLI_ASSOC, false) as $class) {
+        foreach (self::$db->to_array('ID', MYSQLI_ASSOC) as $class) {
             $info['secondary'][$class['ID']] = $class['Name'];
             if ($class['badge']) {
                 $info['badge'][$class['badge']] = $class['Name'];
@@ -234,7 +234,7 @@ class Privilege extends \Gazelle\BaseUser {
             ORDER BY p.Name
             ", $this->user->id
         );
-        return self::$db->to_array('permName', MYSQLI_ASSOC, false);
+        return self::$db->to_array('permName', MYSQLI_ASSOC);
     }
 
     public function secondaryClassList(): array {

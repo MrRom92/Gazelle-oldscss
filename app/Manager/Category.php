@@ -32,7 +32,7 @@ class Category extends \Gazelle\Base {
                     WHERE is_system IS false
                     ORDER BY category_id
                 ");
-                $list = self::$db->to_array('id', MYSQLI_ASSOC, false);
+                $list = self::$db->to_array('id', MYSQLI_ASSOC);
                 self::$cache->cache_value(self::NAME_KEY, $list, 0);
             }
             $this->info['name'] = $list;
@@ -54,7 +54,7 @@ class Category extends \Gazelle\Base {
                     FROM category
                     ORDER BY category_id
                 ");
-                $list = self::$db->to_array('id', MYSQLI_ASSOC, false);
+                $list = self::$db->to_array('id', MYSQLI_ASSOC);
                 self::$cache->cache_value(self::REPORT_KEY, $list, 0);
             }
             $this->info['report'] = $list;

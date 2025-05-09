@@ -75,7 +75,7 @@ class ForumTransition extends \Gazelle\BaseManager {
             self::$db->prepared_query("
                 SELECT forums_transitions_id FROM forums_transitions
             ");
-            $idList = self::$db->collect(0, false);
+            $idList = self::$db->collect(0);
             self::$cache->cache_value(self::LIST_KEY, $idList, 0);
         }
         $this->info = [];

@@ -18,7 +18,7 @@ class Artist extends \Gazelle\BaseManager {
                 FROM artist_role
                 ORDER BY artist_role_id
             ");
-            $role = self::$db->to_array('slug', MYSQLI_ASSOC, false);
+            $role = self::$db->to_array('slug', MYSQLI_ASSOC);
             self::$cache->cache_value(self::ROLE_KEY, $role, 86400 * 30);
         }
         $this->role = $role;
@@ -158,7 +158,7 @@ class Artist extends \Gazelle\BaseManager {
                 ", str_replace("%", "\\%", $prefix),
                 $prefix,
             );
-            $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $list = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value($key, $list, 3600);
         }
         return $list;
@@ -182,7 +182,7 @@ class Artist extends \Gazelle\BaseManager {
         return array_filter(
             array_map(
                 fn ($id) => $tgMan->findById($id),
-                self::$db->collect(0, false)
+                self::$db->collect(0)
             ),
             fn ($tgroup) => !empty($tgroup)
         );

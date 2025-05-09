@@ -19,7 +19,7 @@ class TaskScheduler extends Base {
                 FROM periodic_task
             ');
 
-            $tasks = self::$db->to_array('periodic_task_id', MYSQLI_ASSOC, false);
+            $tasks = self::$db->to_array('periodic_task_id', MYSQLI_ASSOC);
             self::$cache->cache_value(self::CACHE_TASKS, $tasks, 3600);
         }
 
@@ -121,7 +121,7 @@ class TaskScheduler extends Base {
             ORDER BY pt.run_now DESC, pt.is_enabled DESC, pt.period, pt.periodic_task_id
         ", $days, $days);
 
-        return self::$db->to_array('periodic_task_id', MYSQLI_ASSOC, false);
+        return self::$db->to_array('periodic_task_id', MYSQLI_ASSOC);
     }
 
     public function getTotal(int $id): int {
@@ -216,7 +216,7 @@ class TaskScheduler extends Base {
             GROUP BY 1
             ORDER BY 1
         ");
-        $hourly = $this->constructAxes(self::$db->to_array(false, MYSQLI_ASSOC, false), 'date', ['duration', 'processed'], true);
+        $hourly = $this->constructAxes(self::$db->to_array(false, MYSQLI_ASSOC), 'date', ['duration', 'processed'], true);
 
         self::$db->prepared_query("
             SELECT date(pth.launch_time) AS date,
@@ -230,7 +230,7 @@ class TaskScheduler extends Base {
             ORDER BY 1
             ", $days
         );
-        $daily = $this->constructAxes(self::$db->to_array(false, MYSQLI_ASSOC, false), 'date', ['duration', 'processed'], true);
+        $daily = $this->constructAxes(self::$db->to_array(false, MYSQLI_ASSOC), 'date', ['duration', 'processed'], true);
 
         self::$db->prepared_query("
             SELECT pt.name,
@@ -244,7 +244,7 @@ class TaskScheduler extends Base {
             ORDER BY 1
             ", $days
         );
-        $tasks = $this->constructAxes(self::$db->to_array(false, MYSQLI_ASSOC, false), 'name', ['duration_avg', 'processed_avg'], false);
+        $tasks = $this->constructAxes(self::$db->to_array(false, MYSQLI_ASSOC), 'name', ['duration_avg', 'processed_avg'], false);
 
         $totals = self::$db->rowAssoc("
             SELECT count(pth.periodic_task_history_id) AS runs,
@@ -282,7 +282,7 @@ class TaskScheduler extends Base {
             ", $taskId, $days
         );
 
-        return $this->constructAxes(self::$db->to_array(false, MYSQLI_ASSOC, false), 'date', ['duration', 'processed'], true);
+        return $this->constructAxes(self::$db->to_array(false, MYSQLI_ASSOC), 'date', ['duration', 'processed'], true);
     }
 
     public function getTaskSnapshot(float $start, float $end): array {
@@ -294,7 +294,7 @@ class TaskScheduler extends Base {
             ', $end, $start
         );
 
-        return self::$db->to_array('periodic_task_id', MYSQLI_ASSOC, false);
+        return self::$db->to_array('periodic_task_id', MYSQLI_ASSOC);
     }
 
     public function run(): void {

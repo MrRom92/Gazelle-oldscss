@@ -12,7 +12,7 @@ $db->prepared_query("
 $manager = new Gazelle\Manager\User;
 
 $n = 0;
-foreach ($db->to_array(false, MYSQLI_NUM, false) as [$id, $items]) {
+foreach ($db->to_array(false, MYSQLI_NUM) as [$id, $items]) {
     $user = $manager->findById($id);
     if (is_null($user)) {
         continue;

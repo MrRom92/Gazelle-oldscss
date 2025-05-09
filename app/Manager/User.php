@@ -141,7 +141,7 @@ class User extends \Gazelle\BaseManager {
             WHERE CustomPermissions NOT IN ('', 'a:0:{}')
         ");
         return array_map(fn($perm) => unserialize($perm),
-            self::$db->to_pair('ID', 'CustomPermissions', false)
+            self::$db->to_pair('ID', 'CustomPermissions')
         );
     }
 
@@ -222,7 +222,7 @@ class User extends \Gazelle\BaseManager {
                 WHERE p.DisplayStaff = '1'
                 ORDER BY um.Username
             ");
-            $list = self::$db->to_pair('ID', 'Username', false);
+            $list = self::$db->to_pair('ID', 'Username');
             self::$cache->cache_value(self::CACHE_STAFF, $list, 86400);
         }
         return $list;
@@ -253,7 +253,7 @@ class User extends \Gazelle\BaseManager {
                 WHERE ancestor.user_id != ? /* exclude self */
                 ", $user->id, $user->id
             );
-            $ancestry = self::$db->collect(0, false);
+            $ancestry = self::$db->collect(0);
             self::$cache->cache_value($key, $ancestry, 0);
         }
         return array_map(fn ($id) => $this->findById($id), $ancestry);
@@ -272,7 +272,7 @@ class User extends \Gazelle\BaseManager {
                 ORDER BY Level
             ");
             $classList = [];
-            foreach (self::$db->to_array(false, MYSQLI_ASSOC, false) as $row) {
+            foreach (self::$db->to_array(false, MYSQLI_ASSOC) as $row) {
                 $row['Level'] = (int)$row['Level'];
                 $classList[$row['ID']] = $row;
             }
@@ -424,7 +424,7 @@ class User extends \Gazelle\BaseManager {
                     LIMIT 52) D USING (Week)
                 ORDER BY 1
             ");
-            $userflow = self::$db->to_array('Week', MYSQLI_ASSOC, false);
+            $userflow = self::$db->to_array('Week', MYSQLI_ASSOC);
             self::$cache->cache_value(self::USERFLOW_KEY, $userflow, 86400);
         }
         return $userflow;
@@ -495,7 +495,7 @@ class User extends \Gazelle\BaseManager {
             LIMIT ? OFFSET ?
             ", $limit, $offset
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function flushUserclass(int $userclassId): int {
@@ -515,7 +515,7 @@ class User extends \Gazelle\BaseManager {
                 UserStatus::enabled->value, $userclassId
         );
         $affected = 0;
-        foreach (self::$db->collect(0, false) as $id) {
+        foreach (self::$db->collect(0) as $id) {
             $user = $this->findById($id);
             if ($user) {
                 $user->flush();
@@ -625,7 +625,7 @@ class User extends \Gazelle\BaseManager {
             ', $torrent->id
         );
 
-        $snatchers = self::$db->collect(0, false);
+        $snatchers = self::$db->collect(0);
         foreach ($snatchers as $userId) {
             $user = $this->findById($userId);
             if ($user) {
@@ -761,7 +761,7 @@ class User extends \Gazelle\BaseManager {
                 AND um.Enabled != '2'
             "
         );
-        $idList = self::$db->collect(0, false);
+        $idList = self::$db->collect(0);
 
         // disable the users
         self::$db->prepared_query("
@@ -826,7 +826,7 @@ class User extends \Gazelle\BaseManager {
         );
 
         $processed = 0;
-        foreach (self::$db->collect(0, false) as $userId) {
+        foreach (self::$db->collect(0) as $userId) {
             $user = $this->findById($userId);
             if ($user) {
                 $mailer->send($user->email(), 'Your ' . SITE_NAME . ' account is about to be deactivated',
@@ -865,7 +865,7 @@ class User extends \Gazelle\BaseManager {
         );
 
         $processed = 0;
-        foreach (self::$db->collect(0, false) as $userId) {
+        foreach (self::$db->collect(0) as $userId) {
             $user = $this->findById($userId);
             if ($user) {
                 $this->disableUserList(
@@ -934,7 +934,7 @@ class User extends \Gazelle\BaseManager {
             SELECT torrent_pass FROM users_main WHERE ID IN (" . placeholders($idList) . ")
             ", ...$idList
         );
-        $PassKeys = self::$db->collect('torrent_pass', false);
+        $PassKeys = self::$db->collect('torrent_pass');
         self::$db->commit();
         $Concat = '';
         foreach ($PassKeys as $PassKey) {
@@ -1091,7 +1091,7 @@ class User extends \Gazelle\BaseManager {
             }
 
             self::$db->prepared_query($query, ...$args);
-            foreach (self::$db->collect(0, false) as $userId) {
+            foreach (self::$db->collect(0) as $userId) {
                 $user = $this->findById($userId);
                 if (is_null($user) || (new \Gazelle\User\Warning($user))->isWarned()) {
                     continue;
@@ -1154,7 +1154,7 @@ class User extends \Gazelle\BaseManager {
             $query .= ')';
 
             self::$db->prepared_query($query, ...$args);
-            foreach (self::$db->collect('ID', false) as $userId) {
+            foreach (self::$db->collect('ID') as $userId) {
                 $user = $this->findById($userId);
                 if (is_null($user)) {
                     continue;
@@ -1380,7 +1380,7 @@ class User extends \Gazelle\BaseManager {
             LIMIT ? OFFSET ?
             ", $limit, $offset
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     /**
@@ -1421,7 +1421,7 @@ class User extends \Gazelle\BaseManager {
                     - cast(ui.RatioWatchDownload AS SIGNED INTEGER) > ?
             ", UserStatus::enabled->value, RATIO_GAMBLE
         );
-        return self::$db->collect(0, false);
+        return self::$db->collect(0);
     }
 
     /**
@@ -1440,7 +1440,7 @@ class User extends \Gazelle\BaseManager {
                 AND um.Enabled = ?
             ", UserStatus::enabled->value
         );
-        return self::$db->collect(0, false);
+        return self::$db->collect(0);
     }
 
     /**
@@ -1457,7 +1457,7 @@ class User extends \Gazelle\BaseManager {
                 AND um.Enabled = ?
             ", UserStatus::enabled->value
         );
-        return self::$db->collect(0, false);
+        return self::$db->collect(0);
     }
 
     /**
@@ -1476,7 +1476,7 @@ class User extends \Gazelle\BaseManager {
                 AND um.Enabled = ?
             ", UserStatus::enabled->value
         );
-        return self::$db->collect(0, false);
+        return self::$db->collect(0);
     }
 
     /**
@@ -1645,7 +1645,7 @@ class User extends \Gazelle\BaseManager {
                 $leech
             ", 'no-fl-gifts', UserStatus::enabled->value
         );
-        $idList = array_map('intval', self::$db->collect(0, false));
+        $idList = array_map('intval', self::$db->collect(0));
         if ($idList) {
             self::$db->prepared_query("
                 UPDATE user_flt SET
@@ -1711,7 +1711,7 @@ class User extends \Gazelle\BaseManager {
                 AND (uf.Downloaded > t.Size * ? OR uf.Time < now() - INTERVAL ? DAY);
             ", $slop, FREELEECH_TOKEN_EXPIRY_DAYS
         );
-        $expire = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $expire = self::$db->to_array(false, MYSQLI_ASSOC);
 
         $clear = [];
         $processed = 0;
@@ -1757,7 +1757,7 @@ class User extends \Gazelle\BaseManager {
         self::$db->prepared_query("
             SELECT ID FROM users_main
         ");
-        foreach (self::$db->collect(0, false) as $userId) {
+        foreach (self::$db->collect(0) as $userId) {
             $this->findById($userId)->flush();
         }
         return $affected;

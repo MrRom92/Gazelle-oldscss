@@ -464,7 +464,7 @@ if (empty($_GET)) {
     $SQL .= "\n$Order LIMIT ? OFFSET ?";
 
     $db->prepared_query($SQL, ...array_merge($Args, [$paginator->limit(), $paginator->offset()]));
-    $Results = $db->to_array(false, MYSQLI_ASSOC, false);
+    $Results = $db->to_array(false, MYSQLI_ASSOC);
     foreach ($Results as &$r) {
         $r['user'] = $userMan->findById($r['user_id']);
     }

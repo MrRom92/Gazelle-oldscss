@@ -23,7 +23,7 @@ $db->prepared_query("
     GROUP BY ft.ID
     HAVING total_replies != calculated_replies
 ");
-foreach ($db->to_array(false, MYSQLI_ASSOC, false) as $row) {
+foreach ($db->to_array(false, MYSQLI_ASSOC) as $row) {
     printf("t %6d %6d\n", $row['id'], $row['calculated_replies']);
     $thread = $manager->findById($row['id']);
     $thread->setField('NumPosts', $row['calculated_replies'])->modify();
@@ -48,7 +48,7 @@ $db->prepared_query("
         OR ft.LastPostTime != fp.AddedTime
     )
 ");
-foreach ($db->to_array(false, MYSQLI_ASSOC, false) as $row) {
+foreach ($db->to_array(false, MYSQLI_ASSOC) as $row) {
     printf("u %6d %6d\n", $row['thread_id'], $row['post_id']);
     $thread = $manager->findById($row['thread_id']);
     $thread->setField('LastPostID', $row['post_id'])
@@ -61,7 +61,7 @@ $forumMan = new Gazelle\Manager\Forum();
 $db->prepared_query("
     SELECT f.ID AS forum_id FROM forums f
 ");
-foreach ($db->collect(0, false) as $forumId) {
+foreach ($db->collect(0) as $forumId) {
     echo "f $forumId\n";
     $forumMan->findById($forumId)->adjust();
 }

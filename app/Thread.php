@@ -52,7 +52,7 @@ class Thread extends BaseObject {
                     WHERE n.ThreadID = ?
                 ", $this->id
             );
-            $info['story'] = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $info['story'] = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value($key, $info, 0);
         }
         $this->info = $info;

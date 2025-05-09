@@ -117,7 +117,7 @@ class ReaperTest extends TestCase {
         );
         echo implode("\t", ['id', 'created', 'created<last?', 'last_action', 'unseeded', 'final', 'never_seeded']), "\n";
         echo implode("\n",
-            array_map(fn($r) => implode("\t", $r), $db->to_array(false, MYSQLI_NUM, false))
+            array_map(fn($r) => implode("\t", $r), $db->to_array(false, MYSQLI_NUM))
         ) . "\n";
     }
 

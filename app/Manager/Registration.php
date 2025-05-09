@@ -62,7 +62,7 @@ class Registration extends \Gazelle\Base {
             ", ...array_merge($args, [$limit, $offset])
         );
         $list = [];
-        foreach (self::$db->collect(0, false) as $userId) {
+        foreach (self::$db->collect(0) as $userId) {
             $user = $this->manager->findById($userId);
             if ($user) {
                 $list[] = $user;

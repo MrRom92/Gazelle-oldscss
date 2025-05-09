@@ -48,7 +48,7 @@ if ($execute) {
         } else {
             $db = DB::DB(readWrite: false);
             $db->prepared_query($query);
-            $result = $db->to_array(false, MYSQLI_ASSOC, false);
+            $result = $db->to_array(false, MYSQLI_ASSOC);
         }
     } catch (\Exception | \Error $e) {
         $error = $e->getMessage();

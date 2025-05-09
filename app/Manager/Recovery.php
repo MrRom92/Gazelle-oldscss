@@ -11,7 +11,7 @@ class Recovery extends \Gazelle\Base {
             WHERE m.ID = ? GROUP BY m.ID
             ", $id
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function findByUsername(string $username): array {
@@ -19,7 +19,7 @@ class Recovery extends \Gazelle\Base {
             WHERE m.Username LIKE ? GROUP BY m.Username
             ", $username
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function findByAnnounce(string $announce): array {
@@ -27,7 +27,7 @@ class Recovery extends \Gazelle\Base {
             WHERE m.torrent_pass LIKE ? GROUP BY m.torrent_pass
             ", $announce
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function findByEmail(string $email): array {
@@ -35,7 +35,7 @@ class Recovery extends \Gazelle\Base {
             WHERE m.Email LIKE ? GROUP BY m.Email
             ", $email
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function checkEmail(string $raw): ?array {
@@ -163,7 +163,7 @@ class Recovery extends \Gazelle\Base {
                     ", $state, $limit, $offset
             ),
         };
-        return self::$db->to_array();
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function validatePending(): void {
@@ -173,7 +173,7 @@ class Recovery extends \Gazelle\Base {
             WHERE r.state = 'PENDING' AND r.admin_user_id IS NULL AND char_length(r.announce) = 32
             LIMIT ?
             ", RECOVERY_AUTOVALIDATE_LIMIT);
-        $recover = self::$db->to_array();
+        $recover = self::$db->to_array(false, MYSQLI_ASSOC);
         foreach ($recover as $r) {
             $this->accept($r['recovery_id'], RECOVERY_ADMIN_ID, RECOVERY_ADMIN_NAME);
         }
@@ -184,7 +184,7 @@ class Recovery extends \Gazelle\Base {
             WHERE r.state = 'PENDING' AND r.admin_user_id IS NULL AND locate('@', r.email) > 1
             LIMIT ?
             ", RECOVERY_AUTOVALIDATE_LIMIT);
-        $recover = self::$db->to_array();
+        $recover = self::$db->to_array(false, MYSQLI_ASSOC);
         foreach ($recover as $r) {
             $this->accept($r['recovery_id'], RECOVERY_ADMIN_ID, RECOVERY_ADMIN_NAME);
         }
@@ -390,12 +390,12 @@ class Recovery extends \Gazelle\Base {
 
     public function isMapped(int $ID): array {
         self::$db->prepared_query(sprintf("SELECT mapped_id AS ID FROM %s.%s WHERE user_id = ?", RECOVERY_DB, RECOVERY_MAPPING_TABLE), $ID);
-        return self::$db->to_array();
+        return self::$db->to_array(false, MYSQLI_BOTH);
     }
 
     public function isMappedLocal(int $ID): array {
         self::$db->prepared_query(sprintf("SELECT user_id AS ID FROM %s.%s WHERE mapped_id = ?", RECOVERY_DB, RECOVERY_MAPPING_TABLE), $ID);
-        return self::$db->to_array();
+        return self::$db->to_array(false, MYSQLI_BOTH);
     }
 
     public function mapToPrevious(\Gazelle\User $user, int $prevUserId, \Gazelle\User $admin): bool {
@@ -468,7 +468,7 @@ class Recovery extends \Gazelle\Base {
             'elitetm'       => 500.0 * 1024 ** 3
         ];
 
-        $results = self::$db->to_array();
+        $results = self::$db->to_array(false, MYSQLI_NUM);
         foreach ($results as [$username, $siteUserId, $prevUserId, $uploaded, $downloaded, $bounty, $nr_torrents, $irc_userclass, $final]) {
             /* close the gate */
             self::$db->prepared_query(sprintf("

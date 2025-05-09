@@ -168,7 +168,7 @@ class Comment extends \Gazelle\BaseManager {
                 ORDER BY EditTime DESC
                 ", $page, $postId
             );
-            $edits = self::$db->to_array(false, MYSQLI_NUM, false);
+            $edits = self::$db->to_array(false, MYSQLI_NUM);
             self::$cache->cache_value($key, $edits, 7200);
         }
         return $edits;
@@ -201,7 +201,7 @@ class Comment extends \Gazelle\BaseManager {
                 LIMIT ?
                 ", 'collages', $collageId, $count
             );
-            $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $list = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$db->set_query_id($qid);
             if (count($list)) {
                 self::$cache->cache_value($key, $list, 7200);

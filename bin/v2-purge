@@ -21,7 +21,7 @@ $db->prepared_query("
 
 $torMan = new Gazelle\Manager\Torrent;
 
-foreach ($db->collect(0, false) as $id) {
+foreach ($db->collect(0) as $id) {
     $torrent = $torMan->findById($id);
     if (is_null($torrent)) {
         echo "$id not found\n";

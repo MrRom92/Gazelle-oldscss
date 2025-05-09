@@ -62,7 +62,7 @@ class ForumPoll extends BaseObject {
             GROUP BY fpv.Vote
             ", $this->id
         );
-        $vote = self::$db->to_pair('Vote', 'total', false);
+        $vote = self::$db->to_pair('Vote', 'total');
 
         $total = array_sum($vote);
         $max   = count($vote) ? max($vote) : 0;
@@ -246,7 +246,7 @@ class ForumPoll extends BaseObject {
             WHERE p.Level >= (SELECT Level FROM permissions WHERE ID = ?)
             ", $this->id, FORUM_MOD
         );
-        $result = self::$db->to_pair('user_id', 'response', false);
+        $result = self::$db->to_pair('user_id', 'response');
         foreach ($result as $userId => $response) {
             $vote[$response ?? 'missing']['who'][] = $userMan->findById((int)$userId);
         }

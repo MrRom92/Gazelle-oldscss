@@ -158,7 +158,7 @@ class SiteInfo extends Base {
             ORDER BY 1, 2, 3, 4, 5;
             ", MYSQL_DB, MYSQL_DB
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function tableRowsRead(string $tableName): array {
@@ -169,7 +169,7 @@ class SiteInfo extends Base {
                 AND TABLE_NAME = ?
             ", MYSQL_DB, $tableName
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function indexRowsRead(string $tableName): array {
@@ -193,7 +193,7 @@ class SiteInfo extends Base {
                 s.INDEX_NAME
             ", MYSQL_DB, $tableName
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function tableStats(string $tableName): array {

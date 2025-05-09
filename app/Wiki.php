@@ -187,7 +187,7 @@ class Wiki extends BaseObject {
             ORDER BY Revision DESC
             ", $this->id
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     /**

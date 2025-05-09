@@ -75,7 +75,7 @@ class Request extends \Gazelle\BaseManager {
         );
         return array_map(
             fn ($id) => $this->findById($id),
-            self::$db->collect(0, false)
+            self::$db->collect(0)
         );
     }
 
@@ -95,7 +95,7 @@ class Request extends \Gazelle\BaseManager {
                 ORDER BY count(v.UserID) DESC, sum(v.Bounty) DESC
                 ", $artist->id
             );
-            $requestList = self::$db->collect(0, false);
+            $requestList = self::$db->collect(0);
             self::$cache->cache_value($key, $requestList, 3600);
         }
         return array_map(fn($id) => $this->findById($id), $requestList);
@@ -114,7 +114,7 @@ class Request extends \Gazelle\BaseManager {
                 ORDER BY r.TimeAdded ASC
                 ", $tgroup->id
             );
-            $requestList = self::$db->collect(0, false);
+            $requestList = self::$db->collect(0);
             self::$cache->cache_value($key, $requestList, 3600);
         }
         return array_map(fn($id) => $this->findById($id), $requestList);
@@ -129,6 +129,6 @@ class Request extends \Gazelle\BaseManager {
                 AND req.TorrentID = ?
             ",  $torrent->id
         );
-        return array_map(fn($id) => $this->findById($id), self::$db->collect(0, false));
+        return array_map(fn($id) => $this->findById($id), self::$db->collect(0));
     }
 }

@@ -52,7 +52,7 @@ class Artist extends BaseAttrObject implements CollageEntry {
         self::$cache->delete_multi([
             $this->cacheKey(),
             sprintf(self::CACHE_REQUEST_ARTIST, $this->id),
-            ...self::$db->collect(0, false)
+            ...self::$db->collect(0)
         ]);
         unset($this->info);
         return parent::flush();
@@ -105,8 +105,7 @@ class Artist extends BaseAttrObject implements CollageEntry {
                 WHERE ArtistID = ?
                 ", $this->id
             );
-            $info['alias'] = self::$db->to_array('alias_id', MYSQLI_ASSOC, false);
-
+            $info['alias'] = self::$db->to_array('alias_id', MYSQLI_ASSOC);
             $info['homonyms'] = (int)self::$db->scalar('
                 SELECT count(*) FROM artist_discogs WHERE stem = ?
                 ', $info['discogs_stem']
@@ -150,7 +149,7 @@ class Artist extends BaseAttrObject implements CollageEntry {
             ARTIST_ARRANGER => 0,
         ];
 
-        while ([$groupId, $role, $releaseTypeId] = self::$db->next_record(MYSQLI_NUM, false)) {
+        while ([$groupId, $role, $releaseTypeId] = self::$db->next_record(MYSQLI_NUM)) {
             $role = (int)$role;
             $sectionId = match ($role) {
                 ARTIST_ARRANGER => ARTIST_SECTION_ARRANGER,
@@ -316,7 +315,7 @@ class Artist extends BaseAttrObject implements CollageEntry {
             ORDER BY RevisionID DESC
             ", $this->id
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function tagLeaderboard(): array {
@@ -335,7 +334,7 @@ class Artist extends BaseAttrObject implements CollageEntry {
             LIMIT 10
             ", $this->id
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function addAlias(string $name, ?int $redirect, User $user): int {
@@ -423,7 +422,7 @@ class Artist extends BaseAttrObject implements CollageEntry {
              ORDER BY Redirect, Name
              ", $this->id
         );
-        $result = self::$db->to_array('aliasId', MYSQLI_ASSOC, false);
+        $result = self::$db->to_array('aliasId', MYSQLI_ASSOC);
 
         // go through the list and tie the alias to its non-redirecting ancestor
         $userMan = new Manager\User();
@@ -463,7 +462,7 @@ class Artist extends BaseAttrObject implements CollageEntry {
             WHERE aa.ArtistID = ?
             ", $this->id
         );
-        return self::$db->collect(0, false);
+        return self::$db->collect(0);
     }
 
     public function tgroupIdUsage(): array {
@@ -475,7 +474,7 @@ class Artist extends BaseAttrObject implements CollageEntry {
             WHERE aa.ArtistID = ?
             ", $this->id
         );
-        return self::$db->collect(0, false);
+        return self::$db->collect(0);
     }
 
     public function usageTotal(): int {
@@ -590,14 +589,14 @@ class Artist extends BaseAttrObject implements CollageEntry {
             SELECT UserID FROM bookmarks_artists WHERE ArtistID = ?
             ", $old->id
         );
-        $bookmarkList = self::$db->collect(0, false);
+        $bookmarkList = self::$db->collect(0);
         self::$db->prepared_query("
             SELECT ca.CollageID
             FROM collages_artists AS ca
             WHERE ca.ArtistID = ?
             ", $old->id
         );
-        $artistCollageList = self::$db->collect(0, false);
+        $artistCollageList = self::$db->collect(0);
         self::$db->prepared_query("
             SELECT DISTINCT GroupID
             FROM torrents_artists ta
@@ -605,7 +604,7 @@ class Artist extends BaseAttrObject implements CollageEntry {
             WHERE aa.ArtistID = ?
             ", $old->id
         );
-        $groupList = self::$db->collect(0, false);
+        $groupList = self::$db->collect(0);
         self::$db->prepared_query("
             SELECT DISTINCT RequestID
             FROM requests_artists ra
@@ -613,7 +612,7 @@ class Artist extends BaseAttrObject implements CollageEntry {
             WHERE aa.ArtistID = ?
             ", $old->id
         );
-        $requestList = self::$db->collect(0, false);
+        $requestList = self::$db->collect(0);
 
         // only need to flush torrent collages, no db update is required
         self::$db->prepared_query("
@@ -624,7 +623,7 @@ class Artist extends BaseAttrObject implements CollageEntry {
             WHERE aa.ArtistID = ?
             ", $old->id
         );
-        $collageList = self::$db->collect(0, false);
+        $collageList = self::$db->collect(0);
 
         // Update the old artist id to the new one in the target object,
         // if it does not yet exists there. Delete any remaining old ids

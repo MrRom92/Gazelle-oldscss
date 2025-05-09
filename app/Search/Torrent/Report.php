@@ -117,7 +117,7 @@ class Report extends \Gazelle\Base {
         self::$db->prepared_query($this->pageSql(), ...[...$this->args, $limit, $offset]);
         return array_map(
             fn ($id) => $manager->findById($id),
-            self::$db->collect(0, false)
+            self::$db->collect(0)
         );
     }
 

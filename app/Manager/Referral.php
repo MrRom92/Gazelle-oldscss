@@ -22,7 +22,7 @@ class Referral extends \Gazelle\Base {
         $accounts = self::$cache->get_value(self::CACHE_ACCOUNTS);
         if ($accounts === false) {
             self::$db->prepared_query("SELECT ID, Site, Active, Type FROM referral_accounts");
-            $accounts = self::$db->to_array('ID', MYSQLI_ASSOC, false);
+            $accounts = self::$db->to_array('ID', MYSQLI_ASSOC);
             foreach ($accounts as &$acc) {
                 $acc["UserIsId"] = in_array($acc["Type"], self::ID_TYPES);
                 unset($acc);
@@ -107,7 +107,7 @@ class Referral extends \Gazelle\Base {
             SELECT ID, Site, URL, User, Password, Active, Type, Cookie
             FROM referral_accounts
         ");
-        $accounts = self::$db->to_array('ID', MYSQLI_ASSOC, false);
+        $accounts = self::$db->to_array('ID', MYSQLI_ASSOC);
         foreach ($accounts as &$account) {
             foreach (['URL', 'User', 'Password', 'Cookie'] as $key) {
                 if (array_key_exists($key, $account)) {
@@ -258,7 +258,7 @@ class Referral extends \Gazelle\Base {
             LIMIT ? OFFSET ?
             ", ...$params
         );
-        return self::$db->to_array('id', MYSQLI_ASSOC, false);
+        return self::$db->to_array('id', MYSQLI_ASSOC);
     }
 
     public function deleteUserReferral(int $id): void {

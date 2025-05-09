@@ -70,6 +70,6 @@ class ForumCategory extends \Gazelle\BaseManager {
             GROUP BY fc.ID
             ORDER BY fc.Sort
         ");
-        return self::$db->to_array('id', MYSQLI_ASSOC, false);
+        return self::$db->to_array('id', MYSQLI_ASSOC);
     }
 }

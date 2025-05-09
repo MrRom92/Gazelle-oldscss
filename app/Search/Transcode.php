@@ -152,7 +152,7 @@ class Transcode extends \Gazelle\Base {
         $list = false;
         [$sql, $args] = $this->queryList($limit, $offset);
         self::$db->prepared_query($sql, ...$args);
-        $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $list = self::$db->to_array(false, MYSQLI_ASSOC);
         if (!isset($this->search)) {
             self::$cache->cache_value($key, $list, 3600);
         }

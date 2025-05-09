@@ -13,7 +13,7 @@ class Report extends \Gazelle\Base {
             ORDER BY total DESC
             ", $day
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function allTime(): array {
@@ -24,7 +24,7 @@ class Report extends \Gazelle\Base {
             GROUP BY r.ResolverID
             ORDER BY total DESC
         ");
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function forumThreadTrashTotal(): array {
@@ -38,7 +38,7 @@ class Report extends \Gazelle\Base {
             LIMIT 30
             ", TRASH_FORUM_ID
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function torrentOpenTotal(): int {

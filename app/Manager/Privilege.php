@@ -70,7 +70,7 @@ class Privilege extends \Gazelle\BaseManager {
                     FROM permissions
                     ORDER BY Secondary DESC, Level, Name
                 ");
-                $permission = self::$db->to_pair('ID', 'Permissions', false);
+                $permission = self::$db->to_pair('ID', 'Permissions');
 
                 // decorate the privileges with those user classes that have benn granted access
                 foreach ($permission as $id => $perm) {
@@ -115,7 +115,7 @@ class Privilege extends \Gazelle\BaseManager {
             GROUP BY p.ID
             ORDER BY p.Secondary ASC, p.Level ASC
         ");
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     /**

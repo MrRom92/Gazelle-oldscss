@@ -42,7 +42,7 @@ class StaffBlog extends \Gazelle\Base {
                 FROM staff_blog sb
                 ORDER BY Time DESC
             ");
-            $list = self::$db->collect(0, false);
+            $list = self::$db->collect(0);
             self::$cache->cache_value(self::CACHE_KEY, $list, 1_209_600);
         }
         return array_map(fn($id) => $this->findById($id), $list);

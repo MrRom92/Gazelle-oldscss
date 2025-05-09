@@ -26,7 +26,7 @@ abstract class ArtistRole extends Base {
     protected function artistList(): array {
         if (!isset($this->artistList)) {
             if ($this->artistListQuery()) {
-                $this->artistList = self::$db->to_array(false, MYSQLI_ASSOC, false);
+                $this->artistList = self::$db->to_array(false, MYSQLI_ASSOC);
             } else {
                 $this->artistList = [];
             }

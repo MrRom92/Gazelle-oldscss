@@ -64,7 +64,7 @@ class ReportType extends \Gazelle\Base {
             FROM torrent_report_configuration
             ORDER BY sequence, category_id
         ");
-        return array_map(fn ($id) => $this->findById($id), self::$db->collect(0, false));
+        return array_map(fn ($id) => $this->findById($id), self::$db->collect(0));
     }
 
     public function categoryList(int $categoryId): array {
@@ -75,6 +75,6 @@ class ReportType extends \Gazelle\Base {
             ORDER BY sequence
             ", $categoryId
         );
-        return array_map(fn ($id) => $this->findById($id), self::$db->collect(0, false));
+        return array_map(fn ($id) => $this->findById($id), self::$db->collect(0));
     }
 }

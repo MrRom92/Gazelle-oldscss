@@ -23,4 +23,4 @@ $where = implode(' AND ', $where);
 $db = DB::DB();
 $db->prepared_query("SELECT t.ID FROM torrents t INNER JOIN torrents_leech_stats tls ON (tls.TorrentID = t.ID) WHERE {$where}");
 
-json_print('success', ['IDs' => $db->collect('ID', false)]);
+json_print('success', ['IDs' => $db->collect('ID')]);

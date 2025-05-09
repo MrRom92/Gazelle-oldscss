@@ -4,7 +4,7 @@ namespace Gazelle\Torrent;
 
 class Log extends \Gazelle\Base {
     public function __construct(
-        protected readonly int $id,
+        public readonly int $id,
     ) {}
 
     /**
@@ -35,7 +35,7 @@ class Log extends \Gazelle\Base {
             WHERE TorrentID = ?
             ", $this->id
         );
-        $logs = self::$db->to_array('LogID', MYSQLI_ASSOC, false);
+        $logs = self::$db->to_array('LogID', MYSQLI_ASSOC);
         $details = [];
         $htmlFiler = new \Gazelle\File\RipLogHTML();
         foreach ($logs as $log) {

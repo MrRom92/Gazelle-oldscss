@@ -147,12 +147,12 @@ abstract class Collector extends Base  {
             if ($Key == 'TorrentID') {
                 $this->idBoundary = false;
             } else {
-                $this->idBoundary = self::$db->to_pair($Key, 'TorrentID', false);
+                $this->idBoundary = self::$db->to_pair($Key, 'TorrentID');
             }
         }
         $downloadList = [];
         $insertArgs = [];
-        while ($row = self::$db->next_record(MYSQLI_ASSOC, false)) {
+        while ($row = self::$db->next_record(MYSQLI_ASSOC)) {
             if (!$this->idBoundary || $row['TorrentID'] == $this->idBoundary[$row[$Key]]) {
                 $downloadList[$row[$Key]] = $row;
                 array_push($insertArgs, $this->user->id, $row['TorrentID']);

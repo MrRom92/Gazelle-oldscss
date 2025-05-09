@@ -61,7 +61,7 @@ class Forum extends \Gazelle\BaseManager {
                 INNER JOIN forums_categories cat ON (cat.ID = f.CategoryID)
                 ORDER BY cat.Sort, cat.Name, f.Sort, f.Name
             ");
-            $list = self::$db->collect('ID', false);
+            $list = self::$db->collect('ID');
             self::$cache->cache_value(self::CACHE_LIST, $list, 86400);
         }
         return array_map(fn ($id) => $this->findById($id), $list);
@@ -285,6 +285,6 @@ class Forum extends \Gazelle\BaseManager {
             LIMIT ? OFFSET ?
             ", $user->id, ...$args
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

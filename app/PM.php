@@ -63,7 +63,7 @@ class PM extends Base {
                 WHERE pm.ConvID = ?
                 ", $this->id
             );
-            $info['sender_list'] = self::$db->collect(0, false);
+            $info['sender_list'] = self::$db->collect(0);
 
             // get the recipients of messages in this thread.
             self::$db->prepared_query("
@@ -74,7 +74,7 @@ class PM extends Base {
                     AND cu.UserID != ?
                 ", $this->id, $this->user->id
             );
-            $info['recipient_list'] = [$this->user->id, ...self::$db->collect(0, false)];
+            $info['recipient_list'] = [$this->user->id, ...self::$db->collect(0)];
             self::$cache->cache_value($key, $info, 86400);
         }
         $this->info = $info;
@@ -241,7 +241,7 @@ class PM extends Base {
             LIMIT ? OFFSET ?
             ", $this->id, $limit, $offset
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function remove(): int {

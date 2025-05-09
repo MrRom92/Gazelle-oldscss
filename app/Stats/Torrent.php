@@ -76,7 +76,7 @@ class Torrent extends \Gazelle\Base {
                     FROM torrents
                     GROUP BY Format, Encoding WITH ROLLUP
                 ");
-                $info['format'] = self::$db->to_array(false, MYSQLI_NUM, false);
+                $info['format'] = self::$db->to_array(false, MYSQLI_NUM);
 
                 self::$db->prepared_query("
                     SELECT Format, Encoding, count(*) as n
@@ -84,14 +84,14 @@ class Torrent extends \Gazelle\Base {
                     WHERE created > now() - INTERVAL 1 MONTH
                     GROUP BY Format, Encoding WITH ROLLUP
                 ");
-                $info['format-month'] = self::$db->to_array(false, MYSQLI_NUM, false);
+                $info['format-month'] = self::$db->to_array(false, MYSQLI_NUM);
 
                 self::$db->prepared_query("
                     SELECT t.Media, count(*) as n
                     FROM torrents t
                     GROUP BY t.Media WITH ROLLUP
                 ");
-                $info['media'] = self::$db->to_array(false, MYSQLI_NUM, false);
+                $info['media'] = self::$db->to_array(false, MYSQLI_NUM);
 
                 self::$db->prepared_query("
                     SELECT tg.CategoryID, count(*) AS n
@@ -101,7 +101,7 @@ class Torrent extends \Gazelle\Base {
                     GROUP BY tg.CategoryID
                     ORDER BY 2 DESC
                 ");
-                $info['category'] = self::$db->to_array(false, MYSQLI_NUM, false);
+                $info['category'] = self::$db->to_array(false, MYSQLI_NUM);
 
                 self::$cache->cache_value(self::CACHE_KEY, $info, 7200);
             }
@@ -184,7 +184,7 @@ class Torrent extends \Gazelle\Base {
                 GROUP BY eom
                 ORDER BY eom
             ");
-            $flow = self::$db->to_array('Month', MYSQLI_ASSOC, false);
+            $flow = self::$db->to_array('Month', MYSQLI_ASSOC);
             foreach ($flow as &$f) {
                 $f['t_add'] = (int)$f['t_add'];
                 $f['t_del'] = (int)$f['t_del'];
@@ -209,7 +209,7 @@ class Torrent extends \Gazelle\Base {
                 GROUP BY tg.CategoryID
                 ORDER BY 2 DESC
             ");
-            $list = self::$db->to_pair('CategoryID', 'total', false);
+            $list = self::$db->to_pair('CategoryID', 'total');
             self::$cache->cache_value(self::CATEGORY_TOTAL, $list, mktime(0, 0, 0, date('n') + 1, 2));
         }
         return $list;
@@ -299,7 +299,7 @@ class Torrent extends \Gazelle\Base {
             1 => ['total' => 0],
             2 => ['total' => 0],
         ];
-        foreach (self::$db->to_array(false, MYSQLI_ASSOC, false) as $row) {
+        foreach (self::$db->to_array(false, MYSQLI_ASSOC) as $row) {
             $list[$row['hour_offset']]['total'] = $row['total'];
         }
         return $list;

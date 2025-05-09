@@ -45,6 +45,6 @@ class Wiki extends \Gazelle\Base {
             . " LIMIT ? OFFSET ?",
             ...array_merge($this->args, [$limit, $offset])
         );
-        return self::$db->to_array('ID', MYSQLI_ASSOC, false);
+        return self::$db->to_array('ID', MYSQLI_ASSOC);
     }
 }

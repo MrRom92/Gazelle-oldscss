@@ -121,6 +121,6 @@ class Wiki extends \Gazelle\BaseManager {
         }
         $sql .= " ORDER BY Title";
         self::$db->prepared_query($sql, ...$args);
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

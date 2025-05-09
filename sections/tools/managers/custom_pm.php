@@ -22,7 +22,7 @@ if (isset($_POST['query'])) {
             $db = DB::DB(readWrite: false);
             try {
                 $db->prepared_query($_POST['query']);
-                $result = $db->collect(0, false);
+                $result = $db->collect(0);
             } catch (\mysqli_sql_exception  $e) {
                 $error = $e->getMessage();
             } catch (\Exception  $e) {

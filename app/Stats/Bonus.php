@@ -18,7 +18,7 @@ class Bonus extends \Gazelle\Base {
             GROUP BY bi.Title
             ORDER BY bi.sequence
         ");
-        return self::$db->to_array('id', MYSQLI_ASSOC, false);
+        return self::$db->to_array('id', MYSQLI_ASSOC);
     }
 
     /**
@@ -47,7 +47,7 @@ class Bonus extends \Gazelle\Base {
             ORDER BY bi.sequence
             ", ($offset + $length), $offset
         );
-        return self::$db->to_array('id', MYSQLI_ASSOC, false);
+        return self::$db->to_array('id', MYSQLI_ASSOC);
     }
 
     /**
@@ -98,7 +98,7 @@ class Bonus extends \Gazelle\Base {
             LIMIT ?
             ", $n
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     /**
@@ -116,7 +116,7 @@ class Bonus extends \Gazelle\Base {
             LIMIT ?
             ", $n
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     /**
@@ -134,7 +134,7 @@ class Bonus extends \Gazelle\Base {
             LIMIT ?
             ", $n
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     /**
@@ -162,6 +162,6 @@ class Bonus extends \Gazelle\Base {
             LIMIT ?
             ", $n
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

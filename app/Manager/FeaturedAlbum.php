@@ -38,7 +38,7 @@ class FeaturedAlbum extends \Gazelle\BaseManager {
                 AND type = ?
             ", $featureType->value
         );
-        foreach (self::$db->collect(0, false) as $tgroupId) {
+        foreach (self::$db->collect(0) as $tgroupId) {
             $tgMan->findById($tgroupId)?->setFreeleech(
                 torMan:    $torMan,
                 tracker:   $tracker,

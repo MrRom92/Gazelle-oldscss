@@ -18,7 +18,7 @@ class Vote extends \Gazelle\Base {
                 AND (v2.GroupId NOT IN (?, ?))
             ", $old->id(), $new->id(), $old->id(), $new->id()
         );
-        self::$cache->delete_multi(self::$db->collect(0, false));
+        self::$cache->delete_multi(self::$db->collect(0));
 
         // 2. Get a list of everybody who voted on the old group and clear their cache keys
         self::$db->prepared_query("
@@ -26,7 +26,7 @@ class Vote extends \Gazelle\Base {
             ", $old->id()
         );
         $affected = self::$db->affected_rows();
-        foreach (self::$db->collect(0, false) as $userId) {
+        foreach (self::$db->collect(0) as $userId) {
             $user = $userManager->findById($userId);
             if ($user) {
                 (new \Gazelle\User\Vote($user))->flush();

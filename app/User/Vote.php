@@ -61,7 +61,7 @@ class Vote extends \Gazelle\BaseUser {
                 WHERE UserID = ?
                 ", $this->user->id
             );
-            $info = self::$db->to_pair('GroupID', 'Vote', false);
+            $info = self::$db->to_pair('GroupID', 'Vote');
             self::$cache->cache_value($key, $info, 0);
         }
         $this->info = $info;
@@ -169,7 +169,7 @@ class Vote extends \Gazelle\BaseUser {
                 ORDER BY Score DESC
                 LIMIT 1000
             ");
-            $ranks = $this->voteRanks(self::$db->to_pair('GroupID', 'Score', false));
+            $ranks = $this->voteRanks(self::$db->to_pair('GroupID', 'Score'));
             self::$cache->cache_value($key, $ranks, 259200); // 3 days
         }
         return $ranks[$tgroup->id] ?? false;
@@ -193,7 +193,7 @@ class Vote extends \Gazelle\BaseUser {
                 LIMIT 1000
                 ", $year
             );
-            $ranks = $this->voteRanks(self::$db->to_pair('GroupID', 'Score', false));
+            $ranks = $this->voteRanks(self::$db->to_pair('GroupID', 'Score'));
             self::$cache->cache_value($key, $ranks, 259200);
         }
         return $ranks[$tgroup->id] ?? false;
@@ -219,7 +219,7 @@ class Vote extends \Gazelle\BaseUser {
                 LIMIT 1000
                 ", $year, $year
             );
-            $ranks = $this->voteRanks(self::$db->to_pair('GroupID', 'Score', false));
+            $ranks = $this->voteRanks(self::$db->to_pair('GroupID', 'Score'));
             self::$cache->cache_value($key, $ranks, 259200); // 3 days
         }
         return $ranks[$tgroup->id] ?? false;
@@ -272,8 +272,8 @@ class Vote extends \Gazelle\BaseUser {
                 LIMIT ?
                 ", ...$this->topArgs
             );
-            $results = self::$db->to_array('GroupID', MYSQLI_ASSOC, false);
-            $ranks = $this->voteRanks(self::$db->to_pair('GroupID', 'Score', false));
+            $results = self::$db->to_array('GroupID', MYSQLI_ASSOC);
+            $ranks = $this->voteRanks(self::$db->to_pair('GroupID', 'Score'));
 
             $topVotes = [];
             foreach ($results as $tgroupId => $votes) {
@@ -346,7 +346,7 @@ class Vote extends \Gazelle\BaseUser {
                 WHERE UserID = ?
                 ", $this->user->id
             );
-            $votes = self::$db->to_pair('GroupID', 'vote', false);
+            $votes = self::$db->to_pair('GroupID', 'vote');
             self::$cache->cache_value($key, $votes, 86400);
         }
         return $votes;
@@ -491,7 +491,7 @@ class Vote extends \Gazelle\BaseUser {
                 LIMIT 5
                 ", $this->user->id
             );
-            $recent = self::$db->to_array();
+            $recent = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value($key, $recent, 0);
         }
         foreach ($recent as &$r) {
@@ -540,7 +540,7 @@ class Vote extends \Gazelle\BaseUser {
             LIMIT ? OFFSET ?
             ", ...$args
         );
-        $page =  self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $page =  self::$db->to_array(false, MYSQLI_ASSOC);
         foreach ($page as &$p) {
             $p['tgroup'] = $tgMan->findById($p['group_id']);
         }

@@ -44,7 +44,7 @@ class Applicant extends \Gazelle\Base {
                 ORDER by ar.Title,
                     coalesce(max(tn.Created), a.Created) DESC
             ");
-            $list = self::$db->collect(0, false);
+            $list = self::$db->collect(0);
             self::$cache->cache_value(self::LIST_KEY, $list, 0);
         }
         return array_map(fn ($id) => $this->findById($id), $list);
@@ -63,7 +63,7 @@ class Applicant extends \Gazelle\Base {
                 ORDER by ar.Title,
                     coalesce(max(tn.Created), a.Created) DESC
             ");
-            $list = self::$db->collect(0, false);
+            $list = self::$db->collect(0);
             self::$cache->cache_value(self::RESOLVED_KEY, $list, 0);
         }
         return array_map(fn($id) => $this->findById($id), $list);

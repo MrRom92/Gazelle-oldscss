@@ -47,7 +47,7 @@ class Invite extends \Gazelle\BaseUser {
             ORDER BY i.Expires
             ", $this->user->id
         );
-        return self::$db->to_array('invite_key', MYSQLI_ASSOC, false);
+        return self::$db->to_array('invite_key', MYSQLI_ASSOC);
     }
 
     public function total(): int {
@@ -68,7 +68,7 @@ class Invite extends \Gazelle\BaseUser {
             LIMIT ? OFFSET ?
             ", $this->user->id, $limit, $offset
         );
-        return self::$db->collect(0, false);
+        return self::$db->collect(0);
     }
 
     /**

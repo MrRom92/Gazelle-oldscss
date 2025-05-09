@@ -187,7 +187,7 @@ class Collage extends \Gazelle\Base {
             LIMIT ? OFFSET ?
             ", ...[...$this->args, $limit, $offset]
         );
-        $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $list = self::$db->to_array(false, MYSQLI_ASSOC);
         foreach ($list as &$c) {
             $c['tag'] = explode(' ', $c['tag_list']);
         }

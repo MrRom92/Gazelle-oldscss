@@ -34,7 +34,7 @@ class Stylesheet extends \Gazelle\Base {
                     FROM stylesheets
                     ORDER BY NAME ASC
                 ");
-                $info = self::$db->to_array(false, MYSQLI_ASSOC, false);
+                $info = self::$db->to_array(false, MYSQLI_ASSOC);
                 self::$cache->cache_value(self::CACHE_KEY, $info, 0);
             }
             $this->info = $info;
@@ -57,6 +57,6 @@ class Stylesheet extends \Gazelle\Base {
             ORDER BY {$this->heading()->orderBy()} {$this->heading()->dir()}
             ", UserStatus::enabled->value
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

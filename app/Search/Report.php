@@ -66,6 +66,6 @@ class Report extends \Gazelle\Base {
             LIMIT ? OFFSET ?
             ", ...[...$this->args, $limit, $offset]
         );
-        return self::$db->collect(0, false);
+        return self::$db->collect(0);
     }
 }

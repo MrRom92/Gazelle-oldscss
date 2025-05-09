@@ -44,7 +44,7 @@ class Snatch extends \Gazelle\BaseUser {
                 AND fid BETWEEN ? AND ?
             ", $this->user->id, $offset * self::RANGE_BIT, ($offset + 1) * self::RANGE_BIT - 1
         );
-        return $vector->init($offset * self::RANGE_BIT, self::$db->collect(0, false));
+        return $vector->init($offset * self::RANGE_BIT, self::$db->collect(0));
     }
 
     public function isSnatched(\Gazelle\TorrentAbstract $torrent): bool {
@@ -90,7 +90,7 @@ class Snatch extends \Gazelle\BaseUser {
                 LIMIT ?
                 ", $this->user->id, $limit
             );
-            $recent = self::$db->collect(0, false);
+            $recent = self::$db->collect(0);
             if (!$forceNoCache) {
                 self::$cache->cache_value($key, $recent, 86400 * 3);
             }

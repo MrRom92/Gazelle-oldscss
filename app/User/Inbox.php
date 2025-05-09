@@ -232,7 +232,7 @@ class Inbox extends \Gazelle\BaseUser {
             LIMIT ? OFFSET ?
             ", $this->user->id, $this->user->id, ...$args
         );
-        return array_map(fn($id) => $pmMan->findById($id), self::$db->collect(0, false));
+        return array_map(fn($id) => $pmMan->findById($id), self::$db->collect(0));
     }
 
     protected function massFlush(array $ids): void {

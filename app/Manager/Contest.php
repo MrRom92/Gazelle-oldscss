@@ -50,7 +50,7 @@ class Contest extends \Gazelle\Base {
      */
     public function contestTypes(): ?array {
         self::$db->prepared_query("SELECT contest_type_id as id, name FROM contest_type ORDER BY name");
-        return self::$db->to_array('id', MYSQLI_ASSOC, false);
+        return self::$db->to_array('id', MYSQLI_ASSOC);
     }
 
     /**
@@ -111,7 +111,7 @@ class Contest extends \Gazelle\Base {
             INNER JOIN contest_type t USING (contest_type_id)
             WHERE c.date_end > now() - INTERVAL 2 YEAR
         ");
-        $contestList = self::$db->collect(0, false);
+        $contestList = self::$db->collect(0);
         foreach ($contestList as $id) {
             $this->findById($id)->calculateLeaderboard();
         }

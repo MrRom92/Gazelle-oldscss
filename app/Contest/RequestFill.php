@@ -38,7 +38,7 @@ class RequestFill extends AbstractContest {
                 LIMIT ? OFFSET ?
                 ", UserStatus::enabled->value, $this->id, $limit, $offset
             );
-            $leaderboard = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $leaderboard = self::$db->to_array(false, MYSQLI_ASSOC);
 
             $torMan = new \Gazelle\Manager\Torrent();
             for ($i = 0, $leaderboardCount = count($leaderboard); $i < $leaderboardCount; $i++) {
@@ -115,7 +115,7 @@ class RequestFill extends AbstractContest {
             ", UserStatus::enabled->value, $this->id,
                UserStatus::enabled->value, $this->id,
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function requestPairs(): array {
@@ -133,7 +133,7 @@ class RequestFill extends AbstractContest {
                 LIMIT 100
                 ", $this->begin, $this->end
             );
-            $pairs = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $pairs = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value('contest_pairs_' . $this->id, $pairs, 3600);
         }
         return $pairs;

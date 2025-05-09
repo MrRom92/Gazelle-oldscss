@@ -46,12 +46,12 @@ class DB extends Base {
 
     public function globalStatus(): array {
         self::$db->prepared_query('SHOW GLOBAL STATUS');
-        return self::$db->to_array('Variable_name', MYSQLI_ASSOC, false);
+        return self::$db->to_array('Variable_name', MYSQLI_ASSOC);
     }
 
     public function globalVariables(): array {
         self::$db->prepared_query('SHOW GLOBAL VARIABLES');
-        return self::$db->to_array('Variable_name', MYSQLI_ASSOC, false);
+        return self::$db->to_array('Variable_name', MYSQLI_ASSOC);
     }
 
     public function version(): string {
@@ -97,11 +97,11 @@ class DB extends Base {
     public function checkStructureMatch(string $schema, string $source, string $destination): array {
         $sql = 'SELECT column_name, column_type FROM information_schema.columns WHERE table_schema = ? AND table_name = ? ORDER BY 1';
         self::$db->prepared_query($sql, $schema, $source);
-        $t1 = self::$db->to_array();
+        $t1 = self::$db->to_array(false, MYSQLI_BOTH);
         $n1 = count($t1);
 
         self::$db->prepared_query($sql, $schema, $destination);
-        $t2 = self::$db->to_array();
+        $t2 = self::$db->to_array(false, MYSQLI_BOTH);
         $n2 = count($t2);
 
         if (!$n1) {
@@ -214,7 +214,7 @@ class DB extends Base {
             ", MYSQL_DB
         );
         $list = [];
-        foreach (self::$db->to_array(false, MYSQLI_ASSOC, false) as $r) {
+        foreach (self::$db->to_array(false, MYSQLI_ASSOC) as $r) {
             $r['covering_read'] = (int)$r['covering_read'];
             $r['redundant_read'] = (int)$r['redundant_read'];
             $list[] = $r;
@@ -242,6 +242,6 @@ class DB extends Base {
             ORDER BY table_name, index_name
             ", MYSQL_DB
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 }

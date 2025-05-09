@@ -102,8 +102,8 @@ class Email extends \Gazelle\Base {
             LIMIT ? OFFSET ?
             ", $limit, $offset
         );
-        $asnList = $this->asn->findByIpList(self::$db->collect('ipv4', false));
-        $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $asnList = $this->asn->findByIpList(self::$db->collect('ipv4'));
+        $list = self::$db->to_array(false, MYSQLI_ASSOC);
         foreach ($list as &$row) {
             $row['cc']     = $asnList[$row['ipv4']]['cc'];
             $row['is_tor'] = $asnList[$row['ipv4']]['is_tor'];
@@ -139,8 +139,8 @@ class Email extends \Gazelle\Base {
             LIMIT ? OFFSET ?
             ", $limit, $offset
         );
-        $asnList = $this->asn->findByIpList(self::$db->collect('ipv4', false));
-        $list = self::$db->to_array(false, MYSQLI_ASSOC, false);
+        $asnList = $this->asn->findByIpList(self::$db->collect('ipv4'));
+        $list = self::$db->to_array(false, MYSQLI_ASSOC);
         foreach ($list as &$row) {
             $row['cc']     = $asnList[$row['ipv4']]['cc'];
             $row['is_tor'] = $asnList[$row['ipv4']]['is_tor'];

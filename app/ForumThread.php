@@ -218,7 +218,7 @@ class ForumThread extends BaseObject {
                 LIMIT ? OFFSET ?
                 ", $this->id, $this->pinnedPostId(), THREAD_CATALOGUE, $catId * THREAD_CATALOGUE
             );
-            $catalogue = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $catalogue = self::$db->to_array(false, MYSQLI_ASSOC);
             if (!$this->isLocked() || $this->isPinned()) {
                 self::$cache->cache_value($key, $catalogue, 0);
             }
@@ -323,7 +323,7 @@ class ForumThread extends BaseObject {
             ORDER BY ID ASC
             ", $this->id
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     /**
@@ -401,7 +401,7 @@ class ForumThread extends BaseObject {
                 LIMIT ? OFFSET ?
                 ", $this->id, $this->pinnedPostId(), THREAD_CATALOGUE, $catId * THREAD_CATALOGUE
             );
-            $catalogue = self::$db->to_array(false, MYSQLI_ASSOC, false);
+            $catalogue = self::$db->to_array(false, MYSQLI_ASSOC);
             if (!$this->isLocked() || $this->isPinned()) {
                 self::$cache->cache_value($key, $catalogue, 0);
             }

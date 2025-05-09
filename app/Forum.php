@@ -249,7 +249,7 @@ class Forum extends BaseObject {
                 LIMIT ?, ?
                 ", $this->id, ($page - 1) * TOPICS_PER_PAGE, TOPICS_PER_PAGE
             );
-            $idList = self::$db->collect(0, false);
+            $idList = self::$db->collect(0);
             if ($page == 1) {
                 self::$cache->cache_value($key, $idList, 86400 * 10);
             }
@@ -303,7 +303,7 @@ class Forum extends BaseObject {
                 LIMIT ?, ?
                 ", $this->id, $this->id, $this->id, ($page - 1) * TOPICS_PER_PAGE, TOPICS_PER_PAGE
             );
-            $forumToc = self::$db->to_array('ID', MYSQLI_ASSOC, false);
+            $forumToc = self::$db->to_array('ID', MYSQLI_ASSOC);
             if ($page == 1) {
                 self::$cache->cache_value($key, $forumToc, 86400 * 10);
             }
@@ -343,7 +343,7 @@ class Forum extends BaseObject {
             ORDER BY f.Sort
             ", $user->id, $user->id, $this->id, ...$args
         );
-        return self::$db->to_array('forum_id', MYSQLI_ASSOC, false);
+        return self::$db->to_array('forum_id', MYSQLI_ASSOC);
     }
 
     public function userCatchup(User $user): int {
@@ -385,7 +385,7 @@ class Forum extends BaseObject {
             ", $user->postsPerPage(), $this->id, $user->id
         );
         $list = [];
-        foreach (self::$db->to_array('TopicID', MYSQLI_ASSOC, false) as $row) {
+        foreach (self::$db->to_array('TopicID', MYSQLI_ASSOC) as $row) {
             $row['Page'] = (int)$row['Page'];
             $list[$row['TopicID']] = $row;
         };

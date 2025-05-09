@@ -53,7 +53,7 @@ class MysqlTable extends AbstractTable {
                 s.INDEX_NAME
             ", MYSQL_DB, $this->name
         );
-        return self::$db->to_array(false, MYSQLI_ASSOC, false);
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     public function tableRead(): array {
