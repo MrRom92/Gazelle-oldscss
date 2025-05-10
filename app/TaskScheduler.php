@@ -319,6 +319,7 @@ class TaskScheduler extends Base {
          * returns, this invocation will exit.
          * If a task fails, do not try to run again in this slice.
          */
+
         $fail = [0];
 
         $TTL = microtime(true) + 58;
@@ -380,6 +381,18 @@ class TaskScheduler extends Base {
             Irc::sendMessage(IRC_CHAN_DEV, "Failed to construct task {$task['name']}");
             return -1;
         }
+
+        // some tasks require a viewer context (and probably should not...)
+        $sysop = new \Gazelle\Manager\User()->findById(
+            (int)self::$db->scalar('
+                SELECT um.id
+                FROM users_main um
+                INNER JOIN permissions p on (p.ID = um.PermissionID)
+                ORDER BY p.level DESC
+                LIMIT 1
+            ')
+        );
+        $this->requestContext()->setViewer($sysop);
 
         $processed = -1;
         $taskRunner->begin();
