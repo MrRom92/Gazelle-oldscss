@@ -60,7 +60,6 @@ class TaskScheduler extends Base {
         if (!self::isClassValid($class)) {
             return;
         }
-
         self::$db->prepared_query("
             UPDATE periodic_task SET
                 name = ?,
