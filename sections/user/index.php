@@ -6,9 +6,6 @@ declare(strict_types=1);
 namespace Gazelle;
 
 switch ($_REQUEST['action'] ?? '') {
-    case '2fa':
-        include_once '2fa/index.php';
-        break;
     case 'audit':
         include_once 'audit.php';
         break;
@@ -44,6 +41,9 @@ switch ($_REQUEST['action'] ?? '') {
         break;
     case 'lastfm':
         include_once 'lastfm.php';
+        break;
+    case 'mfa':
+        include_once 'mfa/index.php';
         break;
     case 'moderate':
         include_once 'moderate_handle.php';

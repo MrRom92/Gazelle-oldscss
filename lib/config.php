@@ -439,6 +439,9 @@ defined('SHOW_LOGO') or define('SHOW_LOGO', true);
 // How many enabled users are allowed? (Set to 0 for unlimited).
 defined('USER_LIMIT') or define('USER_LIMIT', 5000);
 
+// Logo to display on the MFA qrcode image
+defined('QRCODE_LOGO') or define('QRCODE_LOGO', __DIR__ . '/../public/android-chrome-192x192.png');
+
 // How many days of inactivity (not logging in) before an account is deactivated?
 // NB: If you do not want to deactivate stale accounts, disable the inactive user tasks
 defined('INACTIVE_USER_DEACTIVATE_DAYS') or define('INACTIVE_USER_DEACTIVATE_DAYS', 120);

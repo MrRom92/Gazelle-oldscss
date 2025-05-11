@@ -1,6 +1,6 @@
-{{ header('Two-factor Authentication') }}
+{{ header('Multi-factor Authentication') }}
 <div class="box pad">
-    <p>Please note that if you lose your 2FA key and all of your backup keys,
+    <p>Please note that if you lose your MFA key and all of your backup keys,
     {{ constant('SITE_NAME') }} staff cannot help you retrieve your account.
     Ensure you keep your backup keys in a safe place.</p>
 
@@ -17,7 +17,7 @@
     <div class="center pad">
 	<div>
         <img src="{{ qrcode.getDataUri }}">
-        <div class="twofa_text">Secret Text: <span>{{ secret }}</span></div>
+        <div class="mfa_text">Secret Text: <span>{{ secret }}</span></div>
 {% if not valid %}
         <p class="warning">Please ensure you have imported the correct secret key
         into your authentication app and try again.</p>
@@ -27,15 +27,15 @@
 </div>
 
 <div class="box pad">
-    <p><strong>Please enter the Two-Factor Authentication key provided by your
+    <p><strong>Please enter the Multi-Factor Authentication key provided by your
     app.</strong></p>
     <p>Once you have registered the secret, your authentication app should now
     be displaying a code. Please enter it now to confirm everything works.</p>
-    <p>The clock on your phone must be accurate. Current server time is {{ utc_time }} UTC.</p>
+    <p>The clock on your phone must be accurate. Current server time is {{ 'now'|date("Y-m-d H:i:s") }} UTC.</p>
 
     <form method="post">
-    <label for="2fa"><strong>Authentication Key</strong></label>
-    &nbsp;&nbsp;&nbsp;<input type="text" size="8" name="2fa" id="2fa"/>
+    <label for="mfa"><strong>Authentication Key</strong></label>
+    &nbsp;&nbsp;&nbsp;<input type="text" size="8" name="mfa" id="mfa"/>
     &nbsp;&nbsp;&nbsp;<input type="submit" value="Authenticate!">
 </div>
 {{ footer() }}

@@ -41,7 +41,7 @@ class Login extends Base {
         string $password,
         LoginWatch $watch,
         bool $persistent = false,
-        string $mfa    = '',
+        string $mfa      = '',
     ): ?User {
         $this->username   = trim($username);
         $this->password   = $password;
@@ -93,7 +93,7 @@ class Login extends Base {
 
     /**
      * Attempt to log into the system.
-     * Need a viable user/password and eventual 2FA code or recovery key.
+     * Need a viable user/password and eventual MFA code or recovery key.
      *
      * @return \Gazelle\User|null a User object if the credentials are successfully authenticated
      */
@@ -115,13 +115,13 @@ class Login extends Base {
             return null;
         }
 
-        // password checks out, if they have 2FA, does that check out?
+        // password checks out, if they have MFA, does that check out?
         $userMfa = $user->MFA();
         if (
             $userMfa->enabled() && !(
                 $this->mfa && $userMfa->verify($this->mfa)
             )
-            || !$userMfa->enabled() && $this->mfa
+            ||  $this->mfa && !$userMfa->enabled()
         ) {
             $this->error = self::ERR_CREDENTIALS;
             return null;

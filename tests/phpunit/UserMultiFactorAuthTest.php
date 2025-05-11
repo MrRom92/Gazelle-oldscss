@@ -2,10 +2,9 @@
 
 namespace Gazelle;
 
-use Gazelle\Enum\UserTokenType;
-use Gazelle\Enum\UserAuditEvent;
-use GazelleUnitTest\Helper;
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
+use RobThree\Auth\TwoFactorAuth;
 
 class UserMultiFactorAuthTest extends TestCase {
     use Pg;
@@ -28,22 +27,28 @@ class UserMultiFactorAuthTest extends TestCase {
             where expiry > now()
                 and id_user = ?
                 and type = ?
-            ', $this->user->id, UserTokenType::mfa->value
+            ', $this->user->id, Enum\UserTokenType::mfa->value
         );
     }
 
     public function testMFA(): void {
-        $auth    = new \RobThree\Auth\TwoFactorAuth();
-        $secret  = $auth->createSecret();
         $mfa     = $this->user->MFA();
+        $secret  = $mfa->generateSessionSecret();
         $manager = new Manager\UserToken();
 
         $this->assertEquals(0, $this->countTokens(), 'utest-no-mfa');
         $recovery = $mfa->create($manager, $secret);
+        ['ip' => $ip, 'created' => $created] = $mfa->details();
+        $this->assertEquals(
+            $this->user->requestContext()->remoteAddr(),
+            $ip,
+            'utest-mfa-ip',
+        );
+        $this->assertTrue(Helper::recentDate($created), 'uteset-mfa-created');
         $this->assertIsArray($recovery, 'utest-setup-mfa-array');
         $this->assertCount(10, $recovery, 'utest-setup-mfa-count');
         $this->assertTrue(
-            $this->user->auditTrail()->hasEvent(UserAuditEvent::mfa),
+            $this->user->auditTrail()->hasEvent(Enum\UserAuditEvent::mfa),
             'utest-mfa-audit'
         );
 
@@ -57,7 +62,10 @@ class UserMultiFactorAuthTest extends TestCase {
         $burn = array_pop($recovery);
         $this->assertTrue($mfa->verify($burn), 'utest-burn-verify-mfa');
         $this->assertFalse($mfa->verify('invalid'), 'utest-verify-bad-mfa');
-        $this->assertTrue($mfa->verify($auth->getCode($secret)), 'utest-verify-good-mfa');
+        $this->assertTrue(
+            $mfa->verify(new TwoFactorAuth()->getCode($secret)),
+            'utest-verify-good-mfa'
+        );
         $this->assertTrue($mfa->enabled(), 'utest-has-mfa-key');
 
         $mfa->requestContext()->setViewer(($this->user));
@@ -65,7 +73,7 @@ class UserMultiFactorAuthTest extends TestCase {
         $this->assertEquals(0, $this->countTokens(), 'utest-remove-mfa');
         $mfaList = array_filter(
             $this->user->auditTrail()->fullEventList(),
-            fn ($e) => $e['event'] === UserAuditEvent::mfa->value
+            fn ($e) => $e['event'] === Enum\UserAuditEvent::mfa->value
 
         );
         $this->assertCount(4, $mfaList, 'utest-audit-mfa-list');
@@ -77,5 +85,20 @@ class UserMultiFactorAuthTest extends TestCase {
         );
         $this->assertStringStartsWith('configured', $mfaList[3]['note'], 'utest-audit-mfa-2');
         $this->assertFalse($mfa->enabled(), 'utest-no-mfa-key');
+    }
+
+    public function testQrCode(): void {
+        $mfa = $this->user->MFA();
+        $qrcode = $mfa->generateQrCode(secret: SITE_NAME, logo: QRCODE_LOGO);
+        $this->assertInstanceOf(
+            \Endroid\QrCode\Writer\Result\ResultInterface::class,
+            $qrcode,
+            'qrcode-instance-of',
+        );
+        $this->assertGreaterThan(
+            10000,
+            strlen($qrcode->getDataUri()),
+            'qrcode-data-uri'
+        );
     }
 }

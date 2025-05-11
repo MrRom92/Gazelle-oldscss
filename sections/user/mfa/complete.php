@@ -32,6 +32,6 @@ if (session_status() === PHP_SESSION_NONE) {
 unset($_SESSION['private_key']);
 session_write_close();
 
-echo $Twig->render('user/2fa/complete.twig', [
+echo $Twig->render('user/mfa/complete.twig', [
     'keys' => $recoveryKeys,
 ]);

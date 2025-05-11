@@ -79,13 +79,13 @@
         </td>
     </tr>
 
-    <tr id="acc_2fa_tr">
-        <td class="label"><strong>Two-factor Authentication</strong></td>
+    <tr id="acc_mfa_tr">
+        <td class="label"><strong>Multi Factor Authentication</strong></td>
         <td>
 {% set has_mfa = user.MFA.enabled %}
-            Two-factor authentication is currently <strong class="{{ has_mfa ? 'r99' : 'warning' }}">{{ has_mfa ? 'enabled' : 'disabled' }}</strong> for your account.
+            Multi Factor authentication is currently <strong class="{{ has_mfa ? 'r99' : 'warning' }}">{{ has_mfa ? 'enabled' : 'disabled' }}</strong> for your account.
             <br><br>
-            <a href="user.php?action=2fa&amp;do={{ has_mfa ? 'remove' : 'configure' }}&amp;userid={{ user.id }}">Click here to {{ has_mfa ? 'remove' : 'configure' }}</a>
+            <a href="user.php?action=mfa&amp;do={{ has_mfa ? 'remove' : 'configure' }}&amp;userid={{ user.id }}">Click here to {{ has_mfa ? 'remove' : 'configure' }}</a>
         </td>
     </tr>
 

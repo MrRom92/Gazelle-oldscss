@@ -33,9 +33,12 @@
 {%  endfor %}
 {% endif %}
 </td></tr>
-<tr><th>2FA</th><td colspan="6">{% if mfa -%}
+<tr><th>MFA</th><td colspan="6">
+{% if mfa %}
     enabled since {{ mfa.created }} from {{ ip_search(mfa.ip) }}
-    {%- else %}disabled{% endif -%}
+{% else %}
+    disabled
+{% endif %}
 </td></tr>
 
 {% include 'admin/user-info-email.twig' with {'info': hist.email(asn),       'title': 'Email History' } only %}
