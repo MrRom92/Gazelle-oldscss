@@ -25,14 +25,6 @@ $Types = [
             "In your report description below, please be specific and include as much information as possible that will help our staff resolve the issue."
         ]
     ],
-    "request_update" => [
-        "title" => "Request (Update)",
-        "guidelines" => [
-            "This option is for asking the moderators to update your request to the new system.",
-            "If your request has no other votes, you can just edit it yourself!",
-            "If possible, please include a <a href=\"http://www.discogs.com\">Discogs</a> or <a href=\"https://musicbrainz.org\">MusicBrainz</a> link in the comments field."
-        ]
-    ],
     "request" => [
         "title" => "Request",
         "guidelines" => [
@@ -40,7 +32,6 @@ $Types = [
             "We encourage all users to use this feature whenever possible. This will get quicker action than PMing a staff member will.",
             "In your report description below, please be specific and include as much information as possible that will help our staff resolve the issue. Links to reliable, external sources of information are extremely useful when resolving reports. Examples of such sources include the artist's official web site, <a href=\"http://www.discogs.com\">Discogs</a>, and <a href=\"https://musicbrainz.org\">MusicBrainz</a>.",
             "<strong>Do not report requests simply because they are unfillable.</strong> Requests for currently unfillable releases are allowed because the request may become fillable in the future. An example of such a scenario would be a request for a physical media rip of a currently iTunes-only release because a physical media release could occur at some future date. The probability of such a physical release is not relevant.",
-            "<strong>If you are reporting this request to get it updated to the new requests system, please go back and click '[Request update]'</strong>."
         ]
     ],
     "thread" => [

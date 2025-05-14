@@ -1,14 +1,14 @@
-{{ header('Report a ' ~ reportType.title, {'js': 'vendor/jquery.validate,bbcode,form_validate'}) }}
+{{ header('Report a ' ~ report_type.title, {'js': 'vendor/jquery.validate,bbcode,form_validate'}) }}
 <div class="thin">
     <div class="header">
-        <h2>Report {{ reportType.title }}</h2>
+        <h2>Report {{ report_type.title }}</h2>
     </div>
     <h3>Reporting guidelines</h3>
     <div class="box pad">
         <p>Following these guidelines will help the moderators deal with your report in a timely fashion. </p>
         <ul>
-{% for item in reportType.guidelines %}
-            <li>{{ item }}</li>
+{% for item in report_type.guidelines %}
+            <li>{{ item|raw }}</li>
 {% endfor %}
         </ul>
         <p>In short, please include as much detail as possible when reporting. Thank you. </p>
