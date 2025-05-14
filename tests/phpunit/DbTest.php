@@ -475,7 +475,11 @@ class DbTest extends TestCase {
     public function testMysqlWrite(): void {
         $db = DB::DB(readWrite: false);
         $this->expectException(\mysqli_sql_exception::class);
-        $this->expectExceptionMessageMatches("/^INSERT command denied to user '" . MYSQL_RO_USER . "'@'[^']+' for table 'site_options'$/");
+        $this->expectExceptionMessageMatches(
+            "/^INSERT command denied to user '"
+            . MYSQL_RO_USER
+            . "'@'[^']+' for table 'site_options'$/"
+        );
         $db->prepared_query("
             INSERT INTO site_options
                    (Name,      Value,            Comment)
@@ -485,7 +489,9 @@ class DbTest extends TestCase {
 
     public function testPgWrite(): void {
         $this->expectException(\PDOException::class);
-        $this->expectExceptionMessageMatches('/^SQLSTATE\[\d+\]: Insufficient privilege: \d+ ERROR:  permission denied for table counter$/');
+        $this->expectExceptionMessageMatches(
+            '/^SQLSTATE\[\d+\]: Insufficient privilege: \d+ ERROR:  permission denied for table counter$/'
+        );
         $this->pgro()->prepared_query("
             insert into counter values ('phpunit-testWrite', 'fail on insert', 0)
         ");

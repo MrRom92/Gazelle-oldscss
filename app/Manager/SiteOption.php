@@ -3,14 +3,15 @@
 namespace Gazelle\Manager;
 
 class SiteOption extends \Gazelle\Base {
-    final protected const CACHE_KEY = 'site_option_%s';
+    final public const CACHE_KEY = 'site_option_%s';
 
     /**
      * Create a new option key/value pair.
      *
      * @return int ID of option (or null on failure e.g. duplicate name)
      */
-    public function create(string $name, string $value, string $comment): ?int {
+    public function createOption(string $name, string $value, string $comment): ?int {
+        $optionId = null;
         try {
             self::$db->prepared_query('
                 INSERT INTO site_options
@@ -18,11 +19,12 @@ class SiteOption extends \Gazelle\Base {
                 VALUES (?,    ?,     ?)
                 ', $name, $value, $comment
             );
+            $optionId = self::$db->inserted_id();
+            self::$cache->cache_value(sprintf(self::CACHE_KEY, $name), $value);
         } catch (\Gazelle\DB\MysqlDuplicateKeyException) {
-            return null;
+            ;
         }
-        self::$cache->cache_value(sprintf(self::CACHE_KEY, $name), $value);
-        return self::$db->inserted_id();
+        return $optionId;
     }
 
     public function findValueByName(string $name): ?string {
@@ -58,39 +60,17 @@ class SiteOption extends \Gazelle\Base {
     }
 
     /**
-     * Modify an option (both the name and value may be changed)
-     *
-     * @return int 1 if option was updated, otherwise 0
-     */
-    public function modify(int $id, string $name, string $value, string $comment): int {
-        $oldName = self::$db->scalar("
-            SELECT Name FROM site_options WHERE ID = ?
-            ", $id
-        );
-        self::$db->prepared_query('
-            UPDATE site_options SET
-                Name = ?, Value = ?, Comment = ?
-            WHERE ID = ?
-            ', $name, $value, $comment, $id
-        );
-        self::$cache->delete_value(sprintf(self::CACHE_KEY, $oldName));
-        self::$cache->cache_value(sprintf(self::CACHE_KEY, $name), $value);
-        return self::$db->affected_rows();
-    }
-
-    /**
      * Set option $name's value to $value
      *
      * @return int 1 if option was updated, otherwise 0
      */
-    public function update(string $name, string $value): int {
+    public function modifyOption(string $name, string $value): int {
         self::$db->prepared_query('
             UPDATE site_options SET Value = ? WHERE Name = ?
             ', $value, $name
         );
-        if ($affected = self::$db->affected_rows()) {
-            self::$cache->cache_value(sprintf(self::CACHE_KEY, $name), $value);
-        }
+        $affected = self::$db->affected_rows();
+        self::$cache->cache_value(sprintf(self::CACHE_KEY, $name), $value);
         return $affected;
     }
 
@@ -99,7 +79,7 @@ class SiteOption extends \Gazelle\Base {
      *
      * @return int 1 if option was removed, otherwise 0
      */
-    public function remove(string $name): int {
+    public function removeOptionByName(string $name): int {
         self::$db->prepared_query("
             DELETE FROM site_options WHERE Name = ?
             ", $name
