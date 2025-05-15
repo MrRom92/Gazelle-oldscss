@@ -42,6 +42,6 @@ abstract class File extends Base {
      * Remove the stored file.
      */
     public function remove(mixed $id): bool {
-        return @unlink($this->path($id));
+        return unlink($this->path($id));
     }
 }

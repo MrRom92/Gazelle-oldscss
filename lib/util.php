@@ -621,7 +621,7 @@ function make_utf8(?string $str): string {
         return $str;
     }
     $encoding = mb_detect_encoding($str, 'UTF-8, ISO-8859-1', true);
-    return $encoding === 'ISO-8859-1' ? @mb_convert_encoding($str, 'UTF-8', $encoding) : $str;
+    return $encoding === 'ISO-8859-1' ? mb_convert_encoding($str, 'UTF-8', $encoding) : $str;
 }
 
 /**
@@ -780,7 +780,7 @@ function check_paranoia(string $Property, string|array $Paranoia, int $UserClass
         $Paranoia = [];
     }
     global $Viewer;
-    if (($UserID !== false) && ($Viewer->id() == $UserID)) {
+    if (($UserID !== false) && ($Viewer->id == $UserID)) {
         return PARANOIA_ALLOWED;
     }
 

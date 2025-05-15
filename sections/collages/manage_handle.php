@@ -28,13 +28,13 @@ if (isset($_POST['drag_drop_collage_sort_order'])) {
     }
     if (isset($_POST['sort'])) {
         $collage->updateSequenceEntry($tgroup, (int)$_POST['sort']);
-    } 
-    
+    }
+
     if ($_POST['submit'] === 'Remove') {
         $userId = $collage->entryUserId($tgroup);
         if ($collage->removeEntry($tgroup)) {
             $collage->logger()->general(
-                "Collage {$collage->id()} ({$collage->name()}) group entry {$tgroup->id()} (added by user $userId) removed by {$Viewer->username()}"
+                "Collage {$collage->id} ({$collage->name()}) group entry {$tgroup->id} (added by user $userId) removed by {$Viewer->username()}"
             );
         }
     } else {

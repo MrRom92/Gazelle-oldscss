@@ -26,7 +26,7 @@ class RipLogHTML extends \Gazelle\File {
         } else {
             $path = $this->path($id);
             if (file_exists($path)) {
-                 return @unlink($path);
+                 return unlink($path);
             }
             return false;
         }

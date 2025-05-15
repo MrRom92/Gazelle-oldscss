@@ -179,7 +179,7 @@ class Request extends BaseObject implements CategoryHasArtist {
     public function ajaxInfo(): array {
         $info = $this->info();
         return [
-            'requestId'       => $this->id(),
+            'requestId'       => $this->id,
             'requestorId'     => $info['user_id'],
             'timeAdded'       => $info['created'],
             'voteCount'       => $this->userVotedTotal(),
@@ -499,7 +499,7 @@ class Request extends BaseObject implements CategoryHasArtist {
     public function validate(Torrent $torrent, User $filler, bool $isAdmin): array {
         if (
             $torrent->isUploadGracePeriod()
-            && $torrent->uploaderId() !== $filler->id()
+            && $torrent->uploaderId() !== $filler->id
             && !$isAdmin
         ) {
             return [
@@ -582,7 +582,7 @@ class Request extends BaseObject implements CategoryHasArtist {
             INSERT INTO requests_votes
                    (RequestID, UserID, Bounty)
             VALUES (?,         ?,      ?)
-            ", $this->id(), $user->id, $bounty
+            ", $this->id, $user->id, $bounty
         );
         self::$db->prepared_query("
             UPDATE requests SET
@@ -639,22 +639,21 @@ class Request extends BaseObject implements CategoryHasArtist {
                 FillerID = ?,
                 TorrentID = ?
             WHERE ID = ?
-            ", $user->id, $torrent->id(), $this->id
+            ", $user->id, $torrent->id, $this->id
         );
         $updated = self::$db->affected_rows();
         $this->updateSphinx();
         (new \SphinxqlQuery())->raw_query(
             sprintf("
                 UPDATE requests, requests_delta SET torrentid = %d, fillerid = %d WHERE id = %d
-                ", $torrent->id(), $user->id, $this->id
+                ", $torrent->id, $user->id, $this->id
             ), false
         );
         self::$db->commit();
 
         $user->addBounty($bounty);
         $name = $this->title();
-        $message = "One of your requests — [url={$this->location()}]{$name}[/url] — has been filled."
-                   . " You can view it here: [pl]{$torrent->id()}[/pl]";
+        $message = "One of your requests — [url={$this->location()}]{$name}[/url] — has been filled. You can view it here: [pl]{$torrent->id}[/pl]";
         self::$db->prepared_query("
             SELECT DISTINCT UserID FROM requests_votes WHERE RequestID = ?
             ", $this->id
@@ -664,7 +663,7 @@ class Request extends BaseObject implements CategoryHasArtist {
         }
 
         $this->logger()->general(
-            "Request {$this->id} ($name) was filled by user {$user->label()} with the torrent {$torrent->id()} for a "
+            "Request {$this->id} ($name) was filled by user {$user->label()} with the torrent {$torrent->id} for a "
             . byte_format($bounty) . ' bounty.'
         );
 
@@ -703,7 +702,7 @@ class Request extends BaseObject implements CategoryHasArtist {
             WHERE id = " . $this->id, false
         );
 
-        if ($filler->id() !== $admin->id()) {
+        if ($filler->id !== $admin->id) {
             $filler->inbox()->createSystem(
                 'A request you filled has been unfilled',
                 self::$twig->render('request/unfill-pm.bbcode.twig', [

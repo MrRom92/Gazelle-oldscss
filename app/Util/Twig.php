@@ -202,7 +202,7 @@ class Twig {
                 if ($user->isWarned()) {
                     $icon[] = '<a href="wiki.php?action=article&amp;name=warnings"><img src="'
                         . STATIC_SERVER . '/common/symbols/warned.png" alt="Warned" title="Warned'
-                        . ($viewer->id() == $user->id ? ' - Expires ' . date('Y-m-d H:i', $user->warningExpiry()) : '')
+                        . ($viewer->id == $user->id ? ' - Expires ' . date('Y-m-d H:i', $user->warningExpiry()) : '')
                         . '" class="tooltip" /></a>';
                 }
                 if ($user->isDisabled()) {
@@ -285,14 +285,16 @@ class Twig {
                 static $cache = [];
                 if (!isset($cache[$ip])) {
                     $Class = strtr($ip, '.', '-');
-                    $cache[$ip] = '<span class="cc_' . $Class . '">Resolving CC...'
+                    // phpcs:disable Generic.Strings.UnnecessaryStringConcat.Found
+                    $cache[$ip] = "<span class=\"cc_{$Class}\">Resolving CC..."
                         . '<script type="text/javascript">'
                             . "document.addEventListener('DOMContentLoaded', function() {"
-                                . '$.get(\'tools.php?action=get_cc&ip=' . $ip . '\', function(cc) {'
-                                    . '$(\'.cc_' . $Class . '\').html(cc);'
+                                . "$.get('tools.php?action=get_cc&ip={$ip}', function(cc) {"
+                                    . "$('.cc_{$Class}').html(cc);"
                                 . '});'
                             . '});'
                         . '</script></span>';
+                    // phpcs:enable Generic.Strings.UnnecessaryStringConcat.Found
                 }
                 return $cache[$ip];
             })($addr),

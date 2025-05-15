@@ -232,8 +232,7 @@ abstract class Collector extends Base  {
      * Compile a list of files that could not be added to the archive
      */
     public function errors(): string {
-        return "The following torrents are in an broken or missing. This is bad!"
-            . "\r\n"
+        return "The following torrents are in an broken or missing. This is bad!\r\n"
             . implode("\r\n", $this->error) . "\r\n";
     }
 

@@ -506,8 +506,7 @@ class Recovery extends \Gazelle\Base {
             $bounty_fmt     = byte_format($bounty);
             $final_fmt      = byte_format($final);
 
-            $adminComment = sprintf("%s - Upload stats recovery raw: Up=%d Down=%d Bounty=%d Torrents=%d IRC=%s"
-                . "\nformatted: U=%s D=%s B=%s Final=%s (%d) APL_ID=%d RESCALE=%s reclaim=$reclaimed\n\n",
+            $adminComment = sprintf("%s - Upload stats recovery raw: Up=%d Down=%d Bounty=%d Torrents=%d IRC=%s\nformatted: U=%s D=%s B=%s Final=%s (%d) APL_ID=%d RESCALE=%s reclaim=$reclaimed\n\n",
                 $username, $uploaded, $downloaded, $bounty, $nr_torrents, $irc_userclass,
                 $uploaded_fmt, $downloaded_fmt, $bounty_fmt, $final_fmt, $final, $prevUserId, $irc_message
             );

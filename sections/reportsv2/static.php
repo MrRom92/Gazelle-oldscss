@@ -63,7 +63,7 @@ if ($search->canUnclaim($Viewer)) {
 <?php
 } else {
     foreach ($page as $report) {
-        $reportId   = $report->id();
+        $reportId   = $report->id;
         $resolverId = $report->resolverId();
         $resolverName = $userMan->findById($resolverId)?->username() ?? 'System';
 
@@ -113,16 +113,16 @@ if ($search->canUnclaim($Viewer)) {
             <?= $n++ == 0 ? '' : '<br />' ?>
             <?= $extra->group()->link() ?> <?= $extra->shortLabelLink() ?> (<?= byte_format($extra->size()) ?>)
                         <br /><?= $extra->edition() ?>
-                        <br /><a href="torrents.php?action=download&amp;id=<?= $extra->id() ?>&amp;torrent_pass=<?= $Viewer->announceKey() ?>" title="Download" class="brackets tooltip">DL</a>
-                        <a href="#" class="brackets tooltip" onclick="show_downloads('<?= $extra->id() ?>', 0); return false;" title="View the list of users that have clicked the &quot;DL&quot; button.">Downloaders</a>
-                        <a href="#" class="brackets tooltip" onclick="show_snatches('<?= $extra->id() ?>', 0); return false;" title="View the list of users that have reported a snatch to the tracker.">Snatchers</a>
-                        <a href="#" class="brackets" onclick="show_seeders('<?= $extra->id() ?>', 0); return false;">Seeders</a>
-                        <a href="#" class="brackets" onclick="show_files('<?= $extra->id() ?>'); return false;">Contents</a>
-                        <div id="viewlog_<?= $extra->id() ?>" class="hidden"></div>
-                        <div id="peers_<?= $extra->id() ?>" class="hidden"></div>
-                        <div id="downloads_<?= $extra->id() ?>" class="hidden"></div>
-                        <div id="snatches_<?= $extra->id() ?>" class="hidden"></div>
-                        <div id="files_<?= $extra->id() ?>" class="hidden">
+                        <br /><a href="torrents.php?action=download&amp;id=<?= $extra->id ?>&amp;torrent_pass=<?= $Viewer->announceKey() ?>" title="Download" class="brackets tooltip">DL</a>
+                        <a href="#" class="brackets tooltip" onclick="show_downloads('<?= $extra->id ?>', 0); return false;" title="View the list of users that have clicked the &quot;DL&quot; button.">Downloaders</a>
+                        <a href="#" class="brackets tooltip" onclick="show_snatches('<?= $extra->id ?>', 0); return false;" title="View the list of users that have reported a snatch to the tracker.">Snatchers</a>
+                        <a href="#" class="brackets" onclick="show_seeders('<?= $extra->id ?>', 0); return false;">Seeders</a>
+                        <a href="#" class="brackets" onclick="show_files('<?= $extra->id ?>'); return false;">Contents</a>
+                        <div id="viewlog_<?= $extra->id ?>" class="hidden"></div>
+                        <div id="peers_<?= $extra->id ?>" class="hidden"></div>
+                        <div id="downloads_<?= $extra->id ?>" class="hidden"></div>
+                        <div id="snatches_<?= $extra->id ?>" class="hidden"></div>
+                        <div id="files_<?= $extra->id ?>" class="hidden">
                             <table class="filelist_table">
                                 <tr class="colhead_dark">
                                     <td>
@@ -208,7 +208,7 @@ if ($search->canUnclaim($Viewer)) {
                             </td>
                             <td width="50%" style="vertical-align: top; max-width: 500px;">
                         <?php
-                            $log = new Torrent\Log($extra->id());
+                            $log = new Torrent\Log($extra->id);
                             $details = $log->logDetails();
 ?>
                                 <ul class="nobullet logdetails">
@@ -234,7 +234,7 @@ if ($search->canUnclaim($Viewer)) {
 <?php                               } ?>
                                 <li>
                                     <span class="nobr"><strong>Raw logfile #<?= $logId ?></strong>: </span>
-                                    <a href="javascript:void(0);" onclick="BBCode.spoiler(this);" class="brackets">Show</a><pre class="hidden"><?= $ripFiler->get([$extra->id(), $logId]) ?></pre>
+                                    <a href="javascript:void(0);" onclick="BBCode.spoiler(this);" class="brackets">Show</a><pre class="hidden"><?= $ripFiler->get([$extra->id, $logId]) ?></pre>
                                 </li>
                                 <li>
                                     <span class="nobr"><strong>HTML logfile #<?= $logId ?></strong>: </span>
@@ -252,7 +252,7 @@ if ($search->canUnclaim($Viewer)) {
                         <?php                   } ?>
                 <tr>
                     <td class="label">Switch:</td>
-                    <td><a href="#" onclick="Switch(<?= $reportId ?>, <?= $extra->id() ?>); return false;" class="brackets">Switch</a> the source and target torrents (you become the report owner).
+                    <td><a href="#" onclick="Switch(<?= $reportId ?>, <?= $extra->id ?>); return false;" class="brackets">Switch</a> the source and target torrents (you become the report owner).
 <?php
         }
     }
@@ -290,7 +290,7 @@ if ($search->canUnclaim($Viewer)) {
             if ($report->status() != 'Resolved') {
                 $logMessage = trim($report->message() ?? '');
                 if (!$logMessage) {
-                    $logMessage = join(' ', array_map(fn($id) => $torMan->findById($id)?->publicLocation() ?? '', $report->otherIdList()));
+                    $logMessage = implode(' ', array_map(fn($id) => $torMan->findById($id)?->publicLocation() ?? '', $report->otherIdList()));
                 }
                 $reportType = $report->reportType();
 ?>
@@ -365,7 +365,7 @@ if ($search->canUnclaim($Viewer)) {
                     <td>
                         <input type="button" value="Invalidate report" onclick="Dismiss(<?= $reportId ?>);" />
                         | <input type="button" value="Resolve report manually" onclick="ManualResolve(<?= $reportId ?>);" />
-<?php           if ($report->status() == 'InProgress' && $Viewer->id() == $resolverId) { ?>
+<?php           if ($report->status() == 'InProgress' && $Viewer->id == $resolverId) { ?>
                         | <input type="button" value="Unclaim" onclick="GiveBack(<?= $reportId ?>);" />
                                 <?php           } else { ?>
                         | <input id="grab<?= $reportId ?>" type="button" value="Claim" onclick="Grab(<?= $reportId ?>);" />

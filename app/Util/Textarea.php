@@ -17,10 +17,12 @@ class Textarea extends \Gazelle\Base {
             return '';
         }
         return '<script type="text/javascript" src="' . STATIC_SERVER . '/functions/bbcode.js?v='
-            . filemtime(SERVER_ROOT . '/public/static/functions/bbcode.js') . '"></script>'
-            . '<script type="text/javascript" src="' . STATIC_SERVER . '/functions/textareapreview.class.js?v='
+            . filemtime(SERVER_ROOT . '/public/static/functions/bbcode.js')
+            . '"></script><script type="text/javascript" src="' . STATIC_SERVER . '/functions/textareapreview.class.js?v='
             . filemtime(SERVER_ROOT . '/public/static/functions/textareapreview.class.js')
-            . '"></script><script type="text/javascript">document.addEventListener(\'DOMContentLoaded\', function () {' . self::factory() . '});</script>';
+            . "\"></script><script type=\"text/javascript\">document.addEventListener('DOMContentLoaded', () => {"
+            . self::factory()
+            . "});</script>";
     }
 
     /**
@@ -95,8 +97,8 @@ class Textarea extends \Gazelle\Base {
             'rows="' . $this->rows . '"',
             'onkeyup="resize(\'' . $name . '\')"',
         ]);
-        return '<div id="textarea_wrap_' . $this->id . '" class="field_div textarea_wrap">'
-            . '<textarea ' . implode(' ', $attr ) . '>' . html_escape($this->value) . '</textarea></div>';
+        return "<div id=\"textarea_wrap_{$this->id}\" class=\"field_div textarea_wrap\"><textarea "
+            . implode(' ', $attr ) . '>' . html_escape($this->value) . '</textarea></div>';
     }
 
     /**

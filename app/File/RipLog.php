@@ -37,7 +37,7 @@ class RipLog extends \Gazelle\File {
             return true;
         } else {
             if ($this->exists($id)) {
-                return @unlink($this->path($id));
+                return unlink($this->path($id));
             }
             return false;
         }

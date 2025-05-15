@@ -888,14 +888,10 @@ class User extends BaseAttrObject {
         $expiry   = $warning->warningExpiry();
         if ($expiry) {
             $subject = 'You have received a new warning';
-            $message = "You have received a new warning by [user]{$staff->username()}[/user]. "
-                . "You had an existing warning (set to expire at $expiry).\n\nDue to this prior warning, "
-                . "you will remain warned until $warnTime.\nReason: $userMessage";
+            $message = "You have received a new warning by [user]{$staff->username()}[/user]. You had an existing warning (set to expire at $expiry).\n\nDue to this prior warning, you will remain warned until $warnTime.\nReason: $userMessage";
         } else {
             $subject = 'You have been warned';
-            $message = "You have been warned by [user]{$staff->username()}[/user]. "
-                . "The warning is set to expire on $warnTime. Remember, repeated warnings may jeopardize "
-                . "your account.\nReason: $userMessage";
+            $message = "You have been warned by [user]{$staff->username()}[/user]. The warning is set to expire on $warnTime. Remember, repeated warnings may jeopardize your account.\nReason: $userMessage";
         }
         $this->inbox()->createSystem($subject, $message);
         return $warning->add($reason, "$duration week" . plural($duration), $staff);

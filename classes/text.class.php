@@ -282,6 +282,7 @@ class Text {
     }
 
     private static function valid_url(string $Str, string $Extension = '', bool $Inline = false): int|false {
+        // phpcs:disable Generic.Strings.UnnecessaryStringConcat.Found
         $re = '/^'
             . '(https?|ftps?|irc):\/\/' // protocol
             . '(\w+(:\w+)?@)?' // user:pass@
@@ -299,6 +300,7 @@ class Text {
                 : '(\?[0-9a-z\-_.,%\/\@[\]~&=:;()+*\^$!#|?]*)?')
             . '(#[a-z0-9\-_.,%\/\@[\]~&=:;()+*\^$!]*)?' // #anchor
             . '$/i';
+        // phpcs:enable Generic.Strings.UnnecessaryStringConcat.Found
         return preg_match($re, $Str, $Matches);
     }
 
@@ -1273,7 +1275,7 @@ class Text {
         if (is_null($post)) {
             return null;
         }
-        return self::bbcodeThreadUrl($post->threadId(), $post->id());
+        return self::bbcodeThreadUrl($post->threadId(), $post->id);
     }
 
     protected static function bbcodeThreadUrl(int|string $thread, int|null $postId = null): string {
@@ -1291,7 +1293,7 @@ class Text {
             return $postId ? "[thread]{$threadId}:{$postId}[/thread]" : "[thread]{$threadId}[/thread]";
         }
         if (!self::$viewer->readAccess($thread->forum())) {
-            return sprintf('<a href="forums.php?action=viewforum&amp;forumid=%d">%s</a>', $thread->forum()->id(), 'restricted');
+            return sprintf('<a href="forums.php?action=viewforum&amp;forumid=%d">%s</a>', $thread->forum()->id, 'restricted');
         }
 
         if ($postId) {

@@ -148,8 +148,7 @@ class Paginator {
 
             if ($this->page && $this->page < $pageCount) {
                 $this->linkbox .= " › <a href=\"{$uri}page=" . ($this->page + 1)
-                    . "{$paramList}{$this->anchor}\" class=\"pager_next\"> <b>Next</b></a> » <a href=\"{$uri}page="
-                    . "{$pageCount}{$paramList}{$this->anchor}\"><b>Last</b></a>";
+                    . "{$paramList}{$this->anchor}\" class=\"pager_next\"> <b>Next</b></a> » <a href=\"{$uri}page={$pageCount}{$paramList}{$this->anchor}\"><b>Last</b></a>";
             }
         }
         if (strlen($this->linkbox)) {

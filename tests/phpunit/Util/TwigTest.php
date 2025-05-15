@@ -28,8 +28,8 @@ class TwigTest extends TestCase {
         $twig = Util\Twig::factory(new Manager\User());
         $twig->createTemplate("{{ dom.click('#id', \"$('#id').frob(); return false;\") }}")->render();
         $expected = <<<END
-<script type="text/javascript">document.addEventListener('DOMContentLoaded', function() {
-\$('#id').click(function () {\$('#id').frob(); return false;});
+<script type="text/javascript">document.addEventListener('DOMContentLoaded', () => {
+\$('#id').click(() => {\$('#id').frob(); return false;});
 })</script>
 END;
         $this->assertEquals($expected, $twig->createTemplate('{{ dom.emit|raw }}')->render(), 'twig-dominator');

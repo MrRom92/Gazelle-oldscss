@@ -56,7 +56,7 @@ if (is_null($torrent)) {
     $Cache->delete_value('num_torrent_reportsv2');
     json_die("failure", "torrent already deleted?");
 }
-$torrentId = $torrent->id();
+$torrentId = $torrent->id;
 if (isset($_POST['delete']) && $torrent->hasUploadLock()) {
     json_die("failure", "You requested to delete the torrent $torrentId, but this is currently not possible because the upload process is still running. Please try again later.");
 }
@@ -202,8 +202,7 @@ if ($weeksWarned > 0) {
 } else {
     $staffNote = [];
     if ($revokeUpload) {
-        $staffNote[] = "Upload privileges removed by {$Viewer->username()}"
-            . "\nReason: Uploader of torrent ($torrentId) $name which was [url={$report->location()}]resolved with the preset: {$reportTypeName}[/url].";
+        $staffNote[] = "Upload privileges removed by {$Viewer->username()}\nReason: Uploader of torrent ($torrentId) $name which was [url={$report->location()}]resolved with the preset: {$reportTypeName}[/url].";
     }
     if ($adminMessage) {
         // They did nothing of note, but still want to mark it (Or upload and mark)

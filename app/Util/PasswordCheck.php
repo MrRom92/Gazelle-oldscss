@@ -20,8 +20,10 @@ class PasswordCheck {
             return false;
         }
         if (PASSWORD_CHECK_URL) {
-            $c = new \Gazelle\Util\Curl();
+            $c = new Curl();
+            // phpcs:disable Generic.PHP.ForbiddenFunctions.Found
             $c->setUseProxy(false)->setPostData(sha1($password, true))->fetch(PASSWORD_CHECK_URL);
+            // phpcs:enable Generic.PHP.ForbiddenFunctions.Found
             if ($c->responseCode() === 205) {
                 return false;
             }
@@ -30,9 +32,9 @@ class PasswordCheck {
     }
 
     public static function checkUserPassword(#[\SensitiveParameter] string $password, string $username, string $email): bool {
-        $lpw = strtolower($password);
+        $lpw      = strtolower($password);
         $username = strtolower($username);
-        $email = strtolower($email);
+        $email    = strtolower($email);
         [$lhs, $rhs] = explode('@', $email, 2);
         if (in_array($lpw, [$username, $email, $lhs, "$username@$rhs"], true)) {
             return false;

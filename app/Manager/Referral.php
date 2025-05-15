@@ -355,7 +355,7 @@ class Referral extends \Gazelle\Base {
         $result = $this->proxy->fetch($url, [], [], false);
         $doc = new \DOMDocument();
         libxml_use_internal_errors(true);
-        @$doc->loadHTML($result["response"]);
+        $doc->loadHTML($result["response"]);
         $xpath = new \DOMXPath($doc);
         $token = $xpath->evaluate("string(//input[@name='token']/@value)");
 
