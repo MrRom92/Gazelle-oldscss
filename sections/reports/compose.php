@@ -14,7 +14,7 @@ $reportId = (int)($_GET['reportid'] ?? 0);
 $id       = (int)($_GET['thingid'] ?? 0);
 $type     = $_GET['type'] ?? null;
 if (!$reportId || !$id || is_null($type)) {
-    Error403::error();
+    Error400::error();
 }
 
 require_once 'array.php';
@@ -23,18 +23,18 @@ $reportType = $Types[$type];
 
 $user = null;
 if (!isset($Return)) {
-    $user = (new Manager\User())->findById((int)($_GET['toid'] ?? 0));
+    $user = new Manager\User()->findById((int)($_GET['toid'] ?? 0));
     if (is_null($user)) {
         Error404::error();
     }
-    if ($user->id === $Viewer->id()) {
+    if ($user->id === $Viewer->id) {
         Error400::error("You cannot start a conversation with yourself!");
     }
 }
 
 switch ($type) {
     case 'user':
-        $reported = (new Manager\User())->findById($id);
+        $reported = new Manager\User()->findById($id);
         if (is_null($reported)) {
             Error404::error();
         }
@@ -42,8 +42,7 @@ switch ($type) {
         break;
 
     case 'request':
-    case 'request_update':
-        $request = (new Manager\Request())->findById($id);
+        $request = new Manager\Request()->findById($id);
         if (is_null($request)) {
             Error404::error();
         }
@@ -51,7 +50,7 @@ switch ($type) {
         break;
 
     case 'collage':
-        $collage = (new Manager\Collage())->findById($id);
+        $collage = new Manager\Collage()->findById($id);
         if (is_null($collage)) {
             Error404::error();
         }
@@ -59,7 +58,7 @@ switch ($type) {
         break;
 
     case 'thread':
-        $thread = (new Manager\ForumThread())->findById($id);
+        $thread = new Manager\ForumThread()->findById($id);
         if (is_null($thread)) {
             Error404::error();
         }
@@ -70,7 +69,7 @@ switch ($type) {
         break;
 
     case 'post':
-        $post = (new Manager\ForumPost())->findById($id);
+        $post = new Manager\ForumPost()->findById($id);
         if (is_null($post)) {
             Error404::error();
         }
@@ -81,11 +80,11 @@ switch ($type) {
         break;
 
     case 'comment':
-        $comment = (new Manager\Comment())->findById($id);
+        $comment = new Manager\Comment()->findById($id);
         if (is_null($comment)) {
             Error404::error();
         }
-        $report = (new Report\Comment($reportId, $comment))->setContext($reportType['title']);
+        $report = new Report\Comment($reportId, $comment)->setContext($reportType['title']);
         break;
 
     default:

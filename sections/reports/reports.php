@@ -6,8 +6,6 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-use Gazelle\Enum\SearchReportOrder;
-
 if (!$Viewer->permittedAny('admin_reports', 'site_moderate_forums')) {
     Error403::error();
 }
@@ -53,10 +51,10 @@ if (isset($_REQUEST['id'])) {
         $paginator->setParam('view', 'old');
         $paginator->setParam("order", $_REQUEST['order']);
         $search->setOrder(match ($_REQUEST['order']) {
-            'resolved-asc'  => SearchReportOrder::resolvedAsc,
-            'resolved-desc' => SearchReportOrder::resolvedDesc,
-            'created-asc'   => SearchReportOrder::createdAsc,
-            default         => SearchReportOrder::createdDesc,
+            'resolved-asc'  => Enum\SearchReportOrder::resolvedAsc,
+            'resolved-desc' => Enum\SearchReportOrder::resolvedDesc,
+            'created-asc'   => Enum\SearchReportOrder::createdAsc,
+            default         => Enum\SearchReportOrder::createdDesc,
         });
     }
 }
@@ -64,13 +62,8 @@ if (isset($_REQUEST['id'])) {
 $paginator->setTotal($search->total());
 
 echo $Twig->render('report/index.twig', [
-    'list' => (new Manager\Report(new Manager\User()))->decorate(
+    'list' => new Manager\Report()->decorate(
         $search->page($paginator->limit(), $paginator->offset()),
-        new Manager\Collage(),
-        new Manager\Comment(),
-        new Manager\ForumThread(),
-        new Manager\ForumPost(),
-        new Manager\Request(),
     ),
     'paginator' => $paginator,
     'type'      => $Types,

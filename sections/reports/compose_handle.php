@@ -7,8 +7,7 @@ namespace Gazelle;
 
 authorize();
 
-$userMan = new Manager\User();
-$recipient = $userMan->findById((int)($_POST['toid'] ?? 0));
+$recipient = new Manager\User()->findById((int)($_POST['toid'] ?? 0));
 if (is_null($recipient)) {
     Error404::error("No such recipient!");
 }

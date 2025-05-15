@@ -24,11 +24,7 @@
            <a href="reports.php?action=report&amp;type=request&amp;id={{ request.id }}" class="brackets">Report request</a>
 {% if not request.isFilled %}
             <a href="upload.php?requestid={{ request.id }}{% if request.tgroupId %}&amp;groupid={{ request.tgroupId }}{% endif %}" class="brackets">Upload request</a>
-{%  if request.categoryName == 'Music' and request.year == 0 %}
-            <a href="reports.php?action=report&amp;type=request_update&amp;id={{ request.id }}" class="brackets">Request update</a>
-{%  endif %}
 {% endif %}
-
 {% if request.categoryName == 'Music' %}
             <a href="https://www.worldcat.org/search?qt=worldcat_org_all&amp;q={{ request.urlencodeArtist }}%20{{ request.urlencodeTitle }}" class="brackets">Find in library</a>
             <a href="https://www.discogs.com/search/?q={{ request.urlencodeArtist }}+{{ request.urlencodeTitle }}&amp;type=release" class="brackets">Find on Discogs</a>

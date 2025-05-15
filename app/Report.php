@@ -5,7 +5,12 @@ namespace Gazelle;
 class Report extends BaseObject {
     final public const tableName = 'reports';
 
-    protected Manager\User $userMan;
+    public function __construct(
+        int $id,
+        protected Manager\User $userMan = new Manager\User(),
+    ) {
+        parent::__construct($id);
+    }
 
     public function flush(): static {
         $this->info = [];
@@ -13,16 +18,11 @@ class Report extends BaseObject {
     }
 
     public function link(): string {
-        return sprintf('<a href="%s">Report #%d</a>', $this->url(), $this->id());
+        return sprintf('<a href="%s">Report #%d</a>', $this->url(), $this->id);
     }
 
     public function location(): string {
         return "reports.php?id={$this->id}#report{$this->id}";
-    }
-
-    public function setUserManager(Manager\User $userMan): static {
-        $this->userMan = $userMan;
-        return $this;
     }
 
     public function info(): array {
@@ -96,7 +96,7 @@ class Report extends BaseObject {
      */
     public function claim(?User $user): int {
         return (int)$this
-            ->setField('ClaimerID', (int)$user?->id())
+            ->setField('ClaimerID', (int)$user?->id)
             ->setField('Status', 'InProgress')
             ->modify();
     }
@@ -107,20 +107,17 @@ class Report extends BaseObject {
     }
 
     public function resolve(User $user): int {
-        $affected = $this
+        $affected = (int)$this
             ->setField('Status', 'Resolved')
             ->setField('ResolverID', $user->id)
             ->setFieldNow('ResolvedTime')
             ->modify();
 
         self::$cache->delete_value('num_other_reports');
-        if ($this->subjectType() == 'request_update') {
-            self::$cache->decrement('num_update_reports');
-        } elseif (in_array($this->subjectType(), ['comment', 'post', 'thread'])) {
+        if (in_array($this->subjectType(), ['comment', 'post', 'thread'])) {
             self::$cache->decrement('num_forum_reports');
         }
-
-        return (int)$affected;
+        return $affected;
     }
 
     /**

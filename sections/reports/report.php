@@ -20,7 +20,7 @@ $reportType = $Types[$type];
 
 switch ($type) {
     case 'user':
-        $user = (new Manager\User())->findById($id);
+        $user = new Manager\User()->findById($id);
         if (is_null($user)) {
             Error404::error();
         }
@@ -28,26 +28,15 @@ switch ($type) {
         break;
 
     case 'request':
-        $request = (new Manager\Request())->findById($id);
+        $request = new Manager\Request()->findById($id);
         if (is_null($request)) {
             Error404::error();
         }
         $report = new Report\Request($id, $request);
         break;
 
-    case 'request_update':
-        $request = (new Manager\Request())->findById($id);
-        if (is_null($request)) {
-            Error404::error();
-        }
-        if ($request->isFilled() || $request->categoryName() != 'Music' || $request->year() != 0) {
-            Error403::error();
-        }
-        $report = (new Report\Request($id, $request))->isUpdate(true);
-        break;
-
     case 'collage':
-        $collage = (new Manager\Collage())->findById($id);
+        $collage = new Manager\Collage()->findById($id);
         if (is_null($collage)) {
             Error404::error();
         }
@@ -55,7 +44,7 @@ switch ($type) {
         break;
 
     case 'thread':
-        $thread = (new Manager\ForumThread())->findById($id);
+        $thread = new Manager\ForumThread()->findById($id);
         if (is_null($thread)) {
             Error404::error();
         }
@@ -66,7 +55,7 @@ switch ($type) {
         break;
 
     case 'post':
-        $post = (new Manager\ForumPost())->findById($id);
+        $post = new Manager\ForumPost()->findById($id);
         if (is_null($post)) {
             Error404::error();
         }
@@ -77,11 +66,11 @@ switch ($type) {
         break;
 
     case 'comment':
-        $comment = (new Manager\Comment())->findById($id);
+        $comment = new Manager\Comment()->findById($id);
         if (is_null($comment)) {
             Error404::error();
         }
-        $report = (new Report\Comment($id, $comment))->setContext($reportType['title']);
+        $report = new Report\Comment($id, $comment)->setContext($reportType['title']);
         break;
     default:
         Error400::error('Unknown report target');
@@ -89,7 +78,7 @@ switch ($type) {
 
 echo $Twig->render('report/create.twig', [
     'id'          => $id,
-    'release'     => (new ReleaseType())->list(),
+    'release'     => new ReleaseType()->list(),
     'report'      => $report,
     'report_type' => $reportType,
     'type'        => $type,

@@ -6,7 +6,7 @@ class Report extends \Gazelle\BaseManager {
     protected const ID_KEY = 'zz_r_%d';
 
     public function __construct(
-        protected \Gazelle\Manager\User $userMan,
+        protected User $userMan = new User(),
     ) {}
 
     public function create(\Gazelle\User $user, int $id, string $type, string $reason): \Gazelle\Report {
@@ -17,9 +17,6 @@ class Report extends \Gazelle\BaseManager {
             ", $user->id, $id, $type, $reason
         );
         $id = self::$db->inserted_id();
-        if ($type == 'request_update') {
-            self::$cache->decrement('num_update_reports');
-        }
         self::$cache->delete_value('num_other_reports');
         return $this->findById($id);
     }
@@ -37,7 +34,7 @@ class Report extends \Gazelle\BaseManager {
             }
         }
         return $reportId
-            ? (new \Gazelle\Report($reportId))->setUserManager($this->userMan)
+            ? new \Gazelle\Report($reportId)
             : null;
     }
 
@@ -56,11 +53,11 @@ class Report extends \Gazelle\BaseManager {
 
     public function decorate(
         array $idList,
-        \Gazelle\Manager\Collage     $collageMan,
-        \Gazelle\Manager\Comment     $commentMan,
-        \Gazelle\Manager\ForumThread $threadMan,
-        \Gazelle\Manager\ForumPost   $postMan,
-        \Gazelle\Manager\Request     $requestMan,
+        Collage     $collageMan = new Collage(),
+        Comment     $commentMan = new Comment(),
+        ForumThread $threadMan  = new ForumThread(),
+        ForumPost   $postMan    = new ForumPost(),
+        Request     $requestMan = new Request(),
     ): array {
         $list = [];
         foreach ($idList as $id) {
@@ -79,7 +76,6 @@ class Report extends \Gazelle\BaseManager {
                     ];
                     break;
                 case 'request':
-                case 'request_update':
                     $context = [
                         'label'   => 'request',
                         'subject' => $requestMan->findById($report->subjectId()),

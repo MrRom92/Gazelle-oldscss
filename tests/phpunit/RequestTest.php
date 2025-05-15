@@ -211,7 +211,7 @@ class RequestTest extends TestCase {
         $this->request = $requestMan->create(
             user:            $admin,
             bounty:          $bounty,
-            categoryId:      (new Manager\Category())->findIdByName('Music'),
+            categoryId:      new Manager\Category()->findIdByName('Music'),
             year:            2018,
             title:           $title,
             image:           '',
@@ -295,7 +295,7 @@ class RequestTest extends TestCase {
             title:  'Deluxe Edition',
         );
         $torrentId = current($this->tgroup->torrentIdList());
-        $torrent = (new Manager\Torrent())->findById($torrentId);
+        $torrent = new Manager\Torrent()->findById($torrentId);
         $this->assertInstanceOf(Torrent::class, $torrent, 'request-torrent-filler');
 
         $this->assertEquals(1, $this->request->fill($user, $torrent), 'request-fill');
@@ -453,7 +453,7 @@ class RequestTest extends TestCase {
         $this->request = $requestMan->create(
             user:            $user,
             bounty:          $bounty,
-            categoryId:      (new Manager\Category())->findIdByName('Music'),
+            categoryId:      new Manager\Category()->findIdByName('Music'),
             year:            2018,
             title:           $title,
             image:           '',
@@ -490,7 +490,7 @@ class RequestTest extends TestCase {
         $this->request = $manager->create(
             user:            $this->userList['admin'],
             bounty:          1024 ** 2 * REQUEST_MIN,
-            categoryId:      (new Manager\Category())->findIdByName('Music'),
+            categoryId:      new Manager\Category()->findIdByName('Music'),
             year:            (int)date('Y'),
             title:           'phpunit request bookmark',
             image:           '',
@@ -510,9 +510,9 @@ class RequestTest extends TestCase {
             $this->userList['user'],
             new Manager\Artist(),
         );
-        (new Manager\Tag())->softCreate('classical.era', $this->userList['admin'])->addRequest($this->request);
+        new Manager\Tag()->softCreate('classical.era', $this->userList['admin'])->addRequest($this->request);
         $this->assertTrue(
-            (new User\Bookmark($this->userList['user']))->create('request', $this->request->id),
+            new User\Bookmark($this->userList['user'])->create('request', $this->request->id),
             'request-bookmark-add'
         );
         $this->assertEquals(1, $this->request->updateBookmarkStats(), 'request-bookmark-update');
@@ -530,12 +530,13 @@ class RequestTest extends TestCase {
             $this->userList['user'],
             new Manager\Artist(),
         );
-        (new Manager\Tag())
+        new Manager\Tag()
             ->create('phpunit.' . randomString(6), $this->userList['admin'])
             ->addRequest($this->request);
 
         $title = 'phpunit request report';
-        $report = (new Manager\Report(new Manager\User()))->create(
+        $reportMan = new Manager\Report();
+        $report = $reportMan->create(
             $this->userList['user'], $this->request->id, 'request', $title
         );
         $this->assertEquals('phpunit request report', $report->reason(), 'request-report-reason');
@@ -547,6 +548,24 @@ class RequestTest extends TestCase {
             $requestReport->bbLink(),
             'request-report-bb-link'
         );
+
+        $detail = $reportMan->decorate([$report->id])[0];
+        $this->assertEquals(
+            ["label", "subject", "report"],
+            array_keys($detail),
+            'request-report-decorate-keys',
+        );
+        $this->assertEquals(
+            $this->request->id,
+            $detail['subject']->id,
+            'request-report-decorate-subject'
+        );
+        $this->assertEquals(
+            $report->id,
+            $detail['report']->id,
+            'request-report-decorate-report'
+        );
+
         $report->remove();
     }
 
@@ -559,7 +578,7 @@ class RequestTest extends TestCase {
             $this->userList['user'],
             $artistMan,
         );
-        (new Manager\Tag())
+        new Manager\Tag()
             ->create('phpunit.' . randomString(6), $this->userList['admin'])
             ->addRequest($this->request);
         $this->assertInstanceOf(Request::class, $this->request, 'request-json-create');
@@ -718,7 +737,7 @@ class RequestTest extends TestCase {
         $this->assertStringContainsString(
             "<span style=\"font-weight: bold;\">Requests (1)</span>",
             Util\Twig::factory(new Manager\User())->render('request/torrent.twig', [
-                'list' => (new Manager\Request())->findByTGroup($this->tgroup),
+                'list' => new Manager\Request()->findByTGroup($this->tgroup),
             ]),
             'render-tgroup-request-list',
         );
