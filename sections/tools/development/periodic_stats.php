@@ -10,7 +10,7 @@ if (!$Viewer->permitted('admin_periodic_task_view')) {
     Error403::error();
 }
 
-$stats = (new TaskScheduler())->getRuntimeStats();
+$stats = (new TaskScheduler())->runtimeStats();
 echo $Twig->render('admin/scheduler/stats.twig', [
     'hourly' => [
         'duration'  => json_encode($stats['hourly'][0]['data']),

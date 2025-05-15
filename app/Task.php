@@ -7,23 +7,26 @@ use Gazelle\Util\Irc;
 abstract class Task extends Base {
     protected array $events = [];
     protected int $processed = 0;
-    protected float $startTime;
     protected int $historyId;
+    protected float $startTime;
+
+    abstract public function run(): void;
 
     public function __construct(
-        protected readonly int $taskId,
-        protected readonly string $name,
-        protected readonly bool $isDebug,
-    ) {}
+        public readonly int $taskId,
+        public readonly string $name,
+        public readonly bool $isDebug,
+    ) {
+        $this->startTime = microtime(true);
+    }
 
     public function begin(): void {
-        $this->startTime = microtime(true);
         self::$db->prepared_query('
             INSERT INTO periodic_task_history
                    (periodic_task_id)
             VALUES (?)
-        ', $this->taskId);
-
+            ', $this->taskId
+        );
         $this->historyId = self::$db->inserted_id();
     }
 
@@ -94,6 +97,4 @@ abstract class Task extends Base {
     public function error(string $message, int $reference = 0): void {
         $this->log($message, 'error', $reference);
     }
-
-    abstract public function run(): void;
 }

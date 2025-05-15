@@ -23,7 +23,7 @@ $processed = $scheduler->runTask($taskId, true);
 $output    = ob_get_flush();
 
 echo $Twig->render('admin/scheduler/run.twig', [
-    'task'      => $scheduler->getTask($taskId),
+    'task'      => $scheduler->findById($taskId),
     'output'    => $output,
     'processed' => $processed,
 ]);

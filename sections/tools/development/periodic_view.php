@@ -11,7 +11,7 @@ if (!$Viewer->permitted('admin_periodic_task_view')) {
 }
 
 $scheduler = new TaskScheduler();
-$taskId = (int)($_REQUEST['id'] ?? 0);
+$taskId    = (int)($_REQUEST['id'] ?? 0);
 
 if ($taskId && $_REQUEST['mode'] === 'run_now') {
     if (!$Viewer->permitted('admin_schedule')) {
@@ -22,6 +22,7 @@ if ($taskId && $_REQUEST['mode'] === 'run_now') {
 }
 
 echo $Twig->render('admin/scheduler/view.twig', [
-    'task_list' => $scheduler->getTaskDetails(),
-    'viewer'   => $Viewer,
+    'heading'   => $scheduler->heading(),
+    'task_list' => $scheduler->taskDetailList(),
+    'viewer'    => $Viewer,
 ]);

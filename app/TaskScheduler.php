@@ -2,104 +2,59 @@
 
 namespace Gazelle;
 
-use Gazelle\Util\Irc;
+/* Note: tasks are created and removed via a phinx migration. There
+ * is no ability to create a task from the site because the task
+ * code will need to be added via a repo commit in any event.
+ */
 
 class TaskScheduler extends Base {
     final public const CACHE_TASKS = 'scheduled_tasks';
 
-    public function getTask(int $id): ?array {
-        $tasks = $this->getTasks();
-        return array_key_exists($id, $tasks) ? $tasks[$id] : null;
+    protected Util\SortableTableHeader $heading;
+
+    public function findById(int $taskId): ?array {
+        $tasks = $this->taskList();
+        return array_key_exists($taskId, $tasks) ? $tasks[$taskId] : null;
     }
 
-    public function getTasks(): array {
-        if (!$tasks = self::$cache->get_value(self::CACHE_TASKS)) {
-            self::$db->prepared_query('
-                SELECT periodic_task_id, name, classname, description, period, is_enabled, is_sane, is_debug, run_now
-                FROM periodic_task
-            ');
-
-            $tasks = self::$db->to_array('periodic_task_id', MYSQLI_ASSOC);
-            self::$cache->cache_value(self::CACHE_TASKS, $tasks, 3600);
-        }
-
-        return $tasks;
-    }
-
-    public function getInsaneTasks(): int {
-        return count(array_filter($this->getTasks(),
-            fn($v) => !$v['is_sane']
-        ));
-    }
-
-    public static function isClassValid(string $class): bool {
-        $class = 'Gazelle\\Task\\' . $class;
-        return class_exists($class);
-    }
-
-    public function flush(): static {
-        self::$cache->delete_value(self::CACHE_TASKS);
-        return $this;
-    }
-
-    public function createTask(string $name, string $class, string $description, int $period, bool $isEnabled, bool $isSane, bool $isDebug): void {
-        if (!self::isClassValid($class)) {
-            return;
-        }
-
-        self::$db->prepared_query("
-            INSERT INTO periodic_task
-                   (name, classname, description, period, is_enabled, is_sane, is_debug)
-            VALUES
-                   (?,    ?,         ?,           ?,      ?,          ?,       ?)
-        ", $name, $class, $description, $period, (int)$isEnabled, (int)$isSane, (int)$isDebug);
-        $this->flush();
-    }
-
-    public function updateTask(int $id, string $name, string $class, string $description, int $period, bool $isEnabled, bool $isSane, bool $isDebug): void {
-        if (!self::isClassValid($class)) {
-            return;
-        }
-        self::$db->prepared_query("
-            UPDATE periodic_task SET
-                name = ?,
-                classname = ?,
-                description = ?,
-                period = ?,
-                is_enabled = ?,
-                is_sane = ?,
-                is_debug = ?
-            WHERE periodic_task_id = ?
-        ", $name, $class, $description, $period, (int)$isEnabled, (int)$isSane, (int)$isDebug, $id);
-        $this->flush();
-    }
-
-    public function runNow(int $id): void {
-        self::$db->prepared_query("
-            UPDATE periodic_task SET
-                run_now = 1 - run_now
-            WHERE periodic_task_id = ?
-            ", $id
+    public function findByName(string $className): ?array {
+        return $this->findById(
+            (int)self::$db->scalar("
+                SELECT pt.periodic_task_id FROM periodic_task pt WHERE pt.classname = ?
+                ", $className
+            )
         );
-        $this->flush();
     }
 
-    public function deleteTask(int $id): void {
-        self::$db->prepared_query("
-            DELETE FROM periodic_task WHERE periodic_task_id = ?
-        ", $id);
-        $this->flush();
+    public function heading(): Util\SortableTableHeader {
+        return $this->heading ??= new Util\SortableTableHeader(
+            'next', [
+                'name'        => ['dbColumn' => 'name',       'defaultSort' => 'asc',   'text' => 'Name'],
+                'period'      => ['dbColumn' => 'period',     'defaultSort' => 'asc',   'text' => 'Interval'],
+                'runs'        => ['dbColumn' => 'runs',       'defaultSort' => 'desc',  'text' => 'Runs'],
+                'duration'    => ['dbColumn' => 'duration',   'defaultSort' => 'desc',  'text' => 'Duration'],
+                'processed'   => ['dbColumn' => 'processed',  'defaultSort' => 'desc',  'text' => 'Processed'],
+                'status'      => ['dbColumn' => 'status',     'defaultSort' => 'desc',  'text' => 'Status'],
+                'errors'      => ['dbColumn' => 'errors',     'defaultSort' => 'desc',  'text' => 'Errors'],
+                'events'      => ['dbColumn' => 'events',     'defaultSort' => 'desc',  'text' => 'Events'],
+                'last'        => ['dbColumn' => "last_run IS NULL ASC, is_enabled DESC, last_run", 'defaultSort' => 'desc', 'text' => 'Last Run'],
+                'next'        => ['dbColumn' => 'next_run IS NULL ASC, is_enabled DESC, next_run', 'defaultSort' => 'desc', 'text' => 'Next Run'],
+            ]
+        );
     }
 
-    public function getTaskDetails(int $days = 7): array {
+    public function taskDetailList(int $days = 7): array {
         self::$db->prepared_query("
             SELECT pt.periodic_task_id, name, description, period, is_enabled, is_sane, run_now,
-                coalesce(stats.runs, 0) runs, coalesce(stats.processed, 0) processed,
-                coalesce(stats.errors, 0) errors, coalesce(events.events, 0) events,
-                coalesce(pth.launch_time, '') last_run,
-                coalesce(pth.duration_ms, 0) duration,
-                coalesce(pth.status, '') status,
-                if(pth.launch_time is null, now(), pth.launch_time + INTERVAL period SECOND) AS next_run
+                coalesce(stats.runs, 0)       AS runs,
+                coalesce(stats.processed, 0)  AS processed,
+                coalesce(stats.errors, 0)     AS errors,
+                coalesce(events.events, 0)    AS events,
+                coalesce(pth.duration_ms, 0)  AS duration,
+                coalesce(pth.status, '')      AS status,
+                pth.launch_time               AS last_run,
+                pth.launch_time + INTERVAL period SECOND
+                                              AS next_run
             FROM periodic_task pt
             LEFT JOIN
             (
@@ -118,41 +73,80 @@ class TaskScheduler extends Base {
                 GROUP BY pth.periodic_task_id
             ) events ON (pt.periodic_task_id = events.periodic_task_id)
             LEFT JOIN periodic_task_history pth ON (stats.latest = pth.periodic_task_history_id)
-            ORDER BY pt.run_now DESC, pt.is_enabled DESC, pt.period, pt.periodic_task_id
-        ", $days, $days);
-
+            ORDER BY {$this->heading()->orderBy()} {$this->heading()->dir()}, name ASC
+            ", $days, $days
+        );
         return self::$db->to_array('periodic_task_id', MYSQLI_ASSOC);
     }
 
-    public function getTotal(int $id): int {
+    public function taskList(): array {
+        self::$db->prepared_query("
+            SELECT periodic_task_id, name, classname, description, period, is_enabled, is_sane, is_debug, run_now
+            FROM periodic_task
+        ");
+        return self::$db->to_array('periodic_task_id', MYSQLI_ASSOC);
+    }
+
+    public function insaneTaskList(): int {
+        return count(array_filter($this->taskList(),
+            fn ($v) => !$v['is_sane']
+        ));
+    }
+
+    public static function isClassValid(string $class): bool {
+        return class_exists('Gazelle\\Task\\' . $class);
+    }
+
+    public function updateTask(
+        int $taskId,
+        string $name,
+        string $class,
+        string $description,
+        int $period,
+        bool $isEnabled,
+        bool $isSane,
+        bool $isDebug
+    ): int {
+        if (!self::isClassValid($class)) {
+            return 0;
+        }
+        self::$db->prepared_query("
+            UPDATE periodic_task SET
+                name        = ?,
+                classname   = ?,
+                description = ?,
+                period      = ?,
+                is_enabled  = ?,
+                is_sane     = ?,
+                is_debug    = ?
+            WHERE periodic_task_id = ?
+            ", $name, $class, $description, $period,
+                (int)$isEnabled, (int)$isSane, (int)$isDebug,
+                $taskId,
+        );
+        return self::$db->affected_rows();
+    }
+
+    public function taskRunTotal(int $taskId): int {
         return (int)self::$db->scalar("
             SELECT count(*) FROM periodic_task_history WHERE periodic_task_id = ?
-            ", $id
+            ", $taskId
         );
     }
 
-    public function getTaskHistory(int $id, int $limit, int $offset, string $sort, string $direction): ?TaskScheduler\TaskHistory {
-        $sortMap = [
-            'id'         => 'periodic_task_history_id',
-            'launchtime' => 'launch_time',
-            'status'     => 'status',
-            'errors'     => 'num_errors',
-            'items'      => 'num_items',
-            'duration'   => 'duration_ms'
-        ];
-
-        if (!isset($sortMap[$sort])) {
-            return null;
-        }
-        $sort = $sortMap[$sort];
-
+    public function taskHistory(
+        int $taskId,
+        int $limit,
+        int $offset,
+    ): ?TaskScheduler\TaskHistory {
         self::$db->prepared_query("
             SELECT periodic_task_history_id, launch_time, status, num_errors, num_items, duration_ms
             FROM periodic_task_history
             WHERE periodic_task_id = ?
-            ORDER BY $sort $direction
+            ORDER BY launch_time DESC
             LIMIT ? OFFSET ?
-        ", $id, $limit, $offset);
+            ", $taskId, $limit, $offset
+        );
         $items = self::$db->to_array('periodic_task_history_id', MYSQLI_ASSOC);
 
         $historyEvents = [];
@@ -171,14 +165,17 @@ class TaskScheduler extends Base {
             }
         }
 
-        $task = new TaskScheduler\TaskHistory($this->getTask($id)['name'], $this->getTotal($id));
+        $history = new TaskScheduler\TaskHistory(
+            $this->findById($taskId)['name'],
+            $this->taskRunTotal($taskId)
+        );
         foreach ($items as $item) {
             [$historyId, $launchTime, $status, $numErrors, $numItems, $duration] = array_values($item);
             $taskEvents = $historyEvents[$historyId] ?? [];
-            $task->items[] = new TaskScheduler\HistoryItem($launchTime, $status, $numErrors, $numItems, $duration, $taskEvents);
+            $history->items[] = new TaskScheduler\HistoryItem($launchTime, $status, $numErrors, $numItems, $duration, $taskEvents);
         }
 
-        return $task;
+        return $history;
     }
 
     private function constructAxes(array $data, string $key, array $axes, bool $time): array {
@@ -186,17 +183,17 @@ class TaskScheduler extends Base {
 
         foreach ($axes as $axis) {
             if (is_array($axis)) {
-                $id = $axis[0];
+                $taskId = $axis[0];
                 $name = $axis[1];
             } else {
-                $id = $axis;
+                $taskId = $axis;
                 $name = $axis;
             }
 
             $result[] = [
                 'name' => $name,
                 'data' => array_map(
-                    fn($v) => [$time ? strtotime($v[$key]) * 1000 : $v[$key], (int)$v[$id]],
+                    fn ($v) => [$time ? strtotime($v[$key]) * 1000 : $v[$key], (int)$v[$taskId]],
                     $data
                 )
             ];
@@ -204,7 +201,7 @@ class TaskScheduler extends Base {
         return $result;
     }
 
-    public function getRuntimeStats(int $days = 90): array {
+    public function runtimeStats(int $days = 90): array {
         self::$db->prepared_query("
             SELECT date_format(pth.launch_time, '%Y-%m-%d %H:00:00') AS date,
                 sum(pth.duration_ms) AS duration,
@@ -268,7 +265,7 @@ class TaskScheduler extends Base {
         ];
     }
 
-    public function getTaskRuntimeStats(int $taskId, int $days = 90): array {
+    public function taskRuntimeStats(int $taskId, int $days = 90): array {
         self::$db->prepared_query("
             SELECT date(pth.launch_time) AS date,
                 sum(pth.duration_ms) AS duration,
@@ -285,42 +282,41 @@ class TaskScheduler extends Base {
         return $this->constructAxes(self::$db->to_array(false, MYSQLI_ASSOC), 'date', ['duration', 'processed'], true);
     }
 
-    public function getTaskSnapshot(float $start, float $end): array {
-        self::$db->prepared_query('
-            SELECT pt.periodic_task_id, pt.name, pth.launch_time, pth.status, pth.num_errors, pth.num_items, pth.duration_ms
-            FROM periodic_task pt
-            INNER JOIN periodic_task_history pth USING (periodic_task_id)
-            WHERE pth.launch_time <= ? AND pth.launch_time + INTERVAL pth.duration_ms / 1000 SECOND >= ?
-            ', $end, $start
+    public function runNow(int $taskId): int {
+        self::$db->prepared_query("
+            UPDATE periodic_task SET
+                run_now = 1 - run_now
+            WHERE periodic_task_id = ?
+            ", $taskId
         );
-
-        return self::$db->to_array('periodic_task_id', MYSQLI_ASSOC);
+        return self::$db->affected_rows();
     }
 
-    public function run(): void {
+    public function run(): int {
         $pendingMigrations = array_filter(
             json_decode(
                 (string)shell_exec(BIN_PHINX . ' status -c ' . PHINX_MYSQL . ' --format=json | tail -n 1'),
                 true
             )['migrations'],
-            fn($value) => count($value) > 0 && $value['migration_status'] === 'down'
+            fn ($value) => count($value) > 0 && $value['migration_status'] === 'down'
         );
 
         if ($pendingMigrations) {
-            Irc::sendMessage(IRC_CHAN_DEV, 'Pending migrations found, scheduler cannot continue');
+            Util\Irc::sendMessage(IRC_CHAN_DEV, 'Pending migrations found, scheduler cannot continue');
             echo "Pending migrations found, aborting\n";
-            return;
+            return 0;
         }
 
         /**
          * We attempt to run as many tasks as we can within a minute. If a task
          * runs over the TTL, it will be noted as in progress, so the next
-         * invocation of the scheduler will ignore it. When the task finally
+         * invocation of the scheduler ignores it. When the task finally
          * returns, this invocation will exit.
          * If a task fails, do not try to run again in this slice.
          */
 
         $fail = [0];
+        $run  = 0;
 
         $TTL = microtime(true) + 58;
         while (microtime(true) < $TTL) {
@@ -351,34 +347,37 @@ class TaskScheduler extends Base {
                 ", ...$fail
             );
             if (!$taskId) {
+                // no tasks remaining to be run
                 break;
             }
+            $run++;
             $result = $this->runTask($taskId);
             if ($result == -1) {
                 $fail[] = $taskId;
             }
         }
+        return $run;
     }
 
     public function runClass(string $className, bool $debug = false): int {
-        return $this->runTask(
-            (int)self::$db->scalar("
-                SELECT pt.periodic_task_id FROM periodic_task pt WHERE pt.classname = ?
-                ", $className
-            ), $debug
-        );
-    }
-
-    public function runTask(int $id, bool $debug = false): int {
-        $task = $this->getTask($id);
+        $task = $this->findByName($className);
         if ($task === null) {
             return -1;
         }
-        echo('Running task ' . $task['name'] . "...");
+        return $this->runTask($task['periodic_task_id'], $debug);
+    }
 
-        $taskRunner = $this->createRunner($id, $task['name'], $task['classname'], $task['is_debug'] || $debug);
+    public function runTask(int $taskId, bool $debug = false): int {
+        $task = $this->findById($taskId);
+        if ($task === null) {
+            return -1;
+        }
+        echo "Running task {$task['name']}...";
+
+        $taskRunner = $this->createRunner($taskId, $task['name'], $task['classname'], $task['is_debug'] || $debug);
         if ($taskRunner === null) {
-            Irc::sendMessage(IRC_CHAN_DEV, "Failed to construct task {$task['name']}");
+            echo "DONE! (0.000)\n";
+            Util\Irc::sendMessage(IRC_CHAN_DEV, "Failed to construct task {$task['name']}");
             return -1;
         }
 
@@ -409,18 +408,17 @@ class TaskScheduler extends Base {
                 UPDATE periodic_task SET
                     run_now = FALSE
                 WHERE periodic_task_id = ?
-                ', $id
+                ', $taskId
             );
-            $this->flush();
         }
         return $processed;
     }
 
-    private function createRunner(int $id, string $name, string $class, bool $isDebug): mixed {
+    private function createRunner(int $taskId, string $name, string $class, bool $isDebug): mixed {
         $class = 'Gazelle\\Task\\' . $class;
         if (!class_exists($class)) {
             return null;
         }
-        return new $class($id, $name, $isDebug);
+        return new $class($taskId, $name, $isDebug);
     }
 }

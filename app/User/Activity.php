@@ -138,10 +138,12 @@ class Activity extends \Gazelle\BaseUser {
             if ($lastSchedulerRun > SCHEDULER_DELAY) {
                 $this->setAlert("<span class=\"sys-error\" title=\"Cron scheduler not running\">CRON</span>");
             }
-            $insane = $scheduler->getInsaneTasks();
+            $insane = $scheduler->insaneTaskList();
             if ($insane) {
-                $plural = plural($insane);
-                $this->setAlert("<a title=\"$insane insane task$plural\" href=\"tools.php?action=periodic&amp;mode=view\"><span class=\"sys-error\">TASK</span></a>");
+                $this->setAlert("<a title=\"$insane insane task"
+                    . plural($insane)
+                    . "\" href=\"tools.php?action=periodic&amp;mode=view\"><span class=\"sys-error\">TASK</span></a>"
+                );
             }
         }
         return $this;
