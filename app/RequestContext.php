@@ -85,7 +85,8 @@ class RequestContext {
             'OperatingSystem'        => null,
             'OperatingSystemVersion' => null,
         ];
-        $this->remoteAddr = '127.0.0.1';
+        $this->remoteAddr       = '127.0.0.1';
+        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
         return $this;
     }
 

@@ -5,6 +5,8 @@ namespace Gazelle\Manager;
 use Gazelle\Enum\NotificationType;
 use Gazelle\Enum\UserAuditEvent;
 use Gazelle\Enum\UserStatus;
+use Gazelle\SessionCookie;
+use Gazelle\User\Session;
 use Gazelle\Util\Time;
 
 class User extends \Gazelle\BaseManager {
@@ -113,6 +115,32 @@ class User extends \Gazelle\BaseManager {
             return [false, 'invalid token'];
         }
         return [true, $user];
+    }
+
+    public function findByCookie(SessionCookie $cookie): ?\Gazelle\User {
+        if (!$cookie->isValid()) {
+            return null;
+        }
+        $user = $this->findById($cookie->userId());
+        if (is_null($user)) {
+            return null;
+        }
+        if ($user->permitted('site_disable_ip_history')) {
+            $user->requestContext()->anonymize();
+        }
+        if ($user->isDisabled() && !in_array($user->requestContext()->module(), ['index', 'login'])) {
+            $user->logoutEverywhere();
+            return null;
+        }
+        $session = new Session($user);
+        global $SessionID;
+        $SessionID = $cookie->sessionKey();
+        if (!$session->valid($cookie->sessionKey())) {
+            $user->logout($cookie->sessionKey());
+            return null;
+        }
+        $session->refresh($cookie->sessionKey());
+        return $user;
     }
 
     /**

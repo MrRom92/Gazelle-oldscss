@@ -41,22 +41,12 @@ if (
 
 // 2. Do we have a viewer?
 
-$SessionID = false;
+Base::setRequestContext($context);
 $Viewer    = null;
+$cookie    = null;
+$SessionID = null;
 $banMan    = new Manager\Ban();
 $userMan   = new Manager\User();
-
-$forceLogout = function (): never {
-    setcookie('session', '', [
-        'expires'  => time() - 86_400 * 90,
-        'path'     => '/',
-        'secure'   => !DEBUG_MODE,
-        'httponly' => true,
-        'samesite' => 'Strict',
-    ]);
-    header('Location: login.php');
-    exit;
-};
 
 // Authorization header only makes sense for the ajax endpoint
 if (!empty($_SERVER['HTTP_AUTHORIZATION']) && $module === 'ajax') {
@@ -73,29 +63,13 @@ if (!empty($_SERVER['HTTP_AUTHORIZATION']) && $module === 'ajax') {
         json_die('failure', $result);
     }
 } elseif (isset($_COOKIE['session'])) {
-    $cookieData = Crypto::decrypt($_COOKIE['session'], ENCKEY);
-    if ($cookieData === false) {
-        $forceLogout();
+    $cookie = new SessionCookie($_COOKIE['session']);
+    $Viewer = $userMan->findByCookie($cookie);
+    if (!$Viewer) {
+        $cookie->expire();
+        header('Location: login.php');
+        exit;
     }
-    [$SessionID, $userId] = explode('|~|', $cookieData);
-    $Viewer = $userMan->findById((int)$userId);
-    if (is_null($Viewer)) {
-        $forceLogout();
-    }
-    if ($Viewer->isDisabled() && !in_array($module, ['index', 'login'])) {
-        $Viewer->logoutEverywhere();
-        $forceLogout();
-    }
-    $session = new User\Session($Viewer);
-    if (!$session->valid($SessionID)) {
-        $Viewer->logout($SessionID);
-        $forceLogout();
-    }
-    if ($Viewer->permitted('site_disable_ip_history')) {
-        $context->anonymize();
-    }
-    $session->refresh($SessionID, $context->remoteAddr(), $context->ua());
-    unset($browser, $session, $userId, $cookieData);
 } elseif ($module === 'torrents' && ($_REQUEST['action'] ?? '') == 'download' && isset($_REQUEST['torrent_pass'])) {
     $Viewer = $userMan->findByAnnounceKey($_REQUEST['torrent_pass']);
     if (is_null($Viewer) || $Viewer->isDisabled() || $Viewer->isLocked()) {
@@ -116,41 +90,40 @@ if (!empty($_SERVER['HTTP_AUTHORIZATION']) && $module === 'ajax') {
 // 3. We have a viewer (or this is a login or registration attempt)
 
 if ($Viewer) {
+    // To proxify images (or not), or e.g. not render the name of a thread
+    // for a user who may lack the privileges to see it in the first place.
+    \Text::setViewer($Viewer);
+    Util\Twig::setViewer($Viewer);
+    $Viewer->requestContext()->setViewer($Viewer);
+
     // these endpoints do not exist
     if (in_array($module, OBSOLETE_ENDPOINTS)) {
         $Viewer->logoutEverywhere();
-        $forceLogout();
+        $cookie?->expire();
+        header('Location: login.php');
+        exit;
     }
     if ($Viewer->hasAttr('admin-error-reporting')) {
         error_reporting(E_ALL);
     }
     if ($Viewer->permitted('site_disable_ip_history')) {
-        $context->anonymize();
-        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        $Viewer->requestContext()->anonymize();
     }
-    if ($Viewer->ipaddr() != $context->remoteAddr() && !$Viewer->permitted('site_disable_ip_history')) {
-        if ($banMan->isBanned($context->remoteAddr())) {
+    if ($Viewer->ipaddr() != $Viewer->requestContext()->remoteAddr() && !$Viewer->permitted('site_disable_ip_history')) {
+        if ($banMan->isBanned($Viewer->requestContext()->remoteAddr())) {
             Error403::error('Your IP address has been banned.');
         }
-        (new Manager\IPv4())->register($Viewer, $context->remoteAddr());
+        (new Manager\IPv4())->register($Viewer, $Viewer->requestContext()->remoteAddr());
     }
     if ($Viewer->isLocked() && !in_array($module, ['chat', 'staffpm', 'ajax', 'locked', 'logout', 'login'])) {
-        $context->setModule('locked');
+        $Viewer->requestContext()->setModule('locked');
     }
-
-    // To proxify images (or not), or e.g. not render the name of a thread
-    // for a user who may lack the privileges to see it in the first place.
-    \Text::setViewer($Viewer);
-    Util\Twig::setViewer($Viewer);
-    $context->setViewer($Viewer);
 }
-unset($forceLogout);
 
 $Debug->mark('load page');
 if (DEBUG_MODE || $Viewer?->permitted('site_debug')) {
     $Twig->addExtension(new \Twig\Extension\DebugExtension());
 }
-Base::setRequestContext($context);
 
 // for sections/tools/development/process_info.php
 $Cache->cache_value('php_' . getmypid(), [

@@ -61,13 +61,9 @@ if (!empty($_POST['username']) && !empty($_POST['password'])) {
                 'ipaddr'      => $context->remoteAddr(),
                 'useragent'   => $context->useragent(),
             ]);
-            setcookie('session', $session->cookie($current['SessionID']), [
-                'expires'  => (int)$login->persistent() * (time() + 60 * 60 * 24 * 90),
-                'path'     => '/',
-                'secure'   => !DEBUG_MODE,
-                'httponly' => true,
-                'samesite' => 'Lax',
-            ]);
+
+            (new SessionCookie(SessionCookie::encode($user, $current['SessionID'])))
+                ->emit((int)$login->persistent() * (time() + 60 * 60 * 24 * 90));
             header("Location: index.php");
             exit;
         }

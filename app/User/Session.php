@@ -5,8 +5,8 @@ namespace Gazelle\User;
 use Gazelle\Util\Crypto;
 
 class Session extends \Gazelle\BaseUser {
-    final public const tableName     = 'users_sessions';
-    protected const CACHE_KEY = 'u_sess_%d';
+    final public const tableName = 'users_sessions';
+    protected const CACHE_KEY    = 'u_sess_%d';
 
     public function flush(): static {
         $this->user()->flush();
@@ -39,12 +39,15 @@ class Session extends \Gazelle\BaseUser {
         return $this->info;
     }
 
-    public function valid(string $sessionId): bool {
-        return isset($this->info()[$sessionId]);
+    public function valid(string $sessionKey): bool {
+        return isset($this->info()[$sessionKey]);
     }
 
-    public function refresh(string $sessionId, string $ipaddr, array $browser): bool {
-        if (strtotime($this->info()[$sessionId]['LastUpdate']) > time() - 600) {
+    public function refresh(string $sessionKey): bool {
+        if (!isset($this->info()[$sessionKey])) {
+            return false;
+        }
+        if (strtotime($this->info()[$sessionKey]['LastUpdate']) > time() - 600) {
             // Update every 10 minutes
             return false;
         }
@@ -54,8 +57,7 @@ class Session extends \Gazelle\BaseUser {
         // do a cheap append to a delta table, and then reconsolidate to
         // the real table every once in a while via the scheduler.
         $this->user->refreshLastAccess();
-        new History($this->user)->registerSiteIp($ipaddr);
-
+        $ua = $this->requestContext()->ua();
         self::$db->prepared_query("
             UPDATE users_sessions SET
                 LastUpdate = now(),
@@ -65,10 +67,13 @@ class Session extends \Gazelle\BaseUser {
                 OperatingSystem = ?,
                 OperatingSystemVersion = ?
             WHERE UserID = ? AND SessionID = ?
-            ", $ipaddr, $browser['Browser'], $browser['BrowserVersion'],
-               $browser['OperatingSystem'], $browser['OperatingSystemVersion'],
-               $this->user->id, $sessionId
+            ", $this->requestContext()->remoteAddr(),
+                $ua['Browser'], $ua['BrowserVersion'],
+                $ua['OperatingSystem'], $ua['OperatingSystemVersion'],
+                $this->user->id, $sessionKey
         );
+        new History($this->user)
+            ->registerSiteIp($this->requestContext()->remoteAddr());
 
         self::$cache->delete_value('users_sessions_' . $this->user->id);
         $this->info = [];
@@ -76,12 +81,12 @@ class Session extends \Gazelle\BaseUser {
     }
 
     public function create(array $info): array {
-        $sessionId = randomString();
+        $sessionKey = randomString();
         self::$db->prepared_query('
             INSERT INTO users_sessions
                    (UserID, SessionID, KeepLogged, Browser, BrowserVersion, OperatingSystem, OperatingSystemVersion, IP, FullUA, LastUpdate)
             VALUES (?,      ?,         ?,          ?,       ?,              ?,               ?,                      ?,  ?,      now())
-            ', $this->user->id, $sessionId, $info['keep-logged'],
+            ', $this->user->id, $sessionKey, $info['keep-logged'],
                $info['browser']['Browser'], $info['browser']['BrowserVersion'],
                $info['browser']['OperatingSystem'], $info['browser']['OperatingSystemVersion'],
                $info['ipaddr'], $info['useragent']
@@ -95,23 +100,23 @@ class Session extends \Gazelle\BaseUser {
             ', $this->user->id
         );
         self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->user->id));
-        return $this->info()[$sessionId];
+        return $this->info()[$sessionKey];
     }
 
-    public function cookie(string $sessionId): string {
-        return Crypto::encrypt($sessionId . '|~|' . $this->user->id, ENCKEY);
+    public function cookie(string $sessionKey): string {
+        return Crypto::encrypt($sessionKey . '|~|' . $this->user->id, ENCKEY);
     }
 
-    public function drop(string $sessionId): int {
+    public function drop(string $sessionKey): int {
         self::$db->prepared_query('
             DELETE FROM users_sessions
             WHERE UserID = ?
                 AND SessionID = ?
-            ', $this->user->id, $sessionId
+            ', $this->user->id, $sessionKey
         );
         self::$cache->delete_multi([
             sprintf(self::CACHE_KEY, $this->user->id),
-            'session_' . $sessionId,
+            'session_' . $sessionKey,
         ]);
         return self::$db->affected_rows();
     }
@@ -134,11 +139,11 @@ class Session extends \Gazelle\BaseUser {
         return self::$db->affected_rows();
     }
 
-    public function lastActive(string $sessionId): ?array {
+    public function lastActive(string $sessionKey): ?array {
         $info = $this->info();
         if (count($info) > 1) {
             foreach ($info as $id => $session) {
-                if ($id != $sessionId) {
+                if ($id != $sessionKey) {
                     return $session;
                 }
             }
