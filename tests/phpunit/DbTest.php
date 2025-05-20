@@ -487,6 +487,34 @@ class DbTest extends TestCase {
         ");
     }
 
+    public function testPgWrapper(): void {
+        $this->pg()->execute("
+            create temporary table phpunit_pg_wrapper (
+                t_id int not null primary key generated always as identity,
+                num int[],
+                word text[]
+            );
+        ");
+        $this->pg()->execute("
+            insert into phpunit_pg_wrapper (num, word) values
+                ('{2, 4, 6}', '{\"even\"}'),
+                ('{2, 3, 5, 7, 11}', '{\"prime\", \"primal\"}'),
+                ('{1, 2, 3, 5, 8, 13}', '{\"fib\"}')
+        ");
+        $result = $this->pg()->executeParams(
+            "select word from phpunit_pg_wrapper where $1 = any(num);",
+            3
+        );
+        $this->assertEquals(
+            [
+                ["word" => ["prime", "primal"]],
+                ["word" => ["fib"]],
+            ],
+            $result->fetchAll(),
+            'pg-wrapper-execute'
+        );
+    }
+
     public function testPgWrite(): void {
         $this->expectException(\PDOException::class);
         $this->expectExceptionMessageMatches(

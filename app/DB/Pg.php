@@ -2,24 +2,101 @@
 
 namespace Gazelle\DB;
 
-use Gazelle\DB\Pg\Stats;
+use sad_spirit\pg_wrapper\Connection;
+use sad_spirit\pg_wrapper\Result;
+
+/* There are (at least) two ways to interact with Postgresql databases
+ * in PHP: PDO and pg_wrapper. (There are others but they are less
+ * interesting).
+ *
+ * PDO is the standard PHP interface for interacting with a database,
+ * but it does not know how to handle advance Pg datatypes.
+ * pg_wrapper, on the other hand, knows how to unpack arrays, ranges and
+ * the like, which is cannot be done with PDO without additional client
+ * make-work code.
+ *
+ * NOTE!
+ * =====
+ *
+ * pg_wrapper uses $1, $2, $3 numbered parameter placeholders, and the
+ * underlying call passes arguments as an passed in an array (as opposed
+ * to a variadic function call). This is so confusing compared to the
+ * mysql interface that the variadic interface is used here to, even
+ * though this differs from the default pg_wrapper style.
+ *
+ *   create table t (
+ *       t_id int not null primary key generated always as identity,
+ *       num int[],
+ *       word text[]
+ *   );
+ *   insert into t (num, word) values ('{2, 4, 6}', '{"even"}'),
+ *       ('{2, 3, 5, 7, 11}', '{"prime", "primal"}'),
+ *       ('{1, 2, 3, 5, 8, 13}', '{"fib"})
+ *
+ *   $r = $pg->execute("select word from t2 where $1 = any(num);", 3);
+ *   $r->fetchall();
+ *     → [ ["word" => ["prime", "primal"]], ["word" => ["fib"]] ]
+ *
+ * Versus:
+ *
+ *   $pg->all("select word from t2 where ? = any(num);", 3);
+ *     → [ ["word" => {prime,primal}], ["word" => "{fib}"] ]
+ *
+ * ...which leaves the responsibility of parsing and unpacking the
+ * returned value "{prime,primal}" correctly.
+ *
+ * It should be possible to replace all the existing call that rely on PDO
+ * to use pg_wrapper instead.
+ */
 
 class Pg {
-    protected \PDO  $pdo;
-    protected Stats $stats;
+    protected Connection $cnxrw;
+    protected \PDO       $pdo;
+    protected Pg\Stats   $stats;
 
     public function __construct(#[\SensitiveParameter] string $dsn) {
+        $this->cnxrw = new Connection(
+            sprintf('host=%s port=%s dbname=%s user=%s password=%s',
+                PG_HOST, PG_PORT, PG_DB, PG_RW_USER, PG_RW_PASS,
+            ),
+        );
+        // The DSN of the connection
         $this->pdo   = new \PDO($dsn);
-        $this->stats = new Stats();
+        $this->stats = new Pg\Stats();
     }
 
     public function pdo(): \PDO {
         return $this->pdo;
     }
 
-    public function stats(): Stats {
+    public function stats(): Pg\Stats {
         return $this->stats;
     }
+
+    // ************************* pg_wrapper methods ******************************
+
+    public function cnxrw(): Connection {
+        return $this->cnxrw;
+    }
+
+    public function execute(string $query): Result {
+        $begin = microtime(true);
+        $result = $this->cnxrw->execute($query);
+        $this->stats->register($query, $result->getAffectedRows(), $begin, []);
+        return $result;
+    }
+
+    /**
+     * @param $args array<int, mixed>
+     */
+    public function executeParams(string $query, mixed ...$args): Result {
+        $begin = microtime(true);
+        $result = $this->cnxrw->executeParams($query, [...$args]); /** @phpstan-ignore-line mixed mess */
+        $this->stats->register($query, $result->getAffectedRows(), $begin, $args);
+        return $result;
+    }
+
+    // **************************** PDO methods **********************************
 
     public function prepare(string $query): \PDOStatement {
         return $this->pdo->prepare($query); /** @phpstan-ignore-line let it blow up downstream */
