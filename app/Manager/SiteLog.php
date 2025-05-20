@@ -227,11 +227,4 @@ class SiteLog extends \Gazelle\Base {
         }
         return $this->usernames[$username];
     }
-
-    /**
-     * stop relaying records from Mysql to Postgres
-     */
-    public function relay(): int {
-        return 0;
-    }
 }
