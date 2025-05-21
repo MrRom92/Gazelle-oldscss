@@ -45,7 +45,7 @@ if (isset($_POST['mode'])) {
             }
             $update = [];
             foreach (array_keys($idList) as $i) {
-                if ($sigList[$i] != signature("{$ipList[$i]}/{$uaList[$i]}}", SEEDBOX_SALT)) {
+                if ($sigList[$i] != signature("{$ipList[$i]}/{$uaList[$i]}", SEEDBOX_SALT)) {
                     Error400::error("ip/ua signature failed");
                 }
                 $update[] = [
