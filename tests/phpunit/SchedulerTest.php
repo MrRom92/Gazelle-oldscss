@@ -126,6 +126,7 @@ class SchedulerTest extends TestCase {
             ['PurgeOldTaskHistory'],
             ['RatioRequirements'],
             ['RatioWatch'],
+            ['RelayDatabase'],
             ['RemoveDeadSessions'],
             ['ResolveStaffPms'],
             ['SSLCertificate'],
@@ -144,7 +145,7 @@ class SchedulerTest extends TestCase {
 
     public function testTaskDetailList(): void {
         $list = new TaskScheduler()->taskDetailList();
-        $this->assertCount(43, $list, 'task-detail-list');
+        $this->assertCount(44, $list, 'task-detail-list');
         $detail = current($list);
         $this->assertEquals(
             [

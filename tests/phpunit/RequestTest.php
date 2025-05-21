@@ -724,6 +724,25 @@ class RequestTest extends TestCase {
         $this->assertFalse($under->isValid(), 'req-log-score-under');
     }
 
+    public function testRelayRequest(): void {
+        $manager = new Manager\Request();
+        $manager->relay();
+        $this->userList['admin']->addBounty(BUFFER_FOR_BOUNTY);
+        $this->request = Helper::makeRequestMusic($this->userList['admin'], 'phpunit request json');
+        $this->request->artistRole()->set(
+            [ARTIST_MAIN => ['phpunit req ' . randomString(6)]],
+            $this->userList['admin'],
+            new Manager\Artist(),
+        );
+        new Manager\Tag()
+            ->create('phpunit.' . randomString(6), $this->userList['admin'])
+            ->addRequest($this->request);
+        $this->assertEquals(1, $manager->relay(), 'request-relay-initial');
+        Helper::sleepTick();
+        $this->request->setField('Title', 'phpunit modified')->modify();
+        $this->assertEquals(1, $manager->relay(), 'request-relay-second');
+    }
+
     public function testRenderRequest(): void {
         $this->tgroup = Helper::makeTGroupMusic(
             name       : 'phpunit render req',

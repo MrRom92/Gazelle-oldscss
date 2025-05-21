@@ -29,6 +29,7 @@ help:
 	echo '  mysqldump            - dump mysql database from docker to misc/mysql-dump.sql'
 	echo '  ocelot-reload-conf   - signal Ocelot to reload its configuration'
 	echo '  ocelot-reload-db     - signal Ocelot to reload from database'
+	echo '  psql                 - access the database via psql'
 	echo '  pgdump               - dump postgresql database from docker to misc/postgresql-dump.sql'
 	echo '  phpstan-analyse      - run phpstan over the code'
 	echo '  phpstan-baseline     - generate a new phpstan baseline'
@@ -129,6 +130,10 @@ ocelot-reload-db:
 .PHONY: pgdump
 pgdump:
 	docker exec -e POSTGRES_PASSWORD=nyalapw $(shell docker ps|awk '/postgres:/ {print $$1}') pg_dumpall -U nyala > misc/postgresql-dump.sql
+
+.PHONY: psql
+psql:
+	docker compose exec pg psql gz nyala
 
 .PHONY: phpstan-analyse
 phpstan-analyse:

@@ -131,4 +131,62 @@ class Request extends \Gazelle\BaseManager {
         );
         return array_map(fn($id) => $this->findById($id), self::$db->collect(0));
     }
+
+    public function relay(): int {
+        return $this->pg()->prepared_query("
+            merge into request r using (
+                select
+                    \"ID\" as id_request, \"UserID\" as id_user, \"FillerID\" as id_filler,
+                    \"TorrentID\" as id_torrent, \"GroupID\" as id_tgroup,
+                    \"CategoryID\" as id_category, \"ReleaseType\" as id_release_type,
+                    \"Year\" as year, \"LastVote\" as last_vote, \"TimeFilled\" as filled,
+                    created, updated + '1 microsecond'::interval as updated,
+                    \"Description\" as description, \"Title\" as title, \"Image\" as image,
+                    \"CatalogueNumber\" as catalogue_number, \"RecordLabel\" as record_label,
+                    (case when regexp_replace(coalesce(\"LogCue\", ''), '\D+', '', 'g') = ''
+                        then '0'
+                        else regexp_replace(coalesce(\"LogCue\", ''), '\D+', '', 'g')
+                        end)::int as log_score,
+                    coalesce(position('Log' in \"LogCue\") > 0, false) as need_log,
+                    coalesce(position('Cue' in \"LogCue\") > 0, false) as need_cue,
+                    case when \"Checksum\" = 0 then false else true end as need_checksum,
+                    \"BitrateList\" as encoding, \"FormatList\" as format, \"MediaList\" as media
+                from relay.requests
+                where updated >= (select coalesce(max(modified), '2000-01-01'::timestamptz) from request)
+            ) as i on r.id_request = i.id_request
+                when not matched then
+                    insert (
+                        id_request, id_user, id_filler, id_torrent,
+                        id_tgroup, id_category, id_release_type, year,
+                        last_vote, filled, created, modified,
+                        description, title, image, catalogue_number,
+                        record_label, log_score,
+                        need_log, need_cue, need_checksum,
+                        encoding, format, media
+                    ) values (
+                        i.id_request, i.id_user, i.id_filler, i.id_torrent,
+                        i.id_tgroup, i.id_category, i.id_release_type, i.year,
+                        i.last_vote, i.filled, i.created, i.updated,
+                        i.description, i.title, i.image, i.catalogue_number,
+                        i.record_label, i.log_score,
+                        i.need_log, i.need_cue, i.need_checksum,
+                        string_to_array(i.encoding::text, '|'),
+                        string_to_array(i.format::text, '|'),
+                        string_to_array(i.media::text, '|')
+                    )
+                when matched then
+                    update set
+                        id_user = i.id_user, id_filler = i.id_filler, id_torrent = i.id_torrent,
+                        id_tgroup = i.id_tgroup, id_category = i.id_category,
+                        id_release_type = i.id_release_type, year = i.year,
+                        last_vote = i.last_vote, filled = i.filled, created = i.created,
+                        modified = i.updated, description = i.description, title = i.title,
+                        image = i.image, catalogue_number = i.catalogue_number,
+                        record_label = i.record_label, log_score = i.log_score, need_log = i.need_log,
+                        need_cue = i.need_cue, need_checksum = i.need_checksum,
+                        encoding = string_to_array(i.encoding::text, '|'),
+                        format = string_to_array(i.format::text, '|'),
+                        media = string_to_array(i.media::text, '|')
+        ");
+    }
 }
