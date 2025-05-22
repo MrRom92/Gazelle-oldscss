@@ -30,7 +30,7 @@
         <tr>
             <td>{{ table.stats.live|number_format }}</td>
             <td>{{ table.stats.dead|number_format }}</td>
-            <td>{{ (table.stats.dead == 0
+            <td>{{ (table.stats.live == 0
                 ? 0
                 : (table.stats.dead / table.stats.live) * 100)|number_format(2)
                 }}</td>

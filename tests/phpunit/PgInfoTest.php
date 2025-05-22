@@ -31,7 +31,7 @@ class PgInfoTest extends TestCase {
             Enum\Direction::descending,
         );
         $list = $pgInfo->info();
-        $this->assertEquals('public.user_warning', $list[0]['table_name'], 'pginfo-list');
+        $this->assertEquals('user_warning', $list[0]['table_name'], 'pginfo-list');
     }
 
     public function testPgInfoColumn(): void {

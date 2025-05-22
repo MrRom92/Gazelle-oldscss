@@ -15,7 +15,8 @@ class PgInfo {
 
     public function info(): array {
         return $this->pg()->all("
-            select t.table_schema || '.' || t.table_name as table_name,
+            select (case when t.table_schema = 'public' then '' else t.table_schema || '.' end )
+                    || t.table_name as table_name,
                 pg_relation_size(t.table_schema || '.' || t.table_name) as table_size,
                 pg_indexes_size(t.table_schema || '.' || t.table_name)  as index_size,
                 s.n_live_tup as live,

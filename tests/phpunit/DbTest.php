@@ -134,6 +134,14 @@ class DbTest extends TestCase {
         $this->assertCount(1, $warning, 'db-warning');
         $this->assertEquals(1050, $warning[0]['code'], 'db-error-code');
         $this->assertEquals("Table '$tableName' already exists", $warning[0]['message'], 'db-error-message');
+
+        $db->disableQueryLog();
+        $db->prepared_query('select now()');
+        $n = count($queryList);
+        $this->assertEquals($n, count($db->queryList()), 'db-query-log-off');
+        $db->enableQueryLog();
+        $db->prepared_query('select now()');
+        $this->assertEquals($n + 1, count($db->queryList()), 'db-query-log-on');
     }
 
     public function testGlobalStatus(): void {
@@ -285,6 +293,15 @@ class DbTest extends TestCase {
                    (ID, Username, Email, PassHash, torrent_pass, IP, PermissionID, Enabled, Invites, ipcc, auth_key, stylesheet_id)
             VALUES (1,  'phpunit', '',   '',       '',           '', 0,            '0',     0,       '',   '',       0)
         ");
+    }
+
+    public function testMysqlMisc(): void {
+        $db = DB::DB();
+        $this->assertTrue(
+            $db->entityExists('users_main', 'Username'),
+            'db-mysql-entity-exists'
+        );
+        $this->assertEquals($db->info(), 'mysql via TCP/IP', 'db-mysql-info');
     }
 
     public function testMysqlTable(): void {
@@ -487,6 +504,17 @@ class DbTest extends TestCase {
         ");
     }
 
+    public function testMysqlPrepare(): void {
+        $db = DB::DB();
+        $this->assertInstanceOf(
+            \mysqli_stmt::class,
+            $db->prepare('select now()'),
+            'db-mysql-prepare-ok'
+        );
+        $this->expectException(\mysqli_sql_exception::class);
+        $db->prepare('this is not sql');
+    }
+
     public function testPgWrapper(): void {
         $this->pg()->execute("
             create temporary table phpunit_pg_wrapper (
@@ -512,6 +540,33 @@ class DbTest extends TestCase {
             ],
             $result->fetchAll(),
             'pg-wrapper-execute'
+        );
+    }
+
+    public function testPgInsertCopy(): void {
+        $this->pg()->prepared_query("
+            create temporary table phpunit_insert_copy
+            (num int, name text, flag bool)
+        ");
+        $output = [
+            ['num' =>  100, 'name' => "abc\ndef", 'flag' =>  true],
+            ['num' => -100, 'name' => "ghi\tjkl", 'flag' => false],
+            ['num' =>   17, 'name' =>       null, 'flag' =>     0],
+            ['num' => null, 'name' =>       null, 'flag' =>  null],
+        ];
+        $input = array_map(fn ($r) => array_values($r), $output);
+        $this->assertTrue(
+            $this->pg()->insertCopy(
+                'phpunit_insert_copy',
+                ['num', 'name', 'flag'],
+                $input
+            ),
+            'pg-insert-copy',
+        );
+        $this->assertEquals(
+            $output,
+            $this->pg()->all("select * from phpunit_insert_copy"),
+            'pg-read-insert',
         );
     }
 

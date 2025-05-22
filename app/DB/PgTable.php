@@ -44,8 +44,7 @@ class PgTable extends AbstractTable {
             $this->pgro()->column("
                 with pkey as (
                     select cc.conrelid,
-                        format(E',
-                            constraint %I primary key(%s)', cc.conname,
+                        format(E',\n  constraint %I primary key(%s)', cc.conname,
                                 string_agg(a.attname, ', '
                                     order by array_position(cc.conkey, a.attnum))
                         ) pkey
@@ -62,7 +61,7 @@ class PgTable extends AbstractTable {
                     case c.relpersistence when 't' then '' else n.nspname || '.' end,
                     c.relname,
                     string_agg(
-                        format(E'\t%I %s%s',
+                        format(E'  %I %s%s',
                             a.attname,
                             pg_catalog.format_type(a.atttypid, a.atttypmod),
                             case when a.attnotnull then ' not null' else '' end
