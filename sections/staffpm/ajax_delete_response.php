@@ -11,4 +11,4 @@ if (!$Viewer->isStaffPMReader()) {
 
 authorize();
 
-echo (new Manager\StaffPM())->removeCommonAnswer((int)($_POST['id'] ?? 0));
+echo new Manager\StaffPM()->removeCommonAnswer((int)($_POST['id'] ?? 0));

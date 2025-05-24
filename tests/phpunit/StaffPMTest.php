@@ -112,7 +112,7 @@ class StaffPMTest extends TestCase {
 
     public function testSysop(): void {
         $initial = $this->spMan->countAtLevel($this->sysop, ['Unanswered']);
-        $level   = (new Manager\User())->classList()[SYSOP]['Level'];
+        $level   = new Manager\User()->classList()[SYSOP]['Level'];
         $spm     = $this->spMan->create($this->fls, $level, 'for sysop', 'message handled by SYSOP');
         $this->assertEquals($level, $spm->classLevel(), 'spm-sysop-classlevel-sysop');
         $this->assertEquals('Sysop', $spm->userclassName(), 'spm-sysop-userclass');
@@ -131,7 +131,7 @@ class StaffPMTest extends TestCase {
         $initialOpen       = $this->spMan->countByStatus($this->fls, ['Open']);
         $initialUnanswered = $this->spMan->countByStatus($this->fls, ['Unanswered']);
         $initialLevel      = $this->spMan->countAtLevel($this->fls, ['Unanswered']);
-        $level             = (new Manager\User())->classList()[FLS_TEAM]['Level'];
+        $level             = new Manager\User()->classList()[FLS_TEAM]['Level'];
         $spm               = $this->spMan->create($this->user, $level, 'for fls', 'message handled by fls');
         $this->assertEquals($level, $spm->classLevel(), 'spm-fls-classlevel-sysop');
         $this->assertEquals('First Line Support', $spm->userclassName(), 'spm-fls-userclass');
@@ -152,7 +152,7 @@ class StaffPMTest extends TestCase {
         $spm->reply($this->fls, 'fls reply');
         $this->assertEquals($initialOpen + 1, $this->spMan->countByStatus($this->fls, ['Open']), 'spm-fls-status-now-open');
         $spm->reply($this->user, 'user reply');
-        $this->assertEquals($initialOpen + 0, $this->spMan->countByStatus($this->fls, ['Open']), 'spm-fls-status-no-longer-open');
+        $this->assertEquals($initialOpen, $this->spMan->countByStatus($this->fls, ['Open']), 'spm-fls-status-no-longer-open');
         $this->assertEquals(
             $initialUnanswered + 1,
             $this->spMan->countByStatus($this->fls, ['Unanswered']),
@@ -179,7 +179,7 @@ class StaffPMTest extends TestCase {
         $initialUser  = $this->spMan->countByStatus($this->user, ['Unanswered']);
         $initialFLS   = $this->spMan->countByStatus($this->fls, ['Unanswered']);
         $initialLevel = $this->spMan->countAtLevel($this->fls, ['Unanswered']);
-        $level        = (new Manager\User())->classList()[FLS_TEAM]['Level'];
+        $level        = new Manager\User()->classList()[FLS_TEAM]['Level'];
         $list = [
             $this->spMan->create($this->user, $level, 'for fls', 'message handled by fls'),
             $this->spMan->create($this->user, $level, 'for fls', 'message handled by fls'),

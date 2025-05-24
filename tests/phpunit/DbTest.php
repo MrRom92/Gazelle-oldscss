@@ -109,12 +109,12 @@ class DbTest extends TestCase {
     }
 
     public function testDbTime(): void {
-        $this->assertTrue(Helper::recentDate((new DB())->now()), 'db-current-date');
+        $this->assertTrue(Helper::recentDate(new DB()->now()), 'db-current-date');
     }
 
     public function testDbVersion(): void {
         // to check the executability of the SQL inside
-        $this->assertStringStartsWith('8.', (new DB())->version(), 'db-version');
+        $this->assertStringStartsWith('8.', new DB()->version(), 'db-version');
     }
 
     public function testDebug(): void {
@@ -145,19 +145,19 @@ class DbTest extends TestCase {
     }
 
     public function testGlobalStatus(): void {
-        $status = (new DB())->globalStatus();
+        $status = new DB()->globalStatus();
         $this->assertGreaterThan(500, count($status), 'db-global-status');
         $this->assertEquals('server-cert.pem', $status['Current_tls_cert']['Value'], 'db-current-tls-cert');
     }
 
     public function testGlobalVariables(): void {
-        $list = (new DB())->globalVariables();
+        $list = new DB()->globalVariables();
         $this->assertGreaterThan(500, count($list), 'db-global-variables');
         $this->assertEquals('ON', $list['foreign_key_checks']['Value'], 'db-foreign-key-checks-on');
     }
 
     public function testLongRunning(): void {
-        $this->assertEquals(0, (new DB())->longRunning(), 'db-long-running');
+        $this->assertEquals(0, new DB()->longRunning(), 'db-long-running');
     }
 
     public function testIndexLists(): void {

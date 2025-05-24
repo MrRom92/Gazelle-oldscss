@@ -44,7 +44,7 @@ class BonusTest extends TestCase {
         $giver->setPoints($startingPoints);
         $this->assertEquals($startingPoints, $giver->user()->bonusPointsTotal(), 'bonus-set-points');
 
-        $itemList = (new Manager\Bonus())->itemList();
+        $itemList = new Manager\Bonus()->itemList();
         $this->assertArrayHasKey('token-1', $itemList, 'item-token-1');
         $token = $giver->item('token-1');
         $this->assertArrayHasKey('Price', $token, 'item-price-1');

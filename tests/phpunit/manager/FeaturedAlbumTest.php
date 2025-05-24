@@ -25,13 +25,13 @@ class FeaturedAlbumTest extends TestCase {
 
     public function tearDown(): void {
         $db = DB::DB();
-        (new Manager\News())->remove(
+        new Manager\News()->remove(
             (int)$db->scalar("
                 SELECT ID FROM news WHERE UserID = ?
                 ", $this->user->id
             )
         );
-        (new Manager\FeaturedAlbum())->findById($this->tgroup->id)?->remove();
+        new Manager\FeaturedAlbum()->findById($this->tgroup->id)?->remove();
         $this->tgroup->remove();
         $this->user->remove();
     }

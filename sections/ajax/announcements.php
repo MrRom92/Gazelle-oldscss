@@ -27,7 +27,7 @@ foreach ($headlines as $item) {
     ];
 }
 
-$headlines = (new Manager\Blog())->headlines();
+$headlines = new Manager\Blog()->headlines();
 $blog = [];
 foreach ($headlines as $item) {
     $blog[] = [

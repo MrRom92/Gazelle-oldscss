@@ -9,10 +9,10 @@ if (!$Viewer->permitted('site_torrents_notify')) {
     json_die("failure");
 }
 
-echo (new Json\Notification\Torrent(
+echo new Json\Notification\Torrent(
     new User\Notification\Torrent($Viewer),
     new Util\Paginator(TORRENTS_PER_PAGE, (int)($_GET['page'] ?? 1)),
     new Manager\Torrent(),
-))
+)
     ->setVersion(2)
     ->response();

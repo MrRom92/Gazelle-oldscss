@@ -19,7 +19,7 @@ class Invite extends \Gazelle\Base {
         );
         $invite = new \Gazelle\Invite($inviteKey);
         if (is_number($source)) {
-            (new \Gazelle\Manager\InviteSource())->createPendingInviteSource((int)$source, $inviteKey);
+            new \Gazelle\Manager\InviteSource()->createPendingInviteSource((int)$source, $inviteKey);
         }
         self::$db->commit();
         return $invite;

@@ -643,7 +643,7 @@ class Request extends BaseObject implements CategoryHasArtist {
         );
         $updated = self::$db->affected_rows();
         $this->updateSphinx();
-        (new \SphinxqlQuery())->raw_query(
+        new \SphinxqlQuery()->raw_query(
             sprintf("
                 UPDATE requests, requests_delta SET torrentid = %d, fillerid = %d WHERE id = %d
                 ", $torrent->id, $user->id, $this->id
@@ -659,7 +659,7 @@ class Request extends BaseObject implements CategoryHasArtist {
             ", $this->id
         );
         foreach (self::$db->collect(0) as $userId) {
-            (new User($userId))->inbox()->createSystem("The request \"$name\" has been filled", $message);
+            new User($userId)->inbox()->createSystem("The request \"$name\" has been filled", $message);
         }
 
         $this->logger()->general(
@@ -695,7 +695,7 @@ class Request extends BaseObject implements CategoryHasArtist {
         $filler->flush();
         self::$db->commit();
 
-        (new \SphinxqlQuery())->raw_query("
+        new \SphinxqlQuery()->raw_query("
             UPDATE requests, requests_delta SET
                 torrentid = 0,
                 fillerid = 0
@@ -883,7 +883,7 @@ class Request extends BaseObject implements CategoryHasArtist {
             // and live with the <= 1 minute delay if we have more than 100 bookmarkers
             $this->updateSphinx();
         } else {
-            (new \SphinxqlQuery())->raw_query(
+            new \SphinxqlQuery()->raw_query(
                 "UPDATE requests, requests_delta SET bookmarker = ("
                 . implode(',', self::$db->collect('UserID'))
                 . ") WHERE id = {$this->id}"
@@ -913,7 +913,7 @@ class Request extends BaseObject implements CategoryHasArtist {
             REPLACE INTO sphinx_requests_delta (ID) VALUES (?)
             ", $this->id
         );
-        (new Manager\Comment())->remove('requests', $this->id);
+        new Manager\Comment()->remove('requests', $this->id);
         self::$db->commit();
 
         foreach ($artisIds as $artistId) {

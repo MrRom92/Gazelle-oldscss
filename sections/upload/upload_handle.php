@@ -156,7 +156,7 @@ if (in_array($categoryName, ['Music', 'Audiobooks', 'Comedy'])) {
     }
 }
 
-$releaseTypes = (new ReleaseType())->list();
+$releaseTypes = new ReleaseType()->list();
 switch ($categoryName) {
     case 'Audiobooks':
         $Validate->setField('year', true, 'number', 'The year of the release must be entered.');
@@ -256,7 +256,7 @@ if ($Properties['Image']) {
     if (!preg_match(IMAGE_REGEXP, $Properties['Image'])) {
         reportError(display_str($Properties['Image']) . " does not look like a valid image url");
     }
-    $banned = (new Util\ImageProxy($Viewer))->badHost($Properties['Image']);
+    $banned = new Util\ImageProxy($Viewer)->badHost($Properties['Image']);
     if ($banned) {
         reportError("Please rehost images from $banned elsewhere.");
     }
@@ -622,7 +622,7 @@ foreach ($upload['new'] as $t) {
     $tracker->addTorrent($t);
     $folderCheck[] = $t->path();
 }
-(new Manager\NotificationTicket())->create($torrent);
+new Manager\NotificationTicket()->create($torrent);
 
 if (!$Viewer->disableBonusPoints()) {
     $bonus->addPoints($bonusTotal);
@@ -631,7 +631,7 @@ if (!$Viewer->disableBonusPoints()) {
 $tgroup->refresh();
 
 if ($Viewer->option('AutoSubscribe')) {
-    (new User\Subscription($Viewer))->subscribeComments('torrents', $GroupID);
+    new User\Subscription($Viewer)->subscribeComments('torrents', $GroupID);
 }
 
 $totalNew = count($upload['new']);

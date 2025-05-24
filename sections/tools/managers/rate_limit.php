@@ -33,8 +33,8 @@ if ($_POST) {
 }
 
 echo $Twig->render('admin/rate-limiting.twig', [
-    'class_list' => (new Manager\User())->classList(),
-    'priv_list'  => (new Manager\Privilege())->privilegeList(),
+    'class_list' => new Manager\User()->classList(),
+    'priv_list'  => new Manager\Privilege()->privilegeList(),
     'rate_list'  => $limiter->list(),
     'viewer'     => $Viewer,
 ]);

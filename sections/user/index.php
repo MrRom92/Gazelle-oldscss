@@ -94,7 +94,7 @@ switch ($_REQUEST['action'] ?? '') {
         if (!$Viewer->permittedAny('admin_clear_cache', 'users_override_paranoia')) {
             Error403::error();
         }
-        (new Manager\User())->findById((int)$_REQUEST['id'])?->flush();
+        new Manager\User()->findById((int)$_REQUEST['id'])?->flush();
         include_once 'user.php';
         break;
 

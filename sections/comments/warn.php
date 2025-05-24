@@ -10,7 +10,7 @@ if (!$Viewer->permitted('users_warn')) {
     Error403::error();
 }
 
-$comment = (new Manager\Comment())->findById((int)($_POST['postid'] ?? 0));
+$comment = new Manager\Comment()->findById((int)($_POST['postid'] ?? 0));
 if (is_null($comment)) {
     Error404::error();
 }

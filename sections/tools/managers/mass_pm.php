@@ -12,6 +12,6 @@ if (!$Viewer->permitted("admin_global_notification")) {
 
 echo $Twig->render('admin/mass-pm.twig', [
     'body'   => new Util\Textarea('body', '', 95, 10),
-    'class'  => (new Manager\User())->classList(),
+    'class'  => new Manager\User()->classList(),
     'viewer' => $Viewer,
 ]);

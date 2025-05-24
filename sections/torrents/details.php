@@ -37,9 +37,9 @@ $userMan       = new Manager\User();
 $vote          = new User\Vote($Viewer);
 $snatcher      = $Viewer->snatch();
 
-$isSubscribed  = (new User\Subscription($Viewer))->isSubscribedComments('torrents', $tgroupId);
-$releaseTypes  = (new ReleaseType())->list();
-$urlStem       = (new User\Stylesheet($Viewer))->imagePath();
+$isSubscribed  = new User\Subscription($Viewer)->isSubscribedComments('torrents', $tgroupId);
+$releaseTypes  = new ReleaseType()->list();
+$urlStem       = new User\Stylesheet($Viewer)->imagePath();
 
 $categoryId    = $tgroup->categoryId();
 $musicRelease  = $tgroup->categoryName() == 'Music';
@@ -59,7 +59,7 @@ $section = [
 ];
 
 echo $Twig->render('torrent/detail-header.twig', [
-    'is_bookmarked' => (new User\Bookmark($Viewer))->isTorrentBookmarked($tgroup->id()),
+    'is_bookmarked' => new User\Bookmark($Viewer)->isTorrentBookmarked($tgroup->id()),
     'is_subscribed' => $isSubscribed,
     'revision_id'   => $RevisionID,
     'tgroup'        => $tgroup,
@@ -137,7 +137,7 @@ if ($musicRelease) {
 
 echo $Twig->render('tgroup/stats.twig', [
     'collage_list' => $collageMan->addToCollageDefault($tgroup, $Viewer),
-    'featured'     => (new Manager\FeaturedAlbum())->findById($tgroupId),
+    'featured'     => new Manager\FeaturedAlbum()->findById($tgroupId),
     'tag_undo'     => $Cache->get_value("deleted_tags_{$tgroupId}_{$Viewer->id()}"),
     'tgroup'       => $tgroup,
     'viewer'       => $Viewer,
@@ -233,7 +233,7 @@ echo $Twig->render('tgroup/similar.twig', [
     'comment'   => $commentPage,
     'paginator' => $paginator,
     'subbed'    => $isSubscribed,
-    'textarea'  => (new Util\Textarea('quickpost', ''))->setPreviewManual(true),
+    'textarea'  => new Util\Textarea('quickpost', '')->setPreviewManual(true),
     'url'       => $_SERVER['REQUEST_URI'],
     'url_stem'  => 'comments.php?page=torrents',
     'userMan'   => $userMan,

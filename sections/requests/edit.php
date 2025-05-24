@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$request = (new Manager\Request())->findById((int)($_GET['id'] ?? 0));
+$request = new Manager\Request()->findById((int)($_GET['id'] ?? 0));
 if (is_null($request)) {
     Error404::error();
 }
@@ -51,9 +51,9 @@ echo $Twig->render('request/request.twig', [
     'request'          => $request,
     'category_name'    => $categoryName,
     'artist_role'      => $artistRole,
-    'tgroup'           => (new Manager\TGroup())->findById((int)($groupId ?? $request->tgroupId())),
-    'release_list'     => (new ReleaseType())->list(),
-    'tag_list'         => (new Manager\Tag())->genreList(),
+    'tgroup'           => new Manager\TGroup()->findById((int)($groupId ?? $request->tgroupId())),
+    'release_list'     => new ReleaseType()->list(),
+    'tag_list'         => new Manager\Tag()->genreList(),
     'catalogue_number' => $catalogueNumber ?? $request->catalogueNumber(),
     'category_id'      => $categoryId      ?? $request->categoryId(),
     'description'      => new Util\Textarea('description', $description ?? $request->description(), 70, 7),

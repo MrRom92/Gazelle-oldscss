@@ -31,7 +31,7 @@ if ($depth != 0) {
     $body = $history[$depth - 1][2];
 } else {
     $body = match ($pageType) {
-        'forums' => (new Manager\ForumPost())->findById($postId)->body(),
+        'forums' => new Manager\ForumPost()->findById($postId)->body(),
         default  => $commentMan->findById($postId)->body(),
     };
 }

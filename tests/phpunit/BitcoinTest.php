@@ -8,7 +8,7 @@ use GazelleUnitTest\Helper;
 class BitcoinTest extends TestCase {
     public function testBitcoinAddress(): void {
         $zpub = 'zpub6pxALoy3dUWEueNVAYHu71cc2WvLpAaAuya8A8ZKzFMZenahEXFFzQCJKeBW9ZA2Suh2vQV3UYoAL6rMN2bGdxXmS1SZ6Ku11jQBVAhjWuQ';
-        $counter = (new Manager\Counter())
+        $counter = new Manager\Counter()
             ->create('testBAddr' . randomString(6), 'testBAddr' . randomString(6), -1);
         $b = new Donate\Bitcoin($zpub, $counter);
 
@@ -33,7 +33,7 @@ class BitcoinTest extends TestCase {
 
     public function testBitcoinAddressXpub(): void {
         $xpub = 'xpub6D7NqpxWckGwCHhpXoL4pH38m5xVty62KY2wUh6JoyDCofwHciDRoQ3xm7WAg2ffpHaC6X4bEociYq81niyNUGhCxEs6fDFAd1LPbEmzcAm';
-        $counter = (new Manager\Counter())
+        $counter = new Manager\Counter()
             ->create('addrXpub' . randomString(6), 'testAddrXpub' . randomString(6), -1);
         $b = new Donate\Bitcoin($xpub, $counter);
 
@@ -46,7 +46,7 @@ class BitcoinTest extends TestCase {
 
     public function testBitcoinAddressYpub(): void {
         $ypub = 'ypub6UesGZYeB5dLVoQPz9hn896uSSFSVV1Gz6mcDj8nyswqMo6nWnBeVqWL2TLSxEiXBiYzPcn6Y3eHf5ETa88JX6UeYpZQsm2uZmW4Mniv8eC';
-        $counter = (new Manager\Counter())
+        $counter = new Manager\Counter()
             ->create('addrYpub' . randomString(6), 'testAddrYpub' . randomString(6), -1);
         $b = new Donate\Bitcoin($ypub, $counter);
 

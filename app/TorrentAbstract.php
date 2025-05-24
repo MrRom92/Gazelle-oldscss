@@ -226,7 +226,7 @@ abstract class TorrentAbstract extends BaseAttrObject {
                 SELECT FileList FROM torrents WHERE ID = ?
                 ", $this->id
             );
-            $chunkSize  = (int)(1024 ** 2);
+            $chunkSize  = 1024 ** 2;
             $chunkTotal = (int)ceil(strlen($fileList) / $chunkSize);
             for ($c = 0; $c < $chunkTotal; $c++) {
                 self::$cache->cache_value(
@@ -364,7 +364,7 @@ abstract class TorrentAbstract extends BaseAttrObject {
      * This method can be used to verify that group() can be called.
      */
     public function hasTGroup(): bool {
-        return (new Manager\TGroup())->findById($this->groupId()) instanceof TGroup;
+        return new Manager\TGroup()->findById($this->groupId()) instanceof TGroup;
     }
 
     /**

@@ -70,7 +70,7 @@ abstract class AbstractComment extends \Gazelle\BaseObject {
                 'postId'         => $postId,
                 'authorId'       => $userId,
                 'name'           => $author->username(),
-                'donor'          => (new \Gazelle\User\Donor($author))->isDonor(),
+                'donor'          => new \Gazelle\User\Donor($author)->isDonor(),
                 'warned'         => $author->isWarned(),
                 'enabled'        => $author->isEnabled(),
                 'class'          => $manager->userclassName($author->primaryClass()),
@@ -190,7 +190,7 @@ abstract class AbstractComment extends \Gazelle\BaseObject {
         );
         $affected = self::$db->affected_rows();
         if ($affected) {
-            (new \Gazelle\User\Quote($user))->flush();
+            new \Gazelle\User\Quote($user)->flush();
         }
 
         // last read
@@ -303,7 +303,7 @@ abstract class AbstractComment extends \Gazelle\BaseObject {
         $affected += self::$db->affected_rows();
         self::$db->commit();
 
-        (new \Gazelle\Manager\Subscription())->flushPage($page, $this->pageId);
+        new \Gazelle\Manager\Subscription()->flushPage($page, $this->pageId);
 
         self::$cache->delete_multi([
             "edit_{$page}_" . $this->id,

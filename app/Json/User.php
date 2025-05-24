@@ -20,7 +20,7 @@ class User extends \Gazelle\Json {
 
         $stats           = $user->stats();
         $forumPosts      = $stats->forumPostTotal();
-        $releaseVotes    = (new Vote($user))->userTotal(Vote::UPVOTE | Vote::DOWNVOTE);
+        $releaseVotes    = new Vote($user)->userTotal(Vote::UPVOTE | Vote::DOWNVOTE);
         $uploaded        = $this->valueOrNull($user->uploadedSize(),            'uploaded');
         $downloaded      = $this->valueOrNull($user->downloadedSize(),          'downloaded');
         $uploads         = $this->valueOrNull($stats->uploadTotal(),            'uploads+');
@@ -53,14 +53,14 @@ class User extends \Gazelle\Json {
                 'requests'   => (int)$requestsFilled,
                 'uploaded'   => (int)$uploaded,
                 'uploads'    => (int)$uploads,
-                'bonus'      => (new \Gazelle\User\Bonus($user))->pointsSpent(),
+                'bonus'      => new \Gazelle\User\Bonus($user)->pointsSpent(),
             ]
         );
 
         return [
             'username'    => $user->username(),
             'avatar'      => $user->avatar(),
-            'isFriend'    => (new \Gazelle\User\Friend($user))->isFriend($viewer),
+            'isFriend'    => new \Gazelle\User\Friend($user)->isFriend($viewer),
             'profileText' => \Text::full_format($user->profileInfo()),
             'stats' => [
                 'joinedDate'    => $user->created(),
@@ -98,7 +98,7 @@ class User extends \Gazelle\Json {
                 'class'        => $user->userclassName(),
                 'paranoia'     => $user->paranoiaLevel(),
                 'paranoiaText' => $user->paranoiaLabel(),
-                'donor'        => (new \Gazelle\User\Donor($user))->isDonor(),
+                'donor'        => new \Gazelle\User\Donor($user)->isDonor(),
                 'warned'       => $user->isWarned(),
                 'enabled'      => $user->isEnabled(),
                 'passkey'      => ($user->id === $viewer->id() || $viewer->isStaff()) ? $user->announceKey() : null,

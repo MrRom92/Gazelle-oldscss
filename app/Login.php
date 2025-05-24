@@ -67,7 +67,7 @@ class Login extends Base {
                     if (self::$cache->get_value($key) === false) {
                         self::$cache->cache_value($key, true, 86400);
                         // fake a user object temporarily to send them some email
-                        (new User($this->userId))->inbox()->createSystem(
+                        new User($this->userId)->inbox()->createSystem(
                             "Too many login attempts on your account",
                             self::$twig->render('login/too-many-failures.bbcode.twig', [
                                 'ipaddr'   => $ipaddr,
@@ -82,7 +82,7 @@ class Login extends Base {
                     self::$cache->increment($key);
                 }
             } elseif ($this->watch->nrBans() > 3) {
-                (new Manager\Ban())->create(
+                new Manager\Ban()->create(
                     $ipaddr, 'Automated ban, too many failed login attempts'
                 );
             }
@@ -134,7 +134,7 @@ class Login extends Base {
 
         // Did they come in over Tor?
         $ipaddr = $this->requestContext()->remoteAddr();
-        if (BLOCK_TOR && !$user->permitted('can_use_tor') && (new Manager\Tor())->isExitNode($ipaddr)) {
+        if (BLOCK_TOR && !$user->permitted('can_use_tor') && new Manager\Tor()->isExitNode($ipaddr)) {
             $userMan->disableUserList(
                 new Tracker(),
                 [$user->id],
@@ -156,7 +156,7 @@ class Login extends Base {
         }
 
         if (!$user->permitted('site_disable_ip_history')) {
-            (new User\History($user))->registerSiteIp($ipaddr);
+            new User\History($user)->registerSiteIp($ipaddr);
         }
 
         // We have a user!

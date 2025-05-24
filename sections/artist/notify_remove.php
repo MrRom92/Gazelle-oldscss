@@ -10,7 +10,7 @@ if (!$Viewer->permitted('site_torrents_notify')) {
 }
 authorize();
 
-$artist = (new Manager\Artist())->findById((int)$_GET['artistid']);
+$artist = new Manager\Artist()->findById((int)$_GET['artistid']);
 if (is_null($artist)) {
     Error404::error();
 }

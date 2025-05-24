@@ -11,11 +11,11 @@ if (!$Viewer->permitted('site_collages_create')) {
 
 authorize();
 
-$artist = (new Manager\Artist())->findById((int)($_POST['artistid'] ?? 0));
+$artist = new Manager\Artist()->findById((int)($_POST['artistid'] ?? 0));
 if (is_null($artist)) {
     Error404::error();
 }
-$collage = (new Manager\Collage())->findById((int)$_POST['collageid']);
+$collage = new Manager\Collage()->findById((int)$_POST['collageid']);
 if (is_null($collage)) {
     Error404::error();
 }

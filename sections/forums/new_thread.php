@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$forum = (new Manager\Forum())->findById((int)($_GET['forumid'] ?? 0));
+$forum = new Manager\Forum()->findById((int)($_GET['forumid'] ?? 0));
 if (!$forum) {
     Error404::error();
 }

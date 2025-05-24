@@ -253,8 +253,8 @@ class RequestTest extends TestCase {
         $this->assertNull($this->request->fillDate(), 'request-unfilled-date');
 
         $taxedBounty = (int)($bounty * (1 - REQUEST_TAX));
-        $this->assertEquals(1 + $before['created-total'], $after['created-total'], 'request-created-total');
-        $this->assertEquals(1 + $before['vote-total'], $after['vote-total'], 'request-vote-total');
+        $this->assertEquals(1, $after['created-total'], 'request-created-total');
+        $this->assertEquals(1, $after['vote-total'], 'request-vote-total');
         $this->assertEquals($taxedBounty, $after['created-size'] - $before['created-size'], 'request-created-size');
         $this->assertEquals($taxedBounty, $after['vote-size'] - $before['vote-size'], 'request-vote-size');
         $this->assertEquals(-$bounty, $after['uploaded'] - $before['uploaded'], 'request-subtract-bounty');

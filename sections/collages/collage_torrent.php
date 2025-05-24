@@ -11,8 +11,8 @@ namespace Gazelle;
 $tgMan         = new Manager\TGroup();
 $torMan        = new Manager\Torrent();
 $bookmark      = new User\Bookmark($Viewer);
-$collMan       = (new Manager\Collage())->setImageProxy(new \Gazelle\Util\ImageProxy($Viewer));
-$urlStem       = (new User\Stylesheet($Viewer))->imagePath();
+$collMan       = new Manager\Collage()->setImageProxy(new \Gazelle\Util\ImageProxy($Viewer));
+$urlStem       = new User\Stylesheet($Viewer)->imagePath();
 $vote          = new User\Vote($Viewer);
 
 /** @var Collage $Collage required from collage.php */
@@ -36,7 +36,7 @@ echo $Twig->render('collage/header.twig', [
 echo$Twig->render('collage/sidebar.twig', [
     'artists'      => $Collage->numArtists(),
     'collage'      => $Collage,
-    'comments'     => (new Manager\Comment())->collageSummary($CollageID),
+    'comments'     => new Manager\Comment()->collageSummary($CollageID),
     'contributors' => array_slice($Collage->contributors(), 0, 5, true),
     'entries'      => $Collage->numEntries(),
     'object'       => 'torrent',

@@ -25,7 +25,7 @@ authorize();
 if (!isset($_POST['forum'])) {
     Error400::error('Forum ID not specified');
 }
-$forum = (new Manager\Forum())->findById((int)$_POST['forum']);
+$forum = new Manager\Forum()->findById((int)$_POST['forum']);
 if (is_null($forum)) {
     Error404::error();
 }
@@ -64,9 +64,9 @@ if (empty($_POST['question']) || empty($_POST['answers']) || !$Viewer->permitted
     }
 }
 
-$thread = (new Manager\ForumThread())->create($forum, $Viewer, $title, $body);
+$thread = new Manager\ForumThread()->create($forum, $Viewer, $title, $body);
 if ($needPoll) {
-    (new Manager\ForumPoll())->create($thread, $question, $answerList);
+    new Manager\ForumPoll()->create($thread, $question, $answerList);
     if ($forum->id() == STAFF_FORUM_ID) {
         Irc::sendMessage(
             IRC_CHAN_STAFF,
@@ -76,13 +76,13 @@ if ($needPoll) {
 }
 
 if (isset($_POST['subscribe'])) {
-    (new User\Subscription($Viewer))->subscribe($thread);
+    new User\Subscription($Viewer)->subscribe($thread);
 }
 $userMan = new Manager\User();
 foreach ($forum->autoSubscribeUserIdList() as $userId) {
     $user = $userMan->findById($userId);
     if ($user) {
-        (new User\Subscription($user))->subscribe($thread);
+        new User\Subscription($user)->subscribe($thread);
     }
 }
 

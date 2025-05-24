@@ -356,7 +356,7 @@ class Text {
 
         switch ($info['path'] ?? '') {
             case '/artist.php':
-                return (new \Gazelle\Manager\Artist())->findById((int)($args['id'] ?? 0))?->link();
+                return new \Gazelle\Manager\Artist()->findById((int)($args['id'] ?? 0))?->link();
 
             case '/collages.php':
                 return self::bbcodeCollageUrl((int)($args['id'] ?? $args['collageid']));
@@ -377,9 +377,9 @@ class Text {
 
             case '/torrents.php':
                 if (isset($args['torrentid'])) {
-                    return (new \Gazelle\Manager\Torrent())->findById((int)$args['torrentid'])?->link();
+                    return new \Gazelle\Manager\Torrent()->findById((int)$args['torrentid'])?->link();
                 } elseif (isset($args['id'])) {
-                    return (new \Gazelle\Manager\TGroup())->findById((int)$args['id'])?->link();
+                    return new \Gazelle\Manager\TGroup()->findById((int)$args['id'])?->link();
                 }
                 return null;
 
@@ -912,7 +912,7 @@ class Text {
                         } elseif ((int)$Block['Val']) {
                             $GroupID = $Block['Val'];
                         }
-                        $tgroup = (new Gazelle\Manager\TGroup())->findById((int)$GroupID);
+                        $tgroup = new Gazelle\Manager\TGroup()->findById((int)$GroupID);
                         if (is_null($tgroup)) {
                             $Str .= '[torrent]' . str_replace('[inlineurl]', '', (string)$Block['Val']) . '[/torrent]';
                         } else {
@@ -1245,12 +1245,12 @@ class Text {
     }
 
     protected static function bbcodeCollageUrl(int $id): string {
-        $collage = (new \Gazelle\Manager\Collage())->findById($id);
+        $collage = new \Gazelle\Manager\Collage()->findById($id);
         return $collage?->link() ?? "[collage]{$id}[/collage]";
     }
 
     protected static function bbcodeForumUrl(int $id): string {
-        $forum = (new \Gazelle\Manager\Forum())->findById($id);
+        $forum = new \Gazelle\Manager\Forum()->findById($id);
         if (is_null($forum)) {
             return "[forum]{$id}[/forum]";
         }
@@ -1261,7 +1261,7 @@ class Text {
     }
 
     protected static function bbcodeCommentUrl(int $postId): ?string {
-        $post = (new Gazelle\Manager\Comment())->findById($postId);
+        $post = new Gazelle\Manager\Comment()->findById($postId);
         if (is_null($post)) {
             return null;
         }
@@ -1271,7 +1271,7 @@ class Text {
     }
 
     protected static function bbcodePostUrl(int $postId): ?string {
-        $post = (new \Gazelle\Manager\ForumPost())->findById($postId);
+        $post = new \Gazelle\Manager\ForumPost()->findById($postId);
         if (is_null($post)) {
             return null;
         }
@@ -1288,7 +1288,7 @@ class Text {
             return "[thread]{$thread}[/thread]";
         }
 
-        $thread = (new \Gazelle\Manager\ForumThread())->findById($threadId);
+        $thread = new \Gazelle\Manager\ForumThread()->findById($threadId);
         if (is_null($thread)) {
             return $postId ? "[thread]{$threadId}:{$postId}[/thread]" : "[thread]{$threadId}[/thread]";
         }

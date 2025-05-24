@@ -12,7 +12,7 @@ if (empty($_GET['userid'])) {
     if (!$Viewer->permitted('users_override_paranoia')) {
         Error403::error();
     }
-    $user = (new Manager\User())->findById((int)($_GET['userid'] ?? 0));
+    $user = new Manager\User()->findById((int)($_GET['userid'] ?? 0));
     if (is_null($user)) {
         Error404::error();
     }
@@ -21,7 +21,7 @@ if (empty($_GET['userid'])) {
 $tgMan = new Manager\TGroup();
 
 $list = [];
-foreach ((new User\Bookmark($user))->tgroupBookmarkList() as $info) {
+foreach (new User\Bookmark($user)->tgroupBookmarkList() as $info) {
     $tgroup = $tgMan->findById($info['tgroup_id']);
     if (is_null($tgroup)) {
         continue;

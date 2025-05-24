@@ -11,15 +11,15 @@ if (!$Viewer->permitted('users_mod')) {
     Error403::error();
 }
 
-$torrent = (new Manager\Torrent())->findById((int)$_GET['torrentid']);
+$torrent = new Manager\Torrent()->findById((int)$_GET['torrentid']);
 $logId = (int)$_GET['logid'];
 if (is_null($torrent) || !$logId) {
     Error404::error();
 }
 
-$logpath = (new File\RipLog())->path([$torrent->id(), $logId]);
+$logpath = new File\RipLog()->path([$torrent->id(), $logId]);
 $logfile = new Logfile($logpath, basename($logpath));
-(new File\RipLogHTML())->put($logfile->text(), [$torrent->id(), $logId]);
+new File\RipLogHTML()->put($logfile->text(), [$torrent->id(), $logId]);
 
 $torrent->rescoreLog($logId, $logfile, Logchecker::getLogcheckerVersion());
 

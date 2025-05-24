@@ -13,7 +13,7 @@ if (($_GET['forumid'] ?? '') == 'all') {
     exit;
 }
 
-$forum = (new Manager\Forum())->findById((int)($_GET['forumid'] ?? 0));
+$forum = new Manager\Forum()->findById((int)($_GET['forumid'] ?? 0));
 if (is_null($forum)) {
     Error404::error();
 }

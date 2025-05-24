@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$spm = (new Manager\StaffPM())->findById((int)($_GET['id'] ?? 0));
+$spm = new Manager\StaffPM()->findById((int)($_GET['id'] ?? 0));
 if (is_null($spm)) {
     Error404::error();
 }

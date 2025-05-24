@@ -9,7 +9,7 @@ if (!$Viewer->permitted('users_mod')) {
     Error403::error();
 }
 
-$torrent = (new Manager\Torrent())->findById((int)($_REQUEST['torrentid'] ?? 0));
+$torrent = new Manager\Torrent()->findById((int)($_REQUEST['torrentid'] ?? 0));
 if (is_null($torrent)) {
     Error404::error();
 }

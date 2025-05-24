@@ -10,7 +10,7 @@ if (!$Viewer->permitted('admin_view_notifications')) {
     Error403::error();
 }
 
-$torrent = (new Manager\Torrent())->findById((int)($_POST['torrentid'] ?? 0));
+$torrent = new Manager\Torrent()->findById((int)($_POST['torrentid'] ?? 0));
 
 $notifiedId   = null;
 $result       = [];
@@ -20,7 +20,7 @@ if ($torrent) {
 
     $result = $notification->userFilterList();
     if (isset($_POST['notifiedid'])) {
-        $notified = (new Manager\User())->find(trim($_POST['notifiedid']));
+        $notified = new Manager\User()->find(trim($_POST['notifiedid']));
         if ($notified) {
             $notifiedId = $notified->id();
             $result = array_filter($result, fn($r) => $r['user_id'] === $notifiedId);

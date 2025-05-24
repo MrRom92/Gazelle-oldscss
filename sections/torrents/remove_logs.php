@@ -10,7 +10,7 @@ if (!$Viewer->permitted('torrents_delete')) {
     Error403::error();
 }
 
-$torrent = (new Manager\Torrent())->findById((int)($_GET['torrentid'] ?? 0));
+$torrent = new Manager\Torrent()->findById((int)($_GET['torrentid'] ?? 0));
 if (is_null($torrent)) {
     Error404::error();
 }

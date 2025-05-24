@@ -15,12 +15,12 @@ class NewsTest extends TestCase {
             Helper::makeUser('news.' . randomString(10), 'news'),
             Helper::makeUser('news.' . randomString(10), 'news'),
         ];
-        $this->forum = (new Manager\Forum())->findById(ANNOUNCEMENT_FORUM_ID);
+        $this->forum = new Manager\Forum()->findById(ANNOUNCEMENT_FORUM_ID);
     }
 
     public function tearDown(): void {
         if (isset($this->news)) {
-            (new Manager\News())->remove($this->news);
+            new Manager\News()->remove($this->news);
         }
         foreach ($this->userList as $user) {
             // note: removing a user removes their forum threads

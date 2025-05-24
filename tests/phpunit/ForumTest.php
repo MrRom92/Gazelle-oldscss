@@ -242,13 +242,13 @@ class ForumTest extends TestCase {
         $reply = $thread->addPost($user, $body);
 
         // Should the following actions (quote and subscription handling) be performed by the addPost() method?
-        (new User\Notification\Quote($admin))->create(
+        new User\Notification\Quote($admin)->create(
             'forums',
             $thread->id,
             $reply->id,
             $body,
         );
-        (new Manager\Subscription())->flushThread($thread);
+        new Manager\Subscription()->flushThread($thread);
         $this->assertEquals(
             $thread->id,
             $threadMan->findByPostId($reply->id)?->id,
@@ -302,7 +302,7 @@ class ForumTest extends TestCase {
     }
 
     public function testForumAutoSub(): void {
-        $this->category = (new Manager\ForumCategory())->create('phpunit category', 10010);
+        $this->category = new Manager\ForumCategory()->create('phpunit category', 10010);
         $this->forum    = Helper::makeForum(
             user:        $this->userList['admin'],
             sequence:    151,
@@ -333,7 +333,7 @@ class ForumTest extends TestCase {
     }
 
     public function testForumForbidden(): void {
-        $this->category = (new Manager\ForumCategory())->create('phpunit category', 10002);
+        $this->category = new Manager\ForumCategory()->create('phpunit category', 10002);
         $forumMan       = new Manager\Forum();
         $user           = $this->userList['user'];
         $this->forum    = $forumMan->create(
@@ -359,8 +359,7 @@ class ForumTest extends TestCase {
     }
 
     public function testForumJson(): void {
-        $this->category = (new Manager\ForumCategory())->create('phpunit category', 10002);
-        $forumMan       = new Manager\Forum();
+        $this->category = new Manager\ForumCategory()->create('phpunit category', 10002);
         $this->forum    = Helper::makeForum(
             user:        $this->userList['admin'],
             sequence:    151,
@@ -385,7 +384,7 @@ class ForumTest extends TestCase {
         $this->assertEquals(1, $info['currentPage'], 'forum-json-current-pages');
         $this->assertCount(0, $info['threads'], 'forum-json-threads');
 
-        (new Manager\ForumThread())
+        new Manager\ForumThread()
             ->create($this->forum, $this->userList['admin'], 'thread title', 'this is a new thread');
         $response = json_decode($json->response(), true);
         $info = $response['response'];
@@ -394,8 +393,7 @@ class ForumTest extends TestCase {
     }
 
     public function testForumThreadJson(): void {
-        $this->category = (new Manager\ForumCategory())->create('phpunit category', 10002);
-        $forumMan       = new Manager\Forum();
+        $this->category = new Manager\ForumCategory()->create('phpunit category', 10002);
         $this->forum    = Helper::makeForum(
             user:        $this->userList['admin'],
             sequence:    151,
@@ -431,8 +429,7 @@ class ForumTest extends TestCase {
     }
 
     public function testForumWarn(): void {
-        $this->category = (new Manager\ForumCategory())->create('phpunit category', 10002);
-        $forumMan       = new Manager\Forum();
+        $this->category = new Manager\ForumCategory()->create('phpunit category', 10002);
         $admin          = $this->userList['admin'];
         $user           = $this->userList['user'];
         $this->forum    = Helper::makeForum(
@@ -449,8 +446,8 @@ class ForumTest extends TestCase {
 
         // TODO: move more warning functionality out of sections/...
         $this->threadList[] = $thread
-            = (new Manager\ForumThread())->create($this->forum, $user, 'user thread title', 'this is a new thread by a user');
-        $thread  = (new Manager\ForumThread())->create($this->forum, $user, 'user thread title', 'this is a new thread by a user');
+            = new Manager\ForumThread()->create($this->forum, $user, 'user thread title', 'this is a new thread by a user');
+        $thread  = new Manager\ForumThread()->create($this->forum, $user, 'user thread title', 'this is a new thread by a user');
         $post    = $thread->addPost($user, 'offensive content');
         $week    = 2;
         $message = "phpunit forum warn test " . randomString(10);
@@ -480,7 +477,7 @@ class ForumTest extends TestCase {
     }
 
     public function testForumPoll(): void {
-        $this->category = (new Manager\ForumCategory())->create('phpunit category', 10002);
+        $this->category = new Manager\ForumCategory()->create('phpunit category', 10002);
         $admin          = $this->userList['admin'];
         $user           = $this->userList['user'];
         $this->forum    = Helper::makeForum(
@@ -492,7 +489,7 @@ class ForumTest extends TestCase {
         );
 
         $this->threadList[] = $thread
-            = (new Manager\ForumThread())->create($this->forum, $user, 'phpunit post pin', 'this is a new thread for post pins');
+            = new Manager\ForumThread()->create($this->forum, $user, 'phpunit post pin', 'this is a new thread for post pins');
 
         $answer  = ['apple', 'banana', 'carrot'];
         $pollMan = new Manager\ForumPoll();
@@ -531,7 +528,7 @@ class ForumTest extends TestCase {
     }
 
     public function testPostPin(): void {
-        $this->category = (new Manager\ForumCategory())->create('phpunit category', 10002);
+        $this->category = new Manager\ForumCategory()->create('phpunit category', 10002);
         $admin          = $this->userList['admin'];
         $user           = $this->userList['user'];
         $this->forum    = Helper::makeForum(
@@ -543,7 +540,7 @@ class ForumTest extends TestCase {
         );
 
         $this->threadList[] = $thread
-            = (new Manager\ForumThread())->create($this->forum, $user, 'unittest post pin', 'this is a new thread for post pins');
+            = new Manager\ForumThread()->create($this->forum, $user, 'unittest post pin', 'this is a new thread for post pins');
         $post = $thread->addPost($user, 'pinnable content');
 
         $this->assertFalse($post->isPinned(), 'forum-post-is-not-pinned');
@@ -555,7 +552,7 @@ class ForumTest extends TestCase {
 
     public function testForumRender(): void {
         $name = 'phpunit category ' . randomString(6);
-        $this->category = (new Manager\ForumCategory())->create($name, 10002);
+        $this->category = new Manager\ForumCategory()->create($name, 10002);
         $admin          = $this->userList['admin'];
         $this->forum    = Helper::makeForum(
             user:           $admin,
@@ -564,7 +561,7 @@ class ForumTest extends TestCase {
             name:           'phpunit render forum',
             description:    'This is where it renders',
         );
-        $paginator = (new Util\Paginator(TOPICS_PER_PAGE, 1))->setTotal(1);
+        $paginator = new Util\Paginator(TOPICS_PER_PAGE, 1)->setTotal(1);
         Base::setRequestContext(new RequestContext('/forum.php', '127.0.0.1', ''));
         global $SessionID; // to render header()
         $SessionID = 'phpunit';
@@ -584,7 +581,7 @@ class ForumTest extends TestCase {
     }
 
     public function testEditPost(): void {
-        $this->category = (new Manager\ForumCategory())->create('phpunit category', 10011);
+        $this->category = new Manager\ForumCategory()->create('phpunit category', 10011);
         $user = $this->userList['user'];
         $this->forum = Helper::makeForum(
             user:           $user,
@@ -597,7 +594,7 @@ class ForumTest extends TestCase {
         $thread = $manager->create($this->forum, $user, 'thread title', 'this is a new thread');
         $this->assertEquals(1, $thread->postTotalSummary(), 'fthread-post-total-summary');
         $slice = $thread->slice(1, 1);
-        $post = (new Manager\ForumPost())->findById($slice[0]['ID']);
+        $post = new Manager\ForumPost()->findById($slice[0]['ID']);
         $this->assertInstanceOf(ForumPost::class, $post, 'thread-initial-found');
         $this->assertEquals($thread->body(), $post->body(), 'thread-initial-body');
         $post->setField('Body', 'edit')->modify();
@@ -616,7 +613,7 @@ class ForumTest extends TestCase {
 
         $slice = $thread->slice(1, 1);
         $this->assertEquals($newBody, $slice[0]['Body'], 'thread-merge-post-slice');
-        $merged = (new Manager\ForumPost())->findById($slice[0]['ID']);
+        $merged = new Manager\ForumPost()->findById($slice[0]['ID']);
         $this->assertEquals($newBody, $merged?->body(), 'thread-merged-body');
 
         $post = $thread->addPost($user, 'second');
@@ -628,8 +625,7 @@ class ForumTest extends TestCase {
 
     public function testForumTransition(): void {
         $admin = $this->userList['admin'];
-        $user  = $this->userList['user'];
-        $this->category = (new Manager\ForumCategory())->create('phpunit forum transition', 10005);
+        $this->category = new Manager\ForumCategory()->create('phpunit forum transition', 10005);
         $this->forum = Helper::makeForum(
             user:           $admin,
             sequence:       153,
@@ -686,7 +682,7 @@ class ForumTest extends TestCase {
            privileges:       '',
            userIds:          (string)$this->userList['specific']->id,
         );
-        (new User\Privilege($this->userList['FLS']))->addSecondaryClass(FLS_TEAM);
+        new User\Privilege($this->userList['FLS'])->addSecondaryClass(FLS_TEAM);
         $this->assertTrue($this->userList['FLS']->isFLS(), 'user-is-fls');
         $this->assertTrue($this->transitionList[0]->hasUserForThread($this->userList['FLS'], $thread), 'forum-trans-has-fls');
         $this->assertFalse($this->transitionList[0]->hasUserForThread($this->userList['FLS'], $pinned), 'forum-trans-fls-no-pinned');
@@ -715,7 +711,7 @@ class ForumTest extends TestCase {
     }
 
     public function testForumTwig(): void {
-        $this->category = (new Manager\ForumCategory())->create('phpunit category', 10011);
+        $this->category = new Manager\ForumCategory()->create('phpunit category', 10011);
         $user = $this->userList['user'];
         $this->forum = Helper::makeForum(
             user:           $user,
@@ -724,7 +720,7 @@ class ForumTest extends TestCase {
             name:           'phpunit forum twig',
             description:    'This is where it twigs',
         );
-        $thread = (new Manager\ForumThread())->create($this->forum, $user, 'thread title', 'this is a new thread');
+        $thread = new Manager\ForumThread()->create($this->forum, $user, 'thread title', 'this is a new thread');
 
         $template = Util\Twig::factory(new Manager\User())->createTemplate(
             "{% if object is forum_thread %}yes{% else %}no{% endif %}"

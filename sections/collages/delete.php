@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$collage = (new Manager\Collage())->findById((int)($_GET['collageid'] ?? 0));
+$collage = new Manager\Collage()->findById((int)($_GET['collageid'] ?? 0));
 if (is_null($collage)) {
     Error404::error();
 }

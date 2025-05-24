@@ -17,4 +17,4 @@ if (
     Error403::error();
 }
 
-(new Tracker())->expireFreeleechTokens($_GET['tokens']);
+new Tracker()->expireFreeleechTokens($_GET['tokens']);

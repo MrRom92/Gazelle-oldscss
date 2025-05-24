@@ -9,7 +9,7 @@ namespace Gazelle;
 $siteLog = new Manager\SiteLog();
 $page    = (int)($_GET['page'] ?? 1);
 if (!$Viewer->permitted('site_search_many')) {
-    $page = min($page, (int)(MAX_LOG_DEPTH / LOG_ENTRIES_PER_PAGE));
+    $page = min($page, MAX_LOG_DEPTH / LOG_ENTRIES_PER_PAGE);
 }
 
 $search    = $_GET['search'] ?? '';

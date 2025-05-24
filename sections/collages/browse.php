@@ -7,7 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 $userMan = new Manager\User();
-$search = (new Search\Collage())->setLookup($_GET['type'] ?? 'name');
+$search = new Search\Collage()->setLookup($_GET['type'] ?? 'name');
 
 if (!empty($_GET['bookmarks'])) {
     $search->setBookmarkView($Viewer);
@@ -67,7 +67,7 @@ echo $Twig->render('collage/browse.twig', [
     'input'     => $_GET,
     'page'      => $search->page($paginator->limit(), $paginator->offset()),
     'paginator' => $paginator,
-    'personal'  => (new Manager\Collage())->findPersonalByUser($Viewer),
+    'personal'  => new Manager\Collage()->findPersonalByUser($Viewer),
     'search'    => $search,
     'viewer'    => $Viewer,
 ]);

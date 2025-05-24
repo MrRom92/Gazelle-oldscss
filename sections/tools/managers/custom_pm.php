@@ -31,7 +31,7 @@ if (isset($_POST['query'])) {
             break;
         case 'pg':
             try {
-                $result = (new \Gazelle\DB\Pg(PG_RO_DSN))->column($_POST['query']);
+                $result = new \Gazelle\DB\Pg(PG_RO_DSN)->column($_POST['query']);
             } catch (\Exception $e) {
                 $error = $e::class . " " . $e->getMessage();
             }

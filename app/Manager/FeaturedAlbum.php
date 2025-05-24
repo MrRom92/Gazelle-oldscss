@@ -84,7 +84,7 @@ class FeaturedAlbum extends \Gazelle\BaseManager {
         );
 
         self::$db->commit();
-        return (new \Gazelle\FeaturedAlbum($featureType, $tgroup->id))->flush();
+        return new \Gazelle\FeaturedAlbum($featureType, $tgroup->id)->flush();
     }
 
     public function findById(int $id): ?\Gazelle\FeaturedAlbum {

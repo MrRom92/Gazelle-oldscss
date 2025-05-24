@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$request = (new Manager\Request())->findById((int)$_GET['id']);
+$request = new Manager\Request()->findById((int)$_GET['id']);
 if (is_null($request)) {
     Error404::error();
 }

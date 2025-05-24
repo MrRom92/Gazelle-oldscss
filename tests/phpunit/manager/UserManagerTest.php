@@ -95,7 +95,7 @@ class UserManagerTest extends TestCase {
 
     public function testModifyUserMassToken(): void {
         $userMan = new Manager\User();
-        $idList  = array_map(fn ($u) => $u->id, $this->userList);
+        array_map(fn ($u) => $u->id, $this->userList);
         $this->assertEquals(0, $this->userList[0]->tokenCount(), 'uman-masstoken-initial');
 
         $userMan->addMassTokens(10, allowLeechDisabled: false);
@@ -403,7 +403,7 @@ class UserManagerTest extends TestCase {
     }
 
     public function testUserflow(): void {
-        $userflow = (new Manager\User())->userflow();
+        $userflow = new Manager\User()->userflow();
         $this->assertGreaterThanOrEqual(0, count($userflow), 'uman-userflow-is-array');
         $recent = end($userflow);
         $this->assertGreaterThanOrEqual(0, count($recent), 'uman-userflow-recent-is-array');

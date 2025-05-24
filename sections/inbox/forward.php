@@ -7,11 +7,11 @@ namespace Gazelle;
 
 authorize();
 
-$pm = (new Manager\PM($Viewer))->findById((int)$_POST['convid']);
+$pm = new Manager\PM($Viewer)->findById((int)$_POST['convid']);
 if (is_null($pm)) {
     Error404::error('Sorry, there is no trace of that conversation in your folder');
 }
-$recipient = (new Manager\User())->findById((int)$_POST['receiverid']);
+$recipient = new Manager\User()->findById((int)$_POST['receiverid']);
 if (is_null($recipient)) {
     Error404::error('Sorry, there is no-one here by that name');
 }

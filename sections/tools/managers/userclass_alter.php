@@ -57,7 +57,7 @@ if (isset($_REQUEST['submit'])) {
     $forums       = $_REQUEST['forums'];
     $displayStaff = isset($_REQUEST['displaystaff']);
     $staffGroupId = $displayStaff
-        ? (new Manager\StaffGroup())->findById((int)($_REQUEST['staffgroup'] ?? 0))?->id()
+        ? new Manager\StaffGroup()->findById((int)($_REQUEST['staffgroup'] ?? 0))?->id()
         : null;
     $level         = (int)$_REQUEST['level'];
     $secondary     = (int)isset($_REQUEST['secondary']);
@@ -93,7 +93,7 @@ if (isset($_REQUEST['submit'])) {
         ->setField('`Values`', serialize($privilegeList))
         ->modify();
 
-    $usersAffected = (new Manager\User())->flushUserclass($privilege->id());
+    $usersAffected = new Manager\User()->flushUserclass($privilege->id());
 }
 
 require_once 'userclass_edit.php';

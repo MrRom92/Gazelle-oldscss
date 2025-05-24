@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$torrent = (new Manager\Torrent())->findById((int)$_GET['torrentid']);
+$torrent = new Manager\Torrent()->findById((int)$_GET['torrentid']);
 if (is_null($torrent)) {
     Error404::error();
 }

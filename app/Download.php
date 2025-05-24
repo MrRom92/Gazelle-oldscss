@@ -100,7 +100,7 @@ class Download extends Base {
                     self::$db->rollback();
                     return DownloadStatus::no_tokens;
                 }
-                if (!(new Tracker())->addToken($this->torrent, $user)) {
+                if (!new Tracker()->addToken($this->torrent, $user)) {
                     self::$db->rollback();
                     return DownloadStatus::tracker;
                 }

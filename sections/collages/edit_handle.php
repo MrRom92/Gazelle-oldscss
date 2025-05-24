@@ -51,7 +51,7 @@ if (isset($_POST['name'])) {
 if (!isset($_POST['regen-tags'])) {
     $collage->setField(
         'TagList',
-        (new Manager\Tag())
+        new Manager\Tag()
             ->normalize(str_replace(',', ' ', (string)$_POST['tags']))
     );
 } else {

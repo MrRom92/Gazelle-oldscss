@@ -29,7 +29,7 @@ class Vote extends \Gazelle\Base {
         foreach (self::$db->collect(0) as $userId) {
             $user = $userManager->findById($userId);
             if ($user) {
-                (new \Gazelle\User\Vote($user))->flush();
+                new \Gazelle\User\Vote($user)->flush();
             }
         }
 

@@ -32,7 +32,7 @@ $donorMan    = new Manager\Donation();
 $ipv4        = new Manager\IPv4();
 $tgMan       = new Manager\TGroup();
 $resetToken  = $Viewer->permitted('users_mod')
-    ? (new Manager\UserToken())->findByUser($user, UserTokenType::password)
+    ? new Manager\UserToken()->findByUser($user, UserTokenType::password)
     : false;
 
 if (!empty($_POST)) {
@@ -106,14 +106,14 @@ echo $Twig->render('user/sidebar.twig', [
     'ancestry'      => $userMan->ancestry($user),
     'applicant'     => new Manager\Applicant(),
     'invite_source' => $Viewer->permitted('admin_manage_invite_source')
-        ? (new Manager\InviteSource())->findSourceNameByUser($user) : null,
+        ? new Manager\InviteSource()->findSourceNameByUser($user) : null,
     'next_class'    => $user->nextClass($userMan),
     'user'          => $user,
     'viewer'        => $Viewer,
 ]);
 
 // Last.fm statistics and comparability
-$lastfmInfo = (new Util\LastFM())->userInfo($user);
+$lastfmInfo = new Util\LastFM()->userInfo($user);
 if ($lastfmInfo) {
     echo $Twig->render('user/lastfm.twig', [
         'can_reload'  => ($OwnProfile && $Cache->get_value("lastfm_clear_cache_$userId") === false) || $Viewer->permitted('users_mod'),
@@ -328,7 +328,7 @@ if ($OwnProfile || !$user->hasAttr('hide-vote-recent') || $Viewer->permitted('vi
 }
 
 echo $Twig->render('user/collage-list.twig', [
-    'list'    => (new Manager\Collage())->findPersonalByUser($user),
+    'list'    => new Manager\Collage()->findPersonalByUser($user),
     'manager' => $tgMan,
 ]);
 
@@ -336,7 +336,7 @@ echo $Twig->render('user/collage-list.twig', [
 if ($Viewer->permitted('users_linked_users')) {
     echo $Twig->render('user/linked.twig', [
         'hash'      => signature($comments ?? '', USER_EDIT_SALT),
-        'user_link' => (new User\UserLink($user))->info(),
+        'user_link' => new User\UserLink($user)->info(),
         'user'      => $user,
         'viewer'    => $Viewer,
     ]);
@@ -366,19 +366,19 @@ if ($Viewer->permitted('users_give_donor')) {
 if (!$Viewer->disableRequests() && $user->propertyVisible($previewer, 'requestsvoted_list')) {
     echo $Twig->render('request/user-unfilled.twig', [
         'bounty' => $Viewer->ordinal()->value('request-bounty-vote'),
-        'list'   => (new Manager\Request())->findUnfilledByUser($user, 100),
+        'list'   => new Manager\Request()->findUnfilledByUser($user, 100),
         'viewer' => $Viewer,
     ]);
 }
 
 if ($Viewer->permitted('users_mod') || $Viewer->isStaffPMReader()) {
     echo $Twig->render('admin/staffpm-list.twig', [
-        'list' => (new Staff($Viewer))->userStaffPmList($user),
+        'list' => new Staff($Viewer)->userStaffPmList($user),
     ]);
 }
 
 if ($Viewer->permitted('admin_reports')) {
-    $reports = (new Manager\Report($userMan))->findByReportedUser($user);
+    $reports = new Manager\Report($userMan)->findByReportedUser($user);
     if ($reports) {
         echo $Twig->render('admin/user-reports-list.twig', [
             'list' => $reports
@@ -421,8 +421,8 @@ echo $Twig->render('user/main-column.twig', [
     'donor'         => $donor,
     'forum_man'     => new Manager\Forum(),
     'history'       => $history,
-    'invite_source' => (new Manager\InviteSource())->inviterConfiguration($user),
-    'is_traced'     => $Viewer->permitted('admin_tracker') && (new Tracker())->isTraced($user),
+    'invite_source' => new Manager\InviteSource()->inviterConfiguration($user),
+    'is_traced'     => $Viewer->permitted('admin_tracker') && new Tracker()->isTraced($user),
     'prl'           => $limiter,
     'user'          => $user,
     'viewer'        => $Viewer,

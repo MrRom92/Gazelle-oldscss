@@ -22,7 +22,7 @@ if (!empty($_GET['searchstr']) || !empty($_GET['groupname'])) {
     }
 }
 
-$imgTag = '<img loading="lazy" src="' . (new User\Stylesheet($Viewer))->imagePath() . '%s.png" class="tooltip" alt="%s" title="%s"/>';
+$imgTag = '<img loading="lazy" src="' . new User\Stylesheet($Viewer)->imagePath() . '%s.png" class="tooltip" alt="%s" title="%s"/>';
 $headerMap = [
     'year'     => ['defaultSort' => 'desc', 'text' => 'Year'],
     'time'     => ['defaultSort' => 'desc', 'text' => 'Created', 'dbColumn' => 'created'],
@@ -112,7 +112,7 @@ echo $Twig->render('torrent/browse-header.twig', [
     'hide_remaster' => ($_GET['remastertitle'] ?? $_GET['remasteryear'] ?? $_GET['remastercataloguenumber'] ?? '') != ''
         ? '' : ' hidden',
     'hide_advanced' => $hideAdvanced,
-    'release_type'  => (new ReleaseType())->list(),
+    'release_type'  => new ReleaseType()->list(),
     'results_total' => $RealNumResults,
     'results_shown' => $NumResults,
     'search_mode'   => $searchMode,
@@ -131,7 +131,7 @@ if ($NumResults == 0) {
     exit;
 }
 
-$releaseTypes = (new ReleaseType())->list();
+$releaseTypes = new ReleaseType()->list();
 $bookmark = new \Gazelle\User\Bookmark($Viewer);
 $imgProxy = new Util\ImageProxy($Viewer);
 

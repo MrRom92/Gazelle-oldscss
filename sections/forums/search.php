@@ -135,7 +135,7 @@ echo "class='hidden'"; } ?>>
     $LastCategoryID = -1;
     $Columns = 0;
     $i = 0;
-    foreach ((new Manager\Forum())->forumList() as $forum) {
+    foreach (new Manager\Forum()->forumList() as $forum) {
         if (!$Viewer->readAccess($forum)) {
             continue;
         }

@@ -7,7 +7,7 @@ namespace Gazelle;
 
 authorize();
 
-$article = (new Manager\Wiki())->findById((int)$_POST['article']);
+$article = new Manager\Wiki()->findById((int)$_POST['article']);
 if (is_null($article)) {
     Error404::error();
 }

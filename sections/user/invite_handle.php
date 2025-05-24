@@ -13,7 +13,7 @@ if (!isset($_POST['agreement'])) {
 }
 
 // Can the site allow an invite to be spent?
-if (!(new Stats\Users())->newUsersAllowed($Viewer) || !$Viewer->canInvite()) {
+if (!new Stats\Users()->newUsersAllowed($Viewer) || !$Viewer->canInvite()) {
     Error403::error();
 }
 $email = trim($_POST['email'] ?? '');
@@ -65,7 +65,7 @@ if (!$invite) {
     Error403::error();
 }
 
-(new \Gazelle\Util\Mail())->send($email, 'You have been invited to ' . SITE_NAME,
+new \Gazelle\Util\Mail()->send($email, 'You have been invited to ' . SITE_NAME,
     $Twig->render('email/invite-member.twig', [
         'email'    => $email,
         'key'      => $invite->key(),

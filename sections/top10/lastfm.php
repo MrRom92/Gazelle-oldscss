@@ -12,7 +12,7 @@ $view = $_GET['view'] ?? 'tiles';
 $view = in_array($view, ['tiles', 'list']) ? $view : 'list';
 
 echo $Twig->render('top10/lastfm.twig', [
-    'artist_list' => $category === 'weekly' ? (new Util\LastFM())->weeklyArtists() : [],
+    'artist_list' => $category === 'weekly' ? new Util\LastFM()->weeklyArtists() : [],
     'category'    => $category,
     'view'        => $view,
 ]);

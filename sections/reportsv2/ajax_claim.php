@@ -9,6 +9,6 @@ if (!$Viewer->permitted('admin_reports')) {
     Error403::error();
 }
 
-echo (new Manager\Torrent\Report(new Manager\Torrent()))
+echo new Manager\Torrent\Report(new Manager\Torrent())
     ->findById((int)($_GET['id'] ?? 0))
     ?->claim($Viewer) ?? 0;

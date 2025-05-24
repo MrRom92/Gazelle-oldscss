@@ -9,7 +9,7 @@ namespace Gazelle;
 if (!$Viewer->permitted('site_view_torrent_snatchlist')) {
     Error403::error();
 }
-$torrent = (new Manager\Torrent())->findById((int)$_GET['torrentid']);
+$torrent = new Manager\Torrent()->findById((int)$_GET['torrentid']);
 if (is_null($torrent)) {
     Error404::error();
 }
@@ -21,6 +21,6 @@ echo $Twig->render('torrent/snatchlist.twig', [
     'list'       => $torrent->snatchList($Viewer, $paginator->limit(), $paginator->offset()),
     'paginator'  => $paginator,
     'torrent_id' => $torrent->id(),
-    'url_stem'   => (new User\Stylesheet($Viewer))->imagePath(),
+    'url_stem'   => new User\Stylesheet($Viewer)->imagePath(),
     'viewer_id'  => $Viewer->id(),
 ]);

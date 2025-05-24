@@ -122,7 +122,7 @@ $disabledIpChecked = false;
 $trackerLiveSource = true;
 
 $paginator = new Util\Paginator(USERS_PER_PAGE, (int)($_GET['page'] ?? 1));
-$Stylesheets = (new \Gazelle\Manager\Stylesheet())->list();
+$Stylesheets = new \Gazelle\Manager\Stylesheet()->list();
 
 $matchMode = ($_GET['matchtype'] ?? 'fuzzy');
 $searchDisabledInvites = (isset($_GET['disabled_invites']) && $_GET['disabled_invites'] != '');
@@ -480,7 +480,7 @@ echo $Twig->render('admin/advanced-user-search.twig', [
     'page'          => $Results,
     'paginator'     => $paginator,
     'show_invited'  => $showInvited,
-    'url_stem'      => (new User\Stylesheet($Viewer))->imagePath(),
+    'url_stem'      => new User\Stylesheet($Viewer)->imagePath(),
     'viewer'        => $Viewer,
     'input'         => $_GET,
 

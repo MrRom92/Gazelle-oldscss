@@ -23,7 +23,7 @@ $torMan    = new Manager\Torrent();
 $imgProxy  = new Util\ImageProxy($Viewer);
 $reportMan = new Manager\Report(new Manager\User());
 $snatcher  = $Viewer->snatch();
-$urlStem   = (new User\Stylesheet($Viewer))->imagePath();
+$urlStem   = new User\Stylesheet($Viewer)->imagePath();
 
 View::show_header('Subscribed collages', ['js' => 'browse,collage']);
 ?>

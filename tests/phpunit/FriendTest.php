@@ -54,7 +54,7 @@ class FriendTest extends TestCase {
         // if (getenv('CI') === false) {
             // FIXME: figure out why causes Twig footer() to fail when running in CI
             // FIXME
-            $current = (new User\Session($this->friend[0]->user()))->create([
+            $current = new User\Session($this->friend[0]->user())->create([
                 'keep-logged' => '0',
                 'browser'     => ['BrowserVersion' => null, 'OperatingSystemVersion' => null],
                 'ipaddr'      => '127.0.0.1',

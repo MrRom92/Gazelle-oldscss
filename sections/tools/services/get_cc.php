@@ -18,6 +18,6 @@ header('Expires: ' . date('D, d-M-Y H:i:s \U\T\C', time() + 3600 * 24 * 120)); /
 header('Last-Modified: ' . date('D, d-M-Y H:i:s \U\T\C', time()));
 
 die(
-    (new \Gazelle\Util\GeoIP(new \Gazelle\Util\Curl()))
+    new \Gazelle\Util\GeoIP(new \Gazelle\Util\Curl())
         ->countryISO($_GET['ip'])
 );

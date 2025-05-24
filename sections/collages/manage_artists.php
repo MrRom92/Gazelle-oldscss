@@ -9,7 +9,7 @@ namespace Gazelle;
 if (!$Viewer->permitted('site_collages_create')) {
     Error403::error();
 }
-$collage = (new Manager\Collage())->findById((int)$_GET['collageid']);
+$collage = new Manager\Collage()->findById((int)$_GET['collageid']);
 if (is_null($collage)) {
     Error404::error();
 }

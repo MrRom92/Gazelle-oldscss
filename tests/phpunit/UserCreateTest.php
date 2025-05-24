@@ -19,7 +19,7 @@ class UserCreateTest extends TestCase {
         $password = randomString(40);
         $note     = 'Created by tests/phpunit/UserCreateTest.php';
 
-        $this->user = (new UserCreator())
+        $this->user = new UserCreator()
             ->setUsername($name)
             ->setEmail($email)
             ->setPassword($password)
@@ -36,7 +36,7 @@ class UserCreateTest extends TestCase {
         $this->assertTrue($this->user->isUnconfirmed(), 'user-create-unconfirmed');
         $this->assertStringContainsString(
             '/static/styles/apollostage/style.css?v=',
-            (new User\Stylesheet($this->user))->cssUrl(),
+            new User\Stylesheet($this->user)->cssUrl(),
             'user-create-stylesheet'
         );
 
@@ -51,7 +51,7 @@ class UserCreateTest extends TestCase {
     }
 
     public function testLogin(): void {
-        $this->user = (new UserCreator())
+        $this->user = new UserCreator()
             ->setUsername('phpunit.' . randomString(10))
             ->setEmail('email@example.com')
             ->setPassword('password')
@@ -114,7 +114,7 @@ class UserCreateTest extends TestCase {
     public function testZeroFailure(): void {
         $_SERVER['HTTP_USER_AGENT'] = 'phpunit';
 
-        $creator = (new UserCreator())
+        $creator = new UserCreator()
             ->setUsername('0')
             ->setEmail("test@example.com")
             ->setPassword(randomString(20))
@@ -127,7 +127,7 @@ class UserCreateTest extends TestCase {
     public function testNameFailure(): void {
         $_SERVER['HTTP_USER_AGENT'] = 'phpunit';
 
-        $creator = (new UserCreator())
+        $creator = new UserCreator()
             ->setUsername(randomString(21))
             ->setEmail("test@example.com")
             ->setPassword(randomString(20))
@@ -141,7 +141,7 @@ class UserCreateTest extends TestCase {
 
     public function testNameTrim(): void {
         $_SERVER['HTTP_USER_AGENT'] = 'phpunit';
-        $this->user = (new UserCreator())
+        $this->user = new UserCreator()
             ->setUsername(' ' . randomString(6))
             ->setEmail("test@example.com")
             ->setPassword(randomString(20))

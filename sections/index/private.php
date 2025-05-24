@@ -45,13 +45,13 @@ if (!$contest) {
 
 echo $Twig->render('index/private-sidebar.twig', [
     'blog'          => new Manager\Blog(),
-    'collage_count' => (new Stats\Collage())->collageTotal(),
+    'collage_count' => new Stats\Collage()->collageTotal(),
     'contest_rank'  => $contestRank,
     'leaderboard'   => $leaderboard,
     'aotm'          => $featured->findByType(FeaturedAlbumType::AlbumOfTheMonth),
     'showcase'      => $featured->findByType(FeaturedAlbumType::Showcase),
     'staff_blog'    => new Manager\StaffBlog(),
-    'poll'          => (new Manager\ForumPoll())->findByFeaturedPoll(),
+    'poll'          => new Manager\ForumPoll()->findByFeaturedPoll(),
     'request_stats' => new Stats\Request(),
     'torrent_stats' => new Stats\Torrent(),
     'user_stats'    => new Stats\Users(),

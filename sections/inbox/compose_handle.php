@@ -7,7 +7,7 @@ namespace Gazelle;
 
 authorize();
 
-$recipient = (new Manager\User())->findById((int)$_POST['toid']);
+$recipient = new Manager\User()->findById((int)$_POST['toid']);
 if (is_null($recipient)) {
     Error404::error();
 }

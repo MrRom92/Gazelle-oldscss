@@ -9,7 +9,7 @@ namespace Gazelle;
 if (!isset($_GET['userid'])) {
     $user = $Viewer;
 } else {
-    $user = (new Manager\User())->findById((int)$_GET['userid']);
+    $user = new Manager\User()->findById((int)$_GET['userid']);
     if (is_null($user)) {
         Error404::error();
     }

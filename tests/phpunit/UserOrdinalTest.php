@@ -39,13 +39,13 @@ class UserOrdinalTest extends TestCase {
     }
 
     public function testMissing(): void {
-        $ordinal = $this->user->ordinal();
+        $this->user->ordinal();
         $this->expectException(\TypeError::class);
         $this->user->ordinal()->defaultValue('@nope@');
     }
 
     public function testSetInexistent(): void {
-        $ordinal = $this->user->ordinal();
+        $this->user->ordinal();
         $this->assertEquals(
             0,
             $this->user->ordinal()->set('@nope@', 123),

@@ -181,8 +181,8 @@ class TGroup extends \Gazelle\BaseManager {
             ", $new->id, $old->id
         );
 
-        (new \Gazelle\Manager\Bookmark())->merge($old, $new);
-        (new \Gazelle\Manager\Comment())->merge('torrents', $old->id, $new->id);
+        new \Gazelle\Manager\Bookmark()->merge($old, $new);
+        new \Gazelle\Manager\Comment()->merge('torrents', $old->id, $new->id);
         $voteManager->merge($old, $new, $userManager);
 
         // Collages
@@ -338,7 +338,7 @@ class TGroup extends \Gazelle\BaseManager {
         if ($oldCategoryId === $categoryId) {
             return null;
         }
-        switch ((new Category())->findNameById($categoryId)) {
+        switch (new Category()->findNameById($categoryId)) {
             case 'Music':
                 if (empty($artistName) || !$year || !$releaseType) {
                     return null;
@@ -384,9 +384,9 @@ class TGroup extends \Gazelle\BaseManager {
         if (self::$db->scalar('SELECT ID FROM torrents WHERE GroupID = ?', $old->id)) {
             $old->flush()->refresh();
         } else {
-            (new \Gazelle\Manager\Bookmark())->merge($old, $new);
-            (new \Gazelle\Manager\Comment())->merge('torrents', $old->id, $new->id);
-            (new \Gazelle\Manager\Vote())->merge($old, $new, new \Gazelle\Manager\User());
+            new \Gazelle\Manager\Bookmark()->merge($old, $new);
+            new \Gazelle\Manager\Comment()->merge('torrents', $old->id, $new->id);
+            new \Gazelle\Manager\Vote()->merge($old, $new, new \Gazelle\Manager\User());
             $this->logger()->merge($old, $new);
             $old->removeTGroup();
         }

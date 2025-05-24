@@ -10,7 +10,7 @@ if (!$Viewer->permitted('torrents_edit')) {
     Error403::error();
 }
 
-$artist = (new Manager\Artist())->findById((int)$_GET['artistid']);
+$artist = new Manager\Artist()->findById((int)$_GET['artistid']);
 if (is_null($artist)) {
     $id = html_escape($_GET['artistid']); // might not be a number
     Error400::error(

@@ -14,7 +14,7 @@ if (!$Viewer->permitted('admin_reports')) {
     json_error("forbidden");
 }
 
-$reportType = (new Manager\Torrent\ReportType())->findByType($_GET['type'] ?? '');
+$reportType = new Manager\Torrent\ReportType()->findByType($_GET['type'] ?? '');
 if (is_null($reportType)) {
     json_error("bad type");
 }

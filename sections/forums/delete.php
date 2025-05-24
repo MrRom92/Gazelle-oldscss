@@ -10,7 +10,7 @@ if (!$Viewer->permitted('site_forum_post_delete')) {
 }
 authorize();
 
-$post = (new Manager\ForumPost())->findById((int)($_GET['postid'] ?? 0));
+$post = new Manager\ForumPost()->findById((int)($_GET['postid'] ?? 0));
 if (is_null($post)) {
     Error404::error();
 }

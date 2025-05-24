@@ -10,7 +10,7 @@ if (!$Viewer->permitted('site_collages_manage')) {
     Error403::error();
 }
 
-$collage = (new Manager\Collage())->findById((int)($_GET['collageid'] ?? $_GET['id'] ?? 0));
+$collage = new Manager\Collage()->findById((int)($_GET['collageid'] ?? $_GET['id'] ?? 0));
 if (is_null($collage) || $collage->isArtist()) {
     Error404::error();
 }

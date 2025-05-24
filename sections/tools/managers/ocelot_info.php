@@ -17,7 +17,7 @@ $user         = null;
 $info         = $tracker->info();
 
 if (isset($_GET['userid'])) {
-    $user = (new Manager\User())->find($_GET['userid']);
+    $user = new Manager\User()->find($_GET['userid']);
     if ($user) {
         $stats = $tracker->userReport($user);
         $_GET['userid'] = $user->id; // change @user to id
@@ -25,7 +25,7 @@ if (isset($_GET['userid'])) {
 }
 
 if (isset($_GET['torrentid'])) {
-    $torrent = (new Manager\Torrent())->findById((int)$_GET['torrentid']);
+    $torrent = new Manager\Torrent()->findById((int)$_GET['torrentid']);
     if ($torrent) {
         $torrentStats = [
             'info'    => $tracker->torrentReport($torrent),

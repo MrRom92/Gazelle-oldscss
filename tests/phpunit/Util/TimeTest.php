@@ -9,7 +9,7 @@ use Gazelle\Util\Time;
 
 class TimeTest extends TestCase {
     public function testInvalidTimeAgo(): void {
-        $epoch = time();
+        time();
         $this->assertEquals(
             false,
             Time::timeAgo('not a valid timestamp'),

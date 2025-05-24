@@ -24,7 +24,7 @@ if (!$year || empty($title) || empty($artistName)) {
     Error400::error('Missing parameters to set up new group');
 }
 
-$torrent = (new Manager\Torrent())->findById((int)($_POST['torrentid'] ?? 0));
+$torrent = new Manager\Torrent()->findById((int)($_POST['torrentid'] ?? 0));
 if (is_null($torrent)) {
     Error400::error('Torrent does not exist!');
 }
@@ -41,7 +41,7 @@ if (empty($_POST['confirm'])) {
     exit;
 }
 
-$new = (new Manager\TGroup())->createFromTorrent(
+$new = new Manager\TGroup()->createFromTorrent(
     $torrent,
     $artistName,
     $title,

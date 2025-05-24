@@ -1093,7 +1093,7 @@ class User extends \Gazelle\BaseManager {
             self::$db->prepared_query($query, ...$args);
             foreach (self::$db->collect(0) as $userId) {
                 $user = $this->findById($userId);
-                if (is_null($user) || (new \Gazelle\User\Warning($user))->isWarned()) {
+                if (is_null($user) || new \Gazelle\User\Warning($user)->isWarned()) {
                     continue;
                 }
                 ++$processed;

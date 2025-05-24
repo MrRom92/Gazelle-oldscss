@@ -15,7 +15,7 @@ class ForumThread extends BaseObject {
     public function flush(): static {
         self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->id));
         self::$cache->delete_value("edit_forums_{$this->id}");
-        (new Manager\Forum())->flushToc();
+        new Manager\Forum()->flushToc();
         unset($this->info);
         return $this;
     }
@@ -227,7 +227,7 @@ class ForumThread extends BaseObject {
     }
 
     public function addPost(User $user, string $body): ForumPost {
-        $post = (new Manager\ForumPost())->create($this, $user, $body);
+        $post = new Manager\ForumPost()->create($this, $user, $body);
         $this->info();
         $this->info['post_total_summary']++;
         $this->info['last_post_id']        = $post->id();
@@ -345,7 +345,7 @@ class ForumThread extends BaseObject {
         );
         $affected = self::$db->affected_rows();
         $this->updateRoot($post->userId(), $post->id());
-        (new Manager\Forum())->flushToc();
+        new Manager\Forum()->flushToc();
         $this->forum()->flush();
         $this->flushPostCatalogue($post);
         $this->flush();
@@ -458,7 +458,7 @@ class ForumThread extends BaseObject {
         $affected = self::$db->affected_rows();
         $db->relaxConstraints(false);
         $this->forum()->adjust();
-        (new Manager\Subscription())->moveThread($this, null);
+        new Manager\Subscription()->moveThread($this, null);
 
         $previousPost = self::$db->rowAssoc("
             SELECT AuthorID AS user_id,

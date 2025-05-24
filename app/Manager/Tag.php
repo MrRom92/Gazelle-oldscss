@@ -277,10 +277,10 @@ class Tag extends \Gazelle\BaseManager {
         // update cache and sphinx
         // (some of these may not have changed, skipping them would be a false optimization)
         foreach ($affectedRequests as $id) {
-            (new \Gazelle\Request($id))->updateSphinx();
+            new \Gazelle\Request($id)->updateSphinx();
         }
         foreach ($affectedTGroups as $id) {
-            (new \Gazelle\TGroup($id))->refresh();
+            new \Gazelle\TGroup($id)->refresh();
         }
 
         return $changed;

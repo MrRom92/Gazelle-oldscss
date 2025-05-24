@@ -43,7 +43,7 @@ class TorrentManagerTest extends TestCase {
         // first torrent is two days ago, second torrent is yesterday
         $day = 2;
         foreach ($this->torrentList as $torrent) {
-            $created = (new \DateTime($torrent->created()))
+            $created = new \DateTime($torrent->created())
                ->sub(new \DateInterval("P{$day}D"))->format('Y-m-d H:i:s');
             $torrent->setField('created', $created)->modify();
             $day--;
@@ -121,7 +121,7 @@ class TorrentManagerTest extends TestCase {
         $this->assertFalse($this->torrentList[1]->isReseedRequestAllowed());
 
         // Torrent created RESEED_NEVER_ACTIVE_TORRENT days ago never active
-        $created = (new \DateTime())
+        $created = new \DateTime()
             ->sub(new \DateInterval("P3D"))->format('Y-m-d H:i:s');
         $this->torrentList[1]->setField('created', $created)->modify();
         $this->assertTrue($this->torrentList[1]->isReseedRequestAllowed());
@@ -143,7 +143,7 @@ class TorrentManagerTest extends TestCase {
         $this->torrentList[1]->setField('LastReseedRequest', null)->modify();
 
         // Torrent was active RESEED_TORRENT days ago
-        $lastActive = (new \DateTime($created))
+        $lastActive = new \DateTime($created)
             ->sub(new \DateInterval("P15D"))->format('Y-m-d H:i:s');
         $db->prepared_query("
             UPDATE torrents_leech_stats SET last_action = ? WHERE TorrentID = ?

@@ -203,7 +203,7 @@ class Debug {
         $Tracer = debug_backtrace();
 
         // This is in case something in this function goes wrong and we get stuck with an infinite loop
-        if (($Tracer[$Steps]['class'] ?? '') === 'Gazelle\\Debug' && $Tracer[$Steps]['function'] === 'errorHandler') {
+        if (($Tracer[$Steps]['class'] ?? '') === \Gazelle\Debug::class && $Tracer[$Steps]['function'] === 'errorHandler') {
             return true;
         }
 

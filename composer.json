@@ -18,7 +18,7 @@
     "sort-packages": true
   },
   "require": {
-    "php": "^8.2",
+    "php": "^8.4",
     "ext-curl": "*",
     "ext-iconv": "*",
     "ext-json": "*",

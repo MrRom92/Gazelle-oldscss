@@ -8,7 +8,7 @@ namespace Gazelle;
 authorize();
 
 $inviteKey = trim($_GET['invite'] ?? '');
-$user = (new Manager\Invite())->findUserByKey($inviteKey, new Manager\User());
+$user = new Manager\Invite()->findUserByKey($inviteKey, new Manager\User());
 if (is_null($user)) {
     Error404::error();
 }

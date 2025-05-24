@@ -11,11 +11,11 @@ if (!$Viewer->permitted('site_torrents_notify')) {
 }
 authorize();
 
-$releaseTypes = (new ReleaseType())->list();
+$releaseTypes = new ReleaseType()->list();
 
 $formId = (int)$_POST['formid'];
 
-$filter = (new Notification\Filter())
+$filter = new Notification\Filter()
     ->setYears((int)$_POST['fromyear' . $formId], (int)$_POST['toyear' . $formId])
     ->setUsers(new Manager\User(), $_POST['users' . $formId])
     ->setBoolean('exclude_va', isset($_POST['excludeva' . $formId]))

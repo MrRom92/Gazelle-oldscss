@@ -16,9 +16,9 @@ if (isset($_REQUEST['expired'])) {
     $error = $validator->validate($_REQUEST) ? false : $validator->errorMessage();
     if (!$error) {
         $sent = true;
-        $user = (new Manager\User())->findByEmail(trim($_REQUEST['email']));
+        $user = new Manager\User()->findByEmail(trim($_REQUEST['email']));
         if ($user?->isEnabled()) {
-            (new Manager\UserToken())->createPasswordResetToken($user);
+            new Manager\UserToken()->createPasswordResetToken($user);
         }
     }
 }

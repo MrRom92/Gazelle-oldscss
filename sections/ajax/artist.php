@@ -41,14 +41,14 @@ if ($artistId) {
     json_die("failure", "bad parameters");
 }
 
-echo (new Json\Artist(
+echo new Json\Artist(
     $artist,
     $Viewer,
     new User\Bookmark($Viewer),
     new Manager\Request(),
     new Manager\TGroup(),
     new Manager\Torrent(),
-))
+)
     ->setReleasesOnly(!empty($_GET['artistreleases']))
     ->setVersion(2)
     ->response();

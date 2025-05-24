@@ -97,10 +97,10 @@ class UserJsonTest extends TestCase {
 
         $this->assertEquals(
             'hidden',
-            (new Json\UserRecent(
+            new Json\UserRecent(
                 $this->userList['admin'],
                 $this->userList['user'],
-            ))->payload()['uploads'],
+            )->payload()['uploads'],
             'json-user-recent-user-upload'
         );
     }

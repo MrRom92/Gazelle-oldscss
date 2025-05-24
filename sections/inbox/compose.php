@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$recipient = (new Manager\User())->findById((int)$_GET['toid']);
+$recipient = new Manager\User()->findById((int)$_GET['toid']);
 if (is_null($recipient)) {
     Error404::error();
 }

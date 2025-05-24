@@ -7,7 +7,7 @@ namespace Gazelle;
 
 authorize();
 
-$request = (new Manager\Request())->findById((int)$_POST['id']);
+$request = new Manager\Request()->findById((int)$_POST['id']);
 if (is_null($request)) {
     Error404::error();
 }
@@ -18,7 +18,7 @@ if ($Viewer->id() != $request->userId() && !$Viewer->permitted('site_moderate_re
 $reason = trim($_POST['reason']);
 $title = $request->text();
 if ($request->userId() !== $Viewer->id()) {
-    $user = (new Manager\User())->findById($request->userId());
+    $user = new Manager\User()->findById($request->userId());
     if ($user) {
         $user->inbox()->createSystem(
             'A request you created has been deleted',

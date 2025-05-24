@@ -54,8 +54,8 @@ class UserTest extends TestCase {
         $id       = $this->user->id;
         $username = $this->user->username();
         $this->assertEquals(1, $this->user->remove(), 'user-remove-exists');
-        $this->assertNull((new Manager\User())->findById($id), 'user-is-removed');
-        $this->assertNull((new Manager\User())->findByUsername($username), 'username-is-removed');
+        $this->assertNull(new Manager\User()->findById($id), 'user-is-removed');
+        $this->assertNull(new Manager\User()->findByUsername($username), 'username-is-removed');
         unset($this->user);
     }
 

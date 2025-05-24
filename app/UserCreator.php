@@ -118,7 +118,7 @@ class UserCreator extends Base {
                 ? UserStatus::enabled->value
                 : UserStatus::unconfirmed->value,
             STARTING_INVITES,
-            (new \Gazelle\Util\GeoIP(new \Gazelle\Util\Curl()))
+            new \Gazelle\Util\GeoIP(new \Gazelle\Util\Curl())
                 ->countryISO($ipaddr),
             authKey()
         ];
@@ -199,7 +199,7 @@ class UserCreator extends Base {
         }
 
         if ($inviter) {
-            (new Manager\InviteSource())->resolveInviteSource($this->inviteKey, $user);
+            new Manager\InviteSource()->resolveInviteSource($this->inviteKey, $user);
             $inviter->stats()->increment('invited_total');
             $user->externalProfile()->modifyProfile($inviterReason);
             self::$db->prepared_query("
@@ -222,9 +222,9 @@ class UserCreator extends Base {
 
         self::$db->commit();
 
-        (new Tracker())->addUser($user);
+        new Tracker()->addUser($user);
         if ($this->note) {
-            (new User\AuditTrail($user))->addEvent(
+            new User\AuditTrail($user)->addEvent(
                 UserAuditEvent::invite,
                 implode("\n", $this->note)
             );

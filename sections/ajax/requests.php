@@ -84,7 +84,7 @@ $search->setFormat($_GET['formats'] ?? [], $strict)
         },
     )
     ->setCategory($_GET['filter_cat'] ?? [])
-    ->setReleaseType($_GET['releases'] ?? [], (new \Gazelle\ReleaseType())->list());
+    ->setReleaseType($_GET['releases'] ?? [], new \Gazelle\ReleaseType()->list());
 
 if (!isset($_GET['show_filled'])) {
     $search->showUnfilled();
@@ -125,6 +125,6 @@ $search->execute(
 );
 $paginator->setTotal($search->total());
 
-echo (new Json\Requests($search, $paginator->page(), $userMan))
+echo new Json\Requests($search, $paginator->page(), $userMan)
     ->setVersion(2)
     ->response();

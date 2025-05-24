@@ -64,7 +64,6 @@ class UserActivityTest extends TestCase {
     }
 
     public function testInbox(): void {
-        $userMan = new Manager\User();
         $this->userList['admin'] = Helper::makeUser('admin.' . randomString(10), 'activity');
         $this->userList['admin']->setField('PermissionID', SYSOP)->modify();
         $this->userList['user'] = Helper::makeUser('user.' . randomString(10), 'activity');
@@ -93,7 +92,7 @@ class UserActivityTest extends TestCase {
         $this->assertEquals('You have a new message', $alertInbox->title(), 'alert-inbox-unread');
 
         // read it
-        $read = (new Manager\PM($user))->findById($pm->id());
+        $read = new Manager\PM($user)->findById($pm->id());
         $this->assertInstanceOf(PM::class, $read, 'inbox-unread-pm');
         $this->assertEquals(1, $read->markRead(), 'alert-pm-read');
     }
@@ -110,7 +109,7 @@ class UserActivityTest extends TestCase {
             'Not much happened',
             'Discuss nothing',
             $this->userList['admin'],
-            (new Manager\Forum())->findById(ANNOUNCEMENT_FORUM_ID),
+            new Manager\Forum()->findById(ANNOUNCEMENT_FORUM_ID),
         );
         $this->assertGreaterThan(0, $newsId, 'alert-news-create');
         $this->assertNull($manager->fetch(-1), 'alert-no-news-is-null-news');

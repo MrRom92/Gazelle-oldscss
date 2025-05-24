@@ -106,7 +106,7 @@ class ApplicantTest extends TestCase {
 
         $apply->saveNote($this->userList['user'], 'follow-up', 'public');
         $this->assertEquals($new['admin'] + 1, $manager->newReplyTotal($this->userList['admin']), 'application-new-reply-admin');
-        $this->assertEquals($new['mod'] + 0, $manager->newReplyTotal($this->userList['mod']), 'application-new-reply-mod');
+        $this->assertEquals($new['mod'], $manager->newReplyTotal($this->userList['mod']), 'application-new-reply-mod');
     }
 
     public function testRoleViewer(): void {
@@ -156,7 +156,7 @@ class ApplicantTest extends TestCase {
         $this->roleList[] = $unpublished =
             $roleManager->create('unpublished-' . randomString(6), 'unpublished phpunit role', false, $this->userList['admin']);
         $this->assertFalse($unpublished->isPublished(), 'applicant-role-is-not-published');
-        $this->assertCount($totalPublished + 0, $roleManager->publishedList(), 'applicant-role-total-published');
+        $this->assertCount($totalPublished, $roleManager->publishedList(), 'applicant-role-total-published');
         $this->assertCount($total + 1, $roleManager->list(), 'applicant-role-total-unpublished');
 
         $this->userList['user'] = Helper::makeUser('user.' . randomString(10), 'applicant');

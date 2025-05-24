@@ -108,7 +108,7 @@ class TextTest extends TestCase {
         $this->userList['admin'] = Helper::makeUser('collage.' . randomString(6), 'text');
         $this->userList['admin']->setField('PermissionID', SYSOP)->modify();
         $name    = 'collage ' . randomString(6);
-        $collage = (new Manager\Collage())->create($this->userList['admin'], 1, $name, 'phpunit collage', 'jazz,disco');
+        $collage = new Manager\Collage()->create($this->userList['admin'], 1, $name, 'phpunit collage', 'jazz,disco');
         $this->assertInstanceOf(Collage::class, $collage, 'text-create-collage');
         $this->assertEquals(
             "<a href=\"collages.php?id={$collage->id}\">{$collage->name()}</a>",
@@ -135,7 +135,7 @@ class TextTest extends TestCase {
         $this->userList['admin']->setField('PermissionID', SYSOP)->modify();
         \Text::setViewer($this->userList['admin']);
         $name  = 'forum ' . randomString(6);
-        $category = (new Manager\ForumCategory())->create($name, 10003);
+        $category = new Manager\ForumCategory()->create($name, 10003);
         $forum = Helper::makeForum(
             user:        $this->userList['admin'],
             sequence:    999,
@@ -150,7 +150,7 @@ class TextTest extends TestCase {
             'text-forum'
         );
 
-        $thread = (new Manager\ForumThread())->create(
+        $thread = new Manager\ForumThread()->create(
             $forum, $this->userList['admin'], "phpunit thread title", "phpunit thread body"
         );
 
@@ -159,7 +159,7 @@ class TextTest extends TestCase {
             FROM forums_posts fp
             INNER JOIN forums_topics ft ON (ft.ID = fp.TopicID)
         ");
-        $post = (new Manager\ForumPost())->findById($postId);
+        $post = new Manager\ForumPost()->findById($postId);
         $threadId = $post?->thread()->id;
         $title    = $post?->thread()->title();
 
@@ -271,7 +271,7 @@ END_HTML],
 
     public function testTOC(): void {
         \Text::$TOC = true;
-        $html = \Text::full_format(<<<END_BB
+        \Text::full_format(<<<END_BB
 ==== BIG ====
 
 abc

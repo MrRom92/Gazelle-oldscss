@@ -94,7 +94,7 @@ while (true) {
 
     if (isset($_POST['releasetype'])) {
         $releaseType = (int)$_POST['releasetype'];
-        if (!(new ReleaseType())->findNameById($releaseType)) {
+        if (!new ReleaseType()->findNameById($releaseType)) {
             $error = 'Please pick a release type';
             break;
         }
@@ -168,7 +168,7 @@ while (true) {
             ? (int)$match['id']
             : (int)$_POST['groupid'];
         if ($tgroupId > 0) {
-            $tgroup = (new Manager\TGroup())->findById($tgroupId);
+            $tgroup = new Manager\TGroup()->findById($tgroupId);
             if (is_null($tgroup)) {
                 $error = 'The torrent group, if entered, must correspond to a music torrent group on the site.';
                 break;
@@ -242,7 +242,7 @@ if ($categoryName === 'Music' && $Viewer->permittedAny('site_edit_requests', 'si
     $request->artistRole()->set($artistRole, $Viewer, new Manager\Artist());
 }
 if (isset($_POST['tags'])) {
-    (new Manager\Tag())->replaceTagList(
+    new Manager\Tag()->replaceTagList(
         $request,
         array_unique(array_map('trim', explode(',', trim($_POST['tags'])))),
         $Viewer,

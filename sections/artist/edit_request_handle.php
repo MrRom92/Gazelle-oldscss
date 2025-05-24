@@ -6,13 +6,13 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$artist = (new Manager\Artist())->findById((int)($_POST['artistid'] ?? 0));
+$artist = new Manager\Artist()->findById((int)($_POST['artistid'] ?? 0));
 if (is_null($artist)) {
     Error404::error();
 }
 authorize();
 
-$thread = (new Manager\ForumThread())->create(
+$thread = new Manager\ForumThread()->create(
     forum: new Forum(EDITING_FORUM_ID),
     user:  new User(SYSTEM_USER_ID),
     title: "Editing request – Artist: " . $artist->name(),

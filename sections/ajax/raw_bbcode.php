@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$post = (new Manager\ForumPost())->findById((int)($_GET['postid'] ?? 0));
+$post = new Manager\ForumPost()->findById((int)($_GET['postid'] ?? 0));
 if (is_null($post)) {
     json_die("failure", "empty postid");
 } elseif (!$Viewer->readAccess($post->thread()->forum())) {

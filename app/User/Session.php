@@ -54,7 +54,7 @@ class Session extends \Gazelle\BaseUser {
         // do a cheap append to a delta table, and then reconsolidate to
         // the real table every once in a while via the scheduler.
         $this->user->refreshLastAccess();
-        (new History($this->user))->registerSiteIp($ipaddr);
+        new History($this->user)->registerSiteIp($ipaddr);
 
         self::$db->prepared_query("
             UPDATE users_sessions SET

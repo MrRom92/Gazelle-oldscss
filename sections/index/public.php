@@ -10,5 +10,5 @@ if (!SHOW_PUBLIC_INDEX) {
     exit;
 }
 echo $Twig->render('index/public.twig', [
-    'new' => (new Stats\Users())->enabledUserTotal() == 0,
+    'new' => new Stats\Users()->enabledUserTotal() == 0,
 ]);

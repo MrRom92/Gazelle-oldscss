@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$torrent = (new Manager\Torrent())->findById((int)$_GET['torrentid']);
+$torrent = new Manager\Torrent()->findById((int)$_GET['torrentid']);
 if (is_null($torrent)) {
     Error404::error();
 }
@@ -19,6 +19,6 @@ echo $Twig->render('torrent/seederlist.twig', [
     'list'       => $torrent->seederList($Viewer, $paginator->limit(), $paginator->offset()),
     'paginator'  => $paginator,
     'torrent_id' => $torrent->id(),
-    'url_stem'   => (new User\Stylesheet($Viewer))->imagePath(),
+    'url_stem'   => new User\Stylesheet($Viewer)->imagePath(),
     'user_id'    => $Viewer->id(),
 ]);

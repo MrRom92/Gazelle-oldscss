@@ -12,7 +12,7 @@ if (!$reason) {
     Error400::error('You must enter a reason!');
 }
 
-$collage = (new Manager\Collage())->findById((int)$_POST['collageid']);
+$collage = new Manager\Collage()->findById((int)$_POST['collageid']);
 if (is_null($collage)) {
     Error404::error();
 }
@@ -24,7 +24,7 @@ $collageId = $collage->id();
 $name = $collage->name();
 $collage->remove();
 
-(new Manager\Subscription())->flushPage('collages', $collageId);
+new Manager\Subscription()->flushPage('collages', $collageId);
 $collage->logger()->general(
    "Collage $collageId ($name) was deleted by {$Viewer->username()}: $reason"
 );

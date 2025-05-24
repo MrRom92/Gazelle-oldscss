@@ -67,7 +67,7 @@ class CommentTest extends TestCase {
     }
 
     public function testCommentCollage(): void {
-        $this->collage = (new Manager\Collage())->create(
+        $this->collage = new Manager\Collage()->create(
             user:        $this->user,
             categoryId:  1, /* Theme */
             name:        'phpunit collage comment ' . randomString(20),
@@ -90,10 +90,10 @@ class CommentTest extends TestCase {
     }
 
     public function testCommentRequest(): void {
-        $this->request = (new Manager\Request())->create(
+        $this->request = new Manager\Request()->create(
             user:            $this->user,
             bounty:          REQUEST_MIN * 1024 * 1024,
-            categoryId:      (int)(new Manager\Category())->findIdByName('Music'),
+            categoryId:      (int)new Manager\Category()->findIdByName('Music'),
             year:            (int)date('Y'),
             title:           'phpunit request comment',
             image:           '',

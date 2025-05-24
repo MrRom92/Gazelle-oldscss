@@ -164,7 +164,7 @@ class TorrentReportManagerTest extends TestCase {
         $manager = new Manager\Torrent\Report($torMan);
         $torrent = $torMan->findById($this->tgroup->torrentIdList()[0]);
         $this->assertInstanceOf(Torrent::class, $torrent, 'trep-mod-resolver-found');
-        $reportType = (new Manager\Torrent\ReportType())->findByName('other');
+        $reportType = new Manager\Torrent\ReportType()->findByName('other');
         $this->assertInstanceOf(Torrent\ReportType::class, $reportType, 'trep-report-type-search-found');
         $report = $manager->create(
             torrent:     $torrent,
@@ -188,7 +188,7 @@ class TorrentReportManagerTest extends TestCase {
         $manager = new Manager\Torrent\Report($torMan);
         $torrent = $torMan->findById($this->tgroup->torrentIdList()[0]);
         $this->assertInstanceOf(Torrent::class, $torrent, 'trep-search-found');
-        $reportType = (new Manager\Torrent\ReportType())->findByName('other');
+        $reportType = new Manager\Torrent\ReportType()->findByName('other');
         $this->assertInstanceOf(Torrent\ReportType::class, $reportType, 'trep-report-type-search-found');
         $report = $manager->create(
             torrent:     $torrent,
@@ -214,7 +214,7 @@ class TorrentReportManagerTest extends TestCase {
     }
 
     public function testModifyReport(): void {
-        $reportType = (new Manager\Torrent\ReportType())->findByName('other');
+        $reportType = new Manager\Torrent\ReportType()->findByName('other');
         $this->assertInstanceOf(Torrent\ReportType::class, $reportType, 'report-torrent-found');
         $reportType->setChangeset($this->userList[0], [['field' => 'is_admin', 'old' => $reportType->isAdmin(), 'new' => 0]]);
         $this->assertFalse($reportType->setField('is_admin', false)->modify(), 'trep-modify');
@@ -225,13 +225,13 @@ class TorrentReportManagerTest extends TestCase {
         $torrent = $torMan->findById($this->tgroup->torrentIdList()[0]);
         $this->assertInstanceOf(Torrent::class, $torrent, 'report-torrent-is-torrent');
 
-        $type = (new Manager\Torrent\ReportType())->findByName('urgent');
+        $type = new Manager\Torrent\ReportType()->findByName('urgent');
         $this->assertInstanceOf(Torrent\ReportType::class, $type, 'trep-instance-urgent');
 
         $torrentId = $this->tgroup->torrentIdList()[0];
         $torrent = $torMan->findById($torrentId);
         $this->assertInstanceOf(Torrent::class, $torrent, 'trep-torrent-find');
-        $report = (new Manager\Torrent\Report($torMan))->create(
+        new Manager\Torrent\Report($torMan)->create(
             torrent:     $torrent,
             user:        $this->userList[1],
             reportType:  $type,

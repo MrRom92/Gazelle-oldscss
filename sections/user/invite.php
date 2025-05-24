@@ -89,7 +89,7 @@ echo $Twig->render('user/invited.twig', [
             $heading->orderBy(), $heading->dir(), $paginator->limit(), $paginator->offset()
         )
     ),
-    'invites_open'      => (new Stats\Users())->newUsersAllowed($user),
+    'invites_open'      => new Stats\Users()->newUsersAllowed($user),
     'invite_source'     => $inviteSourceMan,
     'notes'             => new Util\Textarea('notes', '', 60, 4),
     'own_profile'       => $ownProfile,

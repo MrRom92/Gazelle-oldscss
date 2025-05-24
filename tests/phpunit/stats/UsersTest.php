@@ -137,7 +137,6 @@ class UsersTest extends TestCase {
     }
 
     public function testEcoStats(): void {
-        $stats = new Stats\Users();
         $this->userList[0] = Helper::makeUser('stats.' . randomString(6), 'user', enable: true);
 
         $eco = new Stats\Economic();

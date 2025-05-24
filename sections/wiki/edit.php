@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$article = (new Manager\Wiki())->findById((int)$_GET['id']);
+$article = new Manager\Wiki()->findById((int)$_GET['id']);
 if (is_null($article)) {
     Error404::error();
 }
@@ -19,6 +19,6 @@ echo $Twig->render('wiki/create.twig', [
     'action'     => 'edit',
     'article'    => $article,
     'body'       => new Util\Textarea('body', $article->body(), 92, 20),
-    'class_list' => (new Manager\User())->classList(),
+    'class_list' => new Manager\User()->classList(),
     'viewer'     => $Viewer,
 ]);

@@ -12,7 +12,7 @@ if (!$Viewer->permitted('torrents_edit')) {
     Error403::error();
 }
 
-$torrent = (new Manager\Torrent())->findById((int)($_POST['torrentid'] ?? 0));
+$torrent = new Manager\Torrent()->findById((int)($_POST['torrentid'] ?? 0));
 if (is_null($torrent)) {
     Error404::error('Torrent does not exist!');
 }

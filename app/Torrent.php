@@ -323,7 +323,7 @@ class Torrent extends TorrentAbstract {
         );
         $affected = self::$db->affected_rows();
         self::$cache->delete_value("users_tokens_{$user->id}");
-        (new Tracker())->removeToken($this, $user);
+        new Tracker()->removeToken($this, $user);
         return $affected;
     }
 
@@ -489,7 +489,7 @@ class Torrent extends TorrentAbstract {
         self::$db->begin_transaction();
         $this->info();
         if ($this->id > MAX_PREV_TORRENT_ID && $removePoints) {
-            (new User\Bonus($this->uploader()))->removePointsForUpload($this);
+            new User\Bonus($this->uploader())->removePointsForUpload($this);
         }
 
         // copy the metadata that will be needed after the row has been removed
@@ -501,7 +501,7 @@ class Torrent extends TorrentAbstract {
         $media    = $this->media();
         $format   = $this->format();
         $encoding = $this->encoding();
-        (new Tracker())->update('delete_torrent', [
+        new Tracker()->update('delete_torrent', [
             'id'        => $this->id,
             'info_hash' => $this->infohashEncoded(),
             'reason'    => $trackerReason,

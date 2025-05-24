@@ -275,7 +275,7 @@ class Recovery extends \Gazelle\Base {
              VALUES              (?,         ?,         ?,      ?,      now() + interval 1 week)
              ",                   $admin_id, $key,      $email, "Account recovery id={$id} key={$key}"
         );
-        (new Mail())->send($email, 'Account recovery confirmation at ' . SITE_NAME,
+        new Mail()->send($email, 'Account recovery confirmation at ' . SITE_NAME,
             self::$twig->render('email/recovery.twig', [
                 'invite_key' => $key,
             ])
@@ -549,7 +549,7 @@ $reclaimMsg
 --OPS Staff
 END_MSG;
                 }
-                (new \Gazelle\User($siteUserId))->inbox()
+                new \Gazelle\User($siteUserId)->inbox()
                     ->createSystem("Your buffer stats have been updated", $Body);
             }
 

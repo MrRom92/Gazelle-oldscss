@@ -8,7 +8,7 @@ namespace Gazelle;
 
 use Gazelle\User\Vote;
 
-$user = (new Manager\User())->findById((int)$_GET['id']);
+$user = new Manager\User()->findById((int)$_GET['id']);
 if (is_null($user)) {
     Error404::error();
 }

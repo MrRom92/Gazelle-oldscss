@@ -865,7 +865,7 @@ class Artist extends BaseAttrObject implements CollageEntry {
         self::$db->prepared_query("DELETE FROM wiki_artists WHERE PageID = ?", $id);
         $db->relaxConstraints(false);
 
-        (new Manager\Comment())->remove('artist', $id);
+        new Manager\Comment()->remove('artist', $id);
         $this->flush();
         $affected = parent::remove();
         $this->logger()->general(

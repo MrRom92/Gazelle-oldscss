@@ -30,20 +30,20 @@ foreach (range(1, 4) as $level) {
         ];
     }
 }
-$navList = (new Manager\UserNavigation())->fullList();
-$pushToken = (new User\Notification($user))->pushToken();
+$navList = new Manager\UserNavigation()->fullList();
+$pushToken = new User\Notification($user)->pushToken();
 
 echo $Twig->render('user/setting.twig', [
     'donor'           => $donor,
-    'lastfm_username' => (new Util\LastFM())->username($user),
+    'lastfm_username' => new Util\LastFM()->username($user),
     'nav_items'       => $navList,
     'nav_items_user'  => $user->navigationList(),
-    'notify_config'   => (new User\Notification($user))->config(),
+    'notify_config'   => new User\Notification($user)->config(),
     'push_topic'      => $pushToken,
     'profile'         => $profile,
-    'release_order'   => $user->releaseOrder((new ReleaseType())->extendedList()),
+    'release_order'   => $user->releaseOrder(new ReleaseType()->extendedList()),
     'stylesheet'      => new User\Stylesheet($user),
-    'stylesheets'     => (new Manager\Stylesheet())->list(),
+    'stylesheets'     => new Manager\Stylesheet()->list(),
     'user'            => $user,
     'viewer'          => $Viewer,
 ]);

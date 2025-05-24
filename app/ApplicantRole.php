@@ -95,10 +95,10 @@ class ApplicantRole extends BaseObject {
                    (RoleID, UserID, Body, ThreadID)
             VALUES (?,      ?,      ?,    ?)
             ", $this->id, $user->id, $body,
-                (new Manager\Thread())->createThread('staff-role')->id
+                new Manager\Thread()->createThread('staff-role')->id
         );
-        (new Manager\Applicant())->flush();
-        (new Manager\ApplicantRole())->flush();
+        new Manager\Applicant()->flush();
+        new Manager\ApplicantRole()->flush();
         return new Applicant(self::$db->inserted_id());
     }
 
@@ -148,8 +148,8 @@ class ApplicantRole extends BaseObject {
             ", $this->id
         );
         $affected = self::$db->affected_rows() + parent::remove();
-        (new Manager\Applicant())->flush();
-        (new Manager\ApplicantRole())->flush();
+        new Manager\Applicant()->flush();
+        new Manager\ApplicantRole()->flush();
         return $affected;
     }
 }

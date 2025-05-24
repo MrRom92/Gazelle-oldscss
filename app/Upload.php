@@ -136,7 +136,7 @@ class Upload extends Base {
             'description_release' => $this->releaseDescription(),
             'is_uploaded'         => $this->isUploaded,
             'logchecker_accept'   => \OrpheusNET\Logchecker\Logchecker::getAcceptValues(),
-            'release_type'        => (new ReleaseType())->list(),
+            'release_type'        => new ReleaseType()->list(),
             'tag_list'            => $GenreTags,
             'tgroup'              => $this->isUploaded && is_array($this->Torrent) ? $manager->findById($this->Torrent['GroupID']) : null,
             'torrent'             => $this->Torrent,

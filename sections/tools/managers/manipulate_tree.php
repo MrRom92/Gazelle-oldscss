@@ -37,7 +37,7 @@ if (isset($_POST['id'])) {
         );
     }
 
-    $message = (new User\InviteTree($user))
+    $message = new User\InviteTree($user)
         ->manipulate(
             $comment,
             $doDisable,

@@ -29,7 +29,7 @@ class CollageFreeleechTest extends TestCase {
                 user:       $this->user,
             ),
         ];
-        $this->collage = (new Manager\Collage())->create(
+        $this->collage = new Manager\Collage()->create(
             user:        $this->user,
             categoryId:  2,
             name:        'phpunit collfree ' . randomString(10),

@@ -10,7 +10,7 @@ if (!$Viewer->permitted('forums_polls_moderate')) {
 }
 authorize();
 
-$poll = (new Manager\ForumPoll())->findById((int)($_POST['threadid'] ?? 0));
+$poll = new Manager\ForumPoll()->findById((int)($_POST['threadid'] ?? 0));
 if (is_null($poll)) {
     Error404::error('Cannot find a poll for that thread');
 }

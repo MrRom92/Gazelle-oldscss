@@ -37,7 +37,7 @@ class TGroupTest extends TestCase {
             catalogueNumber: $this->catalogueNumber,
             description:     "Description of {$this->name}",
             image:           'https://example.com/' . randomString(10) . '.jpg',
-            releaseType:     (new ReleaseType())->findIdByName('Live album'),
+            releaseType:     new ReleaseType()->findIdByName('Live album'),
             showcase:        false,
         );
 
@@ -111,7 +111,7 @@ class TGroupTest extends TestCase {
         $this->assertEquals(1, $bonus->purchaseToken('token-1'), 'tgroup-user-buy-token');
         $this->assertTrue($this->userList['user']->canSpendFLToken($torrent), 'tgroup-user-fltoken');
 
-        (new Stats\Users())->refresh();
+        new Stats\Users()->refresh();
         $this->assertEquals(2, $this->userList['user']->stats()->uploadTotal(), 'tgroup-user-stats-upload');
         $this->assertEquals(1, $this->userList['user']->stats()->uniqueGroupTotal(), 'tgroup-user-stats-unique');
         $this->assertEquals(1, $this->userList['admin']->stats()->uploadTotal(), 'tgroup-user-admin-upload');
@@ -367,7 +367,7 @@ class TGroupTest extends TestCase {
         // we can at least test the SQL
         $this->assertGreaterThanOrEqual(
             0,
-            count((new Manager\Torrent())->latestUploads(5)),
+            count(new Manager\Torrent()->latestUploads(5)),
             'tgroup-latest-uploads'
         );
     }
@@ -383,7 +383,7 @@ class TGroupTest extends TestCase {
             catalogueNumber: $this->catalogueNumber,
             description:     "Description of {$this->name} merge",
             image:           '',
-            releaseType:     (new ReleaseType())->findIdByName('Live album'),
+            releaseType:     new ReleaseType()->findIdByName('Live album'),
             showcase:        false,
         );
         Helper::makeTorrentMusic(
@@ -394,8 +394,8 @@ class TGroupTest extends TestCase {
         $oldId   = $this->tgroupExtra->id;
         $oldName = $this->tgroupExtra->name();
 
-        (new User\Bookmark($admin))->create('torrent', $oldId);
-        (new Manager\Comment())->create($user, 'torrents', $oldId, 'phpunit comment ' . randomString(10));
+        new User\Bookmark($admin)->create('torrent', $oldId);
+        new Manager\Comment()->create($user, 'torrents', $oldId, 'phpunit comment ' . randomString(10));
         $adminVote = new User\Vote($admin);
         $userVote = new User\Vote($user);
         $adminVote->upvote($this->tgroupExtra);
@@ -426,11 +426,9 @@ class TGroupTest extends TestCase {
         );
 
         $this->assertTrue(
-            (new User\Bookmark($admin))->isTorrentBookmarked($this->tgroup->id),
+            new User\Bookmark($admin)->isTorrentBookmarked($this->tgroup->id),
             'tgroup-merge-bookmark'
         );
-
-        $comment = new Comment\Torrent($this->tgroup->id, 1, 0);
 
         // create new vote objects to pick up the state change
         unset($adminVote);
@@ -445,10 +443,10 @@ class TGroupTest extends TestCase {
     public function testTGroupSplit(): void {
         $list = $this->tgroup->torrentIdList();
         $this->assertCount(3, $list, 'tgroup-has-torrents');
-        $torrent = (new Manager\Torrent())->findById($list[1]);
+        $torrent = new Manager\Torrent()->findById($list[1]);
         $this->assertInstanceOf(Torrent::class, $torrent, 'tgroup-id-is-a-torrent');
         $suffix = randomString(10);
-        $this->tgroupExtra = (new Manager\TGroup())->createFromTorrent(
+        $this->tgroupExtra = new Manager\TGroup()->createFromTorrent(
             $torrent,
             "phpunit split artist $suffix",
             "php split title $suffix",
@@ -494,7 +492,7 @@ class TGroupTest extends TestCase {
     public function testStatsRefresh(): void {
         $this->assertGreaterThanOrEqual(
             0,
-            (new Stats\TGroups())->refresh(),
+            new Stats\TGroups()->refresh(),
             'tgroup-stats-refresh'
         );
     }
@@ -511,7 +509,7 @@ class TGroupTest extends TestCase {
     }
 
     public function testTGroupStats(): void {
-        (new Stats\TGroups())->refresh();
+        new Stats\TGroups()->refresh();
 
         $stats = $this->tgroup->stats();
         $this->assertGreaterThanOrEqual(0, $stats->downloadTotal(), 'tgroup-stats-download');
@@ -524,7 +522,7 @@ class TGroupTest extends TestCase {
         $bookmark = new User\Bookmark($this->userList['user']);
         $bookmark->create('torrent', $this->tgroup->id);
 
-        (new Stats\TGroups())->refresh();
+        new Stats\TGroups()->refresh();
         $stats->flush();
         $this->assertEquals($total + 1, $stats->bookmarkTotal(), 'tgroup-stats-update-bookmark');
     }

@@ -34,9 +34,9 @@ if (is_null($entry)) {
     json_die('failure', 'entry not found');
 }
 
-echo (new Json\Ajax\CollageAdd(
+echo new Json\Ajax\CollageAdd(
     collage: $collage,
     entry:   $entry,
     user:    $Viewer,
     manager: $collMan,
-))->response();
+)->response();

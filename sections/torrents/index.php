@@ -142,7 +142,7 @@ if (!empty($_REQUEST['action'])) {
             if (!empty($_GET['id'])) {
                 include_once 'details.php';
             } elseif (isset($_GET['torrentid'])) {
-                $torrent = (new Manager\Torrent())->findById((int)$_GET['torrentid']);
+                $torrent = new Manager\Torrent()->findById((int)$_GET['torrentid']);
                 if ($torrent) {
                     header('Location: ' . $torrent->location());
                 } else {

@@ -10,7 +10,7 @@ if (!$Viewer->permittedAny('users_mod', 'users_view_ips')) {
     Error403::error();
 }
 
-$user = (new Manager\User())->findById((int)($_GET['userid'] ?? 0));
+$user = new Manager\User()->findById((int)($_GET['userid'] ?? 0));
 $ipaddr = $_GET['ip'] ?? null;
 if (is_null($user) && !preg_match(IP_REGEXP, $ipaddr)) {
     Error403::error();

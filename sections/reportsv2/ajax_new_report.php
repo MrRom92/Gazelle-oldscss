@@ -32,10 +32,10 @@ if (is_null($report->torrent())) {
 
 $report->claim($Viewer);
 echo $Twig->render('reportsv2/new.twig', [
-    'category_list' => (new Manager\Torrent\ReportType())
+    'category_list' => new Manager\Torrent\ReportType()
         ->categoryList($report->reportType()->categoryId()),
     'report'        => $report,
-    'request_list'  => (new Manager\Request())->findByTorrentReported($report->torrent()),
+    'request_list'  => new Manager\Request()->findByTorrentReported($report->torrent()),
     'size'          => '(' . number_format($report->torrent()->size() / (1024 * 1024), 2) . ' MiB)',
     'torrent'       => $report->torrent(),
     'other'         => [

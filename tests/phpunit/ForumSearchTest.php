@@ -23,7 +23,7 @@ class ForumSearchTest extends TestCase {
     }
 
     public function testForumSearchThread(): void {
-        $this->category = (new Manager\ForumCategory())->create('phpunit category', 10001);
+        $this->category = new Manager\ForumCategory()->create('phpunit category', 10001);
         $this->forum  = Helper::makeForum(
             user:        $this->user,
             sequence:    250,
@@ -66,7 +66,7 @@ class ForumSearchTest extends TestCase {
     }
 
     public function testForumSearchAuthor(): void {
-        $this->category = (new Manager\ForumCategory())->create('phpunit category', 10001);
+        $this->category = new Manager\ForumCategory()->create('phpunit category', 10001);
         $this->forum  = Helper::makeForum(
             user:        $this->user,
             sequence:    250,

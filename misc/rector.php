@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
 use Rector\Config\RectorConfig;
-use Rector\Set\ValueObject\LevelSetList;
-use Rector\Set\ValueObject\SetList;
-use Rector\Php73\Rector\FuncCall\JsonThrowOnErrorRector;
+use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
+use Rector\Php73\Rector\FuncCall\StringifyStrNeedlesRector;
 use Rector\Php81\Rector\FuncCall\NullToStrictStringFuncCallArgRector;
+use Rector\Php83\Rector\ClassConst\AddTypeToConstRector;
+use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
 
 // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 define('DEBUG_MODE', true);
@@ -25,22 +25,26 @@ define('REAPER_TASK_REMOVE_UNSEEDED', true);
 define('REAPER_TASK_REMOVE_NEVER_SEEDED', true);
 define('RECOVERY_AUTOVALIDATE', true);
 
-return static function (RectorConfig $rectorConfig): void {
-    $rectorConfig->paths([
+return RectorConfig::configure()
+    ->withPaths([
         __DIR__ . '/../app',
+        __DIR__ . '/../bin',
         __DIR__ . '/../classes',
         __DIR__ . '/../lib',
         __DIR__ . '/../sections',
-    ]);
-
-    $rectorConfig->sets([
-        LevelSetList::UP_TO_PHP_84,
-        SetList::DEAD_CODE,
-    ]);
-
-    $rectorConfig->skip([
+        __DIR__ . '/../tests',
+    ])
+    ->withPreparedSets(
+        deadCode: true,
+    )
+    ->withPhpSets()
+    ->withSkip([
         NullToStrictStringFuncCallArgRector::class,
+        StringifyStrNeedlesRector::class,
+        // From the one-thing-at-a-time department
+        AddTypeToConstRector::class,
+        AddOverrideAttributeToOverriddenMethodsRector::class,
+        // Until rector understands that defines can be dynamic, this has to be
+        // ignored, otherwise rector will hack stuff out that should be untouched.
+        RemoveAlwaysTrueIfConditionRector::class,
     ]);
-
-    $rectorConfig->disableParallel();
-};

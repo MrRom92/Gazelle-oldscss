@@ -15,14 +15,14 @@ if (!strlen($body)) {
     Error404::error();
 }
 
-$comment = (new Manager\Comment())->findById((int)($_REQUEST['postid'] ?? 0));
+$comment = new Manager\Comment()->findById((int)($_REQUEST['postid'] ?? 0));
 if (is_null($comment)) {
     Error404::error();
 }
 if ($comment->userId() != $Viewer->id() && !$Viewer->permitted('site_moderate_forums')) {
     Error403::error();
 }
-$user = (new Manager\User())->findById($comment->userId());
+$user = new Manager\User()->findById($comment->userId());
 if (is_null($user)) {
     Error404::error();
 }

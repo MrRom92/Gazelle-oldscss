@@ -15,6 +15,7 @@ class CacheTest extends TestCase {
         $cache->cache_value($key, 'first', 600);
         $this->assertEquals('first', $cache->get_value($key), 'cache-get-1');
         $fetch = $cache->get_value($key);
+        $this->assertEquals('first', $fetch, 'cache-fetch-1');
         $this->assertCount(1, $cache->hitList(), 'cache-hit-list-1');
         $this->assertEquals([$key => 2], $cache->hitList(), 'cache-hit-list-1');
 

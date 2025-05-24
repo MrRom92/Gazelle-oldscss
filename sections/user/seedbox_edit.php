@@ -16,7 +16,7 @@ if (!isset($_POST['action'])) {
     authorize();
     $userId = (int)$_POST['userid'];
 }
-$user = (new Manager\User())->findById($userId);
+$user = new Manager\User()->findById($userId);
 if (!$user) {
     Error404::error();
 }

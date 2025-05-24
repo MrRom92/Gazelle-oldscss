@@ -74,7 +74,7 @@ class UserLinkTest extends TestCase {
         );
         $this->assertEquals(
             [$this->userList[0]->id() => $this->userList[0]->username()],
-            (new User\UserLink($this->userList[1]))->info()['list'],
+            new User\UserLink($this->userList[1])->info()['list'],
             'user-link-info-other-user'
         );
     }
@@ -88,7 +88,7 @@ class UserLinkTest extends TestCase {
         $linker = new User\UserLink($this->userList[0]);
         $linker->dupe($this->userList[1], $this->userList[0], true);
 
-        $groupId = $linker->groupId($this->userList[0]);
+        $linker->groupId($this->userList[0]);
         $linker->dupe($this->userList[2], $this->userList[0], true);
         $this->assertEquals(
             $linker->groupId($this->userList[1]),
@@ -143,7 +143,7 @@ class UserLinkTest extends TestCase {
                 $this->userList[2]->id() => $this->userList[2]->username(),
                 $this->userList[3]->id() => $this->userList[3]->username(),
             ],
-            (new User\UserLink($this->userList[4]))->info()['list'],
+            new User\UserLink($this->userList[4])->info()['list'],
             'user-link-merged-4'
         );
     }

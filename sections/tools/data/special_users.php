@@ -11,5 +11,5 @@ if (!$Viewer->permitted('admin_manage_permissions')) {
 }
 
 echo $Twig->render('admin/user-custom-permission.twig', [
-    'list' => (new Manager\User())->findAllByCustomPermission()
+    'list' => new Manager\User()->findAllByCustomPermission()
 ]);

@@ -58,7 +58,7 @@ class View extends Base {
                     )
                 );
 
-            $threshold = (new Manager\SiteOption())
+            $threshold = new Manager\SiteOption()
                 ->findValueByName('download-warning-threshold');
             if ($threshold) {
                 $activity->setStats((int)$threshold, new Stats\Torrent());
@@ -71,7 +71,7 @@ class View extends Base {
 
         $PageID = [$module, $_REQUEST['action'] ?? false, $_REQUEST['type'] ?? false];
         $navLinks = [];
-        foreach ((new Manager\UserNavigation())->userControlList($user) as $n) {
+        foreach (new Manager\UserNavigation()->userControlList($user) as $n) {
             [$ID, $Key, $Title, $Target, $Tests, $TestUser, $Mandatory] = array_values($n);
             if (str_contains($Tests, ':')) {
                 $testList = [];
@@ -96,7 +96,7 @@ class View extends Base {
             } elseif ($Key === 'subscriptions') {
                 if (
                     isset($alertList['Subscription'])
-                    && (new User\Subscription($user))->unread()
+                    && new User\Subscription($user)->unread()
                 ) {
                     $extraClass[] = 'new-subscriptions';
                 }
@@ -191,7 +191,7 @@ class View extends Base {
             $launch = SITE_LAUNCH_YEAR . "-$launch";
         }
 
-        $alertList = (new User\Notification($user))
+        $alertList = new User\Notification($user)
             ->setDocument(
                 $user->requestContext()->module(),
                 $_REQUEST['action'] ?? ''
@@ -210,7 +210,7 @@ class View extends Base {
             'db'           => self::$db,
             'debug'        => $Debug,
             'disclaimer'   => $showDisclaimer,
-            'last_active'  => (new User\Session($user))->lastActive($SessionID),
+            'last_active'  => new User\Session($user)->lastActive($SessionID),
             'launch'       => $launch,
             'load'         => sys_getloadavg(),
             'notification' => $notification,

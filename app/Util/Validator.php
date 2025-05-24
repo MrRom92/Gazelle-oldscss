@@ -184,7 +184,7 @@ class Validator {
                         break;
                     }
                     global $Viewer; // FIXME
-                    $banned = (new \Gazelle\Util\ImageProxy($Viewer))->badHost($ValidateVar);
+                    $banned = new \Gazelle\Util\ImageProxy($Viewer)->badHost($ValidateVar);
                     if ($banned) {
                         $this->errorMessage = "Please rehost images from " . html_escape($banned) . " elsewhere.";
                         break;

@@ -12,7 +12,7 @@ authorize();
 
 $forumMan = new Manager\Forum();
 
-$thread = (new Manager\ForumThread())->findById((int)($_POST['threadid'] ?? 0));
+$thread = new Manager\ForumThread()->findById((int)($_POST['threadid'] ?? 0));
 if (is_null($thread)) {
     Error404::error();
 }
@@ -61,7 +61,7 @@ if (isset($_POST['transition'])) {
     if ($transId < 1) {
         Error400::error('No forum transition ID specified');
     }
-    $transitions = (new Manager\ForumTransition())->threadTransitionList($Viewer, $thread);
+    $transitions = new Manager\ForumTransition()->threadTransitionList($Viewer, $thread);
     if (!isset($transitions[$transId])) {
         Error404::error("Forum transition $transId not found");
     }

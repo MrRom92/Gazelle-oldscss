@@ -9,7 +9,7 @@ namespace Gazelle;
 if (!$Viewer->permitted('site_moderate_requests')) {
     Error403::error();
 }
-$torrent = (new Manager\Torrent())->findById((int)$_GET['torrentid']);
+$torrent = new Manager\Torrent()->findById((int)$_GET['torrentid']);
 if (is_null($torrent)) {
     Error404::error();
 }

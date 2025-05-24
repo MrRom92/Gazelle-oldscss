@@ -11,6 +11,6 @@ if (!$Viewer->permitted('admin_manage_forums')) {
 }
 
 echo $Twig->render('admin/forum-category.twig', [
-    'list'   => (new Manager\ForumCategory())->usageList(),
+    'list'   => new Manager\ForumCategory()->usageList(),
     'viewer' => $Viewer,
 ]);

@@ -146,7 +146,7 @@ class TGroup extends AbstractCollage {
             $rows = parent::remove(); // soft remove in AbstractCollage
         } else {
             // personal collages are nuked hard, no undo
-            (new \Gazelle\Manager\Comment())->remove('collages', $this->id);
+            new \Gazelle\Manager\Comment()->remove('collages', $this->id);
             self::$db->prepared_query("
                 DELETE FROM bookmarks_collages WHERE CollageID = ?
                 ", $this->id

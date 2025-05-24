@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$collage = (new Manager\Collage())->findById((int)($_GET['collageid'] ?? 0));
+$collage = new Manager\Collage()->findById((int)($_GET['collageid'] ?? 0));
 if (is_null($collage)) {
     Error404::error();
 }
@@ -20,9 +20,9 @@ $paginator->setAnchor('comments')->setTotal($commentPage->total())->removeParam(
 echo $Twig->render('collage/comment.twig', [
     'collage'       => $collage,
     'comment'       => $commentPage,
-    'is_subscribed' => (new User\Subscription($Viewer))->isSubscribedComments('collages', $collage->id()),
+    'is_subscribed' => new User\Subscription($Viewer)->isSubscribedComments('collages', $collage->id()),
     'paginator'     => $paginator,
-    'textarea'      => (new Util\Textarea('quickpost', '', 90, 8))->setPreviewManual(true),
+    'textarea'      => new Util\Textarea('quickpost', '', 90, 8)->setPreviewManual(true),
     'url'           => $_SERVER['REQUEST_URI'],
     'userMan'       => new Manager\User(),
     'viewer'        => $Viewer,

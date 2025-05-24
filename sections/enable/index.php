@@ -14,7 +14,7 @@ if (!isset($_GET['token'])) {
     exit;
 }
 
-$enabler = (new Manager\AutoEnable())->findByToken($_GET['token']);
+$enabler = new Manager\AutoEnable()->findByToken($_GET['token']);
 if (is_null($enabler)) {
     Error400::error('invalid enable token');
 }

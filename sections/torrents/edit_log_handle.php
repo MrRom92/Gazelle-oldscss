@@ -13,7 +13,7 @@ $LogID = (int)($_POST['logid'] ?? 0);
 if (!$LogID) {
     Error404::error();
 }
-$torrent = (new Manager\Torrent())->findById((int)($_POST['torrentid'] ?? 0));
+$torrent = new Manager\Torrent()->findById((int)($_POST['torrentid'] ?? 0));
 if (is_null($torrent)) {
     Error404::error();
 }

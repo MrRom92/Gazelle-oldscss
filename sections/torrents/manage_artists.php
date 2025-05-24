@@ -22,7 +22,7 @@ if (!$roleAliasList) {
     Error400::error('No artists to manage');
 }
 
-$tgroup = (new Manager\TGroup())->findById((int)($_POST['groupid'] ?? 0));
+$tgroup = new Manager\TGroup()->findById((int)($_POST['groupid'] ?? 0));
 if (is_null($tgroup)) {
     Error404::error();
 }

@@ -44,7 +44,7 @@ if (!isset($Properties)) {
             }
         }
     } elseif ($requestId) {
-        $request = (new Manager\Request())->findById($requestId);
+        $request = new Manager\Request()->findById($requestId);
         if ($request) {
             $categoryId = $request->categoryId();
             $Properties = [
@@ -62,7 +62,7 @@ if (!isset($Properties)) {
             ];
         }
     } elseif (isset($_GET['artistid'])) {
-        $artist = (new Manager\Artist())->findById((int)$_GET['artistid']);
+        $artist = new Manager\Artist()->findById((int)$_GET['artistid']);
         if ($artist) {
             $Properties = [
                 'add-format' => true,
@@ -130,6 +130,6 @@ echo match (CATEGORY[$categoryId - 1]) {
     'Comedy'            => $uploadForm->comedy(),
     'E-Books'           => $uploadForm->ebook(),
     'E-Learning Videos' => $uploadForm->elearning(),
-    default             => $uploadForm->music((new Manager\Tag())->genreList(), $tgMan),
+    default             => $uploadForm->music(new Manager\Tag()->genreList(), $tgMan),
 };
 echo $uploadForm->foot(true);

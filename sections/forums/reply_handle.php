@@ -10,7 +10,7 @@ if ($Viewer->disablePosting()) {
 }
 authorize();
 
-$thread = (new Manager\ForumThread())->findById((int)($_POST['threadid'] ?? 0));
+$thread = new Manager\ForumThread()->findById((int)($_POST['threadid'] ?? 0));
 if (is_null($thread)) {
     Error404::error();
 }
@@ -28,7 +28,7 @@ if ($body === '') {
 }
 
 if ($thread->lastAuthorId() == $Viewer->id() && isset($_POST['merge'])) {
-    $post = (new Manager\ForumPost())->findById($thread->lastPostId());
+    $post = new Manager\ForumPost()->findById($thread->lastPostId());
     if (is_null($post)) {
         Error404::error("cannot find post #{$thread->lastPostId()} in thread {$thread->id()}");
     }
@@ -37,13 +37,13 @@ if ($thread->lastAuthorId() == $Viewer->id() && isset($_POST['merge'])) {
     $post = $thread->addPost($Viewer, $body);
 }
 
-(new User\Notification\Quote($Viewer))->create(
+new User\Notification\Quote($Viewer)->create(
     'forums', $thread->id(), $post->id(), $body
 );
 $subscription = new User\Subscription($Viewer);
 if (isset($_POST['subscribe']) && !$subscription->isSubscribed($thread)) {
     $subscription->subscribe($thread);
 }
-(new Manager\Subscription())->flushThread($thread);
+new Manager\Subscription()->flushThread($thread);
 
 header("Location: {$post->location()}");

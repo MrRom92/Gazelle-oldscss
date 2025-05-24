@@ -51,7 +51,7 @@ if (isset($_GET['id'])) {
 }
 
 if ($viewMap[$view]['title'] === 'Your Unanswered') {
-    $classlist = (new Manager\User())->classList();
+    $classlist = new Manager\User()->classList();
     if ($Viewer->privilege()->effectiveClassLevel() >= $classlist[MOD]['Level']) {
         $staffpmMan->setUserclassLevel($classlist[MOD]['Level']);
     } elseif ($Viewer->privilege()->effectiveClassLevel() == $classlist[FORUM_MOD]['Level']) {

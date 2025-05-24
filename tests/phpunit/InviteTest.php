@@ -52,7 +52,7 @@ class InviteTest extends TestCase {
         $this->user->setField('Invites', 1)->modify();
 
         // invite someone
-        $this->assertTrue((new Stats\Users())->newUsersAllowed($this->user), 'invite-new-users-allowed');
+        $this->assertTrue(new Stats\Users()->newUsersAllowed($this->user), 'invite-new-users-allowed');
         $manager = new Manager\Invite();
         $email = randomString(10) . "@invitee.example.com";
         $this->assertFalse($manager->emailExists($this->user, $email), 'invitee-email-not-pending');
@@ -77,7 +77,7 @@ class InviteTest extends TestCase {
         $this->assertTrue($this->invitee->isUnconfirmed(), 'invitee-unconfirmed');
         $this->assertInstanceOf(
             User::class,
-            (new Manager\User())->findByAnnounceKey($this->invitee->announceKey()),
+            new Manager\User()->findByAnnounceKey($this->invitee->announceKey()),
             'invitee-confirmable'
         );
 
@@ -120,7 +120,7 @@ class InviteTest extends TestCase {
             source: '',
         );
         $this->assertInstanceOf(Invite::class, $invite, 'invite-ancestor-found');
-        $this->invitee = (new UserCreator())
+        $this->invitee = new UserCreator()
             ->setUsername('create.' . randomString(6))
             ->setEmail(randomString(6) . '@example.com')
             ->setPassword(randomString(10))
@@ -140,7 +140,7 @@ class InviteTest extends TestCase {
 
         $this->assertEquals(
             "No action specified",
-            (new User\InviteTree($this->user))
+            new User\InviteTree($this->user)
             ->manipulate(
                 "",
                 false,
@@ -154,7 +154,7 @@ class InviteTest extends TestCase {
 
         $this->assertEquals(
             "No invitees for {$this->user->username()}",
-            (new User\InviteTree($this->user))
+            new User\InviteTree($this->user)
             ->manipulate(
                 "phpunit invite tree comment",
                 false,
@@ -179,7 +179,7 @@ class InviteTest extends TestCase {
             source: '',
         );
         $this->assertInstanceOf(Invite::class, $invite, 'invite-manipulate-found');
-        $this->invitee = (new UserCreator())
+        $this->invitee = new UserCreator()
             ->setUsername('create.' . randomString(6))
             ->setEmail(randomString(6) . '@example.com')
             ->setPassword(randomString(10))
@@ -188,7 +188,7 @@ class InviteTest extends TestCase {
 
         $this->assertStringContainsString(
             "Commented entire tree (1 user)",
-            (new User\InviteTree($this->user))
+            new User\InviteTree($this->user)
             ->manipulate(
                 "phpunit invite tree comment",
                 false,
@@ -212,7 +212,7 @@ class InviteTest extends TestCase {
 
         $this->assertStringContainsString(
             "Revoked invites for entire tree (1 user)",
-            (new User\InviteTree($this->user))
+            new User\InviteTree($this->user)
             ->manipulate(
                 "",
                 false,
@@ -237,7 +237,7 @@ class InviteTest extends TestCase {
 
         $this->assertStringContainsString(
             "Banned entire tree (1 user)",
-            (new User\InviteTree($this->user))
+            new User\InviteTree($this->user)
             ->manipulate(
                 "",
                 true,
@@ -345,7 +345,7 @@ class InviteTest extends TestCase {
         );
 
         // create user from the invite
-        $this->invitee = (new UserCreator())
+        $this->invitee = new UserCreator()
             ->setUsername('create.' . randomString(6))
             ->setEmail(randomString(6) . '@example.com')
             ->setPassword(randomString(10))
@@ -543,10 +543,10 @@ class InviteTest extends TestCase {
         $this->assertEquals('Elite TM', $this->user->userclassName(),              'etm-userclass-check');
         $this->assertTrue($this->user->permitted('site_send_unlimited_invites'),   'etm-site-send-unlimited-invites');
         $this->assertFalse($this->user->permitted('site_can_invite_always'),       'etm-site-can-invite-always');
-        $this->assertTrue((new Stats\Users())->newUsersAllowed($this->user), 'etm-new-users-allowed');
+        $this->assertTrue(new Stats\Users()->newUsersAllowed($this->user),         'etm-new-users-allowed');
         $this->assertTrue($this->user->canPurchaseInvite(),                        'etm-can-purchase-invites');
 
-        $invite = (new Manager\Invite())->create($this->user, randomString(10) . "@etm.example.com", 'unittest notes', 'unittest reason', '');
+        $invite = new Manager\Invite()->create($this->user, randomString(10) . "@etm.example.com", 'unittest notes', 'unittest reason', '');
         $this->assertInstanceOf(Invite::class, $invite, 'etm-issued-invite');
     }
 }

@@ -10,13 +10,13 @@ if (!$Viewer->permitted('admin_manage_invite_source')) {
     Error403::error();
 }
 
-$user = (new Manager\User())->find(trim($_POST['user'] ?? ''));
+$user = new Manager\User()->find(trim($_POST['user'] ?? ''));
 if ($user) {
     header("Location: {$user->location()}#invite_source");
     exit;
 }
 
 echo $Twig->render('admin/invite-source.twig', [
-    'list'   => (new Manager\InviteSource())->summaryByInviter(),
+    'list'   => new Manager\InviteSource()->summaryByInviter(),
     'viewer' => $Viewer,
 ]);

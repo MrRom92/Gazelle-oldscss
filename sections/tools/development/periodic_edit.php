@@ -12,6 +12,6 @@ if (!$Viewer->permitted('admin_periodic_task_manage')) {
 
 echo $Twig->render('admin/scheduler/edit.twig', [
     'err'       => $err ?? null,
-    'task_list' => (new TaskScheduler())->taskList(),
+    'task_list' => new TaskScheduler()->taskList(),
     'viewer'    => $Viewer,
 ]);

@@ -60,6 +60,6 @@ echo $Twig->render('contest/admin.twig', [
     'list'       => $contestMan->contestList(),
     'saved'      => $saved,
     'type'       => $contestMan->contestTypes(),
-    'user_count' => (new \Gazelle\Stats\Users())->enabledUserTotal(),
+    'user_count' => new \Gazelle\Stats\Users()->enabledUserTotal(),
     'viewer'     => $Viewer,
 ]);

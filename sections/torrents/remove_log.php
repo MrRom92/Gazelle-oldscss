@@ -10,13 +10,13 @@ if (!$Viewer->permitted('users_mod')) {
     Error403::error();
 }
 
-$torrent = (new Manager\Torrent())->findById((int)$_GET['torrentid']);
+$torrent = new Manager\Torrent()->findById((int)$_GET['torrentid']);
 $logId = (int)$_GET['logid'];
 if (is_null($torrent) || !$logId) {
     Error404::error();
 }
 
-(new File\RipLog())->remove([$torrent->id(), $logId]);
+new File\RipLog()->remove([$torrent->id(), $logId]);
 $torrent->logger()->torrent(
     $torrent,
     $Viewer,

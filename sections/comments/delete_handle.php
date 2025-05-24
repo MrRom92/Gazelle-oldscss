@@ -10,7 +10,7 @@ if (!$Viewer->permitted('site_moderate_forums')) {
 }
 authorize();
 
-$comment = (new Manager\Comment())->findById((int)($_REQUEST['postid'] ?? 0));
+$comment = new Manager\Comment()->findById((int)($_REQUEST['postid'] ?? 0));
 if (is_null($comment)) {
     Error404::error();
 }

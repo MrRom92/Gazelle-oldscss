@@ -67,12 +67,12 @@ $collage = $collageMan->create(
     $categoryId,
     $name,
     $_POST['description'],
-    (new Manager\Tag())->normalize(str_replace(',', ' ', (string)$_POST['tags'])),
+    new Manager\Tag()->normalize(str_replace(',', ' ', (string)$_POST['tags'])),
 );
 
 if ($Viewer->option('AutoSubscribe')) {
     $collage->toggleSubscription($Viewer);
-    (new User\Subscription($Viewer))->subscribeComments('collages', $collage->id());
+    new User\Subscription($Viewer)->subscribeComments('collages', $collage->id());
 }
 
 header('Location: ' . $collage->location());

@@ -13,7 +13,7 @@ $reportMan = new Manager\Torrent\Report($torMan);
 $bookmark  = new User\Bookmark($Viewer);
 $imgProxy  = new Util\ImageProxy($Viewer);
 $top10     = new Top10\Torrent(FORMAT, $Viewer);
-$urlStem   = (new User\Stylesheet($Viewer))->imagePath();
+$urlStem   = new User\Stylesheet($Viewer)->imagePath();
 $snatcher  = $Viewer->snatch();
 
 if (!empty($_GET['advanced']) && $Viewer->permitted('site_advanced_top10')) {

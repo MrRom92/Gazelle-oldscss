@@ -132,7 +132,7 @@ class ArtistTest extends TestCase {
         $this->assertEquals('phpunit second revision', $list[0]['summary']);
         $this->assertEquals($revision, $list[1]['revision']);
 
-        $rev3 = $artist->revertRevision($revision, $this->user);
+        $artist->revertRevision($revision, $this->user);
         $this->assertCount(3, $artist->revisionList());
         $this->assertEquals($artistV1->body(), $artist->body(), 'artist-body-rev-3');
     }
@@ -318,7 +318,7 @@ class ArtistTest extends TestCase {
         $request = $requestMan->create(
             user:            $this->user,
             bounty:          100 * 1024 ** 2,
-            categoryId:      (int)(new Manager\Category())->findIdByName('Music'),
+            categoryId:      (int)new Manager\Category()->findIdByName('Music'),
             year:            (int)date('Y'),
             title:           'phpunit smart rename ' . randomString(6),
             image:           '',
@@ -502,7 +502,6 @@ class ArtistTest extends TestCase {
         $this->assertEquals($other2->id, $graph[$other1->id]['related'][0], 'artist-sim-related');
         $this->assertLessThan($graph[$other1->id]['proportion'], $graph[$other2->id]['proportion'], 'artist-sim-proportion');
 
-        $requestMan = new Manager\Request();
         $this->assertFalse($artist->similar()->removeSimilar($artist, $this->extra), 'artist-remove-similar-self');
         $this->assertTrue($artist->similar()->removeSimilar($other2, $this->extra), 'artist-remove-other');
         $this->assertFalse($artist->similar()->removeSimilar($other2, $this->extra), 'artist-re-remove-other');
@@ -577,7 +576,7 @@ class ArtistTest extends TestCase {
         $artist = $manager->create($name);
         $this->artistIdList[] = $artist->id;
 
-        (new User\Bookmark($this->user))->create('artist', $artist->id);
+        new User\Bookmark($this->user)->create('artist', $artist->id);
         $json = new Json\Bookmark\Artist(new User\Bookmark($this->user));
         $this->assertEquals(
             [[

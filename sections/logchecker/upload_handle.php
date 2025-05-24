@@ -10,7 +10,7 @@ use OrpheusNET\Logchecker\Logchecker;
 
 ini_set('upload_max_filesize', 1_000_000);
 
-$torrent = (new Manager\Torrent())->findById((int)$_POST['torrentid']);
+$torrent = new Manager\Torrent()->findById((int)$_POST['torrentid']);
 if (is_null($torrent)) {
     Error404::error('No torrent is selected.');
 }

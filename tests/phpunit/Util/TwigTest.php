@@ -24,7 +24,7 @@ class TwigTest extends TestCase {
     }
 
     public function testDominator(): void {
-        (new Util\Dominator())->flush(); // in case anything has already been set
+        new Util\Dominator()->flush(); // in case anything has already been set
         $twig = Util\Twig::factory(new Manager\User());
         $twig->createTemplate("{{ dom.click('#id', \"$('#id').frob(); return false;\") }}")->render();
         $expected = <<<END
@@ -235,7 +235,7 @@ END;
         Util\Twig::setViewer($this->user);
         $this->assertStringStartsWith('<!DOCTYPE html>', self::twig('{{ header("page") }}')->render(), 'twig-function-header');
 
-        $current = (new User\Session($this->user))->create([
+        $current = new User\Session($this->user)->create([
             'keep-logged' => '0',
             'browser'     => [
                'Browser'                => 'phpunit',

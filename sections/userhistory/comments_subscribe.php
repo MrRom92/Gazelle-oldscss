@@ -10,4 +10,4 @@ if (!in_array($_GET['page'], ['artist', 'collages', 'requests', 'torrents']) || 
 }
 authorize();
 
-(new User\Subscription($Viewer))->subscribeComments($_GET['page'], (int)$_GET['pageid']);
+new User\Subscription($Viewer)->subscribeComments($_GET['page'], (int)$_GET['pageid']);

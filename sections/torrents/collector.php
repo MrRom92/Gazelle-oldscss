@@ -23,11 +23,11 @@ switch ($title) {
         break;
     case 'seedbox':
         authorize();
-        $user = (new Manager\User())->findById((int)($_GET['userid'] ?? 0));
+        $user = new Manager\User()->findById((int)($_GET['userid'] ?? 0));
         if (is_null($user)) {
             Error404::error();
         }
-        $ids = (new User\Seedbox($user))
+        $ids = new User\Seedbox($user)
             ->setSource($_GET['s'] ?? '')
             ->setTarget($_GET['t'] ?? '')
             ->setUnion($_GET['m'] === 'union')

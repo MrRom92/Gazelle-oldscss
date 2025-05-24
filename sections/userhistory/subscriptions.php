@@ -25,7 +25,7 @@ $paginator->setTotal(
 
 $avatarFilter = Util\Twig::factory($userMan)->createTemplate('{{ user|avatar(viewer)|raw }}');
 
-$Results = (new User\Subscription($Viewer))->latestSubscriptionList($showUnread, $paginator->limit(), $paginator->offset());
+$Results = new User\Subscription($Viewer)->latestSubscriptionList($showUnread, $paginator->limit(), $paginator->offset());
 foreach ($Results as &$result) {
     $postLink = $result['PostID'] ? "&amp;postid={$result['PostID']}#post{$result['PostID']}" : '';
     switch ($result['Page']) {

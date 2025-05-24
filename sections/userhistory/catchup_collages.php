@@ -11,7 +11,7 @@ $notifier = new User\Notification\Collage($Viewer);
 if (!isset($_REQUEST['collageid'])) {
     $notifier->clear();
 } else {
-    $collage = (new Manager\Collage())->findById((int)$_REQUEST['collageid']);
+    $collage = new Manager\Collage()->findById((int)$_REQUEST['collageid']);
     if (is_null($collage)) {
         Error404::error();
     }

@@ -18,7 +18,7 @@ $title = trim($_POST['title']);
 if (empty($title)) {
     Error400::error('The title of the blog article must not be empty');
 }
-$blog = (new Manager\Blog())->findById((int)($_POST['blogid'] ?? 0));
+$blog = new Manager\Blog()->findById((int)($_POST['blogid'] ?? 0));
 if (is_null($blog)) {
     Error404::error();
 }
@@ -44,7 +44,7 @@ $blog->setField('body', $body)
     ->modify();
 
 if ($thread && isset($_POST['subscribe'])) {
-    (new User\Subscription($Viewer))->subscribe($thread);
+    new User\Subscription($Viewer)->subscribe($thread);
 }
 
 header('Location: blog.php');

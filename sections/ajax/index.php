@@ -200,7 +200,7 @@ switch ($Action) {
         include_once 'wiki.php';
         break;
     case 'get_friends':
-        echo json_encode((new User\Friend($Viewer))->userList());
+        echo json_encode(new User\Friend($Viewer)->userList());
         break;
     case 'news_ajax':
         include_once 'news_ajax.php';

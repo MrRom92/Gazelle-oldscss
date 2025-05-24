@@ -140,32 +140,32 @@ if ($user->lockType() != $lockType) {
 }
 
 if (isset($_POST['ResetRatioWatch']) && $Viewer->permitted('users_edit_reset_keys')) {
-    (new User\History($user))->resetRatioWatch();
+    new User\History($user)->resetRatioWatch();
     $editSummary[] = 'RatioWatch history reset';
 }
 
 if ($resetIPHistory && $Viewer->permitted('users_edit_reset_keys')) {
-    (new User\History($user))->resetIp();
+    new User\History($user)->resetIp();
     $editSummary[] = 'IP history cleared';
 }
 
 if (isset($_POST['ResetEmailHistory']) && $Viewer->permitted('users_edit_reset_keys')) {
-    (new User\History($user))->resetEmail($user->username() . '@' . SITE_HOST, $resetIPHistory ? '127.0.0.1' : $user->ipaddr());
+    new User\History($user)->resetEmail($user->username() . '@' . SITE_HOST, $resetIPHistory ? '127.0.0.1' : $user->ipaddr());
     $editSummary[] = 'email history cleared';
 }
 
 if (isset($_POST['ResetSnatchList']) && $Viewer->permitted('users_edit_reset_keys')) {
-    (new User\History($user))->resetSnatched();
+    new User\History($user)->resetSnatched();
     $editSummary[] = 'snatch list cleared';
 }
 
 if (isset($_POST['ResetDownloadList']) && $Viewer->permitted('users_edit_reset_keys')) {
-    (new User\History($user))->resetDownloaded();
+    new User\History($user)->resetDownloaded();
     $editSummary[] = 'download list cleared';
 }
 
 if ($logoutSession && $Viewer->permitted('users_logout')) {
-    $editSummary[] = "logged out of all sessions (n=" . (new User\Session($user))->dropAll() . ")";
+    $editSummary[] = "logged out of all sessions (n=" . new User\Session($user)->dropAll() . ")";
 }
 
 if ($visible != $user->isVisible() && $Viewer->permitted('users_make_invisible')) {
@@ -321,7 +321,7 @@ if ($Viewer->permitted('users_give_donor')) {
     if ($value > 0.0) {
         $donor->donate(
             amount:   $value,
-            xbtRate:  (new Manager\XBT())->latestRate('EUR'),
+            xbtRate:  new Manager\XBT()->latestRate('EUR'),
             currency: $_POST['donation_currency'],
             reason:   trim($_POST['donation_reason']),
             source:   'Add Points',
@@ -546,7 +546,7 @@ if ($Viewer->permitted('users_edit_reset_keys')) {
 }
 
 if ($sendHackedMail && $Viewer->permitted('users_disable_any')) {
-    (new Mail())->send($hackedEmail, SITE_NAME . ' account - suspicious activity',
+    new Mail()->send($hackedEmail, SITE_NAME . ' account - suspicious activity',
         $Twig->render('email/hacked.twig', [
             'user' => $user
         ])
@@ -608,11 +608,11 @@ if ($addedClasses) {
 
 if ($changePassword && $Viewer->permitted('users_edit_password')) {
     $user->history()->modifyPassword($_POST['ChangePassword'], false);
-    (new \Gazelle\User\Session($user))->dropAll();
+    new \Gazelle\User\Session($user)->dropAll();
 }
 
 if ($newBonusPoints !== false) {
-    (new User\Bonus($user))->setPoints($newBonusPoints);
+    new User\Bonus($user)->setPoints($newBonusPoints);
 }
 
 if ($flTokens != $user->tokenCount()) {
@@ -633,7 +633,7 @@ if ($Viewer->permitted('admin_tracker')) {
 if (isset($_POST['invite_source_update'])) {
     $idList = array_key_extract_suffix('source-', $_POST);
     if ($idList) {
-        (new Manager\InviteSource())->modifyInviterConfiguration($user, $idList);
+        new Manager\InviteSource()->modifyInviterConfiguration($user, $idList);
         header("Location: tools.php?action=invite_source");
         exit;
     }

@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$request = (new Manager\Request())->findById((int)($_GET['id'] ?? 0));
+$request = new Manager\Request()->findById((int)($_GET['id'] ?? 0));
 if (is_null($request)) {
     Error404::error();
 }
@@ -35,13 +35,13 @@ echo $Twig->render('request/detail.twig', [
     'unit_GiB'      => isset($unitGiB),
     'comment_page'  => $commentPage,
     'filler'        => $userMan->findById($request->fillerId()),
-    'is_bookmarked' => (new User\Bookmark($Viewer))->isRequestBookmarked($request->id()),
-    'is_subscribed' => (new User\Subscription($Viewer))->isSubscribedComments('requests', $request->id()),
+    'is_bookmarked' => new User\Bookmark($Viewer)->isRequestBookmarked($request->id()),
+    'is_subscribed' => new User\Subscription($Viewer)->isSubscribedComments('requests', $request->id()),
     'paginator'     => $paginator,
-    'reply'         => (new Util\Textarea('quickpost', '', 90, 8))->setPreviewManual(true),
+    'reply'         => new Util\Textarea('quickpost', '', 90, 8)->setPreviewManual(true),
     'request'       => $request,
     'tax_rate'      => sprintf("%0.2f", 100 * (1 - REQUEST_TAX)),
-    'tgroup'        => (new Manager\TGroup())->findById((int)$request->tgroupId()),
+    'tgroup'        => new Manager\TGroup()->findById((int)$request->tgroupId()),
     'uri'           => $_SERVER['REQUEST_URI'],
     'user_man'      => $userMan,
     'viewer'        => $Viewer,

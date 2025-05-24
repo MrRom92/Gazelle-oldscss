@@ -78,7 +78,7 @@ class ForumTransition extends BaseObject {
         return $this->classLevel() <= $user->classLevel()
             || in_array($user->id, $this->userIdList())
             || array_intersect(
-                array_keys((new User\Privilege($user))->secondaryClassList()),
+                array_keys(new User\Privilege($user)->secondaryClassList()),
                 $this->secondaryClassIdList()
             );
     }

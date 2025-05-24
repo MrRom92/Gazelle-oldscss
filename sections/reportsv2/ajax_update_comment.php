@@ -11,6 +11,6 @@ if (!$Viewer->permitted('admin_reports')) {
 
 authorize();
 
-(new Manager\Torrent\Report(new Manager\Torrent()))
+new Manager\Torrent\Report(new Manager\Torrent())
     ->findById((int)($_POST['reportid'] ?? 0))
     ?->modifyComment($_POST['comment'] ?? '');

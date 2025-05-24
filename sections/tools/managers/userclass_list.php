@@ -16,6 +16,6 @@ if (isset($_REQUEST['id']) && $_REQUEST['id'] === 'new') {
 }
 
 echo $Twig->render('admin/privilege-usage.twig', [
-    'list'   => (new Manager\Privilege())->usageList(),
+    'list'   => new Manager\Privilege()->usageList(),
     'viewer' => $Viewer,
 ]);

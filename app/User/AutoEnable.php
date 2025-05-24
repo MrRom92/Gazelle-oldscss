@@ -161,7 +161,7 @@ class AutoEnable extends \Gazelle\BaseUser {
                     ", $token, $this->id
                 );
             }
-            (new Mail())->send($this->email(), $subject, self::$twig->render($template, ['token' => $token]));
+            new Mail()->send($this->email(), $subject, self::$twig->render($template, ['token' => $token]));
             $this->user->addStaffNote(
                 "Enable request {$this->id} " . strtolower($this->outcomeLabel())
                     . ' by [user]' . $viewer->username() . '[/user]' . (!empty($comment) ? "\nReason: $comment" : "")
@@ -208,7 +208,7 @@ class AutoEnable extends \Gazelle\BaseUser {
                 WHERE um.ID = ?
                 ", $userId
             );
-            (new \Gazelle\Tracker())->addUser($this->user);
+            new \Gazelle\Tracker()->addUser($this->user);
             self::$cache->delete_value(self::CACHE_TOTAL_OPEN);
             $success = true;
         }

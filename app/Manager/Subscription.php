@@ -38,7 +38,7 @@ class Subscription extends \Gazelle\Base {
         $list = self::$db->collect('UserID');
 
         foreach ($list as $userId) {
-            (new \Gazelle\User\Quote(new \Gazelle\User($userId)))->flush();
+            new \Gazelle\User\Quote(new \Gazelle\User($userId))->flush();
         }
 
         self::$db->set_query_id($qid);
@@ -71,7 +71,7 @@ class Subscription extends \Gazelle\Base {
         );
         foreach (self::$db->collect('UserID') as $userId) {
             ++$affected;
-            (new \Gazelle\User\Quote(new \Gazelle\User($userId)))->flush();
+            new \Gazelle\User\Quote(new \Gazelle\User($userId))->flush();
         }
         return $affected;
     }

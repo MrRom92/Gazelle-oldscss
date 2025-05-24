@@ -11,11 +11,11 @@ if (!$Viewer->permitted('users_warn')) {
 }
 authorize();
 
-$post = (new Manager\ForumPost())->findById((int)($_POST['postid'] ?? 0));
+$post = new Manager\ForumPost()->findById((int)($_POST['postid'] ?? 0));
 if (is_null($post)) {
     Error404::error();
 }
-$user = (new Manager\User())->findById((int)($_POST['userid'] ?? 0));
+$user = new Manager\User()->findById((int)($_POST['userid'] ?? 0));
 if (is_null($user)) {
     Error404::error();
 }

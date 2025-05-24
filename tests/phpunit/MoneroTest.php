@@ -25,7 +25,7 @@ class MoneroTest extends TestCase {
         $this->assertEquals('13', $addrDecoded['networkByte'], 'monero-verify-network-byte');
 
         // man, this lib is very barebone; and why is it using hex everywhere?
-        $decoded = (new \MoneroIntegrations\MoneroPhp\base58())->decode($addr);
+        $decoded = new \MoneroIntegrations\MoneroPhp\base58()->decode($addr);
         $paymentId = substr($decoded, 64 + 66, 16);
 
         $this->assertEquals($user->id, $m->findUserIdbyPaymentId($paymentId), 'monero-lookup-payment-id');

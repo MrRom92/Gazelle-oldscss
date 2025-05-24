@@ -12,6 +12,6 @@ if (!$Viewer->permitted('admin_view_payments')) {
 
 echo $Twig->render('admin/payment.twig', [
     'donorMan' => new Manager\Donation(),
-    'list'     => (new Manager\Payment())->list(),
+    'list'     => new Manager\Payment()->list(),
     'viewer'   => $Viewer,
 ]);

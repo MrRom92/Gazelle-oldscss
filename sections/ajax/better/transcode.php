@@ -30,6 +30,6 @@ if (isset($_GET['target'])) {
     }
 }
 
-echo (new Json\Better\Transcode($Viewer->announceKey(), $search))
+echo new Json\Better\Transcode($Viewer->announceKey(), $search)
     ->setVersion(2)
     ->response();

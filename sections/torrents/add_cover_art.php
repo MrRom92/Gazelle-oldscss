@@ -16,7 +16,7 @@ if (count($imageList) != count($summaryList)) {
     Error400::error('Missing an image or a summary');
 }
 
-$tgroup = (new Manager\TGroup())->findById((int)($_POST['groupid'] ?? 0));
+$tgroup = new Manager\TGroup()->findById((int)($_POST['groupid'] ?? 0));
 if (is_null($tgroup)) {
     Error404::error();
 }

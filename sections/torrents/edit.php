@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$torrent = (new Manager\Torrent())->findById((int)($_GET['id'] ?? 0));
+$torrent = new Manager\Torrent()->findById((int)($_GET['id'] ?? 0));
 if (is_null($torrent)) {
     Error404::error();
 }
@@ -86,7 +86,7 @@ if (!($torrent->isRemastered() && !$torrent->remasterYear()) || $Viewer->permitt
 
 echo $Twig->render('torrent/edit-torrent.twig', [
     'artist'            => $artist,
-    'release_type_list' => (new ReleaseType())->list(),
+    'release_type_list' => new ReleaseType()->list(),
     'torrent'           => $torrent,
     'viewer'            => $Viewer,
 ]);

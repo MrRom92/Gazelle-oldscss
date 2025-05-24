@@ -11,7 +11,7 @@ if (!$Viewer->permitted('site_vote')) {
 
 authorize();
 
-$request = (new Manager\Request())->findById((int)($_GET['id'] ?? 0));
+$request = new Manager\Request()->findById((int)($_GET['id'] ?? 0));
 if (is_null($request)) {
     $result = ['status' => 'missing', 'get' => $_GET];
 } elseif ($request->isFilled()) {

@@ -25,7 +25,7 @@ $text = match (true) {
     default                => '',
 };
 if ($text) {
-    $search = (new Search\IPv4(new Search\ASN()))
+    $search = new Search\IPv4(new Search\ASN())
         ->create()
         ->setColumn($column)
         ->setDirection($direction);

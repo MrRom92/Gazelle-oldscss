@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$tgroup = (new Manager\TGroup())->findById((int)($_GET['id'] ?? 0));
+$tgroup = new Manager\TGroup()->findById((int)($_GET['id'] ?? 0));
 if (!$tgroup) {
     Error404::error();
 }

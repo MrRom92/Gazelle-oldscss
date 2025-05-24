@@ -34,7 +34,7 @@ class ReportManagerTest extends TestCase {
     }
 
     public function testReportCollage(): void {
-        $this->collage = (new Manager\Collage())->create(
+        $this->collage = new Manager\Collage()->create(
             user:        $this->userList[0],
             categoryId:  2,
             name:        'phpunit collage report ' . randomString(20),
@@ -56,9 +56,9 @@ class ReportManagerTest extends TestCase {
     }
 
     public function testReportRequest(): void {
-        $categoryId = (new Manager\Category())->findIdByName('Comics');
+        $categoryId = new Manager\Category()->findIdByName('Comics');
         $this->assertNotNull($categoryId, 'report-cat-not-null');
-        $this->request = (new Manager\Request())->create(
+        $this->request = new Manager\Request()->create(
             user:            $this->userList[1],
             bounty:          REQUEST_MIN * 1024 * 1024,
             categoryId:      $categoryId,
@@ -126,17 +126,17 @@ class ReportManagerTest extends TestCase {
         // search
         $this->assertCount(
             1,
-            (new Search\Report())->setId($report->id)->page(2, 0),
+            new Search\Report()->setId($report->id)->page(2, 0),
             'request-report-search-id'
         );
         $this->assertEquals(
             1,
-            (new Search\Report())->setStatus(['InProgress'])->total(),
+            new Search\Report()->setStatus(['InProgress'])->total(),
             'request-report-search-in-progress-total'
         );
         $this->assertEquals(
             0,
-            (new Search\Report())->setStatus(['InProgress'])->restrictForumMod()->total(),
+            new Search\Report()->setStatus(['InProgress'])->restrictForumMod()->total(),
             'request-report-search-fmod-in-progress-total'
         );
 
@@ -201,7 +201,7 @@ class ReportManagerTest extends TestCase {
     public function testDecorate(): void {
         $manager = new Manager\Report(new Manager\User());
 
-        $this->collage = (new Manager\Collage())->create(
+        $this->collage = new Manager\Collage()->create(
             user:        $this->userList[0],
             categoryId:  2,
             name:        'phpunit collage report ' . randomString(20),

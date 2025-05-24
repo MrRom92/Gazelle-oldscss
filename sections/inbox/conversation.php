@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$pm = (new Manager\PM($Viewer))->findById((int)($_GET['id'] ?? 0));
+$pm = new Manager\PM($Viewer)->findById((int)($_GET['id'] ?? 0));
 if (is_null($pm)) {
     Error404::error();
 }
@@ -22,6 +22,6 @@ echo $Twig->render('inbox/conversation.twig', [
     'paginator'  => $paginator,
     'pm'         => $pm,
     'post_list'  => $pm->postList($paginator->limit(), $paginator->offset()),
-    'staff_list' => (new Manager\User())->staffPMList(),
+    'staff_list' => new Manager\User()->staffPMList(),
     'viewer'     => $Viewer,
 ]);

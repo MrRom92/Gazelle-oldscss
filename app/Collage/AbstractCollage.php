@@ -187,7 +187,7 @@ abstract class AbstractCollage extends \Gazelle\Base {
         $args = array_merge(
             ...array_map(
                 fn(int $sort, int $entryId) => [
-                    (int)$entryId,
+                    $entryId,
                     ($sort + 1) * 10,
                     $this->id,
                     $userMap[$entryId]

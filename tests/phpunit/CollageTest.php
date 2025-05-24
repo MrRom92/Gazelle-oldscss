@@ -37,9 +37,7 @@ class CollageTest extends TestCase {
             'The phpunit ' . randomString(8) . ' Fathers',
         ];
 
-        $this->tgroupList = [];
-        $artistMan = new Manager\Artist();
-        $user      = $this->userList['u1'];
+        $user = $this->userList['u1'];
         $this->tgroupList = [
             Helper::makeTGroupMusic(
                 $user,
@@ -90,7 +88,7 @@ class CollageTest extends TestCase {
     }
 
     public function testArgParse(): void {
-        $this->collageList[] = (new Manager\Collage())->create(
+        $this->collageList[] = new Manager\Collage()->create(
             user:        $this->userList['u1'],
             categoryId:  CollageType::theme->value,
             name:        'phpunit collage lock ' . randomString(20),
@@ -459,7 +457,7 @@ class CollageTest extends TestCase {
     }
 
     public function testCollageJson(): void {
-        $this->collageList[] = (new Manager\Collage())->create(
+        $this->collageList[] = new Manager\Collage()->create(
             user:        $this->userList['u1'],
             categoryId:  CollageType::staffPick->value,
             name:        'phpunit collage json ' . randomString(20),
@@ -470,15 +468,15 @@ class CollageTest extends TestCase {
         foreach (range(0, 3) as $n) {
             $collage->addEntry($this->tgroupList[$n], $this->userList['u3']);
         }
-        $this->assertTrue((new User\Bookmark($this->userList['u1']))->create('collage', $collage->id), 'collage-bookmark');
+        $this->assertTrue(new User\Bookmark($this->userList['u1'])->create('collage', $collage->id), 'collage-bookmark');
 
-        $payload = (new Json\Collage(
+        $payload = new Json\Collage(
                 $collage,
                 1,
                 $this->userList['u1'],
                 new Manager\TGroup(),
                 new Manager\Torrent(),
-            ))->payload();
+            )->payload();
         $this->assertEquals($collage->id, $payload['id'], 'collage-json-id');
         $this->assertEquals('Staff picks', $payload['collageCategoryName'], 'collage-json-cat-name');
         $this->assertCount(4, $payload['torrentGroupIDList'], 'collage-json-entry-count');
@@ -486,7 +484,7 @@ class CollageTest extends TestCase {
     }
 
     public function testCollageLock(): void {
-        $this->collageList[] = (new Manager\Collage())->create(
+        $this->collageList[] = new Manager\Collage()->create(
             user:        $this->userList['u1'],
             categoryId:  CollageType::chart->value,
             name:        'phpunit collage lock ' . randomString(20),
@@ -569,7 +567,7 @@ class CollageTest extends TestCase {
     }
 
     public function testCollagePersonal(): void {
-        $this->collageList[] = (new Manager\Collage())->create(
+        $this->collageList[] = new Manager\Collage()->create(
             user:        $this->userList['u1'],
             categoryId:  CollageType::personal->value,
             name:        'phpunit collage personal ' . randomString(20),

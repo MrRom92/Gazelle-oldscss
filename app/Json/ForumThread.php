@@ -105,7 +105,7 @@ class ForumThread extends \Gazelle\Json {
                     'authorId'   => $authorId,
                     'authorName' => $author->username(),
                     'paranoia'   => $author->paranoia(),
-                    'donor'      => (new \Gazelle\User\Donor($author))->isDonor(),
+                    'donor'      => new \Gazelle\User\Donor($author)->isDonor(),
                     'warned'     => $author->isWarned(),
                     'avatar'     => $author->avatar(),
                     'enabled'    => $author->isEnabled(),
@@ -114,7 +114,7 @@ class ForumThread extends \Gazelle\Json {
             ];
         }
 
-        $subscribed = (new \Gazelle\User\Subscription($this->user))->isSubscribed($thread);
+        $subscribed = new \Gazelle\User\Subscription($this->user)->isSubscribed($thread);
         if ($subscribed) {
             self::$cache->delete_value("subscriptions_user_new_{$this->user->id}");
         }

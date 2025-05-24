@@ -17,7 +17,7 @@ class UserTokenTest extends TestCase {
     }
 
     public function tearDown(): void {
-        (new Manager\UserToken())->removeUser($this->user);
+        new Manager\UserToken()->removeUser($this->user);
         $this->user->remove();
     }
 

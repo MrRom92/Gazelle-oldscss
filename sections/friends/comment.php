@@ -7,7 +7,7 @@ namespace Gazelle;
 
 authorize();
 
-$friend = (new Manager\User())->findById((int)($_POST['friendid'] ?? 0));
+$friend = new Manager\User()->findById((int)($_POST['friendid'] ?? 0));
 if (!$friend) {
     Error404::error("no such user found");
 }

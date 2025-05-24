@@ -7,7 +7,7 @@ namespace Gazelle;
 
 authorize();
 
-$poll = (new Manager\ForumPoll())->findById((int)($_POST['threadid'] ?? 0));
+$poll = new Manager\ForumPoll()->findById((int)($_POST['threadid'] ?? 0));
 if (is_null($poll)) {
     Error404::error();
 }

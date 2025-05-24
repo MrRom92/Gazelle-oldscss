@@ -82,7 +82,7 @@ class BlogTest extends TestCase {
             title  : $title,
             body   : "$title body",
             notify : false,
-            thread : (new Manager\ForumThread())
+            thread : new Manager\ForumThread()
                 ->create(
                     new Forum(ANNOUNCEMENT_FORUM_ID),
                     $this->userList[0],

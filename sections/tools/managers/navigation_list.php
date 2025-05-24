@@ -11,6 +11,6 @@ if (!$Viewer->permitted('admin_manage_navigation')) {
 }
 
 echo $Twig->render('admin/user-navigation.twig', [
-    'list'   => (new Manager\UserNavigation())->fullList(),
+    'list'   => new Manager\UserNavigation()->fullList(),
     'viewer' => $Viewer,
 ]);

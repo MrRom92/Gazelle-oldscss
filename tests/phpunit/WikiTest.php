@@ -146,7 +146,6 @@ class WikiTest extends TestCase {
     public function testWikiException(): void {
         $manager = new Manager\Wiki();
         $title   = 'phpunit title ' . randomString(6);
-        $alias   = Wiki::normalizeAlias($title);
         $article = $manager->create(
             $title,
             'wiki body',
@@ -164,7 +163,7 @@ class WikiTest extends TestCase {
     }
 
     public function testWikiList(): void {
-        $classList = (new Manager\User())->classList();
+        $classList = new Manager\User()->classList();
         $level = [
             USER  => $classList[USER]['Level'],
             SYSOP => $classList[SYSOP]['Level'],
@@ -208,7 +207,6 @@ class WikiTest extends TestCase {
     public function testWikiRevision(): void {
         $manager = new Manager\Wiki();
         $title   = 'phpunit title ' . randomString(6);
-        $alias   = Wiki::normalizeAlias($title);
         $article = $manager->create(
             $title,
             'wiki body',

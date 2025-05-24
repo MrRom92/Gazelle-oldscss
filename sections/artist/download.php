@@ -11,7 +11,7 @@ if (!$Viewer->permitted('zip_downloader')) {
 if (!isset($_REQUEST['preference']) || count($_REQUEST['list']) === 0) {
     Error400::error('No artist collector preference specified');
 }
-$artist = (new Manager\Artist())->findById((int)($_REQUEST['artistid'] ?? 0));
+$artist = new Manager\Artist()->findById((int)($_REQUEST['artistid'] ?? 0));
 if (is_null($artist)) {
     Error404::error();
 }

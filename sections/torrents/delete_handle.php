@@ -8,7 +8,7 @@ namespace Gazelle;
 
 authorize();
 
-$torrent = (new Manager\Torrent())->findById((int)$_POST['torrentid']);
+$torrent = new Manager\Torrent()->findById((int)$_POST['torrentid']);
 if (is_null($torrent)) {
     Error404::error();
 }
@@ -41,7 +41,7 @@ if (!$success) {
     Error400::error($message);
 }
 
-(new Manager\User())->sendRemovalPm(
+new Manager\User()->sendRemovalPm(
     $uploader, $torrentId, $fullName, $path,
     "Torrent $torrentId $fullName (" . number_format($size / (1024 * 1024), 2) . ' MiB '
         . strtoupper($infohash) . ") was deleted by " . $Viewer->username() . ": $reason",

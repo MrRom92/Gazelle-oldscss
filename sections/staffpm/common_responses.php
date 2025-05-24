@@ -12,7 +12,7 @@ if (!$Viewer->isStaffPMReader()) {
 
 echo $Twig->render('staffpm/common-response.twig', [
     'conv_id' => $_GET['convid'] ?? false,
-    'list'    => (new Manager\StaffPM())->commonAnswerList(),
+    'list'    => new Manager\StaffPM()->commonAnswerList(),
     'new'     => new Util\Textarea("answer-0", '', 87, 10),
     'viewer'  => $Viewer,
 ]);

@@ -17,7 +17,7 @@ class Helper {
         bool                   $autoLock       = false,
         int                    $autoLockWeeks  = 42,
     ): \Gazelle\Forum {
-        return (new \Gazelle\Manager\Forum())->create(
+        return new \Gazelle\Manager\Forum()->create(
             user:           $user,
             sequence:       $sequence,
             categoryId:     $category->id(),
@@ -45,10 +45,10 @@ class Helper {
         string        $logCue          = 'Log (100%) + Cue',
         bool          $checksum        = true,
     ): \Gazelle\Request {
-        return (new \Gazelle\Manager\Request())->create(
+        return new \Gazelle\Manager\Request()->create(
             user:            $user,
             bounty:          100 * 1024 ** 3,
-            categoryId:      (int)(new \Gazelle\Manager\Category())->findIdByName('Music'),
+            categoryId:      (int)new \Gazelle\Manager\Category()->findIdByName('Music'),
             year:            (int)date('Y'),
             title:           $title,
             image:           $image,
@@ -68,8 +68,8 @@ class Helper {
     public static function makeTGroupEBook(
         string $name,
     ): \Gazelle\TGroup {
-        return (new \Gazelle\Manager\TGroup())->create(
-            categoryId:      (int)(new \Gazelle\Manager\Category())->findIdByName('E-Books'),
+        return new \Gazelle\Manager\TGroup()->create(
+            categoryId:      (int)new \Gazelle\Manager\Category()->findIdByName('E-Books'),
             name:            $name,
             description:     'phpunit ebook description',
             image:           '',
@@ -87,8 +87,8 @@ class Helper {
         array $tagName,
         int $releaseType = 1
     ): \Gazelle\TGroup {
-        $tgroup = (new \Gazelle\Manager\TGroup())->create(
-            categoryId:      (int)(new \Gazelle\Manager\Category())->findIdByName('Music'),
+        $tgroup = new \Gazelle\Manager\TGroup()->create(
+            categoryId:      (int)new \Gazelle\Manager\Category()->findIdByName('Music'),
             releaseType:     $releaseType,
             name:            $name,
             description:     'phpunit music description',
@@ -114,7 +114,7 @@ class Helper {
         \Gazelle\User   $user,
         string          $description,
     ): \Gazelle\Torrent {
-        return (new \Gazelle\Manager\Torrent())->create(
+        return new \Gazelle\Manager\Torrent()->create(
             tgroup:                  $tgroup,
             user:                    $user,
             description:             $description,
@@ -149,7 +149,7 @@ class Helper {
         if (empty($catalogueNumber)) {
             $catalogueNumber = 'UA-REM-' . random_int(10000, 99999);
         }
-        $torrent = (new \Gazelle\Manager\Torrent())->create(
+        $torrent = new \Gazelle\Manager\Torrent()->create(
             tgroup:                  $tgroup,
             user:                    $user,
             description:             'phpunit release description',
@@ -214,7 +214,7 @@ class Helper {
 
     public static function removeTGroup(\Gazelle\TGroup $tgroup, \Gazelle\User $user): void {
         $torMan = new \Gazelle\Manager\Torrent();
-        if (!(new \Gazelle\Manager\TGroup())->findById($tgroup->id)) {
+        if (!new \Gazelle\Manager\TGroup()->findById($tgroup->id)) {
             // Already deleted. This can occur when removing two
             // torrents separately that belong to the same group.
             // See TestContest for an example.
@@ -227,7 +227,7 @@ class Helper {
     }
 
     public static function makeUser(string $username, string $tag, bool $enable = false, bool $clearInbox = false): \Gazelle\User {
-        $user = (new \Gazelle\UserCreator())
+        $user = new \Gazelle\UserCreator()
             ->setUsername($username)
             ->setEmail(randomString(6) . "@{$tag}.example.com")
             ->setPassword(randomString())
@@ -243,7 +243,7 @@ class Helper {
     }
 
     public static function makeUserByInvite(string $username, string $key): \Gazelle\User {
-        return (new \Gazelle\UserCreator())
+        return new \Gazelle\UserCreator()
             ->setUsername($username)
             ->setEmail(randomString(6) . "@key.invite.example.com")
             ->setPassword(randomString())

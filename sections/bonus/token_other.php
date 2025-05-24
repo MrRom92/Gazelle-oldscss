@@ -17,7 +17,7 @@ if (isset($_POST['confirm'])) {
     if (empty($_POST['user'])) {
         Error404::error('You have to enter a username to give tokens to.');
     }
-    $user = (new Manager\User())->findByUsername(urldecode($_POST['user']));
+    $user = new Manager\User()->findByUsername(urldecode($_POST['user']));
     if (is_null($user)) {
         Error404::error(
             'Nobody with that name found. Try a user search and give them tokens from their profile page.'

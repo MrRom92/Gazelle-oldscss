@@ -216,7 +216,7 @@ class ForumPost extends BaseObject {
         self::$db->commit();
 
         $thread->forum()->adjust();
-        (new Manager\Subscription())->flushThread($thread);
+        new Manager\Subscription()->flushThread($thread);
 
         $thread->flushPostCatalogue($this);
         $thread->flush();

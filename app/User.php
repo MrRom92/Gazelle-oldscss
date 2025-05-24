@@ -114,7 +114,7 @@ class User extends BaseAttrObject {
             'samesite' => 'Strict',
         ]);
         if ($sessionId) {
-            (new User\Session($this))->drop($sessionId);
+            new User\Session($this)->drop($sessionId);
         }
         $this->flush();
     }
@@ -204,7 +204,7 @@ class User extends BaseAttrObject {
         }
         $this->info['RatioWatchEndsEpoch'] = $this->info['RatioWatchEnds']
             ? strtotime($this->info['RatioWatchEnds']) : 0;
-        $this->info['warning_expiry'] = (new User\Warning($this))->warningExpiry();
+        $this->info['warning_expiry'] = new User\Warning($this)->warningExpiry();
 
         self::$cache->cache_value($key, $this->info, 3600);
         self::$db->set_query_id($qid);
@@ -293,9 +293,9 @@ class User extends BaseAttrObject {
                     AvatarDisplay::show
                         => $viewed->avatar() ?: USER_DEFAULT_AVATAR,
                     AvatarDisplay::fallbackSynthetic
-                        => $viewed->avatar() ?: (new User\SyntheticAvatar($this))->avatar($viewed->username()),
+                        => $viewed->avatar() ?: new User\SyntheticAvatar($this)->avatar($viewed->username()),
                     AvatarDisplay::forceSynthetic
-                        => (new User\SyntheticAvatar($this))->avatar($viewed->username()),
+                        => new User\SyntheticAvatar($this)->avatar($viewed->username()),
                     AvatarDisplay::none /** @phpstan-ignore-line */
                         => USER_DEFAULT_AVATAR,
                 },
@@ -1126,7 +1126,7 @@ class User extends BaseAttrObject {
     }
 
     public function updateCatchup(): bool {
-        return (new WitnessTable\UserReadForum())->witness($this);
+        return new WitnessTable\UserReadForum()->witness($this);
     }
 
     public function addClasses(array $classes): int {
@@ -1333,7 +1333,7 @@ class User extends BaseAttrObject {
      * @return int number of collages (including collages granted from donations)
      */
     public function allowedPersonalCollages(): int {
-        return $this->paidPersonalCollages() + (new User\Donor($this))->collageTotal();
+        return $this->paidPersonalCollages() + new User\Donor($this)->collageTotal();
     }
 
     /**
@@ -1712,7 +1712,7 @@ class User extends BaseAttrObject {
 
     public function buffer(): array {
         $class = $this->primaryClass();
-        $demotion = array_filter((new Manager\User())->demotionCriteria(), fn($v) => in_array($class, $v['From']));
+        $demotion = array_filter(new Manager\User()->demotionCriteria(), fn($v) => in_array($class, $v['From']));
         $criteria = end($demotion);
 
         $effectiveUpload = $this->uploadedSize() + $this->stats()->requestBountySize();

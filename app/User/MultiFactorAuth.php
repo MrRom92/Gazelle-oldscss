@@ -122,7 +122,7 @@ class MultiFactorAuth extends \Gazelle\BaseUser {
      * @return bool Valid key, they may log in.
      */
     public function burnRecovery(string $token): bool {
-        $userToken = (new Manager\UserToken())->findByToken($token);
+        $userToken = new Manager\UserToken()->findByToken($token);
         if (
             $userToken instanceof Token
             && $userToken->user->id === $this->user->id
@@ -168,7 +168,7 @@ class MultiFactorAuth extends \Gazelle\BaseUser {
             delete from multi_factor_auth where id_user = ?
             ", $this->user->id
         );
-        (new Manager\UserToken())->removeTokens($this->user, UserTokenType::mfa);
+        new Manager\UserToken()->removeTokens($this->user, UserTokenType::mfa);
         $this->flush();
         return $affected;
     }

@@ -21,7 +21,7 @@ if (empty($_GET['date'])) {
     if (!Util\Time::validDate($date . ' 00:00:00')) {
         Error400::error('That does not look like a date');
     }
-    $list = (new Manager\Torrent())->topTenHistoryList($date, $isByDay);
+    $list = new Manager\Torrent()->topTenHistoryList($date, $isByDay);
 }
 
 echo $Twig->render('top10/history.twig', [

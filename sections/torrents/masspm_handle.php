@@ -10,7 +10,7 @@ authorize();
 if (!$Viewer->permitted('site_moderate_requests')) {
     Error403::error();
 }
-$torrent = (new Manager\Torrent())->findById((int)$_POST['torrentid']);
+$torrent = new Manager\Torrent()->findById((int)$_POST['torrentid']);
 if (is_null($torrent)) {
     Error404::error();
 }
@@ -27,5 +27,5 @@ if (!$validator->validate($_POST)) {
     Error400::error($validator->errorMessage());
 }
 
-(new Manager\User())->sendSnatchPm($Viewer, $torrent, $subject, $message);
+new Manager\User()->sendSnatchPm($Viewer, $torrent, $subject, $message);
 header("Location: " . $torrent->location());

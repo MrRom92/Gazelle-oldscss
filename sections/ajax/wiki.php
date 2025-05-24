@@ -29,7 +29,7 @@ json_print("success", [
     'body'       => \Text::full_format($wiki->body(), false),
     'aliases'    => $wiki->alias(),
     'authorID'   => $wiki->authorId(),
-    'authorName' => (new Manager\User())->findById($wiki->authorId())?->username(),
+    'authorName' => new Manager\User()->findById($wiki->authorId())?->username(),
     'date'       => $wiki->date(),
     'revision'   => $wiki->revision(),
 ]);

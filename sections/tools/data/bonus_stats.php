@@ -25,5 +25,5 @@ echo $Twig->render('admin/bonus-stats.twig', [
     'day'   => $day,
     'week'  => $week,
     'month' => $month,
-    'fl'    => (new Stats\Users())->stockpileTokenList(10),
+    'fl'    => new Stats\Users()->stockpileTokenList(10),
 ]);

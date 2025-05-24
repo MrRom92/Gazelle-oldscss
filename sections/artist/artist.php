@@ -29,8 +29,8 @@ $reportMan  = new Manager\Report($userMan);
 $vote       = new User\Vote($Viewer);
 $imgProxy   = new Util\ImageProxy($Viewer);
 
-$isSubscribed = (new User\Subscription($Viewer))->isSubscribedComments('artist', $artistId);
-$requestList  = $Viewer->disableRequests() ? [] : (new Manager\Request())->findByArtist($artist);
+$isSubscribed = new User\Subscription($Viewer)->isSubscribedComments('artist', $artistId);
+$requestList  = $Viewer->disableRequests() ? [] : new Manager\Request()->findByArtist($artist);
 
 if (count($artist->groupIds()) > 1000) {
     // prevent OOMs
@@ -201,7 +201,7 @@ if ($sections = $artist->sections()) {
     </div>
     <table class="torrent_table grouped release_table m_table">
 <?php
-    $urlStem = (new User\Stylesheet($Viewer))->imagePath();
+    $urlStem = new User\Stylesheet($Viewer)->imagePath();
     $groupsClosed = (bool)$Viewer->option('TorrentGrouping');
     $snatcher = $Viewer->snatch();
 
@@ -321,7 +321,7 @@ echo $Twig->render('comment/thread.twig', [
     'comment'   => $commentPage,
     'paginator' => $paginator,
     'subbed'    => $isSubscribed,
-    'textarea'  => (new Util\Textarea('quickpost', '', 90, 8))->setPreviewManual(true),
+    'textarea'  => new Util\Textarea('quickpost', '', 90, 8)->setPreviewManual(true),
     'url'       => $_SERVER['REQUEST_URI'],
     'url_stem'  => 'comments.php?page=artist',
     'userMan'   => $userMan,

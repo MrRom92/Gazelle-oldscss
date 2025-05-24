@@ -7,6 +7,6 @@ declare(strict_types=1);
 namespace Gazelle;
 
 echo $Twig->render('forum/main.twig', [
-    'toc'    => (new Manager\Forum())->tableOfContents($Viewer),
+    'toc'    => new Manager\Forum()->tableOfContents($Viewer),
     'viewer' => $Viewer,
 ]);

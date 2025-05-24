@@ -38,7 +38,7 @@ switch ($_GET['action'] ?? '') {
         break;
     case 'catchup':
         authorize();
-        (new User\Subscription($Viewer))->catchupSubscriptions();
+        new User\Subscription($Viewer)->catchupSubscriptions();
         header('Location: userhistory.php?action=subscriptions');
         break;
     case 'collage_subscribe':

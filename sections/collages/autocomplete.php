@@ -17,5 +17,5 @@ $fullName = rawurldecode($_GET['query']);
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode([
     'query'       => $fullName,
-    'suggestions' => (new Manager\Collage())->autocomplete($fullName, isset($_GET['artist'])),
+    'suggestions' => new Manager\Collage()->autocomplete($fullName, isset($_GET['artist'])),
 ]);

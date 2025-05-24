@@ -76,7 +76,7 @@ class DonorTest extends TestCase {
             ),
             'donor-2nd-point'
         );
-        $list = $inbox->messageList(new Manager\PM($donor->user()), 2, 0);
+        $inbox->messageList(new Manager\PM($donor->user()), 2, 0);
         $this->assertEquals(1, $donor->rank(), 'donor-rank-1');
         $this->assertEquals(1, $donor->totalRank(), 'donor-total-rank-1');
         $this->assertEquals(0, $donor->specialRank(), 'donor-not-special-rank-1');
@@ -426,7 +426,7 @@ class DonorTest extends TestCase {
         Helper::flushDonationMonth(1);
         $this->assertLessThanOrEqual($manager->totalMonth(1), $last['Amount'], 'donor-manager-timeline');
 
-        $paginator = (new Util\Paginator(USERS_PER_PAGE, 1))->setTotal($manager->rewardTotal());
+        $paginator = new Util\Paginator(USERS_PER_PAGE, 1)->setTotal($manager->rewardTotal());
         Base::staticRequestContext()->setViewer($this->donor->user());
         Util\Twig::setViewer($this->donor->user());
         global $SessionID;

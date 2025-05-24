@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$classList = (new Manager\User())->classList();
+$classList = new Manager\User()->classList();
 
 echo $Twig->render('staffpm/user-inbox.twig', [
     'level' => [
@@ -14,7 +14,7 @@ echo $Twig->render('staffpm/user-inbox.twig', [
         'mod'   => $classList[MOD]['Level'],
         'sysop' => $classList[SYSOP]['Level'],
     ],
-    'list'   => (new Manager\StaffPM())->findAllByUser($Viewer),
+    'list'   => new Manager\StaffPM()->findAllByUser($Viewer),
     'max'    => 'Sysop',
     'reply'  => new Util\Textarea('quickpost', ''),
     'viewer' => $Viewer,

@@ -11,6 +11,6 @@ if (!$Viewer->permitted('admin_whitelist')) {
 }
 
 echo $Twig->render('admin/client-whitelist.twig', [
-    'list'   => (new Manager\ClientWhitelist())->list(),
+    'list'   => new Manager\ClientWhitelist()->list(),
     'viewer' => $Viewer,
 ]);

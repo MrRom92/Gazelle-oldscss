@@ -66,9 +66,9 @@ class Tor extends \Gazelle\Base {
     }
 
     public function isExitNode(string $ip): bool {
-        return BLOCK_TOR ? (bool)$this->pg()->scalar("
+        return BLOCK_TOR && (bool)$this->pg()->scalar("
             SELECT 1 FROM tor_node WHERE ipv4 = ?
             ", $ip
-        ) : false;
+        );
     }
 }

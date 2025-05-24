@@ -11,11 +11,11 @@ class Quote extends AbstractNotification {
     }
 
     public function clear(): int {
-        return (new UserQuote($this->user))->clearAll();
+        return new UserQuote($this->user)->clearAll();
     }
 
     public function load(): bool {
-        $total = (new UserQuote($this->user))->unreadTotal();
+        $total = new UserQuote($this->user)->unreadTotal();
         if ($total > 0) {
             $this->title = 'New quote' . plural($total);
             $this->url   = 'userhistory.php?action=quote_notifications';
@@ -55,7 +55,7 @@ class Quote extends AbstractNotification {
                 $notifier = new \Gazelle\User\Notification($user);
                 if ($notifier->isActive('Quote')) {
                     ++$quoted;
-                    (new UserQuote($user))->create($page, $pageId, $this->user, $postId);
+                    new UserQuote($user)->create($page, $pageId, $this->user, $postId);
                 }
             }
         }

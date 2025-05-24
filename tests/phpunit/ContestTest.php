@@ -98,7 +98,7 @@ class ContestTest extends TestCase {
         $this->contest = $manager->create(
             banner      : 'http://localhost/banner.jpg',
             dateBegin   : date('Y-m-d H:i:s', time() - 1),
-            dateEnd     : (new \DateTime())->add(new \DateInterval("P15D"))->format('Y-m-d H:i:s'),
+            dateEnd     : new \DateTime()->add(new \DateInterval("P15D"))->format('Y-m-d H:i:s'),
             name        : 'phpunit contest upload flac ' . randomString(6),
             description : 'phpunit contest description',
             display     : 10,
@@ -264,7 +264,7 @@ class ContestTest extends TestCase {
         Helper::sleepTick();
         $this->assertTrue($this->contest->paymentReady(), 'ct-up-flac-payment-ready');
 
-        (new Stats\Users())->refresh(); // calculate total enabled users
+        new Stats\Users()->refresh(); // calculate total enabled users
         $this->assertGreaterThanOrEqual(
             3,
             $this->contest->doPayout(dryrun: false),
@@ -447,7 +447,7 @@ class ContestTest extends TestCase {
                     'Some ' . randomString(8) . ' contest songs',
                     [[ARTIST_MAIN], ['phpunit contest ' . randomString(6)]],
                     ['metal'],
-                    (new ReleaseType())->findIdByName('Single'),
+                    new ReleaseType()->findIdByName('Single'),
                 ),
                 $this->userList[0],
                 seed: true,
@@ -459,8 +459,8 @@ class ContestTest extends TestCase {
 
         $this->userList[0]->refreshLastAccess();
         $this->userList[1]->refreshLastAccess();
-        (new Manager\User())->refreshLastAccess();
-        (new Stats\Users())->refresh();
+        new Manager\User()->refreshLastAccess();
+        new Stats\Users()->refresh();
 
         $this->torrentList[] = Helper::makeTorrentMusic(
             Helper::makeTGroupMusic(
@@ -542,7 +542,7 @@ class ContestTest extends TestCase {
             ->setField('LogScore',    100)
             ->modify();
         $this->userList[0]->refreshLastAccess();
-        (new Manager\User())->refreshLastAccess();
+        new Manager\User()->refreshLastAccess();
 
         [$sql, $args] = $this->contest->type()->ranker();
         $this->assertIsString($sql, 'ct-perfect-ranker-sql');

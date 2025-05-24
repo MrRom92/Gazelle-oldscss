@@ -38,7 +38,7 @@ switch (CATEGORY[(int)$_GET['categoryid']]) {
     case 'Music':
         echo $emitJS
             ? $uploadForm->albumReleaseJS()
-            : $uploadForm->music((new Manager\Tag())->genreList(), new Manager\TGroup());
+            : $uploadForm->music(new Manager\Tag()->genreList(), new Manager\TGroup());
         break;
 
     default:

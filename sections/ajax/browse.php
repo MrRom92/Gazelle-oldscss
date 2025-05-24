@@ -41,7 +41,7 @@ if ($resultTotal == 0) {
 }
 
 
-echo (new Json\TGroupList(
+echo new Json\TGroupList(
     new User\Bookmark($Viewer),
     $Viewer->snatch(),
     new Manager\Artist(),
@@ -51,6 +51,6 @@ echo (new Json\TGroupList(
     $GroupResults,
     $resultTotal,
     $Page
-))
+)
     ->setVersion(2)
     ->response();

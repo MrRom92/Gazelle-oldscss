@@ -7,7 +7,7 @@ namespace Gazelle;
 
 authorize();
 
-$pm = (new Manager\PM($Viewer))->findById((int)$_POST['convid']);
+$pm = new Manager\PM($Viewer)->findById((int)$_POST['convid']);
 if (is_null($pm)) {
     Error404::error();
 }

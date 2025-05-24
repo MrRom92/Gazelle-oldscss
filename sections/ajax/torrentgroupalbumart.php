@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$tgroup = (new Manager\TGroup())->findById((int)$_GET['id']);
+$tgroup = new Manager\TGroup()->findById((int)$_GET['id']);
 if (is_null($tgroup)) {
     json_die('failure', 'bad id parameter');
 }

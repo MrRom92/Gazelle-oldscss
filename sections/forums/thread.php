@@ -13,7 +13,7 @@ use Gazelle\Enum\CacheBucket;
 
 $forumMan = new Manager\Forum();
 if (isset($_GET['postid'])) {
-    $post = (new Manager\ForumPost())->findById((int)$_GET['postid']);
+    $post = new Manager\ForumPost()->findById((int)$_GET['postid']);
     if (is_null($post)) {
         Error404::error();
     }
@@ -24,7 +24,7 @@ if (isset($_GET['postid'])) {
     $thread = $post->thread();
 } elseif (isset($_GET['threadid'])) {
     $post = null;
-    $thread = (new Manager\ForumThread())->findById((int)$_GET['threadid']);
+    $thread = new Manager\ForumThread()->findById((int)$_GET['threadid']);
     if (is_null($thread)) {
         Error404::error();
     }
@@ -74,7 +74,7 @@ if ($lastRead < $lastOnPage) {
     $thread->catchup($Viewer, $lastOnPage);
 }
 
-$isSubscribed = (new User\Subscription($Viewer))->isSubscribed($thread);
+$isSubscribed = new User\Subscription($Viewer)->isSubscribed($thread);
 if ($isSubscribed) {
     $Cache->delete_value('subscriptions_user_new_' . $Viewer->id());
 }
@@ -82,7 +82,7 @@ if ($isSubscribed) {
 $userMan = new Manager\User();
 $avatarFilter = Util\Twig::factory($userMan)->createTemplate('{{ user|avatar(viewer)|raw }}');
 
-$transitions = (new Manager\ForumTransition())->threadTransitionList($Viewer, $thread);
+$transitions = new Manager\ForumTransition()->threadTransitionList($Viewer, $thread);
 $department = $forum->departmentList($Viewer);
 $auth = $Viewer->auth();
 
@@ -246,7 +246,7 @@ if ($Viewer->permitted('site_moderate_forums') || ($Viewer->writeAccess($forum) 
         'object'   => $thread,
         'merge'    => strtotime($lastPost['AddedTime']) > time() - 3600 && $lastPost['AuthorID'] == $Viewer->id(),
         'subbed'   => $isSubscribed,
-        'textarea' => (new Util\Textarea('quickpost', '', 90, 8))->setPreviewManual(true),
+        'textarea' => new Util\Textarea('quickpost', '', 90, 8)->setPreviewManual(true),
         'viewer'   => $Viewer,
     ]);
 }

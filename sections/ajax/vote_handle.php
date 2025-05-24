@@ -10,7 +10,7 @@ if (!$Viewer->permitted('site_album_votes')) {
     json_error('forbidden');
 }
 
-$tgroup = (new Manager\TGroup())->findById((int)$_REQUEST['groupid']);
+$tgroup = new Manager\TGroup()->findById((int)$_REQUEST['groupid']);
 if (is_null($tgroup)) {
     json_error('no such group');
 }

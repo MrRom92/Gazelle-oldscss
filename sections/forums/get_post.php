@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$post = (new Manager\ForumPost())->findById((int)($_GET['post'] ?? 0));
+$post = new Manager\ForumPost()->findById((int)($_GET['post'] ?? 0));
 if (is_null($post)) {
     Error404::error();
 }

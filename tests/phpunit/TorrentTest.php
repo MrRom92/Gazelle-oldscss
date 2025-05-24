@@ -68,7 +68,7 @@ class TorrentTest extends TestCase {
             'torrent-no-more-bad-file-flag',
         );
 
-        $log = (new Manager\SiteLog())->tgroupLogList($this->torrent->groupId());
+        $log = new Manager\SiteLog()->tgroupLogList($this->torrent->groupId());
         $this->assertCount(3, $log, 'torrent-flag-log-count');
         // reverse chronological, remove then add
         $this->assertEquals(
@@ -167,7 +167,7 @@ class TorrentTest extends TestCase {
         $path = $torrent->path();
         $this->assertEquals(
             4,
-            (new Manager\User())->sendRemovalPm(
+            new Manager\User()->sendRemovalPm(
                 $this->user,
                 $torrent->id(),
                 $name,

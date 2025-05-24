@@ -10,7 +10,7 @@ use Gazelle\Enum\UserTokenType;
 
 if (isset($_REQUEST['confirm'])) {
     // Confirm registration
-    $token = (new Manager\UserToken())->findByToken($_REQUEST['confirm']);
+    $token = new Manager\UserToken()->findByToken($_REQUEST['confirm']);
     if (!$token || $token->type() != UserTokenType::confirm || !$token->consume()) {
         // we have no token, or not of the right type, or not consumable (expired)
         echo $Twig->render('register/expired.twig');
@@ -23,10 +23,10 @@ if (isset($_REQUEST['confirm'])) {
         $Twig->render('register/welcome.bbcode.twig', ['user' => $user])
     );
     echo $Twig->render('register/complete.twig');
-    (new Tracker())->addUser($user);
-} elseif (OPEN_REGISTRATION || isset($_REQUEST['invite']) || (new Stats\Users())->enabledUserTotal() == 0) {
+    new Tracker()->addUser($user);
+} elseif (OPEN_REGISTRATION || isset($_REQUEST['invite']) || new Stats\Users()->enabledUserTotal() == 0) {
     if ($_REQUEST['invite']) {
-        if (!(new Manager\Invite())->inviteExists($_REQUEST['invite'])) {
+        if (!new Manager\Invite()->inviteExists($_REQUEST['invite'])) {
             echo $Twig->render('register/no-invite.twig');
             exit;
         }
@@ -74,11 +74,11 @@ if (isset($_REQUEST['confirm'])) {
                     header("Location: /login.php");
                     exit;
                 }
-                (new Util\Mail())->send($user->email(), 'New account confirmation at ' . SITE_NAME,
+                new Util\Mail()->send($user->email(), 'New account confirmation at ' . SITE_NAME,
                     $Twig->render('email/registration.twig', [
                         'ipaddr' => $user->requestContext()->remoteAddr(),
                         'user'   => $user,
-                        'token'  => (new Manager\UserToken())->create(UserTokenType::confirm, $user),
+                        'token'  => new Manager\UserToken()->create(UserTokenType::confirm, $user),
                     ])
                 );
                 $emailSent = true;

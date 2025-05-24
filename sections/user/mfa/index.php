@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$user = (new Manager\User())->findById((int)($_REQUEST['userid'] ?? 0));
+$user = new Manager\User()->findById((int)($_REQUEST['userid'] ?? 0));
 if (is_null($user)) {
     Error404::error();
 }

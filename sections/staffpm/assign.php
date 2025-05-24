@@ -9,7 +9,7 @@ if (!$Viewer->isStaffPMReader()) {
     Error403::error();
 }
 
-$staffPm = (new Manager\StaffPM())->findById((int)($_REQUEST['convid'] ?? 0));
+$staffPm = new Manager\StaffPM()->findById((int)($_REQUEST['convid'] ?? 0));
 if (is_null($staffPm)) {
     header('Location: staffpm.php');
     exit;
@@ -23,7 +23,7 @@ if (isset($_GET['convid'])) {
     if (empty($_GET['to'])) {
         Error404::error();
     }
-    $classList = (new Manager\User())->classList();
+    $classList = new Manager\User()->classList();
     match ($_GET['to']) {
         'forum' => $staffPm->assignClass($classList[FORUM_MOD]['Level'], $Viewer),
         'staff' => $staffPm->assignClass($classList[MOD]['Level'], $Viewer),
@@ -43,7 +43,7 @@ if ($Viewer->privilege()->effectiveClassLevel() < $staffPm->classLevel() && $Vie
     if ($assignTo == 'class') {
         $staffPm->assignClass($NewLevel, $Viewer);
     } else {
-        $assignee = (new Manager\User())->findById($NewLevel);
+        $assignee = new Manager\User()->findById($NewLevel);
         if (is_null($assignee)) {
             Error404::error();
         }

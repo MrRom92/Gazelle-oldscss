@@ -24,7 +24,6 @@ class SiteInfoTest extends TestCase {
             'siteinfo-composer-packages',
         );
         $this->assertTrue($info->tableExists('users_main'), 'siteinfo-table-exists');
-        $table = $info->tableRowsRead('users_main');
         $this->assertEquals(
             ["ROWS_READ", "ROWS_CHANGED", "ROWS_CHANGED_X_INDEXES"],
             array_keys($info->tableRowsRead('users_main')[0]),

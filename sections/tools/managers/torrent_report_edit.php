@@ -10,7 +10,7 @@ if (!$Viewer->permitted('users_mod')) {
     Error403::error();
 }
 
-$config = (new Manager\Torrent\ReportType())->findById((int)($_GET['id'] ?? 0));
+$config = new Manager\Torrent\ReportType()->findById((int)($_GET['id'] ?? 0));
 if (is_null($config)) {
     Error404::error();
 }
@@ -67,7 +67,7 @@ if (isset($_POST['submit'])) {
 }
 
 echo $Twig->render('admin/torrent-report-edit.twig', [
-    'category'    => (new Manager\Category())->categoryList(),
+    'category'    => new Manager\Category()->categoryList(),
     'config'      => $config,
     'pm'          => new Util\Textarea('pm_body', $config->pmBody() ?? ''),
     'explanation' => new Util\Textarea('explanation', $config->explanation()),

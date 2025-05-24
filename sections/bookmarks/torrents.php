@@ -33,7 +33,7 @@ $snatcher  = $Viewer->snatch();
 $reportMan = new Manager\Report($userMan);
 $tgMan     = new Manager\TGroup();
 $torMan    = new Manager\Torrent();
-$collMan   = (new Manager\Collage())->setImageProxy(new Util\ImageProxy($Viewer));
+$collMan   = new Manager\Collage()->setImageProxy(new Util\ImageProxy($Viewer));
 
 $paginator = new Util\Paginator(200, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($bookmark->torrentTotal());
@@ -192,7 +192,7 @@ if ($CollageCovers !== 0) { ?>
         unset($CollagePages);
     }
 }
-$urlStem = (new User\Stylesheet($Viewer))->imagePath();
+$urlStem = new User\Stylesheet($Viewer)->imagePath();
 ?>
         <?= $paginator->linkbox() ?>
         <table class="torrent_table grouping cats m_table" id="torrent_table">

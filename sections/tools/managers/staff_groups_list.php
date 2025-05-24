@@ -11,6 +11,6 @@ if (!$Viewer->permitted('admin_manage_permissions')) {
 }
 
 echo $Twig->render('admin/staff-group.twig', [
-    'list'   => (new Manager\StaffGroup())->groupList(),
+    'list'   => new Manager\StaffGroup()->groupList(),
     'viewer' => $Viewer,
 ]);

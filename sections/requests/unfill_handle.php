@@ -7,7 +7,7 @@ namespace Gazelle;
 
 authorize();
 
-$request = (new Manager\Request())->findById((int)$_REQUEST['id']);
+$request = new Manager\Request()->findById((int)$_REQUEST['id']);
 if (is_null($request)) {
     Error404::error();
 }

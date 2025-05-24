@@ -10,17 +10,17 @@ if (!$Viewer->permitted('users_mod')) {
     Error403::error();
 }
 
-$torrent = (new Manager\Torrent())->findById((int)($_GET['torrentid'] ?? 0));
+$torrent = new Manager\Torrent()->findById((int)($_GET['torrentid'] ?? 0));
 if (is_null($torrent)) {
     Error404::error();
 }
-$tlog = (new Manager\TorrentLog(new File\RipLog(), new File\RipLogHTML()))->findById($torrent, (int)($_GET['logid'] ?? 0));
+$tlog = new Manager\TorrentLog(new File\RipLog(), new File\RipLogHTML())->findById($torrent, (int)($_GET['logid'] ?? 0));
 if (is_null($tlog)) {
     Error404::error();
 }
 
 echo $Twig->render('torrent/edit-log.twig', [
-    'adjuster' => (new Manager\User())->findById($tlog->adjustedByUserId())?->link() ?? 'System',
+    'adjuster' => new Manager\User()->findById($tlog->adjustedByUserId())?->link() ?? 'System',
     'tlog'     => $tlog,
     'torrent'  => $torrent,
 

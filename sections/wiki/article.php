@@ -29,7 +29,7 @@ if (!$article) {
 if (!$article->readable($Viewer)) {
     Error403::error();
 }
-$classList = (new Manager\User())->classLevelList();
+$classList = new Manager\User()->classLevelList();
 
 echo $Twig->render('wiki/article.twig', [
     'article' => $article,

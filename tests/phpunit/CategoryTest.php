@@ -48,17 +48,17 @@ class CategoryTest extends TestCase {
         $new = $tgMan->changeCategory(
             old:         $tgroup,
             torrent:     $torrentList[1],
-            categoryId:  (int)(new Manager\Category())->findIdByName('Music'),
+            categoryId:  (int)new Manager\Category()->findIdByName('Music'),
             name:        'phpunit category new ' . randomString(6),
             year:        (int)date('Y'),
             artistName:  $artistName,
-            releaseType: (new ReleaseType())->findIdByName('EP'),
+            releaseType: new ReleaseType()->findIdByName('EP'),
             artistMan:   new Manager\Artist(),
             user:        $user,
         );
         $this->assertInstanceOf(TGroup::class, $new, 'cat-change-to-music');
         $this->assertTrue($new->hasArtistRole(), 'tgroup-cat-is-music');
-        $artist = (new Manager\Artist())->findByName($artistName);
+        $artist = new Manager\Artist()->findByName($artistName);
         $this->assertInstanceOf(Artist::class, $artist, 'cat-new-artist-found');
         $this->assertEquals(
             [
@@ -90,7 +90,7 @@ class CategoryTest extends TestCase {
             name:        'phpunit category new ' . randomString(6),
             year:        (int)date('Y'),
             artistName:  'new artist ' . randomString(6),
-            releaseType: (new ReleaseType())->findIdByName('EP'),
+            releaseType: new ReleaseType()->findIdByName('EP'),
             artistMan:   new Manager\Artist(),
             user:        $user,
         );
@@ -101,7 +101,7 @@ class CategoryTest extends TestCase {
         $new = $tgMan->changeCategory(
             old:         $tgroup,
             torrent:     $torrentList[0],
-            categoryId:  (int)(new Manager\Category())->findIdByName('Comedy'),
+            categoryId:  (int)new Manager\Category()->findIdByName('Comedy'),
             name:        'phpunit category new ' . randomString(6),
             year:        (int)date('Y'),
             artistName:  null,

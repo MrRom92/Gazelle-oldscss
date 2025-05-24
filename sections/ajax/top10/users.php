@@ -14,11 +14,11 @@ if (!in_array($limit, [10, 100, 250])) {
     json_die('failure', 'bad limit parameter');
 }
 
-echo (new Json\Top10\User(
+echo new Json\Top10\User(
     details: $details,
     limit:   $limit,
     stats:   new Stats\Users(),
     userMan: new Manager\User(),
-))
+)
     ->setVersion(2)
     ->response();

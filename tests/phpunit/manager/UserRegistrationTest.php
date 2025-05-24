@@ -61,6 +61,6 @@ class UserRegistrationTest extends TestCase {
     }
 
     public function testUserRegistrationUnconfirmed(): void {
-        $this->assertEquals(3, (new Manager\User())->disableUnconfirmedUsers(), 'user-reg-unconfirmed');
+        $this->assertEquals(3, new Manager\User()->disableUnconfirmedUsers(), 'user-reg-unconfirmed');
     }
 }

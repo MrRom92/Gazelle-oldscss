@@ -20,7 +20,7 @@ if (!defined('AJAX')) {
     authorize();
 }
 
-$request = (new Manager\Request())->findById((int)$_REQUEST['requestid']);
+$request = new Manager\Request()->findById((int)$_REQUEST['requestid']);
 if (is_null($request)) {
     Error404::error();
 }
@@ -47,7 +47,7 @@ if (is_null($torrent)) {
 }
 
 if (!empty($_REQUEST['user']) && $isAdmin) {
-    $filler = (new Manager\User())->findByUsername($_REQUEST['user']);
+    $filler = new Manager\User()->findByUsername($_REQUEST['user']);
     if (is_null($filler)) {
         $error[] = 'No such user to fill for!';
     }

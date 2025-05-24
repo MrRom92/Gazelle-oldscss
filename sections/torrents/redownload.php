@@ -10,7 +10,7 @@ use Gazelle\Enum\UserTorrentSearch;
 if (!$Viewer->permitted('zip_downloader')) {
     Error403::error();
 }
-$user = (new Manager\User())->findById((int)($_GET['userid'] ?? 0));
+$user = new Manager\User()->findById((int)($_GET['userid'] ?? 0));
 if (is_null($user)) {
     Error404::error();
 }

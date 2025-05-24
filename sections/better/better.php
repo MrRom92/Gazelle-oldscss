@@ -33,12 +33,12 @@ $better = match ($type) {
     'checksum'      => new Better\Checksum($user, $filter, new Manager\Torrent()),
     'single'        => new Better\SingleSeeded($user, $filter, new Manager\Torrent()),
     'files', 'folders', 'lineage', 'tags', 'trumpable'
-                    => (new Better\Bad($user, $filter, new Manager\Torrent()))->setBadType($type),
+                    => new Better\Bad($user, $filter, new Manager\Torrent())->setBadType($type),
     default         => Error404::error(),
 };
 
 if (isset($_GET['remove']) && $better instanceof Better\Bad && $Viewer->permitted('admin_reports')) {
-    $torrent = (new Manager\Torrent())->findById((int)$_GET['remove']);
+    $torrent = new Manager\Torrent()->findById((int)$_GET['remove']);
     if ($torrent) {
         $torrent->removeFlag($better->torrentFlag(), $Viewer);
     }

@@ -11,7 +11,7 @@ if (!$Viewer->permitted('site_edit_wiki')) {
 
 authorize();
 
-$artist = (new Manager\Artist())->findById((int)$_POST['artistid']);
+$artist = new Manager\Artist()->findById((int)$_POST['artistid']);
 if (is_null($artist)) {
     Error404::error();
 }
@@ -38,7 +38,7 @@ if ($image != $artist->image()) {
         if (!preg_match(IMAGE_REGEXP, $image)) {
             Error400::error(html_escape($image) . " does not look like a valid image url");
         }
-        $banned = (new Util\ImageProxy($Viewer))->badHost($image);
+        $banned = new Util\ImageProxy($Viewer)->badHost($image);
         if ($banned) {
             Error400::error("Please rehost images from $banned elsewhere.");
         }

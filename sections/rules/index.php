@@ -12,7 +12,7 @@ switch ($_GET['p'] ?? '') {
         break;
     case 'clients':
         echo $Twig->render('rules/client-whitelist.twig', [
-            'list' => (new Manager\ClientWhitelist())->list(),
+            'list' => new Manager\ClientWhitelist()->list(),
         ]);
         break;
     case 'collages':
@@ -43,7 +43,7 @@ switch ($_GET['p'] ?? '') {
     case 'upload':
         \Text::$TOC = true;
         echo $Twig->render('rules/upload.twig', [
-            'body' => \Text::full_format((new Wiki(RULES_WIKI_PAGE_ID))->body(), false, 3, true),
+            'body' => \Text::full_format(new Wiki(RULES_WIKI_PAGE_ID)->body(), false, 3, true),
             'toc'  => \Text::parse_toc(0, true),
         ]);
         break;

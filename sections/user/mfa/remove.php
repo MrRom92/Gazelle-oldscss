@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 // Remove MFA. Users have to enter their password, moderators skip this step.
-$user = (new Manager\User())->findById((int)($_GET['userid'] ?? 0));
+$user = new Manager\User()->findById((int)($_GET['userid'] ?? 0));
 if (is_null($user)) {
     Error404::error();
 }

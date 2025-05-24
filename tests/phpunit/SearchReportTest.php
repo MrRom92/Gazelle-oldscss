@@ -17,7 +17,7 @@ class SearchReportTest extends TestCase {
             Helper::makeUser('searchrep.' . randomString(10), 'searchrep', enable: true, clearInbox: true),
         ];
 
-        $this->collage = (new Manager\Collage())->create(
+        $this->collage = new Manager\Collage()->create(
             user:        $this->userList[0],
             categoryId:  2,
             name:        'phpunit search report ' . randomString(20),
@@ -25,10 +25,10 @@ class SearchReportTest extends TestCase {
             tagList:     'disco funk metal',
         );
 
-        $this->request = (new Manager\Request())->create(
+        $this->request = new Manager\Request()->create(
             user:            $this->userList[1],
             bounty:          REQUEST_MIN * 1024 * 1024,
-            categoryId:      (int)(new Manager\Category())->findIdByName('Music'),
+            categoryId:      (int)new Manager\Category()->findIdByName('Music'),
             year:            (int)date('Y'),
             title:           'phpunit request report',
             image:           '',

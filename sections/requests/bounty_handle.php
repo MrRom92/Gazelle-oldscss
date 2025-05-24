@@ -11,7 +11,7 @@ if (!$Viewer->permitted('site_admin_requests')) {
     Error403::error();
 }
 
-$request = (new Manager\Request())->findById((int)$_POST['id']);
+$request = new Manager\Request()->findById((int)$_POST['id']);
 if (is_null($request)) {
     Error404::error();
 }

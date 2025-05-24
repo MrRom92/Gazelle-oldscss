@@ -5,9 +5,9 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-echo (new Json\Better\SingleSeeded(
+echo new Json\Better\SingleSeeded(
     $Viewer,
     new Better\SingleSeeded($Viewer, 'all', new Manager\Torrent())
-))
+)
     ->setVersion(2)
     ->response();

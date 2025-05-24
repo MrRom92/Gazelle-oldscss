@@ -15,7 +15,7 @@ Things to expect in $_GET:
 
 ********************************************************************************/
 
-$forum = (new Manager\Forum())->findById((int)$_GET['forumid']);
+$forum = new Manager\Forum()->findById((int)$_GET['forumid']);
 if (!$forum) {
     Error404::error();
 }

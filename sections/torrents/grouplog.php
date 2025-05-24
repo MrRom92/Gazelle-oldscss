@@ -11,10 +11,10 @@ if (!$tgroupId) {
     // so the best we can hope for is something that looks like a positive integer
     Error404::error();
 }
-$tgroup = (new Manager\TGroup())->findById($tgroupId);
+$tgroup = new Manager\TGroup()->findById($tgroupId);
 
 echo $Twig->render('tgroup/group-log.twig', [
     'id'     => $tgroupId,
     'tgroup' => $tgroup,
-    'log'    => (new Manager\SiteLog())->tgroupLogList($tgroupId),
+    'log'    => new Manager\SiteLog()->tgroupLogList($tgroupId),
 ]);

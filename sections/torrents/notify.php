@@ -13,7 +13,7 @@ if (!$Viewer->permitted('site_torrents_notify')) {
 }
 
 if ($Viewer->permitted('users_mod') && (int)($_GET['userid'] ?? 0)) {
-    $user = (new Manager\User())->findById((int)$_GET['userid']);
+    $user = new Manager\User()->findById((int)$_GET['userid']);
     if (is_null($user)) {
         Error404::error();
     }
@@ -23,7 +23,7 @@ if ($Viewer->permitted('users_mod') && (int)($_GET['userid'] ?? 0)) {
 $UserID = $user->id;
 $ownProfile = $UserID === $Viewer->id();
 
-$imgTag = '<img loading="lazy" src="' . (new User\Stylesheet($Viewer))->imagePath()
+$imgTag = '<img loading="lazy" src="' . new User\Stylesheet($Viewer)->imagePath()
     . '%s.png" class="tooltip" alt="%s" title="%s"/>';
 $headerMap = [
     'year'     => ['dbColumn' => 'tg.Year',       'defaultSort' => 'desc', 'text' => 'Year'],

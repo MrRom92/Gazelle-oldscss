@@ -9,7 +9,7 @@ namespace Gazelle;
 use Gazelle\Enum\DownloadStatus;
 use Gazelle\Util\Irc;
 
-$torrent = (new Manager\Torrent())->findById((int)($_REQUEST['id'] ?? 0));
+$torrent = new Manager\Torrent()->findById((int)($_REQUEST['id'] ?? 0));
 if (is_null($torrent)) {
     json_or_error('could not find torrent', 404);
 }

@@ -103,7 +103,7 @@ while (true) { // break early on error
             break;
         }
 
-        if (!(new ReleaseType())->findNameById($releaseType)) {
+        if (!new ReleaseType()->findNameById($releaseType)) {
             $error = 'Please pick a release type';
             break;
         }
@@ -137,7 +137,7 @@ while (true) { // break early on error
             ? (int)$match['id']
             : (int)$_POST['groupid'];
         if ($GroupID > 0) {
-            $tgroup = (new Manager\TGroup())->findById($GroupID);
+            $tgroup = new Manager\TGroup()->findById($GroupID);
             if (is_null($tgroup)) {
                 $error = 'The torrent group, if entered, must correspond to a music torrent group on the site.';
                 break;
@@ -183,7 +183,7 @@ if (isset($error)) {
     exit;
 }
 
-$request = (new Manager\Request())->create(
+$request = new Manager\Request()->create(
     user:            $Viewer,
     bounty:          $amount,
     categoryId:      $categoryId,
@@ -205,7 +205,7 @@ $request = (new Manager\Request())->create(
 if ($categoryName == 'Music') {
     $request->artistRole()->set($artistRole, $Viewer, new Manager\Artist());
 }
-(new Manager\Tag())->replaceTagList(
+new Manager\Tag()->replaceTagList(
     $request,
     array_map('trim', explode(',', $tags)),
     $Viewer
@@ -213,7 +213,7 @@ if ($categoryName == 'Music') {
 $tgroup?->flush();
 
 if ($Viewer->option('AutoSubscribe')) {
-    (new User\Subscription($Viewer))->subscribeComments('requests', $request->id());
+    new User\Subscription($Viewer)->subscribeComments('requests', $request->id());
 }
 
 Util\Irc::sendMessage(

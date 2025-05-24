@@ -54,7 +54,7 @@ class Torrent extends \Gazelle\Json {
     public function payload(): array {
         return [
             'group' => $this->torrent->hasTGroup()
-                ? (new TGroup($this->torrent->group(), $this->user, $this->torMan))->tgroupPayload()
+                ? new TGroup($this->torrent->group(), $this->user, $this->torMan)->tgroupPayload()
                 : null, // an orphan torrent
             'torrent' => $this->torrentPayload(),
         ];

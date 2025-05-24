@@ -10,7 +10,7 @@ if ($Viewer->disablePosting()) {
 }
 authorize();
 
-$post = (new Manager\ForumPost())->findById((int)($_POST['post'] ?? 0));
+$post = new Manager\ForumPost()->findById((int)($_POST['post'] ?? 0));
 if (!$post) {
     Error404::error(display_str("No forum post #{$_POST['post']} found"));
 }
@@ -27,7 +27,7 @@ if ($Viewer->id() != $post->userId()) {
         Error403::error("You cannot edit someone else's post");
     }
     if ($_POST['pm'] ?? 0) {
-        $user = (new Manager\User())->findById($post->userId());
+        $user = new Manager\User()->findById($post->userId());
         if (is_null($user)) {
             Error404::error('Author of post not found');
         }

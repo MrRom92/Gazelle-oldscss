@@ -10,7 +10,7 @@ if ($Viewer->disableForums()) {
     Error403::error();
 }
 
-$user = empty($_GET['userid']) ? $Viewer : (new Manager\User())->findById((int)$_GET['userid']);
+$user = empty($_GET['userid']) ? $Viewer : new Manager\User()->findById((int)$_GET['userid']);
 if (is_null($user)) {
     Error404::error();
 }

@@ -135,7 +135,7 @@ class Subscription extends \Gazelle\BaseUser {
     public function unread(): int {
         $unread = self::$cache->get_value('subscriptions_user_new_' . $this->user->id);
         if ($unread === false) {
-            $unread = (new \Gazelle\Manager\Forum())->unreadSubscribedForumTotal($this->user) + $this->unreadCommentTotal();
+            $unread = new \Gazelle\Manager\Forum()->unreadSubscribedForumTotal($this->user) + $this->unreadCommentTotal();
             self::$cache->cache_value('subscriptions_user_new_' . $this->user->id, $unread, 0);
         }
         return $unread;

@@ -549,7 +549,7 @@ class Torrent extends \Gazelle\BaseManager {
      */
 
     public static function renderPL(int $id, array $attr): ?string {
-        $torrent = (new self())->findById($id);
+        $torrent = new self()->findById($id);
         $meta = '';
         $wantMeta = !(in_array('nometa', $attr) || in_array('title', $attr));
 
@@ -572,7 +572,7 @@ class Torrent extends \Gazelle\BaseManager {
             if (is_null($deleted)) {
                 return null;
             }
-            $tgroup = (new \Gazelle\Manager\TGroup())->findById((int)$deleted['GroupID']);
+            $tgroup = new \Gazelle\Manager\TGroup()->findById((int)$deleted['GroupID']);
             if (is_null($tgroup)) {
                 return null;
             }

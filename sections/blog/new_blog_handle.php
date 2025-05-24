@@ -22,13 +22,13 @@ if (empty($title)) {
 }
 $notify = isset($_POST['notify']);
 
-$thread = (new Manager\ForumThread())->create(
+$thread = new Manager\ForumThread()->create(
     forum : new Forum(ANNOUNCEMENT_FORUM_ID),
     title : $title,
     body  : $body,
     user  : $Viewer,
 );
-$blog = (new Manager\Blog())->create(
+$blog = new Manager\Blog()->create(
     title  : $title,
     body   : $body,
     thread : $thread,
@@ -37,7 +37,7 @@ $blog = (new Manager\Blog())->create(
 );
 
 if (isset($_POST['subscribe'])) {
-    (new User\Subscription($Viewer))->subscribe($thread);
+    new User\Subscription($Viewer)->subscribe($thread);
 }
 if ($notify) {
     $notification = new Manager\Notification();

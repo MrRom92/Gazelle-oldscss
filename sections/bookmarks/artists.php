@@ -20,7 +20,7 @@ if (!isset($_GET['userid'])) {
 }
 
 echo $Twig->render('bookmark/artist.twig', [
-    'list'   => (new User\Bookmark($user))->artistList(),
+    'list'   => new User\Bookmark($user)->artistList(),
     'user'   => $user,
     'viewer' => $Viewer,
 ]);

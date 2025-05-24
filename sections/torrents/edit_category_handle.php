@@ -11,7 +11,7 @@ if (!$Viewer->permitted('users_mod')) {
 
 authorize();
 
-$torrent = (new Manager\Torrent())->findById((int)($_POST['torrentid'] ?? 0));
+$torrent = new Manager\Torrent()->findById((int)($_POST['torrentid'] ?? 0));
 if (is_null($torrent)) {
     Error404::error('Torrent does not exist!');
 }
@@ -28,7 +28,7 @@ if ($title === '') {
 }
 
 $newCategoryId = (int)($_POST['newcategoryid'] ?? 0);
-$newName = (new Manager\Category())->findNameById($newCategoryId);
+$newName = new Manager\Category()->findNameById($newCategoryId);
 if (!$newName) {
     Error400::error('Bad category');
 } elseif ($newName === $old->categoryName()) {

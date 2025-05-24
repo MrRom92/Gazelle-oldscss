@@ -9,7 +9,7 @@ function class_list(int $Selected = 0): string {
     /** @phpstan-var \Gazelle\User $Viewer */
     global $Viewer;
     $Return = '';
-    $Classes = (new Manager\User())->classList();
+    $Classes = new Manager\User()->classList();
     foreach ($Classes as $Class) {
         if ($Class['Level'] <= $Viewer->privilege()->effectiveClassLevel()) {
             $Return .= '<option value="' . $Class['Level'] . '"';

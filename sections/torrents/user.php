@@ -15,13 +15,13 @@ if (!isset($_GET['userid'])) {
 if ($_GET['userid'] == 'me') {
     $_GET['userid'] = $Viewer->id();
 }
-$user = (new Manager\User())->findById((int)($_GET['userid'] ?? 0));
+$user = new Manager\User()->findById((int)($_GET['userid'] ?? 0));
 if (is_null($user)) {
     Error404::error();
 }
 $userId = $user->id;
 
-$imgTag = '<img loading="lazy" src="' . (new User\Stylesheet($Viewer))->imagePath()
+$imgTag = '<img loading="lazy" src="' . new User\Stylesheet($Viewer)->imagePath()
     . '%s.png" class="tooltip" alt="%s" title="%s"/>';
 $headerMap = [
     'name'     => ['dbColumn' => 'tg.Name', 'defaultSort' => 'asc',  'text' => 'Torrent'],

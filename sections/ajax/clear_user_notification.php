@@ -11,5 +11,5 @@ if (!class_exists($notifier)) {
 }
 
 json_print('success', [
-    'clear' => (new $notifier($Viewer))->clear() /** @phpstan-ignore-line */
+    'clear' => new $notifier($Viewer)->clear() /** @phpstan-ignore-line */
 ]);

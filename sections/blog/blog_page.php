@@ -19,7 +19,7 @@ if ($Viewer->permitted('admin_manage_blog')) {
 
 $headlines = $blogMan->headlines();
 if ($headlines) {
-    (new \Gazelle\WitnessTable\UserReadBlog())->witness($Viewer);
+    new \Gazelle\WitnessTable\UserReadBlog()->witness($Viewer);
 }
 
 echo $Twig->render('blog/editor.twig', [

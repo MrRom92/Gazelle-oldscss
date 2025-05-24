@@ -7,7 +7,7 @@ namespace Gazelle;
 
 use Gazelle\Enum\UserTokenType;
 
-$userToken = (new Manager\UserToken())->findByToken($_GET['key']);
+$userToken = new Manager\UserToken()->findByToken($_GET['key']);
 if ($userToken?->type() != UserTokenType::password) {
     header('Location: login.php?action=recover');
     exit;

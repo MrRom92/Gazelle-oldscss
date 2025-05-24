@@ -402,7 +402,7 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
     public function releaseTypeName(): ?string {
         static $releaseTypes;
         if (is_null($releaseTypes)) {
-            $releaseTypes = (new ReleaseType())->list();
+            $releaseTypes = new ReleaseType()->list();
         }
         return $this->info()['ReleaseType'] == 0 ? null : $releaseTypes[$this->releaseType()];
     }
@@ -862,9 +862,9 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
             $old->flush();
             $old->refresh();
         } else {
-            (new Manager\Bookmark())->merge($old, $this);
-            (new Manager\Comment())->merge('torrents', $oldId, $this->id);
-            (new Manager\Vote())->merge($old, $this, new Manager\User());
+            new Manager\Bookmark()->merge($old, $this);
+            new Manager\Comment()->merge('torrents', $oldId, $this->id);
+            new Manager\Vote()->merge($old, $this, new Manager\User());
             $this->logger()->merge($old, $this);
             $old->removeTGroup();
         }
@@ -984,7 +984,7 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
             self::$cache->delete_value("torrent_collages_" . $this->id);
         }
 
-        (new Manager\Comment())->remove('torrents', $this->id);
+        new Manager\Comment()->remove('torrents', $this->id);
 
         // Requests
         self::$db->prepared_query("

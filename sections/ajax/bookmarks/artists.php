@@ -11,11 +11,11 @@ if (empty($_GET['userid'])) {
     if (!$Viewer->permitted('users_override_paranoia')) {
         json_die('failure');
     }
-    $user = (new Manager\User())->findById((int)$_GET['userid']);
+    $user = new Manager\User()->findById((int)$_GET['userid']);
     if (is_null($user)) {
         json_die('failure');
     }
 }
 
-echo (new Json\Bookmark\Artist(new User\Bookmark($user)))
+echo new Json\Bookmark\Artist(new User\Bookmark($user))
     ->response();

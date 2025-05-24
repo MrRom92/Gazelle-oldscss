@@ -64,7 +64,7 @@ if (!$initial && empty($_GET['showall'])) {
 if (($initial && !isset($_GET['type'])) || (!$initial && !isset($_GET['show_filled']))) {
     $search->showUnfilled();
 }
-$releaseTypes   = (new \Gazelle\ReleaseType())->list();
+$releaseTypes   = new \Gazelle\ReleaseType()->list();
 $encodingStrict = isset($_GET['bitrates_strict']);
 $formatStrict   = isset($_GET['formats_strict']);
 $mediaStrict    = isset($_GET['media_strict']);

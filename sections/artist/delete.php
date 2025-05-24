@@ -11,7 +11,7 @@ if (!($Viewer->permitted('site_delete_artist') && $Viewer->permitted('torrents_d
 }
 authorize();
 
-$artist = (new Manager\Artist())->findById((int)($_GET['artistid'] ?? 0));
+$artist = new Manager\Artist()->findById((int)($_GET['artistid'] ?? 0));
 if (is_null($artist)) {
     Error404::error();
 }

@@ -22,7 +22,7 @@ if (!isset($_GET['userid'])) {
     if (!$Viewer->permitted('users_override_paranoia')) {
         Error403::error();
     }
-    $user = (new Manager\User())->findById((int)$_GET['userid']);
+    $user = new Manager\User()->findById((int)$_GET['userid']);
     if (is_null($user)) {
         Error404::error();
     }

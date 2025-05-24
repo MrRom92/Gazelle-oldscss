@@ -249,7 +249,7 @@ class TagTest extends TestCase {
             $folk->voteTGroup($this->tgroup, $this->user, 'up'),
             'tag-tgroup-vote'
         );
-        $db = DB::DB();
+        DB::DB();
         $this->assertTrue(
             $folk->hasVoteTGroup($this->tgroup, $this->user),
             'tag-has-no-vote'
@@ -344,7 +344,7 @@ class TagTest extends TestCase {
 
         // split tag into two existing tags
         $nameList = ["$name.3", "$name.4"];
-        $tagList = array_map(fn($n) => $manager->create($n, $this->user), $nameList);
+        array_map(fn($n) => $manager->create($n, $this->user), $nameList);
         $this->assertEquals(
             4,
             $manager->rename(
@@ -412,6 +412,6 @@ class TagTest extends TestCase {
         $this->assertEquals('ur', $payload[1]['tag'], 'tag-top10-payload-ur');
         $this->assertEquals('v', $payload[2]['tag'], 'tag-top10-payload-v');
 
-        $this->assertCount(0, (new Json\Top10\Tag('bogus', 1, $manager))->payload(), 'tag-top10-bogus-payload');
+        $this->assertCount(0, new Json\Top10\Tag('bogus', 1, $manager)->payload(), 'tag-top10-bogus-payload');
     }
 }

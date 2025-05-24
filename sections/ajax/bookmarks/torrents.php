@@ -13,16 +13,16 @@ if (empty($_GET['userid'])) {
     if (!$Viewer->permitted('users_override_paranoia')) {
         json_error('bad parameters');
     }
-    $user = (new Manager\User())->findById((int)($_GET['userid'] ?? 0));
+    $user = new Manager\User()->findById((int)($_GET['userid'] ?? 0));
     if (is_null($user)) {
         json_error('bad parameters');
     }
 }
 
-echo (new Json\Bookmark\TGroup(
+echo new Json\Bookmark\TGroup(
     new User\Bookmark($user),
     new Manager\TGroup(),
-    new Manager\Torrent())
+    new Manager\Torrent()
 )
     ->setVersion(2)
     ->response();

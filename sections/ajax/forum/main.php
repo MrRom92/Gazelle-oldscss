@@ -9,7 +9,7 @@ $userMan = new Manager\User();
 $user = [$Viewer->id() => $Viewer];
 
 $category = [];
-foreach ((new Manager\Forum())->forumList() as $forum) {
+foreach (new Manager\Forum()->forumList() as $forum) {
     if (!$Viewer->readAccess($forum)) {
         continue;
     }

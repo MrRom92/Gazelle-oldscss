@@ -37,7 +37,7 @@ class Bonus extends \Gazelle\BaseUser {
     }
 
     protected function items(): array {
-        return (new \Gazelle\Manager\Bonus())->itemList();
+        return new \Gazelle\Manager\Bonus()->itemList();
     }
 
     public function itemList(): array {

@@ -8,7 +8,7 @@ namespace Gazelle;
 authorize();
 
 $alias = $_GET['alias'] ?? '';
-$article = (new Manager\Wiki())->findByAlias($alias);
+$article = new Manager\Wiki()->findByAlias($alias);
 if (is_null($article)) {
     Error404::error();
 }

@@ -11,6 +11,6 @@ if (!$Viewer->permitted('admin_site_debug')) {
 }
 
 echo $Twig->render('admin/privilege-matrix.twig', [
-    'class_list' => (new Manager\User())->classList(),
-    'privilege'  => (new Manager\Privilege())->privilege(),
+    'class_list' => new Manager\User()->classList(),
+    'privilege'  => new Manager\Privilege()->privilege(),
 ]);

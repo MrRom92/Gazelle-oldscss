@@ -30,7 +30,7 @@ if ($reportMan->existsRecent($torrent, $Viewer)) {
     Error429::error("Slow down, you're moving too fast!");
 }
 
-$reportType = (new Manager\Torrent\ReportType())->findByType($_POST['type'] ?? '');
+$reportType = new Manager\Torrent\ReportType()->findByType($_POST['type'] ?? '');
 if (is_null($reportType)) {
     Error400::error("bad report type");
 }

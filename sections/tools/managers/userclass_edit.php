@@ -24,7 +24,7 @@ if (isset($_REQUEST['id']) && $_REQUEST['id'] !== 'new') {
 echo $Twig->render('admin/privilege-edit.twig', [
     'edited'     => isset($usersAffected),
     'edit_total' => $usersAffected ?? 0,
-    'group_list' => (new Manager\StaffGroup())->groupList(),
+    'group_list' => new Manager\StaffGroup()->groupList(),
     'privilege'  => $privilege,
     'viewer'     => $Viewer,
 ]);

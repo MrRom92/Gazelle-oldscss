@@ -10,7 +10,7 @@ if (!$Viewer->permitted('admin_manage_applicants')) {
     Error403::error();
 }
 
-$role = (new Manager\ApplicantRole())->findById((int)($_GET['id'] ?? 0));
+$role = new Manager\ApplicantRole()->findById((int)($_GET['id'] ?? 0));
 if (is_null($role)) {
     Error404::error();
 }

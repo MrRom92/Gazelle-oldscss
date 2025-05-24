@@ -33,7 +33,7 @@ foreach ($thread as $Post) {
         'userinfo' => [
             'authorId'   => $AuthorID,
             'authorName' => $author->username(),
-            'donor'      => (new User\Donor($author))->isDonor(),
+            'donor'      => new User\Donor($author)->isDonor(),
             'warned'     => $author->isWarned(),
             'avatar'     => $author->avatar(),
             'enabled'    => $author->isEnabled(),

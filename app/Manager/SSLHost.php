@@ -24,7 +24,7 @@ class SSLHost extends \Gazelle\Base {
         // Let us know if you can show otherwise.
 
         $url  = "https://{$hostname}:{$port}";
-        $curl = (new \Gazelle\Util\Curl())
+        $curl = new \Gazelle\Util\Curl()
             ->setOption(CURLOPT_CERTINFO, true)
             ->setOption(CURLOPT_SSL_VERIFYPEER, true)
             ->setOption(CURLOPT_SSL_VERIFYHOST, 2);

@@ -23,10 +23,10 @@ echo $Twig->render('reportsv2/create.twig', [
         'track'    => $_POST['track'] ?? '',
     ],
     'report_man' => new Manager\Torrent\Report($torMan),
-    'rtype_list' => (new Manager\Torrent\ReportType())
+    'rtype_list' => new Manager\Torrent\ReportType()
         ->categoryList($torrent->group()->categoryId()),
     'torrent'    => $torrent,
     'tor_man'    => $torMan,
-    'url_stem'   => (new User\Stylesheet($Viewer))->imagePath(),
+    'url_stem'   => new User\Stylesheet($Viewer)->imagePath(),
     'viewer'     => $Viewer,
 ]);

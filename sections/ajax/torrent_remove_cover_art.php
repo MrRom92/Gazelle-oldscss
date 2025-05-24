@@ -9,7 +9,7 @@ authorize();
 if (!$Viewer->permitted('site_edit_wiki')) {
     json_die('failure', 'forbidden');
 }
-$tgroup = (new Manager\TGroup())->findById((int)$_GET['groupid']);
+$tgroup = new Manager\TGroup()->findById((int)$_GET['groupid']);
 $coverId = (int)$_GET['id'];
 if (!$coverId || is_null($tgroup)) {
     json_die('failure', 'bad parameters');

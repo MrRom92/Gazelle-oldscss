@@ -18,12 +18,12 @@ switch ($_GET['type']) {
             global $Cache;
             $Cache->add('broken_scraper', 0);
             $Cache->increment('broken_scraper');
-            (new User\Session($Viewer))->dropAll();
+            new User\Session($Viewer)->dropAll();
             Error400::error('Your script is broken, fix it.');
         }
         header('Content-type: text/plain');
         header("Content-Disposition: inline; filename=\"{$match[1]}_{$match[2]}.txt\"");
-        echo (new File\RipLog())->get([$match[1], $match[2]]);
+        echo new File\RipLog()->get([$match[1], $match[2]]);
         break;
     default:
         Error404::error();

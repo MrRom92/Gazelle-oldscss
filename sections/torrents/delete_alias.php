@@ -19,7 +19,7 @@ $tgroup = $tgMan->findById((int)$_GET['groupid']);
 if (is_null($tgroup)) {
     Error404::error();
 }
-$artist = (new Manager\Artist())->findByAliasId((int)$_GET['aliasid']);
+$artist = new Manager\Artist()->findByAliasId((int)$_GET['aliasid']);
 if (is_null($artist)) {
     Error404::error();
 }

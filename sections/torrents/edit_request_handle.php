@@ -6,13 +6,13 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$tgroup = (new Manager\TGroup())->findById((int)($_POST['id'] ?? 0));
+$tgroup = new Manager\TGroup()->findById((int)($_POST['id'] ?? 0));
 if (!$tgroup) {
     Error404::error();
 }
 authorize();
 
-$thread = (new Manager\ForumThread())->create(
+$thread = new Manager\ForumThread()->create(
     forum: new Forum(EDITING_FORUM_ID),
     user:  new User(SYSTEM_USER_ID),
     title: "Editing request \xE2\x80\x93 Torrent Group: " . $tgroup->name(),

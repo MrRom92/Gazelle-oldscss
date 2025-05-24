@@ -13,7 +13,7 @@ if (!isset($_REQUEST['preference']) || count($_REQUEST['list']) === 0) {
     Error400::error('No collage collector preference specified');
 }
 
-$collage = (new Manager\Collage())->findById((int)($_REQUEST['collageid'] ?? 0));
+$collage = new Manager\Collage()->findById((int)($_REQUEST['collageid'] ?? 0));
 if (is_null($collage)) {
     Error404::error();
 }

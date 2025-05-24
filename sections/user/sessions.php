@@ -13,7 +13,7 @@ if (!isset($_GET['id'])) {
     if ($userId !== $Viewer->id() && !$Viewer->permittedAny('users_logout', 'users_view_ips')) {
         Error403::error();
     }
-    $user = (new Manager\User())->findById($userId);
+    $user = new Manager\User()->findById($userId);
     if (is_null($user)) {
         Error404::error();
     }

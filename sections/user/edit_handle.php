@@ -228,18 +228,18 @@ if ($Viewer->permitted('site_advanced_search')) {
 $user->setField('option_list', $option);
 
 $navList = [];
-foreach ((new Manager\UserNavigation())->fullList() as $n) {
+foreach (new Manager\UserNavigation()->fullList() as $n) {
     if ($n['mandatory'] || isset($_POST["n_{$n['id']}"])) {
         $navList[] = (int)$n['id'];
     }
 }
 $user->setField('nav_list', $navList);
 
-(new Util\LastFM())->modifyUsername($user, trim($_POST['lastfm_username'] ?? ''));
+new Util\LastFM()->modifyUsername($user, trim($_POST['lastfm_username'] ?? ''));
 
 $notification = preg_grep('/^notifications_[^_]+_/', array_keys($_POST));
 if ($notification) {
-    (new User\Notification($user))->save($notification);
+    new User\Notification($user)->save($notification);
 }
 
 foreach (
@@ -271,7 +271,7 @@ if (isset($_POST['resetpasskey'])) {
     $oldPasskey = $user->announceKey();
     $newPasskey = randomString();
     $user->history()->modifyAnnounceKey(old: $oldPasskey, new: $newPasskey);
-    (new Tracker())->modifyPasskey(old: $oldPasskey, new: $newPasskey);
+    new Tracker()->modifyPasskey(old: $oldPasskey, new: $newPasskey);
 }
 
 $user->modify();
@@ -329,7 +329,7 @@ if ($donor->isDonor()) {
 
 $user->flush();
 
-(new User\Stylesheet($user))->modifyInfo((int)$_POST['stylesheet'], $_POST['styleurl']);
+new User\Stylesheet($user)->modifyInfo((int)$_POST['stylesheet'], $_POST['styleurl']);
 
 if ($ResetPassword) {
     $user->logoutEverywhere();

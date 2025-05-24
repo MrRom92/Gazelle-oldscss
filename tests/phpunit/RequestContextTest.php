@@ -55,7 +55,7 @@ class RequestContextTest extends TestCase {
         );
         $this->assertEquals(
             '225.0.0.1',
-            (new Manager\TGroup())->requestContext()->remoteAddr(),
+            new Manager\TGroup()->requestContext()->remoteAddr(),
             'context-manager-ip',
         );
         $this->user = Helper::makeUser('base.' . randomString(6), 'base object');

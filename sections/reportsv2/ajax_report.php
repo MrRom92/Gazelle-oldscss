@@ -14,7 +14,7 @@ namespace Gazelle;
 
 authorize();
 
-$reportType = (new Manager\Torrent\ReportType())->findByType($_POST['type'] ?? '');
+$reportType = new Manager\Torrent\ReportType()->findByType($_POST['type'] ?? '');
 if (is_null($reportType)) {
     json_error("bad parameters");
 }

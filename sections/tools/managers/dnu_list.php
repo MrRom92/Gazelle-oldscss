@@ -11,6 +11,6 @@ if (!$Viewer->permitted('admin_dnu')) {
 }
 
 echo $Twig->render('admin/dnu.twig', [
-    'list'   => (new Manager\DNU())->dnuList(),
+    'list'   => new Manager\DNU()->dnuList(),
     'viewer' => $Viewer,
 ]);

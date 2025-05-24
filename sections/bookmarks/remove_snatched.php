@@ -7,6 +7,6 @@ namespace Gazelle;
 
 authorize();
 
-(new User\Bookmark($Viewer))->removeSnatched();
+new User\Bookmark($Viewer)->removeSnatched();
 
 header('Location: bookmarks.php');

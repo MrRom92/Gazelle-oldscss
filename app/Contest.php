@@ -198,7 +198,7 @@ class Contest extends BaseObject {
     }
 
     public function bonusPerUserValue(): int {
-        $totalEnabledUsers = (new Stats\Users())->enabledUserTotal();
+        $totalEnabledUsers = new Stats\Users()->enabledUserTotal();
         return $totalEnabledUsers
             ? (int)floor(
                 $this->bonusPoolTotal() * $this->bonusPerUserRatio()
@@ -346,7 +346,7 @@ class Contest extends BaseObject {
                     'username'        => $user->username(),
                 ])
             );
-            (new User\Bonus($user))->addPoints($totalGain);
+            new User\Bonus($user)->addPoints($totalGain);
             $user->addStaffNote(
                 number_format($totalGain)
                     . " BP added for {$totalEntries} entries in {$this->name()}"

@@ -32,6 +32,6 @@ echo $Twig->render('admin/donation-log.twig', [
     'grand_total' => $donorMan->grandTotal(),
     'page'        => $search->page($paginator->limit(), $paginator->offset()),
     'paginator'   => $paginator,
-    'rental'      => (new Manager\Payment())->monthlyRental(),
+    'rental'      => new Manager\Payment()->monthlyRental(),
     'username'    => $_GET['username'] ?? '',
 ]);
