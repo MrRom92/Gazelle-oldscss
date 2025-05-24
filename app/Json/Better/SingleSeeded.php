@@ -13,10 +13,11 @@ class SingleSeeded extends \Gazelle\Json {
             fn ($torrent) => [
                 'torrentId'   => $torrent->id(),
                 'groupId'     => $torrent->groupId(),
-                'artist'      => array_filter($torrent->group()->artistRole()->legacyList(), fn($role) => $role), // filter NULLs
+                'artistInfo'  => $this->artistPayload($torrent->group()),
                 'groupName'   => $torrent->group()->name(),
                 'groupYear'   => $torrent->group()->year(),
                 'downloadUrl' => "torrents.php?action=download&id={$torrent->id()}&torrent_pass={$this->user->announceKey()}",
+                'source'      => $torrent->location(),
             ], $this->better->list(50, 0)
         );
     }

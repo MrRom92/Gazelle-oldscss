@@ -46,6 +46,7 @@ exists for the sake of interopability and may go away in the future.
     * [Upload](#upload)
     * [Download](#download)
     * [Add Log](#add-log)
+* [Better](#better)
 * [Logchecker](#logchecker)
 * [Requests](#requests)
     * [Request](#request)
@@ -1534,6 +1535,67 @@ __Note__: Must be the uploader of the torrent or moderator to add logs
   "info": {
     "source": "Gazelle Dev",
     "version": 1
+  }
+}
+```
+
+## Better
+
+**URL:**
+`ajax.php?action=better`
+
+**Arguments:**
+
+* `method` (required)
+  * `single` - single-seeded torrents
+  * `transcode` - torrents missing transcodes
+  
+additional arguments for `method=transcode`
+* `search` - search term for returned torrents
+* `filter` - limit torrents based on user's torrents
+  * `any` (default)
+  * `seeding`
+  * `snatched`
+  * `uploaded`
+* `target` - which missing transcodes to list
+  * `v0`
+  * `320`
+  * `all` - all of the above
+  * `any` (default) - any of the above
+
+**Response format:**
+
+```json
+{
+  "status": "success",
+  "response": [
+    {
+      "torrentId": 12345,
+      "groupId": 23,
+      "artistInfo": {
+        "composers": [],
+        "dj": [],
+        "artists": [{
+          "id": 431,
+          "name": "Daft Punk"
+        }],
+        "with": [],
+        "conductor": [],
+        "remixedBy": [],
+        "producer": []
+      },
+      "groupName": "Discovery",
+      "groupYear": 2001,
+      "downloadUrl": "torrents.php?action=download&id=12345&torrent_pass=abc",
+      "source": "torrents.php?id=23&torrentid=12345#torrent12345",
+      // only present for method=transcode
+      "missingV0": false,
+      "missing320": true
+    }
+  ],
+  "info": {
+    "source": "Gazelle Dev",
+    "version": 2
   }
 }
 ```

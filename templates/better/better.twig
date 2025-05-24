@@ -19,9 +19,9 @@
         <td class="label"><strong>Category</strong></td>
         <td>
             <select name="filter">
-                <option value="all"{{ selected(filter == 'all') }}>All</option>
-                <option value="snatched"{{ selected(filter == 'snatched') }}>Snatched</option>
-                <option value="uploaded"{{ selected(filter == 'uploaded') }}>Uploaded</option>
+{%  for filterCase in enum('Gazelle\\Enum\\BetterFilter').cases %}
+                <option value="{{ filterCase.name }}"{{ selected(filter == filterCase.name) }}>{{ filterCase.name|ucfirst }}</option>
+{%  endfor %}
             </select>
             <select name="type">
                 <option value="checksum"{{ selected(type == 'checksum') }}>Missing Checksums</option>

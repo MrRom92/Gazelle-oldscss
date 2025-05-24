@@ -11,21 +11,7 @@ class TGroup extends \Gazelle\Json {
 
     public function tgroupPayload(): array {
         $tgroup = $this->tgroup;
-        if (!$tgroup->hasArtistRole()) {
-            $musicInfo = null;
-        } else {
-            $role = $tgroup->artistRole()->idList();
-            $musicInfo = [
-                'artists'   => $role[1] ?? [],
-                'with'      => $role[2] ?? [],
-                'remixedBy' => $role[3] ?? [],
-                'composers' => $role[4] ?? [],
-                'conductor' => $role[5] ?? [],
-                'dj'        => $role[6] ?? [],
-                'producer'  => $role[7] ?? [],
-                'arranger'  => $role[8] ?? [],
-            ];
-        }
+        $musicInfo = $this->artistPayload($tgroup);
 
         return [
             'wikiBody'        => \Text::full_format($tgroup->description()),

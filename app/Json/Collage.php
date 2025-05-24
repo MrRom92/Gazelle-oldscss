@@ -14,7 +14,7 @@ class Collage extends \Gazelle\Json {
         protected \Gazelle\Manager\Torrent $torMan,
     ) {}
 
-    public function artistPayload(): array {
+    public function collageArtistPayload(): array {
         return $this->collage->nameList();
     }
 
@@ -57,7 +57,7 @@ class Collage extends \Gazelle\Json {
                 'pages'               => $this->collage->isArtist() ? 1 : ceil(count($entryList) / static::$ENTRIES_PER_PAGE),
             ],
             $this->collage->isArtist()
-                ? ['artists'       => $this->artistPayload()]
+                ? ['artists'       => $this->collageArtistPayload()]
                 : ['torrentgroups' => $this->tgroupPayload()]
         );
     }

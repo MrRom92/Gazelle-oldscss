@@ -30,33 +30,18 @@ if (!isset($_GET['userid'])) {
 
 $filter = $_GET['filter'] ?? 'uploaded';
 $search = $_GET['search'] ?? null;
-$target = $_GET['target'] ?? null;
+$target = $_GET['target'] ?? 'all';
 $better = new Search\Transcode($user, new Manager\Torrent());
 
-switch ($filter) {
-    case 'seeding':
-        $better->setModeSeeding();
-        break;
-    case 'snatched':
-        $better->setModeSnatched();
-        break;
-    case 'uploaded':
-        $better->setModeUploaded();
-        break;
-    default:
-        break;
+try {
+    $better->setMode(Enum\BetterFilter::{$filter});
+} catch (\Error) {
+    Error400::error('Unknown filter.');
 }
-switch ($target) {
-    case 'v0':
-        $better->want320();
-        break;
-    case '320':
-        $better->wantV0();
-        break;
-    default:
-        $better->want320();
-        $better->wantV0();
-        break;
+try {
+    $better->setEncoding(Enum\BetterEncoding::from($target));
+} catch (\ValueError) {
+    Error400::error('Unknown target.');
 }
 if ($search) {
     $better->setSearch($search);

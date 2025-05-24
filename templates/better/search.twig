@@ -17,15 +17,14 @@
                 <td class="label"><strong>Filter</strong></td>
                 <td>
                     <select name="filter">
-                        <option value="snatched"{{ selected(filter == 'snatched') }}>Snatched only</option>
-                        <option value="seeding"{{ selected(filter == 'seeding') }}>Seeding only</option>
-                        <option value="uploaded"{{ selected(filter == 'uploaded') }}>Uploaded only</option>
-                        <option value="all"{{ selected(filter == 'all') }}>All</option>
+{% for filterCase in enum('Gazelle\\Enum\\BetterFilter').cases %}
+                        <option value="{{ filterCase.name }}"{{ selected(filter == filterCase.name) }}>{{ filterCase.name|ucfirst }}</option>
+{% endfor %}
                     </select>
                     <select name="target">
-                        <option value="v0"{{ selected(target == 'v0') }}>V0 missing</option>
-                        <option value="320"{{ selected(target == '320') }}>320 missing</option>
-                        <option value="all"{{ selected(target == 'all') }}>All transcodes missing</option>
+{% for encodingCase in enum('Gazelle\\Enum\\BetterEncoding').cases %}
+                        <option value="{{ encodingCase.value }}"{{ selected(target == encodingCase.value) }}>{{ encodingCase.value|ucfirst }} missing</option>
+{% endfor %}
                     </select>
                 </td>
             </tr>

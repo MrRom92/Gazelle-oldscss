@@ -20,13 +20,13 @@ class Transcode extends \Gazelle\Json {
             $payload[] = [
                 'torrentId'   => $torrent->id(),
                 'groupId'     => $tgroup->id(),
-                'artist'      => $tgroup->artistRole()?->text(),
+                'artistInfo'  => $this->artistPayload($torrent->group()),
                 'groupName'   => $tgroup->name(),
                 'groupYear'   => $tgroup->year(),
-                'missingV0'   => $result['want_v0'] === 1,
-                'missing320'  => $result['want_320'] === 1,
                 'downloadUrl' => "torrents.php?action=download&id={$torrent->id()}&torrent_pass={$this->announceKey}",
                 'source'      => $torrent->location(),
+                'missingV0'   => $result['want_v0'] === 1,
+                'missing320'  => $result['want_320'] === 1,
             ];
         }
         return $payload;

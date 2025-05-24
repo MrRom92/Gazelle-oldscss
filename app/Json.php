@@ -99,4 +99,22 @@ abstract class Json extends Base {
             ]
         ];
     }
+
+    protected static function artistPayload(TGroup $tgroup): ?array {
+        if (!$tgroup->hasArtistRole()) {
+            return null;
+        }
+
+        $role = $tgroup->artistRole()->idList();
+        return [
+            'artists'   => $role[1] ?? [],
+            'with'      => $role[2] ?? [],
+            'remixedBy' => $role[3] ?? [],
+            'composers' => $role[4] ?? [],
+            'conductor' => $role[5] ?? [],
+            'dj'        => $role[6] ?? [],
+            'producer'  => $role[7] ?? [],
+            'arranger'  => $role[8] ?? [],
+        ];
+    }
 }

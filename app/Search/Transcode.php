@@ -2,21 +2,19 @@
 
 namespace Gazelle\Search;
 
+use Gazelle\Enum\BetterEncoding;
+use Gazelle\Enum\BetterFilter;
+
+
 class Transcode extends \Gazelle\Base {
     /**
      * A class to deal with finding Lossless uploads that can be transcoded,
      * based on what a user is seeding or has snatched.
      */
 
-    protected const CACHE_KEY     = 'u_better_%s_%d';
-    protected const MODE_ANY      = 0;
-    protected const MODE_SEEDING  = 1;
-    protected const MODE_SNATCHED = 2;
-    protected const MODE_UPLOADED = 3;
-    protected int $mode;
-
-    protected bool $want320;
-    protected bool $wantV0;
+    protected const CACHE_KEY          = 'u_better_%s_%s_%d';
+    protected BetterFilter $mode       = BetterFilter::any;
+    protected BetterEncoding $encoding = BetterEncoding::any;
     protected string $search;
 
     public function __construct(
@@ -24,23 +22,8 @@ class Transcode extends \Gazelle\Base {
         protected \Gazelle\Manager\Torrent $torMan
     ) {}
 
-    public function setModeAny(): static {
-        $this->mode = self::MODE_ANY;
-        return $this;
-    }
-
-    public function setModeSeeding(): static {
-        $this->mode = self::MODE_SEEDING;
-        return $this;
-    }
-
-    public function setModeSnatched(): static {
-        $this->mode = self::MODE_SNATCHED;
-        return $this;
-    }
-
-    public function setModeUploaded(): static {
-        $this->mode = self::MODE_UPLOADED;
+    public function setMode(BetterFilter $mode): static {
+        $this->mode = $mode;
         return $this;
     }
 
@@ -49,21 +32,8 @@ class Transcode extends \Gazelle\Base {
         return $this;
     }
 
-    public function hasv0(): bool {
-        return isset($this->wantV0);
-    }
-
-    public function wantV0(): static {
-        $this->wantV0 = true;
-        return $this;
-    }
-
-    public function has320(): bool {
-        return isset($this->want320);
-    }
-
-    public function want320(): static {
-        $this->want320 = true;
+    public function setEncoding(BetterEncoding $encoding): static {
+        $this->encoding = $encoding;
         return $this;
     }
 
@@ -73,20 +43,20 @@ class Transcode extends \Gazelle\Base {
 
         // need to join additional tables to restrict the search?
         $distinct = '';
-        switch ($this->mode ?? self::MODE_ANY) {
-            case self::MODE_SEEDING:
+        switch ($this->mode) {
+            case BetterFilter::seeding:
                 $distinct = 'DISTINCT'; // may be seeding from more than one location
                 $join = 'INNER JOIN xbt_files_users xfu ON (xfu.fid = t.ID)';
                 $cond[] = 'active = 1 AND remaining = 0 AND mtime > unix_timestamp(NOW() - INTERVAL 1 HOUR) AND uid = ?';
                 $args[] = $this->user->id;
                 break;
-            case self::MODE_SNATCHED:
+            case BetterFilter::snatched:
                 $distinct = 'DISTINCT'; // may have snatched more than once
                 $join = 'INNER JOIN xbt_snatched xs ON (xs.fid = t.ID)';
                 $cond[] = 'xs.uid = ?';
                 $args[] = $this->user->id;
                 break;
-            case self::MODE_UPLOADED:
+            case BetterFilter::uploaded:
                 $join = '/* uploaded */';
                 $cond[] = 't.UserID = ?';
                 $args[] = $this->user->id;
@@ -102,15 +72,16 @@ class Transcode extends \Gazelle\Base {
         }
 
         // what opportunities are there?
-        if (isset($this->wantV0) || isset($this->want320)) {
-            $want = [];
-            if (isset($this->want320)) {
-                $want[] = 'b.want_320 = 1';
-            }
-            if (isset($this->wantV0)) {
-                $want[] = 'b.want_v0 = 1';
-            }
-            $cond[] = '(' . implode(' OR ', $want) . ')';
+        switch ($this->encoding) {
+            case BetterEncoding::all:
+                $cond[] = '(b.want_320 = 1 AND b.want_v0 = 1)';
+                break;
+            case BetterEncoding::cbr320:
+                $cond[] = 'b.want_320 = 1';
+                break;
+            case BetterEncoding::v0:
+                $cond[] = 'b.want_v0 = 1';
+                break;
         }
 
         $sql = "FROM torrents t
@@ -135,27 +106,25 @@ class Transcode extends \Gazelle\Base {
     }
 
     public function list(int $limit, int $offset): array {
-        $sql = null;
-        $args = null;
-        $key = sprintf(self::CACHE_KEY,
-            match ($this->mode ?? self::MODE_ANY) {
-                self::MODE_SEEDING  => 'seed',
-                self::MODE_SNATCHED => 'snatch',
-                self::MODE_UPLOADED => 'up',
-                default             => 'any',
-            }
-            . (isset($this->want320) ? '_320' : '')
-            . (isset($this->wantV0)  ? '_v0'  : ''),
-            $this->user->id
-        );
-        $list = self::$cache->get_value($key);
+        $key = null;
         $list = false;
-        [$sql, $args] = $this->queryList($limit, $offset);
-        self::$db->prepared_query($sql, ...$args);
-        $list = self::$db->to_array(false, MYSQLI_ASSOC);
         if (!isset($this->search)) {
-            self::$cache->cache_value($key, $list, 3600);
+            $key = sprintf(self::CACHE_KEY,
+                $this->mode->name,
+                $this->encoding->value,
+                $this->user->id
+            );
+            $list = self::$cache->get_value($key);
         }
+        if ($list === false) {
+            [$sql, $args] = $this->queryList($limit, $offset);
+            self::$db->prepared_query($sql, ...$args);
+            $list = self::$db->to_array(false, MYSQLI_ASSOC);
+            if ($key) {
+                self::$cache->cache_value($key, $list, 3600);
+            }
+        }
+
         foreach ($list as &$row) {
             $row['torrent'] = $this->torMan->findById($row['source']);
         }
@@ -173,25 +142,22 @@ class Transcode extends \Gazelle\Base {
     }
 
     public function total(): array {
-        $sql = null;
-        $args = null;
-        $key = sprintf(self::CACHE_KEY,
-            match ($this->mode ?? self::MODE_ANY) {
-                self::MODE_SEEDING  => 'total_seed',
-                self::MODE_SNATCHED => 'total_snatch',
-                self::MODE_UPLOADED => 'total_up',
-                default             => 'total_any',
-            }
-            . (isset($this->want320) ? '_320' : '')
-            . (isset($this->wantV0)  ? '_v0'  : ''),
-            $this->user->id
-        );
-        $total = self::$cache->get_value($key);
+        $key = null;
         $total = false;
-        [$sql, $args] = $this->queryTotal();
-        $total = self::$db->rowAssoc($sql, ...$args);
         if (!isset($this->search)) {
-            self::$cache->cache_value($key, $total, 3600);
+            $key = sprintf(self::CACHE_KEY,
+                'total_' . $this->mode->name,
+                $this->encoding->value,
+                $this->user->id
+            );
+            $total = self::$cache->get_value($key);
+        }
+        if ($total === false) {
+            [$sql, $args] = $this->queryTotal();
+            $total = self::$db->rowAssoc($sql, ...$args);
+            if ($key) {
+                self::$cache->cache_value($key, $total, 3600);
+            }
         }
         return $total;
     }
