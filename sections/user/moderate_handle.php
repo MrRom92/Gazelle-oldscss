@@ -43,8 +43,7 @@ if ($_POST['checkpoint'] != $user->checkpoint()) {
     );
 }
 
-$userId = $user->id;
-$ownProfile = $userId === $Viewer->id();
+$ownProfile = $user->id === $Viewer->id;
 
 // Variables for database input
 $class             = (int)($_POST['Class'] ?? 0);
@@ -117,7 +116,7 @@ if ($_POST['UserStatus'] === 'delete' && $Viewer->permitted('users_delete_users'
     );
     $tracker->removeUser($user);
     $user->remove();
-    header("Location: log.php?search=User+$userId");
+    header("Location: log.php?search=User+{$user->id}");
     exit;
 }
 
@@ -247,7 +246,7 @@ if ($class) {
             }
             $Cache->delete_value('staff_ids');
         }
-        $Cache->delete_value("donor_info_$userId");
+        $Cache->delete_value("donor_info_{$user->id}");
     }
 }
 
@@ -504,11 +503,12 @@ if ($userStatus != $user->userStatus() && $Viewer->permitted('users_disable_user
     if ($userStatus == UserStatus::disabled) {
         $userMan->disableUserList(
             $tracker,
-            [$userId],
+            [$user->id],
             UserAuditEvent::activity,
             "Disabled via moderation",
             Manager\User::DISABLE_MANUAL,
         );
+        Util\DisabledUserHistory::add($user, $reason);
         $needTrackerRefresh = false;
     } elseif ($userStatus == UserStatus::enabled) {
         $needTrackerAdd = true;
@@ -553,12 +553,13 @@ if ($sendHackedMail && $Viewer->permitted('users_disable_any')) {
     );
     $userMan->disableUserList(
         $tracker,
-        [$userId],
+        [$user->id],
         UserAuditEvent::activity,
         "Disabled via hacked email",
         Manager\User::DISABLE_MANUAL,
     );
     $editSummary[] = "hacked account email sent to $hackedEmail";
+    Util\DisabledUserHistory::add($user, "Disabled via hacked email");
 }
 
 if ($mergeStatsFrom && $Viewer->permitted('users_edit_ratio')) {

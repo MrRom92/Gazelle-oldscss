@@ -1,0 +1,22 @@
+{{ header('Recently disabled users', {'css': 'recently_disabled'}) }}
+<div class="thin">
+    <div class="header"><h2>Recently disabled users</h2></div>
+    <div class="box2 search_result">
+{% for entry in user_reason_list|reverse %}
+{%  if loop.first %}
+        <ul class="disabled_users">
+{%  endif %}
+            <li>
+                <span class="ban_date">{{ entry[2]|time_diff }}</span>
+                <span class="username">{{ entry[0]|user_full }}</span>
+                <span class="disable_reason">{{ entry[1]|bb_format }}</span>
+            </li>
+{%  if loop.last %}
+        </ul>
+{%  endif %}
+{% else %}
+    There are no recently disabled users.
+{% endfor %}
+    </div>
+</div>
+{{ footer() }}

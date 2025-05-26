@@ -243,6 +243,10 @@ switch ($_REQUEST['action'] ?? '') {
         include_once 'data/ratio_watch.php';
         break;
 
+    case 'recently_disabled':
+        include_once 'data/recently_disabled.php';
+        break;
+
     case 'invite_pool':
         include_once 'data/invite_pool.php';
         break;

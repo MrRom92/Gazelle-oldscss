@@ -1,0 +1,20 @@
+ul.disabled_users {
+  list-style: none;
+}
+
+ul.disabled_users > li {
+  display: flex;
+  align-items: baseline;
+  border-bottom: 1px solid black;
+  overflow-wrap: anywhere;
+
+  > span.username,
+  > span.ban_date {
+    width: 15em;
+    flex-shrink: 0;
+  }
+
+  > span.disable_reason {
+    flex: 1;
+  }
+}
