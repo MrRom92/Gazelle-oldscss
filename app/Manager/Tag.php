@@ -147,7 +147,7 @@ class Tag extends \Gazelle\BaseManager {
                 UPDATE tags SET
                     TagType = 'genre'
                 WHERE ID = ?
-                ", $tag->id()
+                ", $tag->id
             );
         } else {
             // Tag doesn't exist yet: create it
@@ -212,20 +212,25 @@ class Tag extends \Gazelle\BaseManager {
         return $list;
     }
 
-    protected function replace(\Gazelle\Tag $old, \Gazelle\Tag $new, \Gazelle\User $user): int {
+    protected function replace(
+        \Gazelle\Tag  $old,
+        \Gazelle\Tag  $new,
+        \Gazelle\User $user,
+        Request       $requestMan = new Request(),
+    ): int {
         // When replacing a tag that exists, there is a chance that a tgroup or
         // request might already have the tag. We therefore only add the tag if
         // it is missing, and then we can remove the current tag uses.
 
         self::$db->prepared_query("
             SELECT DISTINCT RequestID FROM requests_tags WHERE TagID = ?
-            ", $old->id()
+            ", $old->id
         );
         $affectedRequests = self::$db->collect(0);
 
         self::$db->prepared_query("
             SELECT DISTINCT GroupID FROM torrents_tags WHERE TagID = ?
-            ", $old->id()
+            ", $old->id
         );
         $affectedTGroups = self::$db->collect(0);
 
@@ -236,7 +241,7 @@ class Tag extends \Gazelle\BaseManager {
                 FROM torrents_tags curr
                 LEFT JOIN torrents_tags merge ON (merge.GroupID = curr.GroupID AND merge.TagID = ?)
                 WHERE curr.TagID = ? AND merge.TagID IS NULL
-            ", $new->id(), $user->id, $new->id(), $old->id()
+            ", $new->id, $user->id, $new->id, $old->id
         );
         $changed = self::$db->affected_rows();
 
@@ -247,7 +252,7 @@ class Tag extends \Gazelle\BaseManager {
                 FROM artists_tags curr
                 LEFT JOIN artists_tags merge ON (merge.ArtistID = curr.ArtistID AND merge.TagID = ?)
                 WHERE curr.TagID = ? AND merge.TagID IS NULL
-            ', $new->id(), $user->id, $new->id(), $old->id()
+            ', $new->id, $user->id, $new->id, $old->id
         );
         $changed += self::$db->affected_rows();
 
@@ -258,9 +263,10 @@ class Tag extends \Gazelle\BaseManager {
                 FROM requests_tags curr
                 LEFT JOIN requests_tags merge ON (merge.RequestID = curr.RequestID AND merge.TagID = ?)
                 WHERE curr.TagID = ? AND merge.TagID IS NULL
-            ", $new->id(), $new->id(), $old->id()
+            ", $new->id, $new->id, $old->id
         );
         $changed += self::$db->affected_rows();
+        $requestMan->findById($new->id)?->relayTag();
 
         // regenerate usage count for replacement tag
         self::$db->prepared_query("
@@ -271,7 +277,7 @@ class Tag extends \Gazelle\BaseManager {
                     + (SELECT count(*) FROM torrents_tags WHERE TagID = ?)
                 )
             WHERE ID = ?
-            ", $new->id(), $new->id(), $new->id(), $new->id()
+            ", $new->id, $new->id, $new->id, $new->id
         );
 
         // update cache and sphinx
@@ -304,7 +310,12 @@ class Tag extends \Gazelle\BaseManager {
      * have (alt.rock.indie.rock and alt.rock) in which case only (indie.rock)
      * needs to be applied, and the old tag removed.
      */
-    public function rename(\Gazelle\Tag $tag, array $replacement, \Gazelle\User $user): int {
+    public function rename(
+        \Gazelle\Tag  $tag,
+        array         $replacement,
+        \Gazelle\User $user,
+        Request       $requestMan = new Request(),
+    ): int {
         if (count($replacement) > 1) {
             return $this->split($tag, $replacement, $user);
         }
@@ -312,25 +323,10 @@ class Tag extends \Gazelle\BaseManager {
         self::$db->begin_transaction();
         $changed = $this->replace($tag, $replacement[0], $user);
         self::$db->prepared_query("
-            DELETE t, at, rt, tt
-            FROM tags t
-            LEFT JOIN artists_tags  at ON (at.TagID = t.ID)
-            LEFT JOIN requests_tags rt ON (rt.TagID = t.ID)
-            LEFT JOIN torrents_tags tt ON (tt.TagID = t.ID)
-            WHERE t.ID = ?
-            ", $tag->id()
+            SELECT RequestID FROM  requests_tags WHERE TagID = ?
+            ", $tag->id
         );
-        self::$db->commit();
-        return $changed;
-    }
-
-    public function split(\Gazelle\Tag $tag, array $replacement, \Gazelle\User $user): int {
-        $totalChanged = 0;
-        self::$db->begin_transaction();
-        foreach ($replacement as $name) {
-            $totalChanged += $this->replace($tag, $name, $user);
-        }
-
+        $reqList = self::$db->collect(0);
         self::$db->prepared_query("
             DELETE t, at, rt, tt
             FROM tags t
@@ -338,9 +334,44 @@ class Tag extends \Gazelle\BaseManager {
             LEFT JOIN requests_tags rt ON (rt.TagID = t.ID)
             LEFT JOIN torrents_tags tt ON (tt.TagID = t.ID)
             WHERE t.ID = ?
-            ", $tag->id()
+            ", $tag->id
         );
         self::$db->commit();
+        foreach ($reqList as $id) {
+            $requestMan->findById($id)?->relayTag();
+        }
+        return $changed;
+    }
+
+    public function split(
+        \Gazelle\Tag  $tag,
+        array         $replacement,
+        \Gazelle\User $user,
+        Request       $requestMan = new Request(),
+    ): int {
+        $totalChanged = 0;
+        self::$db->begin_transaction();
+        foreach ($replacement as $name) {
+            $totalChanged += $this->replace($tag, $name, $user);
+        }
+        self::$db->prepared_query("
+            SELECT RequestID FROM  requests_tags WHERE TagID = ?
+            ", $tag->id
+        );
+        $reqList = self::$db->collect(0);
+        self::$db->prepared_query("
+            DELETE t, at, rt, tt
+            FROM tags t
+            LEFT JOIN artists_tags  at ON (at.TagID = t.ID)
+            LEFT JOIN requests_tags rt ON (rt.TagID = t.ID)
+            LEFT JOIN torrents_tags tt ON (tt.TagID = t.ID)
+            WHERE t.ID = ?
+            ", $tag->id
+        );
+        self::$db->commit();
+        foreach ($reqList as $id) {
+            $requestMan->findById($id)?->relayTag();
+        }
         return $totalChanged;
     }
 
@@ -380,7 +411,7 @@ class Tag extends \Gazelle\BaseManager {
         self::$db->begin_transaction();
         self::$db->prepared_query("
             DELETE FROM requests_tags WHERE RequestID = ?
-            ", $request->id()
+            ", $request->id
         );
         $affected = 0;
         foreach (array_unique($tagList) as $name) {
@@ -390,6 +421,7 @@ class Tag extends \Gazelle\BaseManager {
             }
         }
         self::$db->commit();
+        $request->relayTag();
         $request->updateSphinx();
         return $affected;
     }

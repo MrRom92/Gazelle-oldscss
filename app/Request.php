@@ -584,6 +584,12 @@ class Request extends BaseObject implements CategoryHasArtist {
             VALUES (?,         ?,      ?)
             ", $this->id, $user->id, $bounty
         );
+        $this->pg()->executeParams('
+            insert into request_vote
+                   (id_request_vote, id_request, id_user, bounty)
+            values ($1,              $2,         $3,      $4)
+            ', self::$db->inserted_id(), $this->id, $user->id, $bounty
+        );
         self::$db->prepared_query("
             UPDATE requests SET
                 LastVote = now()
@@ -756,6 +762,11 @@ class Request extends BaseObject implements CategoryHasArtist {
             ", $this->id, $user->id
         );
         $affected = self::$db->affected_rows();
+        $this->pg()->executeParams('
+            delete from request vote
+            where id_request = $1 and id_user = $2
+            ', $this->id, $user->id
+        );
         if ($affected) {
             $this->informRequestFillerReduction($bounty, $admin);
             $user->auditTrail()->addEvent(
@@ -788,6 +799,11 @@ class Request extends BaseObject implements CategoryHasArtist {
             ", $this->id, $user->id
         );
         $affected = self::$db->affected_rows();
+        $this->pg()->executeParams('
+            delete from request vote
+            where id_request = $1 and id_user = $2
+            ', $this->id, $user->id
+        );
         if ($affected) {
             $this->informRequestFillerReduction($bounty, $admin);
             $user->auditTrail()->addEvent(
@@ -892,6 +908,23 @@ class Request extends BaseObject implements CategoryHasArtist {
         return $affected;
     }
 
+    public function relayTag(): int {
+        $this->pg()->cnxrw()->beginTransaction();
+        $this->pg()->executeParams('
+            delete from request_tag where id_request = $1
+            ', $this->id
+        );
+        $result = $this->pg()->executeParams('
+            insert into request_tag (id_request, id_tag)
+            select "RequestID", "TagID"
+            from relay.requests_tags
+            where "RequestID" = $1
+            ', $this->id
+        );
+        $this->pg()->cnxrw()->commit();
+        return $result->getAffectedRows();
+    }
+
     public function remove(): int {
         self::$db->begin_transaction();
         self::$db->prepared_query("DELETE FROM requests_votes WHERE RequestID = ?", $this->id);
@@ -921,6 +954,14 @@ class Request extends BaseObject implements CategoryHasArtist {
         }
         self::$cache->delete_value(sprintf(Manager\Request::ID_KEY, $this->id));
         $this->flush();
+        $this->pg()->executeParams('
+            delete from request_tag where id_request = $1
+            ', $this->id
+        );
+        $this->pg()->executeParams('
+            delete from request where id_request = $1
+            ', $this->id
+        );
         return $affected;
     }
 }

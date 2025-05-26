@@ -79,6 +79,7 @@ class Tag extends BaseObject {
             WHERE ID = ?
             ", $this->id
         );
+        $request->relayTag();
         $request->updateSphinx();
         return $affected;
     }
