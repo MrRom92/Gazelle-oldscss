@@ -9,11 +9,11 @@ class Artists extends \Gazelle\Base {
             DELETE FROM artist_usage
         ");
         self::$db->prepared_query("
-            INSERT IGNORE INTO artist_usage (artist_id, role, uses)
-            SELECT aa.ArtistID, ta.Importance, count(*) AS uses
+            INSERT INTO artist_usage (artist_id, role, artist_role_id, uses)
+            SELECT aa.ArtistID, ta.Importance, ta.artist_role_id, count(*) AS uses
             FROM torrents_artists ta
             INNER JOIN artists_alias aa USING (AliasID)
-            GROUP BY aa.ArtistID, ta.Importance
+            GROUP BY aa.ArtistID, ta.Importance, ta.artist_role_id
         ");
         $affected = self::$db->affected_rows();
         self::$db->commit();
