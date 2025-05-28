@@ -88,10 +88,10 @@ $Properties['GroupID'] = (int)($_POST['groupid'] ?? 0);
 
 if (empty($_POST['artists'])) {
     $Artists = [];
-    $Importance = [];
+    $artistRole = [];
 } else {
     $Artists = $_POST['artists'];
-    $Importance = $_POST['importance'];
+    $artistRole = $_POST['importance'];
 }
 
 if (!empty($_POST['requestid'])) {
@@ -201,7 +201,7 @@ switch ($categoryName) {
 }
 
 if ($isMusicUpload && !$Properties['GroupID']) {
-    if (count($Artists) !== count($Importance)) {
+    if (count($Artists) !== count($artistRole)) {
         reportError("There is an error with how artists are specified.");
     }
     // Multiple artists
@@ -230,7 +230,7 @@ if ($isMusicUpload && !$Properties['GroupID']) {
         if ($name === '') {
             continue;
         }
-        $role = (int)$Importance[$i];
+        $role = (int)$artistRole[$i];
         if (!in_array($name, $ArtistNameByRole[$role])) {
             $ArtistNameByRole[$role][] = $name;
             $ArtistForm[$role][] = ['name' => $name];
@@ -307,11 +307,11 @@ $upload = [
 $torrentFiler = new File\Torrent();
 $torrent      = $torMan->findByInfohash(bin2hex($bencoder->getHexInfoHash()));
 if ($torrent) {
-    if ($torrentFiler->exists($torrent->id())) {
+    if ($torrentFiler->exists($torrent->id)) {
         reportError("The exact same torrent file already exists on the site! {$torrent->link()}");
     } else {
         // A lost torrent
-        $torrentFiler->put($bencoder->getEncode(), $torrent->id());
+        $torrentFiler->put($bencoder->getEncode(), $torrent->id);
         reportError("Thank you for fixing this torrent {$torrent->link()}");
     }
 }
@@ -359,11 +359,11 @@ if ($isMusicUpload) {
 
             $torrent = $torMan->findByInfohash(bin2hex($xbencoder->getHexInfoHash()));
             if ($torrent) {
-                if ($torrentFiler->exists($torrent->id())) {
+                if ($torrentFiler->exists($torrent->id)) {
                     reportError("The exact same torrent file already exists on the site! {$torrent->link()}");
                 } else {
                     // A lost torrent
-                    $torrentFiler->put($bencoder->getEncode(), $torrent->id());
+                    $torrentFiler->put($bencoder->getEncode(), $torrent->id);
                     reportError("Thank you for fixing this torrent {$torrent->link()}");
                 }
             }
@@ -519,7 +519,7 @@ if ($tgroup) {
     }
     $Viewer->stats()->increment('unique_group_total');
 }
-$GroupID = $tgroup->id();
+$GroupID = $tgroup->id;
 $logName = $tgroup->text();
 
 // Description
@@ -555,7 +555,7 @@ $torrent = $torMan->create(
     hasLog:                  $hasLog,
     hasLogInDB:              $hasLogInDB,
 );
-$TorrentID       = $torrent->id();
+$TorrentID       = $torrent->id;
 $upload['new'][] = $torrent;
 
 //******************************************************************************//
@@ -583,9 +583,9 @@ foreach ($upload['extra'] as $info) {
 
     $size            = number_format($extra->size() / (1024 * 1024), 2);
     $upload['new'][] = $extra;
-    $torrentFiler->put($info['TorEnc'], $extra->id());
+    $torrentFiler->put($info['TorEnc'], $extra->id);
     $extra->logger()->torrent($extra, $Viewer, "uploaded ($size MiB)")
-        ->general("Torrent {$extra->id()} ($logName) ($size MiB) was uploaded by " . $Viewer->username());
+        ->general("Torrent {$extra->id} ($logName) ($size MiB) was uploaded by " . $Viewer->username());
 }
 
 //******************************************************************************//
@@ -645,7 +645,7 @@ if ($torrent->isPerfectFlac()) {
 // Update the various cache keys affected by this
 $Cache->increment_value('stats_torrent_count', $totalNew);
 if ($Properties['Image'] != '') {
-    $Cache->delete_value('user_recent_up_' . $Viewer->id());
+    $Cache->delete_value('user_recent_up_' . $Viewer->id);
 }
 
 $folderClash = 0;

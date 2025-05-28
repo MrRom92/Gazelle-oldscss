@@ -143,10 +143,26 @@ class ArtistTest extends TestCase {
         $this->artistIdList[] = $artist->id;
 
         $this->assertEquals($artist->id, $artist->id, 'artist-find-by-alias-id');
-        $this->assertEquals($artist->id, $manager->findByName($artist->name())?->id, 'artist-find-by-alias-name');
-        $this->assertEquals($artist->aliasId(), $manager->findByName($artist->name())?->aliasId(), 'artist-find-aliasid-by-alias-name');
-        $this->assertEquals(1, $manager->aliasUseTotal($artist->aliasId()), 'artist-sole-alias');
-        $this->assertCount(0, $manager->tgroupList($artist->aliasId(), new Manager\TGroup()), 'artist-no-tgroup');
+        $this->assertEquals(
+            $artist->id,
+            $manager->findByName($artist->name())?->id,
+            'artist-find-by-alias-name'
+        );
+        $this->assertEquals(
+            $artist->aliasId(),
+            $manager->findByName($artist->name())?->aliasId(),
+            'artist-find-aliasid-by-alias-name'
+        );
+        $this->assertEquals(
+            1,
+            $manager->aliasUseTotal($artist->aliasId()),
+            'artist-sole-alias'
+        );
+        $this->assertCount(
+            0,
+            $manager->tgroupList($artist->aliasId(), new Manager\TGroup()),
+            'artist-no-tgroup'
+        );
 
         $aliasName = $artist->name() . '-alias';
         $newId = $artist->addAlias($aliasName, 0, $this->user);
@@ -167,7 +183,30 @@ class ArtistTest extends TestCase {
 
         $aliasName = $artist->name() . '-reformed';
         $newId = $artist->addAlias($aliasName, $artist->id, $this->user);
-        $this->assertEquals($artist->aliasId() + 1, $newId, 'artist-new-non-redirect');
+        $this->assertEquals(
+            $artist->aliasId() + 1,
+            $newId,
+            'artist-new-non-redirect'
+        );
+        $aliasInfo = $artist->aliasInfo();
+        $this->assertCount(2, $aliasInfo, 'artist-alias-count');
+        $aliasId = $artist->aliasId();
+        $this->assertEquals(
+            [
+                'alias'    => [],
+                'alias_id' => $aliasId,
+                'name'     => $artist->name(),
+                'user'     => null,
+            ],
+            $aliasInfo[$aliasId],
+            'artist-alias-alias-id'
+        );
+        $artistInfo = $aliasInfo[$artist->id];
+        $this->assertArrayHasKey('alias', $artistInfo, 'artist-alias-has-key');
+        $alias = current($artistInfo['alias']);
+        $this->assertEquals($newId, $alias['alias_id'], 'artist-alias-artist-id');
+        $this->assertEquals($aliasName, $alias['name'], 'artist-alias-name');
+        $this->assertEquals($this->user->id, $alias['user']->id, 'artist-alias-user');
     }
 
     public function testArtistMerge(): void {

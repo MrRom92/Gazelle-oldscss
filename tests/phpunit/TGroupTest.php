@@ -194,11 +194,12 @@ class TGroupTest extends TestCase {
             'tgroup-find-name'
         );
 
+        $addName = "$artistName-2";
         $this->assertEquals(
             2,
             $this->tgroup->addArtists(
                 [ARTIST_MAIN,     ARTIST_GUEST],
-                ["$artistName-2", "$artistName-guest"],
+                [$addName, "$artistName-guest"],
                 $artMan,
             ),
             'tgroup-artist-add-2'
@@ -210,7 +211,7 @@ class TGroupTest extends TestCase {
         );
         $this->assertEquals(
             [
-                ARTIST_MAIN  => [$artistName, "$artistName-2"],
+                ARTIST_MAIN  => [$artistName, $addName],
                 ARTIST_GUEST => ["$artistName-guest"],
             ],
             $this->tgroup->artistRole()->nameList(),
@@ -240,9 +241,19 @@ class TGroupTest extends TestCase {
             'tgroup-hang-the-dj'
         );
         $this->assertEquals(
-            "$artistName-2 and $artistName-guest",
+            "$addName and $artistName-guest",
             $this->tgroup->flush()->artistRole()?->text(),
             'tgroup-dj-final'
+        );
+        $this->assertEquals(
+            [],
+            $this->tgroup->artistRole()->matchName([]),
+            'match-name-none',
+        );
+        $this->assertEquals(
+            [$addName],
+            $this->tgroup->artistRole()->matchName([strtoupper($addName)]),
+            'match-name-upper',
         );
     }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Gazelle\ArtistRole;
 
 class Request extends \Gazelle\ArtistRole {
@@ -44,7 +46,7 @@ class Request extends \Gazelle\ArtistRole {
                     ", $this->object->id(), $user->id, $artist->aliasId(), $role, (string)$role
                 );
                 $affected += self::$db->affected_rows();
-                self::$cache->delete_value("artists_requests_{$artist->id()}");
+                self::$cache->delete_value("artists_requests_{$artist->id}");
             }
         }
         self::$db->commit();
@@ -58,9 +60,9 @@ class Request extends \Gazelle\ArtistRole {
                 aa.ArtistID AS artist_id,
                 aa.AliasID  AS alias_id,
                 aa.Name     AS name
-            FROM requests_artists AS ra
-            INNER JOIN artist_role r ON (r.artist_role_id = ra.Importance)
-            INNER JOIN artists_alias AS aa USING (AliasID)
+            FROM requests_artists    ra
+            INNER JOIN artist_role   r  USING (artist_role_id)
+            INNER JOIN artists_alias aa USING (AliasID)
             WHERE ra.RequestID = ?
             ORDER BY r.artist_role_id ASC, aa.Name ASC
             ", $this->object->id()

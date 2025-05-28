@@ -665,9 +665,9 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
     public function removeArtist(Artist $artist, int $role): bool {
         self::$db->prepared_query('
             DELETE FROM torrents_artists
-            WHERE GroupID = ?
-                AND AliasID = ?
-                AND Importance = ?
+            WHERE GroupID          = ?
+                AND AliasID        = ?
+                AND artist_role_id = ?
             ', $this->id, $artist->aliasId(), $role
         );
         if (!self::$db->affected_rows()) {
@@ -707,9 +707,10 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
 
         $artistName = (string)self::$db->scalar("
             SELECT group_concat(aa.Name separator ' ')
-            FROM torrents_artists AS ta
-            INNER JOIN artists_alias AS aa USING (AliasID)
-            WHERE ta.Importance IN ('1', '4', '5', '6')
+            FROM torrents_artists    ta
+            INNER JOIN artists_alias aa USING (AliasID)
+            INNER JOIN artist_role   ar USING (artist_role_id)
+            WHERE ar.slug IN ('main', 'composer', 'conductor', 'dj')
                 AND ta.GroupID = ?
             GROUP BY ta.GroupID
             ", $this->id

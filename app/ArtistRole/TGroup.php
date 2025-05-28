@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Gazelle\ArtistRole;
 
 use Gazelle\Intf\CategoryHasArtist;
@@ -18,14 +20,14 @@ class TGroup extends \Gazelle\ArtistRole {
 
     protected function artistListQuery(): \mysqli_result|bool {
         return self::$db->prepared_query("
-            SELECT ta.Importance,
+            SELECT ta.artist_role_id,
                 aa.ArtistID,
                 aa.Name,
                 ta.AliasID
             FROM torrents_artists AS ta
             INNER JOIN artists_alias AS aa USING (AliasID)
             WHERE ta.GroupID = ?
-            ORDER BY ta.GroupID, ta.Importance ASC, aa.Name ASC
+            ORDER BY ta.GroupID, ta.artist_role_id ASC, aa.Name ASC
             ", $this->object->id()
         );
     }
@@ -148,7 +150,7 @@ class TGroup extends \Gazelle\ArtistRole {
         self::$db->prepared_query("
             UPDATE IGNORE torrents_artists SET
                 artist_role_id = ?,
-                Importance = ?
+                Importance     = ?
             WHERE GroupID = ?
                 AND AliasID IN (" . placeholders($aliasList) . ")
             ", $role, $role, $this->object->id(), ...$aliasList
@@ -160,7 +162,7 @@ class TGroup extends \Gazelle\ArtistRole {
                 continue;
             }
             $artist = $this->manager->findByAliasId($aliasId);
-            $change = "artist {$artist->id()} ({$artist->name()}) changed role from "
+            $change = "artist {$artist->id} ({$artist->name()}) changed role from "
                 . ARTIST_TYPE[$oldRole] . " to " . ARTIST_TYPE[$role];
             $this->logger()
                 ->group(
@@ -181,15 +183,15 @@ class TGroup extends \Gazelle\ArtistRole {
         foreach ($roleAliasList as [$role, $aliasId]) {
             self::$db->prepared_query("
                 DELETE FROM torrents_artists
-                WHERE GroupID = ?
-                    AND AliasID = ?
-                    AND Importance = ?
-                ", $this->object->id(), $aliasId, $role
+                WHERE GroupID          = ?
+                    AND AliasID        = ?
+                    AND artist_role_id = ?
+                ", $this->object->id(), $aliasId, (int)$role
             );
             if (self::$db->affected_rows()) {
                 $artist = $this->manager->findByAliasId($aliasId);
-                $changed[$artist->id()] = $artist;
-                $change = "artist {$artist->id()} ({$artist->name()}) removed as " . ARTIST_TYPE[$role];
+                $changed[$artist->id] = $artist;
+                $change = "artist {$artist->id} ({$artist->name()}) removed as " . ARTIST_TYPE[$role];
                 $this->logger()
                     ->group(
                         $this->object,

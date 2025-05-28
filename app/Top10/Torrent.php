@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Gazelle\Top10;
 
 class Torrent extends \Gazelle\Base {
@@ -124,9 +126,10 @@ class Torrent extends \Gazelle\Base {
             return [
                 " LEFT JOIN (
                     SELECT COUNT(*) AS ArtistCount, ta.GroupID
-                    FROM torrents_artists AS ta
-                    INNER JOIN artists_alias AS aa ON (ta.AliasID = aa.AliasID)
-                    WHERE ta.Importance != '2' AND aa.Name IN (" . placeholders($artists) . ")
+                    FROM torrents_artists    ta
+                    INNER JOIN artists_alias aa ON (ta.AliasID = aa.AliasID)
+                    INNER JOIN artist_role   ar USING (artist_role_id)
+                    WHERE ar.slug != 'guest' AND aa.Name IN (" . placeholders($artists) . ")
                     GROUP BY ta.GroupID
                 ) AS ta ON (g.ID = ta.GroupID)",
                 array_map('trim', $artists)

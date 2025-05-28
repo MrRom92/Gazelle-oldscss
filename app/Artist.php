@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Gazelle;
 
 use Gazelle\Intf\CollageEntry;
@@ -110,6 +112,7 @@ class Artist extends BaseAttrObject implements CollageEntry {
                 SELECT count(*) FROM artist_discogs WHERE stem = ?
                 ', $info['discogs_stem']
             );
+            $info['is_preferred'] = (bool)$info['is_preferred'];
 
             self::$cache->cache_value($cacheKey, $info, 3600);
             $this->info = $info;
@@ -128,7 +131,7 @@ class Artist extends BaseAttrObject implements CollageEntry {
     public function loadArtistRole(): static {
         self::$db->prepared_query("
             SELECT ta.GroupID AS group_id,
-                ta.Importance as artist_role,
+                ta.artist_role_id as artist_role,
                 rt.ID as release_type_id
             FROM torrents_artists AS ta
             INNER JOIN torrents_group AS tg ON (tg.ID = ta.GroupID)
