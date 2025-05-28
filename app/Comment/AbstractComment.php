@@ -124,8 +124,11 @@ abstract class AbstractComment extends \Gazelle\BaseObject {
             if (!$this->id) {
                 $this->pageNum = $this->total ? (int)ceil($this->total / TORRENT_COMMENTS_PER_PAGE) : 1;
             } else {
+                // If someone clips the post id when pasting and it represents
+                // a post created prior to the creation of the page, fall back
+                // to page 1 (instead of page 0 which does not exist).
                 $this->pageNum = (int)self::$db->scalar("
-                    SELECT ceil(count(*) / ?)
+                    SELECT greatest(1, ceil(count(*) / ?))
                     FROM comments
                     WHERE Page = ?
                         AND PageID = ?

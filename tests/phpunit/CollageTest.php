@@ -633,6 +633,36 @@ class CollageTest extends TestCase {
         );
     }
 
+    public function testCollageComment(): void {
+        $manager = new Manager\Collage();
+        $name    = 'phpunit collage remove ' . randomString(20);
+        $this->collageList[] = $manager->create(
+            user:        $this->userList['u1'],
+            categoryId:  CollageType::theme->value,
+            name:        $name,
+            description: 'phpunit collage remove description',
+            tagList:     implode(' ', $this->tagList(3)),
+        );
+        $collage = $this->collageList[0];
+
+        $commentMan = new Manager\Comment();
+        $comment = $commentMan->create(
+            $this->userList['u1'],
+            'collages',
+            $collage->id,
+            'phpunit collage comment ' . randomString(),
+        );
+        $summary = $commentMan->collageSummary($collage->id);
+        $this->assertCount(1, $summary, 'collage-comment-summary-count');
+        $first = current($summary);
+        $this->assertEquals(
+            ['id', 'body', 'author_id', 'added'],
+            array_keys($first),
+            'collage-comment-summary-entry',
+        );
+        $this->assertEquals(1, $comment->remove(), 'collage-comment-remove');
+    }
+
     public function testCollageRemove(): void {
         $manager = new Manager\Collage();
         $name    = 'phpunit collage remove ' . randomString(20);
