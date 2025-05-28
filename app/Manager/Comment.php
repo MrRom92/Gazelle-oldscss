@@ -2,6 +2,7 @@
 
 namespace Gazelle\Manager;
 
+use Gazelle\Collage;
 use Gazelle\Error400;
 
 class Comment extends \Gazelle\BaseManager {
@@ -184,11 +185,10 @@ class Comment extends \Gazelle\BaseManager {
      *         Username: Their username
      *         AddedTime: Date of comment creation
      */
-    public function collageSummary($collageId, $count = 5): array {
-        $key = "collages_comments_recent_$collageId";
+    public function collageSummary(Collage $collage, $count = 5): array {
+        $key = "collages_comments_recent_{$collage->id}";
         $list = self::$cache->get_value($key);
         if ($list === false) {
-            $qid = self::$db->get_query_id();
             self::$db->prepared_query("
                 SELECT c.ID AS id,
                     c.Body as body,
@@ -199,10 +199,9 @@ class Comment extends \Gazelle\BaseManager {
                 WHERE c.Page = ? AND c.PageID = ?
                 ORDER BY c.ID DESC
                 LIMIT ?
-                ", 'collages', $collageId, $count
+                ", 'collages', $collage->id, $count
             );
             $list = self::$db->to_array(false, MYSQLI_ASSOC);
-            self::$db->set_query_id($qid);
             if (count($list)) {
                 self::$cache->cache_value($key, $list, 7200);
             }

@@ -652,7 +652,7 @@ class CollageTest extends TestCase {
             $collage->id,
             'phpunit collage comment ' . randomString(),
         );
-        $summary = $commentMan->collageSummary($collage->id);
+        $summary = $commentMan->collageSummary($collage);
         $this->assertCount(1, $summary, 'collage-comment-summary-count');
         $first = current($summary);
         $this->assertEquals(

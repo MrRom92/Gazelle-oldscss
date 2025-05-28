@@ -36,7 +36,7 @@ echo $Twig->render('collage/header.twig', [
 echo$Twig->render('collage/sidebar.twig', [
     'artists'      => $Collage->numArtists(),
     'collage'      => $Collage,
-    'comments'     => new Manager\Comment()->collageSummary($CollageID),
+    'comments'     => new Manager\Comment()->collageSummary($Collage),
     'contributors' => array_slice($Collage->contributors(), 0, 5, true),
     'entries'      => $Collage->numEntries(),
     'object'       => 'torrent',
