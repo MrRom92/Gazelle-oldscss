@@ -74,7 +74,7 @@ class TextTest extends TestCase {
                 "<strong>Hidden text</strong>: <a href=\"javascript:void(0);\" onclick=\"BBCode.spoiler(this);\">Show</a><blockquote class=\"hidden spoiler\">surprise</blockquote>"
             ],
 
-            ["text-emoji",      ":nod:",             "<img border=\"0\" src=\"" . STATIC_SERVER . "/common/smileys/nod.gif\" alt=\"\" />"],
+            ["text-emoji",      ":nod:",             "<img border=\"0\" src=\"" . STATIC_SERVER . "/common/smileys/nod.gif\" />"],
 
             ["text-nest-1",     "[size=3][i]z[/i][/size]", "<span class=\"size3\"><span style=\"font-style: italic;\">z</span></span>"],
             ["text-nest-2",
@@ -87,6 +87,7 @@ class TextTest extends TestCase {
             ["text-escape-2",   "I&apos;m test",     "I&amp;apos;m test"],
             ["text-escape-3",   "I&amp;apos;m test", "I&amp;amp;apos;m test"],
             ["text-escape-4",   "<I am test>",       "&lt;I am test&gt;"],
+            ["text-nosmiley-1", "http://foo",        "http://foo"],
         ];
     }
 

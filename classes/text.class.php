@@ -539,7 +539,7 @@ class Text {
                     $CloseTag--;
                     $URL = substr($URL, 0, -1);
                 }
-                $Block = $URL; // Get the URL
+                $Block = $URL;
 
                 // strcspn returns the number of characters after the offset $i, not after the beginning of the string
                 // Therefore, we use += instead of the = everywhere else
@@ -847,7 +847,20 @@ class Text {
                 continue;
             }
             if (is_string($Block)) {
-                $Str .= self::smileys(self::userMention($Block));
+                $escaped = str_replace(
+                    // See if there are URLs and prevent :/ from frowning
+                    ['http://',    'https://'],
+                    ['http:[n]//', 'https:[n]//'],
+                    $Block,
+                );
+                $chunk = self::smileys(self::userMention($escaped));
+                $Str .= str_replace(
+                    // and revert
+                    ['http:[n]//', 'https:[n]//'],
+                    ['http://',    'https://'],
+                    $chunk,
+                );
+
                 self::$Levels--;
                 continue;
             }
@@ -1237,7 +1250,8 @@ class Text {
         }
         if (count(self::$ProcessedSmileys) == 0 && count(self::$Smileys) > 0) {
             foreach (self::$Smileys as $Key => $Val) {
-                self::$ProcessedSmileys[$Key] = '<img border="0" src="' . STATIC_SERVER . '/common/smileys/' . $Val . '" alt="" />';
+                self::$ProcessedSmileys[$Key] = '<img border="0" src="'
+                    . STATIC_SERVER . "/common/smileys/{$Val}\" />";
             }
             reset(self::$ProcessedSmileys);
         }
