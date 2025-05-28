@@ -9,6 +9,8 @@ use Gazelle\Enum\LeechType;
 use Gazelle\Enum\LeechReason;
 
 class FeaturedAlbumTest extends TestCase {
+    use Pg;
+
     protected TGroup      $tgroup;
     protected User        $user;
 
@@ -24,10 +26,9 @@ class FeaturedAlbumTest extends TestCase {
     }
 
     public function tearDown(): void {
-        $db = DB::DB();
         new Manager\News()->remove(
-            (int)$db->scalar("
-                SELECT ID FROM news WHERE UserID = ?
+            (int)$this->pg()->scalar("
+                select id_news from news where id_user = ?
                 ", $this->user->id
             )
         );

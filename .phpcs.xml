@@ -42,6 +42,7 @@
     <rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace">
         <exclude-pattern>classes/*</exclude-pattern>
         <exclude-pattern>misc/my-migrations/*</exclude-pattern>
+        <exclude-pattern>misc/my2-migrations/*</exclude-pattern>
         <exclude-pattern>misc/pg-migrations/*</exclude-pattern>
     </rule>
 

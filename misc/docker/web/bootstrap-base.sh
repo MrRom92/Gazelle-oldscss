@@ -76,15 +76,22 @@ EOF
     ) | mysql -u root -p"$MYSQL_ROOT_PASSWORD" || exit 1
 fi
 
-echo "Run Mysql migrations..."
-if ! FKEY_MY_DATABASE=1 LOCK_MY_DATABASE=1 "${CI_PROJECT_DIR}/vendor/bin/phinx" migrate -e gazelle; then
-    echo "phinx encountered a fatal error in the Mysql migrations"
+PHINXBIN="${CI_PROJECT_DIR}/vendor/bin/phinx"
+echo "Phase 1 Mysql migrations..."
+if ! FKEY_MY_DATABASE=1 LOCK_MY_DATABASE=1 $PHINXBIN migrate -e gazelle; then
+    echo "Fatal error in the phase 1 Mysql migrations"
     exit 1
 fi
 
-echo "Run Postgresql migrations..."
-if ! "${CI_PROJECT_DIR}/vendor/bin/phinx" migrate -c ./misc/phinx-pg.php; then
-    echo "phinx encountered a fatal error in the Postgresql migrations"
+echo "Postgresql migrations..."
+if ! $PHINXBIN migrate -c ./misc/phinx-pg.php; then
+    echo "Fatal error in the Postgresql migrations"
+    exit 1
+fi
+
+echo "Phase 2 Mysql migrations..."
+if ! $PHINXBIN migrate -c ./misc/my2-phinx.php; then
+    echo "Fatal error in the phase 2 Mysql migrations"
     exit 1
 fi
 

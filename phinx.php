@@ -4,11 +4,11 @@ require_once __DIR__ . '/lib/config.php';
 
 return [
     'paths' => [
-        'migrations' => '%%PHINX_CONFIG_DIR%%/misc/my-migrations',
+        'migrations' => __DIR__ . '/misc/my-migrations',
     ],
     'environments' => [
-        'migration_table'     => 'phinxlog',
-        'default_environment' => 'gazelle',
+        'default_migration_table' => 'phinxlog',
+        'default_environment'     => 'gazelle',
         'gazelle' => [
             'adapter' => 'mysql',
             'host'    => MYSQL_HOST,

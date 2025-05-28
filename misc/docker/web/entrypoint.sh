@@ -14,7 +14,7 @@ if [ ! -e .docker-init-done ] ; then
     bin/local-patch
     echo "Installing node, go grab a coffee"
     bin/config-css /tmp/config-css.js
-    npm install -g npm@11.2.0
+    npm install -g npm@11.4.1
     npm install cypress
     npx update-browserslist-db@latest
     npx puppeteer browsers install chrome
@@ -29,15 +29,22 @@ do
     sleep 10
 done
 
-echo "Run mysql migrations..."
-if ! FKEY_MY_DATABASE=1 LOCK_MY_DATABASE=1 /var/www/vendor/bin/phinx migrate; then
-    echo "phinx encountered a fatal error in the Mysql migrations"
+PHINXBIN=/var/www/vendor/bin/phinx
+echo "Phase 1 Mysql migrations..."
+if ! FKEY_MY_DATABASE=1 LOCK_MY_DATABASE=1 $PHINXBIN migrate -e gazelle; then
+    echo "Fatal error in the phase 1 Mysql migrations"
     exit 1
 fi
 
-echo "Run postgres migrations..."
-if ! /var/www/vendor/bin/phinx migrate -c ./misc/phinx-pg.php; then
-    echo "phinx encountered a fatal error in the Postgresql migrations"
+echo "Postgresql migrations..."
+if ! $PHINXBIN migrate -c ./misc/phinx-pg.php; then
+    echo "Fatal error in the Postgresql migrations"
+    exit 1
+fi
+
+echo "Phase 2 Mysql migrations..."
+if ! $PHINXBIN migrate -c ./misc/my2-phinx.php; then
+    echo "Fatal error in the phase 2 Mysql migrations"
     exit 1
 fi
 
