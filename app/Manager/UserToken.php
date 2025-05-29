@@ -52,13 +52,20 @@ class UserToken extends \Gazelle\BaseManager {
      * Normally you should never need this, all tokens are found by their token instance
      */
     public function findById(int $id): ?\Gazelle\User\Token {
-        [$token, $userId] = $this->pg()->row("
-            select id_user_token, id_user from user_token where id_user_token = ?
+         $token = $this->pg()->rowAssoc("
+            select id_user_token,
+                id_user
+            from user_token
+            where id_user_token = ?
             ", $id
         );
-        return isset($token)
-            ? new \Gazelle\User\Token($token, new \Gazelle\User($userId))
-            : null;
+        if ($token === []) {
+            return null;
+        }
+        return new \Gazelle\User\Token(
+            $token['id_user_token'],
+            new \Gazelle\User($token['id_user'])
+        );
     }
 
     /**

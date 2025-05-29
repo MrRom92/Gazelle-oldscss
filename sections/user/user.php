@@ -33,8 +33,7 @@ $ipv4        = new Manager\IPv4();
 $tgMan       = new Manager\TGroup();
 $resetToken  = $Viewer->permitted('users_mod')
     ? new Manager\UserToken()->findByUser($user, UserTokenType::password)
-    : false;
-
+    : null;
 if (!empty($_POST)) {
     authorize();
     foreach (['action', 'flsubmit', 'fltype'] as $arg) {
@@ -204,7 +203,7 @@ if ($user->propertyVisibleMulti($previewer, ['artistsadded', 'collagecontribs+',
 <?php
     }
     if ($Viewer->permitted('users_mod')) {
-        if ($resetToken) {
+        if ($resetToken instanceof User\Token) {
 ?>
                 <li><span class="tooltip" title="User requested a password reset by email">Password reset expiry: <?= time_diff($resetToken->expiry()) ?></li>
 <?php   } ?>
