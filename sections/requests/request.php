@@ -18,7 +18,7 @@ $paginator = new Util\Paginator(TORRENT_COMMENTS_PER_PAGE, $commentPage->pageNum
 $paginator->setAnchor('comments')->setTotal($commentPage->total())->removeParam('postid');
 $userMan = new Manager\User();
 
-$bounty = $Viewer->ordinal()->value('request-bounty-create');
+$bounty = $Viewer->ordinal()->value('request-bounty-vote');
 [$amount, $unit] = array_values(byte_format_array((float)$bounty));
 if (in_array($unit, ['GiB', 'TiB'])) {
     $unitGiB = true;

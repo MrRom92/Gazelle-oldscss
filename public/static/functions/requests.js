@@ -313,7 +313,7 @@
         document.getElementById('unit').addEventListener('input', () => {
             recalculate_bounty();
         });
-        document.getElementById('button').addEventListener('click', () => {
+        document.getElementById('button').addEventListener('click', (e) => {
             const requestId = document.getElementById('requestid');
             if (requestId != null) {
                 add_bounty(
@@ -325,6 +325,11 @@
                     parseInt(document.getElementById('current_downloaded').value),
                     parseFloat(document.getElementById('current_rr').value),
                 );
+                // disable to require a reload before voting again
+                e.target.classList.add("hidden");
+                document.getElementById('vote-help').innerHTML =
+                    "Reload the page if you wish to vote again";
+                recalculate_bounty();
             }
         });
 
@@ -368,20 +373,19 @@
             init_request_page(page[1]);
         } else if (window.location.pathname == '/requests.php') {
             init_index_page();
-        } else {
-            Array.from(document.querySelectorAll('.request-vote')).forEach((span) => {
-                span.addEventListener('click', (e) => {
-                    add_bounty(
-                        VOTE_PAGE,
-                        parseInt(e.target.dataset.id),
-                        parseFloat(e.target.dataset.bounty),
-                        parseInt(e.target.dataset.n),
-                        parseInt(document.getElementById('current_uploaded').value),
-                        parseInt(document.getElementById('current_downloaded').value),
-                        parseFloat(document.getElementById('current_rr').value),
-                    );
-                });
-            });
         }
+        Array.from(document.querySelectorAll('.request-vote')).forEach((span) => {
+            span.addEventListener('click', (e) => {
+                add_bounty(
+                    VOTE_PAGE,
+                    parseInt(e.target.dataset.id),
+                    parseFloat(e.target.dataset.bounty),
+                    parseInt(e.target.dataset.n),
+                    parseInt(document.getElementById('current_uploaded').value),
+                    parseInt(document.getElementById('current_downloaded').value),
+                    parseFloat(document.getElementById('current_rr').value),
+                );
+            });
+        });
     });
 }());
