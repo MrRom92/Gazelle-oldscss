@@ -1,0 +1,135 @@
+{% from 'macro/form.twig' import checked, selected %}
+{% from 'macro/ipv4.twig' import asn, ip_search %}
+{{ header('Bulk Search', {'js': 'vendor/table-sort.min,resolve-ip', 'css': 'bulk_search'}) }}
+<div class="thin">
+<div class="header">
+    <h2>Bulk Search</h2>
+</div>
+
+{% if matches is not null %}
+<div class="box pad">
+    <ul class="nobullet">
+        <li>IPs found: {{ total_ips }}</li>
+        <li>Emails found: {{ total_emails }}</li>
+        <li>Users identified: {{ matches|length }}</li>
+    </ul>
+
+{{  paginator.linkbox|raw }}
+
+    <div class="bulk_search_result_container">
+{%  for result in matches|slice(paginator.offset, paginator.limit) %}
+        <div class="box2 search_result">
+            <div class="search_summary head">
+                <div class="user">{{ result.user.id|user_full }}</div>
+                <div class="score" data-score="{{ result.match.score }}"><span class="label">Score: </span>{{ result.match.score }}</div>
+{%      for thing, summary in result.match.summary %}
+                    <div class="summary_thing summary_{{ thing }}">
+                        <span class="summary_title">{{ thing|ucfirst }}</span>
+{%          for value, cnt in summary %}
+{%              set match = enum('Gazelle\\Enum\\UserMatchQuality').from(value) %}
+                            <span class="summary_type summary_type_{{ match.name }}">
+                        {{- match.name }}<span class="label">:</span>
+                    </span>
+                            <span class="summary_count">{{ cnt }}</span>{% if not loop.last %},{% endif ~%}
+{%          endfor %}
+                    </div>
+{%          if not loop.last %}/{% endif ~%}
+{%      endfor %}
+            </div>
+            <div class="search_result">
+{%      if result.match.usernames %}
+                    <ul class="usernames">
+{%          for data in result.match.usernames %}
+                            <li class="username_match" data-match="{{ data[2].name }}">
+                                <span class="match_type">{{ data[2].name|ucfirst }}</span>
+                                <span class="label">match on username</span>
+                                <span class="match_found">{{ data[0] }}</span>
+                                <span class="label">against</span>
+                                <span class="match_value">{{ data[1] }}</span>
+                            </li>
+{%          endfor %}
+                    </ul>
+{%      endif %}
+{%      if result.match.emails %}
+                    <ul class="emails">
+{%          for data in result.match.emails %}
+                            <li class="email_match" data-match="{{ data[2].name }}">
+                                <span class="match_type">{{ data[2].name|ucfirst }}</span>
+                                <span class="label">match on email</span>
+                                <span class="match_found">{{ data[0] }}</span>
+                                <span class="label">against</span>
+                                <span class="match_value">{{ data[1] }}</span>
+                            </li>
+{%          endfor %}
+                    </ul>
+{%      endif %}
+{%      if result.match.ips %}
+                    <table class="ips table-sort table-arrows">
+                        <thead>
+                        <tr>
+                            <th class="data-sort onload-sort">status</th>
+                            <th>IP</th>
+                            <th>date</th>
+                            <th>matched against</th>
+                            <th>CC</th>
+                            <th>ASN</th>
+                            <th>rDNS</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+{%          for data in result.match.ips %}
+{%              set asn_info = asn.findByIp(data[0]) %}
+                            <tr>
+                                <td data-sort="{{ data[3].value }}">{{ data[3].name }}</td>
+                                <td>{{ data[0] }}</td>
+                                <td>{{ data[1].format('c') }}</td>
+                                <td>{{ data[2].format('c') }}</td>
+                                <td>{{ asn_info.cc }}</td>
+                                <td>{{ asn(asn_info.name, asn_info.n) }}</td>
+                                <td><span class="resolve-ipv4" data-ip="{{ asn_info.ip }}">Resolving...</span></td>
+                            </tr>
+{%          endfor %}
+                        </tbody>
+                    </table>
+{%      endif %}
+            </div>
+        </div>
+{%  else %}
+            <div class="box2 search_error">Nothing found</div>
+{%  endfor %}
+{{  paginator.linkbox|raw }}
+    </div>
+</div>
+{% endif %}
+
+<div class="box pad">
+    <div class="thin">
+        Paste a block of text here containing IP addresses (possibly accompanied by up to two dates)
+        and/or email addresses and find matching users on the site.
+    </div>
+    <br>
+    <form action="tools.php?action=bulk_search" method="post">
+{{ text.preview|raw }}
+{{ text.field|raw }}
+        <br>
+        <input type="checkbox" name="use_tracker_ips" id="use_tracker_ips"{{ checked(use_tracker_ips) }} />
+        <label for="use_tracker_ips">check tracker IPs</label>
+        <input type="checkbox" name="loose_match" id="loose_match"{{ checked(loose_match) }} />
+        <label for="loose_match">loose matches</label>
+        <span>Order by</span>
+        <select name="column">
+{% for sortKey in enum('Gazelle\\Enum\\UserMatchSort').cases %}
+            <option value="{{ sortKey.value }}"{{ selected(column == sortKey) }}>{{ sortKey.name|ucfirst }}</option>
+{% endfor %}
+        </select>
+        <select name="direction">
+{% for sortDirection in enum('Gazelle\\Enum\\Direction').cases %}
+            <option value="{{ sortDirection.value }}"{{ selected(direction == sortDirection) }}>{{ sortDirection.name|ucfirst }}</option>
+{% endfor %}
+        </select>
+{{ text.button|raw }}
+        <input type="submit" value="Search" />
+        <input type="hidden" name="auth" value="{{ auth }}" />
+    </form>
+</div>
+{{ footer() }}

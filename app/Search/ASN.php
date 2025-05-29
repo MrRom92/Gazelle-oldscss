@@ -3,6 +3,8 @@
 namespace Gazelle\Search;
 
 class ASN extends \Gazelle\Base {
+    protected array $ipCache = [];
+
     public function findByASN(int $asn): array {
         return [
             'info' => $this->pg()->rowAssoc("
@@ -26,7 +28,7 @@ class ASN extends \Gazelle\Base {
         if (!$ipList) {
             return [];
         }
-        $ipList = array_map(fn ($ip) => $ip === '' ? '0.0.0.0' : $ip, $ipList);
+        $ipList = array_map(fn ($ip) => $ip === '' ? '0.0.0.0' : $ip, array_unique($ipList));
         $ipList = array_map(fn ($ip) => str_contains($ip, '%3A') ? '0.0.0.0' : $ip, $ipList); // filter truncated IPv6 addresses from ocelot
         $result = $this->pg()->all("
             SELECT lu.ip,
@@ -40,13 +42,34 @@ class ASN extends \Gazelle\Base {
             LEFT JOIN geo.asn a USING (id_asn)
             LEFT JOIN tor_node t ON (t.ipv4 = lu.ip)
             ", ...$ipList
-
         );
         $list = [];
         foreach ($result as $r) {
+            $this->ipCache[$r['ip']] = $r;
             $list[$r['ip']] = $r;
         }
         return $list;
+    }
+
+    public function findByIp(string $ip): array {
+        if (isset($this->ipCache[$ip])) {
+            return $this->ipCache[$ip];
+        }
+        $result = $this->pg()->rowAssoc("
+            select lu.ip,
+                an.network,
+                coalesce(a.cc, 'XX')        cc,
+                coalesce(a.name, 'unknown') name,
+                a.id_asn                    n,
+                (t.id_tor_node is not null) is_tor
+            from (select ?::inet as ip) as lu
+            left join geo.asn_network an on (an.network >>= lu.ip)
+            left join geo.asn a          using (id_asn)
+            left join tor_node t         on (t.ipv4 = lu.ip)
+            ", $ip
+        );
+        $this->ipCache[$ip] = $result;
+        return $result;
     }
 
     public function searchName(string $text): array {

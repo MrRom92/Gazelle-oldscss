@@ -101,6 +101,9 @@ switch ($_REQUEST['action'] ?? '') {
     case 'ip_search':
         include_once 'managers/ip_search.php';
         break;
+    case 'bulk_search':
+        include_once 'managers/bulk_search.php';
+        break;
 
     case 'login_watch':
         include_once 'managers/login_watch.php';

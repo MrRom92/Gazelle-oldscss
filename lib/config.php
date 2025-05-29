@@ -1159,8 +1159,9 @@ defined('CACHE_NAMESPACE') or define('CACHE_NAMESPACE', [
 // ------------------------------------------------------------------------
 // Common regexp patterns
 
-defined('IP_REGEXP')       or define('IP_REGEXP',       '/\b(?:\d{1,3}\.){3}\d{1,3}\b/');
-defined('URL_REGEXP_STEM') or define('URL_REGEXP_STEM', '((?:f|ht)tps?:\/\/(?:' . str_replace('/', '', IP_REGEXP) . '|localhost|(?:[\w-]+(?:\.[\w-]+)+))(?::\d{1,5})?(?:\/\S*))');
+defined('IP_REGEXP_STEM')  or define('IP_REGEXP_STEM',  '(?:\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}');
+defined('IP_REGEXP')       or define('IP_REGEXP',       '/' . IP_REGEXP_STEM . '/');
+defined('URL_REGEXP_STEM') or define('URL_REGEXP_STEM', '(https?:\/\/(?:' . IP_REGEXP_STEM . '|localhost|(?:[\w-]+(?:\.[\w-]+)+))(?::\d{1,5})?(?:\/\S*))');
 defined('URL_REGEXP')      or define('URL_REGEXP',      '/^' . URL_REGEXP_STEM . '$/i');
 defined('CSS_REGEXP')      or define('CSS_REGEXP',      '/^' . URL_REGEXP_STEM . '\.css(?:\?\S*)?$/i');
 defined('IMAGE_REGEXP')    or define('IMAGE_REGEXP',    '/\b(' . URL_REGEXP_STEM . '\.(?:gif|png|webm|jpe?g|tiff?)(\?\S*)?)\b/i');
