@@ -14,10 +14,10 @@
 {%  endif %}
 <div class="aubody date">{{ label|raw }}{{ e.created|date('Y-m-d H:i') }}{{ label_end|raw }}</div>
 <div class="aubody note">
-    {{ e.note|bb_format }}
-{%-  if e.id_user_creator %} by {{ e.id_user_creator|user_url }}{% endif %}
+{%  if not edit %}⧼{{ e.event }}⧽ {% endif %}{{ e.note|bb_format }}
+{%  if e.id_user_creator %} by {{ e.id_user_creator|user_url }}{% endif %}
 {%  if edit %}
-    {{ label|raw }}({{ e.event }}){{ label_end|raw }}
+    {{ label|raw }}⧼{{ e.event }}⧽{{ label_end|raw }}
 {%  endif %}
 </div>
 {% else %}
