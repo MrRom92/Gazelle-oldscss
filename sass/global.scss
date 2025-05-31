@@ -1053,6 +1053,13 @@ figure.user-error {
   padding-top: 15px;
 }
 
+form.analysis-case {
+  display: inline;
+  input {
+    font-size: 8pt;
+  }
+}
+
 .xdebug-error {
   font-size: 12px;
   width: 95%;

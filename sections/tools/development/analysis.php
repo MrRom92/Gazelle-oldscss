@@ -28,8 +28,8 @@ if (isset($_POST['remove'])) {
     $id = (int)$_POST['id'];
     $case = isset($_POST['remove-prev']) ? $errorLog->findByPrev($id) : $errorLog->findByNext($id);
     $errorLog->findById($id)->remove();
-} elseif (isset($_GET['case'])) {
-    $case = $errorLog->findById((int)$_GET['case']);
+} elseif (isset($_REQUEST['case'])) {
+    $case = $errorLog->findById((int)$_REQUEST['case']);
 }
 
 if (is_null($case)) {

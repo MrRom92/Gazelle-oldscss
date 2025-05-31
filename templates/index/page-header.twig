@@ -161,7 +161,15 @@
 {% if alert_list or action_list %}
 <div id="alerts">
 {%  if alert_list %}
-<div class="alertbar">{{ alert_list|join(' &sdot; ')|raw }}</div>
+<div class="alertbar">{{ alert_list|join(' &sdot; ')|raw }}
+{%      if viewer.permitted('site_analysis') %}
+    <form class="analysis-case" action="tools.php" method="POST">
+        <input type="hidden" name="action" value="analysis" />
+        <input value="" type="text" name="case" size="3" />
+        <input value="case" type="submit" name="go" />
+    </form>
+{%      endif %}
+</div>
 {%  endif %}
 {%  if action_list %}
 <div class="alertbar blend">{{ action_list|join(' &sdot; ')|raw }}</div>
