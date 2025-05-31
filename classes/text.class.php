@@ -1009,17 +1009,27 @@ class Text {
                         self::$NoImg++; // No images inside quote tags
                         self::$InQuotes++;
                         if (self::$InQuotes == self::$NestsBeforeHide) { //Put quotes that are nested beyond the specified limit in [hide] tags.
-                            $Str .= '<strong>Older quotes</strong>: <a href="javascript:void(0);" onclick="BBCode.spoiler(this);">Show</a>';
-                            $Str .= '<blockquote class="hidden spoiler">';
+                            $Str .= '<strong>Older quotes</strong>: <a href="javascript:void(0);" onclick="BBCode.spoiler(this);">Show</a><blockquote class="hidden spoiler">';
                         }
                         if (!empty($Block['Attr'])) {
-                            $Exploded = explode('|', self::to_html($Block['Attr'], $Rules, $cache, $bucket));
-                            if (isset($Exploded[1]) && (is_numeric($Exploded[1]) || (in_array($Exploded[1][0], ['a', 't', 'c', 'r']) && is_numeric(substr($Exploded[1], 1))))) {
+                            $quoted = explode('|', self::to_html($Block['Attr'], $Rules, $cache, $bucket));
+                            // Examine [quote=someone|1234] or [quote=someone|t1234] and isolate 1234
+                            // but also deal with breakage [quote=someone|]
+                            if (
+                                count($quoted) > 1
+                                && strlen($quoted[1]) > 0
+                                && (is_numeric($quoted[1])
+                                    || (in_array($quoted[1][0], ['a', 't', 'c', 'r'])
+                                        && is_numeric(substr($quoted[1], 1))
+                                    )
+                                )
+                            ) {
                                 // the part after | is either a number or starts with a, t, c or r, followed by a number (forum post, artist comment, torrent comment, collage comment or request comment, respectively)
-                                $PostID = trim($Exploded[1]);
-                                $Str .= '<a href="#" onclick="QuoteJump(event, \'' . $PostID . '\'); return false;"><strong class="quoteheader">' . $Exploded[0] . '</strong> wrote: </a>';
+                                $Str .= '<a href="#" onclick="QuoteJump(event, \''
+                                    . trim($quoted[1]) . '\'); return false;"><strong class="quoteheader">'
+                                    . $quoted[0] . '</strong> wrote: </a>';
                             } else {
-                                $Str .= '<strong class="quoteheader">' . $Exploded[0] . '</strong> wrote: ';
+                                $Str .= '<strong class="quoteheader">' . $quoted[0] . '</strong> wrote: ';
                             }
                         }
                         $Str .= '<blockquote>' . self::to_html($Block['Val'], $Rules, $cache, $bucket) . '</blockquote>';
