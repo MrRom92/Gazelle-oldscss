@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Gazelle\Util;
 
 class GeoIP {
-    public function __construct(protected Curl $curl) {
+    public function __construct(
+        protected Curl $curl = new Curl(),
+    ) {
         // server is running on the local network
         if (defined('HTTP_PROXY')) {
             $this->curl->setUseProxy(false);

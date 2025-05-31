@@ -1,11 +1,13 @@
 #! /usr/bin/env php
 <?php
 
+namespace Gazelle;
+
 require_once(__DIR__ . '/../lib/bootstrap.php');
 
-$db      = Gazelle\DB::DB();
-$geoip   = new Gazelle\Util\GeoIP(new Gazelle\Util\Curl());
-$userMan = new Gazelle\Manager\User();
+$db      = DB::DB();
+$geoip   = new Util\GeoIP();
+$userMan = new Manager\User();
 
 $db->prepared_query("
     SELECT ID FROM users_main

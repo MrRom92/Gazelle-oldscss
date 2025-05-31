@@ -118,8 +118,7 @@ class UserCreator extends Base {
                 ? UserStatus::enabled->value
                 : UserStatus::unconfirmed->value,
             STARTING_INVITES,
-            new \Gazelle\Util\GeoIP(new \Gazelle\Util\Curl())
-                ->countryISO($ipaddr),
+            new Util\GeoIP()->countryISO($ipaddr),
             authKey()
         ];
 

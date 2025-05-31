@@ -8,7 +8,7 @@ class Error403 extends Error {
     public static function error(string $message = ''): never {
         $who     = static::$requestContext->viewer()->label();
         $ipaddr  = static::$requestContext->viewer()->ipaddr();
-        $geoip   = new Util\GeoIP(new Util\Curl());
+        $geoip   = new Util\GeoIP();
         Util\Irc::sendMessage(
             IRC_CHAN_STATUS,
             "$who ($ipaddr [{$geoip->countryISO($ipaddr)}]) on {$_SERVER['REQUEST_METHOD']} {$_SERVER['REQUEST_URI']}"
