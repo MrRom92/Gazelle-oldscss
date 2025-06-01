@@ -824,6 +824,14 @@ tr.torrent .bookmark > a::after {
   cursor: pointer;
 }
 
+tr#logcue_tr td div#logscore {
+  align-items: center;
+  display: flex;
+  #minlogscore-label {
+    margin-left: 18px;
+  }
+}
+
 #inbox #preview img,
 #staffpm #reply_box img,
 #wiki .create_form img,

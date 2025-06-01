@@ -166,22 +166,22 @@
           </td>
         </tr>
         <tr id="logcue_tr" class="hidden">
-          <td class="label">Log / Checksum / Cue<br />(CD FLAC only)</td>
+          <td class="label">Log / Checksum / Cue<br /></td>
           <td>
-            <span style="float: right;"><strong>Note: You can only require a log or cue when FLAC is an allowed format</strong></span>
-            <label><input type="checkbox" id="needlog" name="needlog" {{
-                checked(new or log_cue.needLog) }} /> Require log</label>
-            <span id="minlogscore_span" class="hidden">&nbsp;<input type="text" name="minlogscore" id="minlogscore" size="4" value="
+            <strong>Note:</strong> The requirement for .log and .cue files applies only to CD FLAC uploads.
+            <div><label><input type="checkbox" id="needlog" name="needlog" {{
+                checked(new or log_cue.needLog) }} /> Require .log file (proof of ripping)</label></div>
+            <div id="logscore" class="hidden">
+            <span id="minlogscore-label">Minimum log score&nbsp;</span>
+            <input type="range" name="minlogscore" id="minlogscore" min="0" max="100" value="
 {%- if new %}100
 {%- elseif log_cue.minScore %}{{ log_cue.minScore -}}
 {%- endif -%}
-                " /> Minimum log score</span>
-            <br />
-            <label><input type="checkbox" id="needcksum" name="needcksum"{{
-                checked(new or log_cue.needLogChecksum) }} /> Require checksum</label>
-            <br />
-            <label><input type="checkbox" id="needcue" name="needcue"{{
-                checked(new or log_cue.needCue) }} /> Require cue file</label>
+                " />&nbsp;<span id="needlogscore">{% if new %}100{% else %}{{ log_cue.minScore }}{% endif %}</span></div>
+            <div><label><input type="checkbox" id="needcksum" name="needcksum"{{
+                checked(new or log_cue.needLogChecksum) }} /> Require a log file with a valid checksum</label></div>
+            <div><label><input type="checkbox" id="needcue" name="needcue"{{
+                checked(new or log_cue.needCue) }} /> Require a .cue file</label></div>
           </td>
         </tr>
         <tr id="bitrates_tr">
@@ -192,7 +192,7 @@
             <br />
 {%  for k, v in constant('ENCODING') %}
 {%      if not (new and v == 'Other') %}
-            <label style="display: inline-block; width: 100px"><input type="checkbox" name="bitrates[]" value="{{
+            <label style="display: inline-block; width: 105px"><input type="checkbox" name="bitrates[]" value="{{
                 k }}" id="bitrate_{{ k }}"{{ checked(encoding.exists(v)) }} /> {{ v }}</label>
 {%      endif %}
 {%  endfor %}

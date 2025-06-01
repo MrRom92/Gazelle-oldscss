@@ -229,9 +229,9 @@
 
     function toggle_log_score() {
         if (document.getElementById('needlog').checked) {
-            document.getElementById('minlogscore_span').classList.remove('hidden');
+            document.getElementById('logscore').classList.remove('hidden');
         } else {
-            document.getElementById('minlogscore_span').classList.add('hidden');
+            document.getElementById('logscore').classList.add('hidden');
         }
     }
 
@@ -268,7 +268,12 @@
         document.getElementById('needlog').addEventListener('click', () => {
             toggle_log_score();
         });
-
+        const minLogScore = document.getElementById('minlogscore');
+        if (minLogScore) {
+            minLogScore.addEventListener('change', () => {
+                document.getElementById('needlogscore').innerHTML = minLogScore.value;
+            });
+        }
         init_checkbox_all();
         init_category_form();
         toggle_log_cue();
