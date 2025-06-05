@@ -36,21 +36,21 @@ if (isset($_POST['leech_type']) && $Viewer->permitted('torrents_freeleech')) {
 }
 
 $year = (int)trim($_POST['year']);
-if ($tgroup->year() != $year) {
+if ($tgroup->year() !== $year) {
     $tgroup->setField('Year', $year);
     $log[] = "year {$tgroup->year()} => $year";
 }
 
 $recordLabel = trim($_POST['record_label']);
-if ($tgroup->recordLabel() != $recordLabel) {
+if ($tgroup->recordLabel() !== $recordLabel) {
     $tgroup->setField('RecordLabel', $recordLabel);
-    $log[] = "record label \"{$tgroup->recordLabel()}\" => \"$recordLabel\"";
+    $log[] = "record label \"{$tgroup->recordLabel()}\" → \"$recordLabel\"";
 }
 
 $catNumber = trim($_POST['catalogue_number']);
-if ($tgroup->catalogueNumber() != $catNumber) {
+if ($tgroup->catalogueNumber() !== $catNumber) {
     $tgroup->setField('CatalogueNumber', $catNumber);
-    $log[] = "cat number \"{$tgroup->catalogueNumber()}\" => \"$catNumber\"";
+    $log[] = "cat number \"{$tgroup->catalogueNumber()}\" → \"$catNumber\"";
 }
 
 if ($tgroup->dirty()) {

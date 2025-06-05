@@ -20,10 +20,10 @@ if (is_null($torrent)) {
 }
 $Remastered   = $torrent->isRemastered();
 $RemasterYear = $torrent->remasterYear();
-$TorrentID    = $torrent->id();
+$TorrentID    = $torrent->id;
 $UserID       = $torrent->uploaderId();
 
-if ($Viewer->id() != $UserID && !$Viewer->permitted('torrents_edit')) {
+if ($Viewer->id != $UserID && !$Viewer->permitted('torrents_edit')) {
     Error403::error();
 }
 
@@ -72,11 +72,11 @@ if (!$Viewer->permitted('edit_unknowns')) {
         Error400::error("You must supply a remaster year for a remastered release");
     }
     if ($Properties['UnknownRelease'] && !($Remastered && !$RemasterYear)) { /** @phpstan-ignore-line *//* wtf is this logic */
-        if ($Viewer->id() != $UserID) {
+        if ($Viewer->id != $UserID) {
             Error400::error("You cannot set a release to be Unknown");
         }
     }
-    if ($Viewer->id() !== $UserID && $Properties['Remastered'] && !$Properties['RemasterYear']) {
+    if ($Viewer->id !== $UserID && $Properties['Remastered'] && !$Properties['RemasterYear']) {
         $Err = "You may not set someone else's upload to unknown release.";
     }
 }
@@ -177,13 +177,12 @@ $propertyMap = [
 $change = [];
 foreach ($propertyMap as $field => $method) {
     if (!method_exists($torrent, $method)) {
-        $Debug->saveCase("bad method $method in torrent edit id={$torrent->id()}");
+        $Debug->saveCase("bad method $method in torrent edit id={$torrent->id}");
         Error400::error('Cannot proceed with torrent edit');
     }
     $value = $torrent->$method();
     if (isset($Properties[$field])) {
-        // soft inequality, to match null versus ''
-        if ($value != $Properties[$field]) {
+        if (($value ?? '') !== ($Properties[$field] ?? '')) {
             if (is_bool($Properties[$field])) {
                 $change[] = sprintf("$field %s → %s",
                     $value ? 'true' : 'false',
@@ -265,7 +264,7 @@ if ($Viewer->permitted('torrents_freeleech')) {
     if ($leechType != $torrent->leechType() || $reason != $torrent->leechReason()) {
         $torMan->setListFreeleech(
             tracker:   new Tracker(),
-            idList:    [$torrent->id()],
+            idList:    [$torrent->id],
             leechType: $leechType,
             reason:    $reason,
             user:      $Viewer,
