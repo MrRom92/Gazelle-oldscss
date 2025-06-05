@@ -506,8 +506,14 @@ class UserTest extends TestCase {
     }
 
     public function testLastFM(): void {
-        $lastfm   = new Util\LastFM();
+        $lastfm = new Util\LastFM();
+        $this->assertEquals(
+            'name',
+            $lastfm->cleanUsername('https://last.fm/user/name'),
+            'lastfm-clear-name'
+        );
         $username = 'phpunit.' . randomString(6);
+        $this->assertEquals($username, $lastfm->cleanUsername($username), 'lastfm-clear-name');
         $this->assertNull($lastfm->username($this->user), 'lastfm-no-username');
         $this->assertEquals(1, $lastfm->modifyUsername($this->user, $username), 'lastfm-create-username');
         $this->assertEquals($username, $lastfm->username($this->user), 'lastfm-has-username');

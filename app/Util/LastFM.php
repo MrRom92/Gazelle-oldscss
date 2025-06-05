@@ -23,7 +23,19 @@ class LastFM extends \Gazelle\Base {
         return true;
     }
 
+    public function cleanUsername(string $username): string {
+        $info = parse_url($username);
+        if ($info === false || !isset($info['path'])) {
+            // certainly not a username
+            return '';
+        }
+        // this will happily return 'me' regardless of whether
+        // 'me' or 'https://last.fm/user/me' is passed in.
+        return preg_replace('/^.*\//', '', $info['path']);
+    }
+
     public function modifyUsername(\Gazelle\User $user, string $username): int {
+        $username = $this->cleanUsername($username);
         $previous = $this->username($user);
         if (!$previous && $username !== "") {
             self::$db->prepared_query("
