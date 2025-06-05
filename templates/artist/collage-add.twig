@@ -1,3 +1,4 @@
+{% from 'macro/form.twig' import autocomplete %}
 <div class="box box_info box_addcollage_artist">
     <div class="head"><strong>Add to artist collage</strong></div>
         <div class="pad">
@@ -15,7 +16,7 @@
 {% else %}
             <div>Search for a collage name or URL:</div>
 {% endfor %}
-            <input type="text" name="collage_ref" id="collage_ref" size="25" data-gazelle-autocomplete="true" />
+            <input type="text" name="collage_ref" id="collage_ref" size="25"{{ autocomplete(viewer, 'other') }} />
             <input type="hidden" name="action" value="add_artist" />
             <input type="hidden" name="entryid" value="{{ artist_id }}" />
             <input type="hidden" name="userid" value="{{ viewer.id }}" />

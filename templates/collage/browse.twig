@@ -1,4 +1,4 @@
-{% from 'macro/form.twig' import checked, selected %}
+{% from 'macro/form.twig' import autocomplete, checked, selected %}
 {% set is_bookmark =  search.isBookmarkView %}
 {% if is_bookmark %}
 {{ header('Bookmarked collages', {'js': 'collage'}) }}
@@ -46,7 +46,7 @@
                 <tr id="tagfilter">
                     <td class="label">Tags (comma-separated):</td>
                     <td>
-                        <input type="text" id="tags" name="tags" size="70" value="{{ input.tags }}"{% if viewer.hasAutocomplete('other') %} data-gazelle-autocomplete="true"{% endif %} />
+                        <input type="text" id="tags" name="tags" size="70" value="{{ input.tags }}"{{ autocomplete(viewer, 'other') }} />
                         <br /><br />
                         <label><input type="radio" name="tags_type" value="1"{{ checked(search.isTagAll) }} /> All</label>
                         <label><input type="radio" name="tags_type" value="0"{{ checked(not search.isTagAll) }} /> Any</label>&nbsp;&nbsp;

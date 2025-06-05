@@ -1,5 +1,4 @@
-{%- from 'macro/form.twig' import checked, disabled, selected -%}
-{%- set autocomplete = viewer.hasAutocomplete('other') ? ' data-gazelle-autocomplete="true"' : '' -%}
+{%- from 'macro/form.twig' import autocomplete, checked, disabled, selected -%}
 {%- set new = action == 'new' -%}
 {{ header('Request › ' ~ (new ? 'Create' : 'Edit › ' ~ request.text), {'js': 'requests,form_validate'}) }}
 <div class="thin">
@@ -62,7 +61,7 @@
             target="_blank">this</a> for more information.</p>
 {%      for role, name_list in artist_role -%}
 {%          for idx, name in name_list -%}
-            <input type="text" size="45" id="artist_{{ loop.parent.loop.index0 }}" name="artists[]"{{ autocomplete|raw }} value="{{ name }}" />
+            <input type="text" size="45" id="artist_{{ loop.parent.loop.index0 }}" name="artists[]"{{ autocomplete(viewer, 'other') }} value="{{ name }}" />
             <select id="importance_{{ loop.parent.loop.index0 }}" name="importance[]">
               <option value="{{ constant('ARTIST_MAIN') }}"{{ selected(role == constant('ARTIST_MAIN')) }}>Main</option>
               <option value="{{ constant('ARTIST_GUEST') }}"{{ selected(role == constant('ARTIST_GUEST')) }}>Guest</option>
@@ -79,7 +78,7 @@
 {%          endif -%}
 {%          endfor -%}
 {%      else -%}
-            <input type="text" size="45" id="artist_0" name="artists[]"{{ autocomplete|raw }} />
+            <input type="text" size="45" id="artist_0" name="artists[]"{{ autocomplete(viewer, 'other') }} />
             <select id="importance_0" name="importance[]">
               <option value="{{ constant('ARTIST_MAIN') }}">Main</option>
               <option value="{{ constant('ARTIST_GUEST') }}">Guest</option>
@@ -137,7 +136,7 @@
               <option value="{{ tag }}">{{ tag }}</option>
 {% endfor %}
             </select>
-            <input type="text" id="tags" name="tags" size="45" value="{{ tags }}"{{ autocomplete|raw }} />
+            <input type="text" id="tags" name="tags" size="45" value="{{ tags }}"{{ autocomplete(viewer, 'other') }} />
             <br />
             Tags should be comma-separated, and you should use a period (".") to separate words inside a tag&#8202;&mdash;&#8202;e.g. "<strong class="important_text_alt">hip.hop</strong>".
             <br /><br />

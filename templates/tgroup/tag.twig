@@ -1,3 +1,4 @@
+{% from 'macro/form.twig' import autocomplete %}
 <div class="box box_tags">
     <div class="head">
         <strong>Tags</strong>
@@ -50,7 +51,7 @@
             <input type="hidden" name="action" value="add_tag" />
             <input type="hidden" name="auth" value="{{ viewer.auth }}" />
             <input type="hidden" name="groupid" value="{{ tgroup_id }}>" />
-            <input type="text" name="tagname" id="tagname" size="20"{% if viewer.hasAutocomplete('other') %} data-gazelle-autocomplete="true"{% endif %} />
+            <input type="text" name="tagname" id="tagname" size="20"{{ autocomplete(viewer, 'other') }} />
             <input type="submit" value="+" />
         </form>
         <br /><br />
