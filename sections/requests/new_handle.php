@@ -203,7 +203,7 @@ $request = new Manager\Request()->create(
     groupId:         $tgroup?->id(),
 );
 if ($categoryName == 'Music') {
-    $request->artistRole()->set($artistRole, $Viewer, new Manager\Artist());
+    $request->artistRole()->set($artistRole, $Viewer);
 }
 new Manager\Tag()->replaceTagList(
     $request,

@@ -8,6 +8,8 @@ use GazelleUnitTest\Helper;
 define('BUFFER_FOR_BOUNTY', 1024 ** 4); // some upload credit to allow request creation
 
 class RequestTest extends TestCase {
+    use Pg;
+
     protected Request $request;
     protected TGroup  $tgroup;
     protected array   $userList;
@@ -57,7 +59,6 @@ class RequestTest extends TestCase {
             $this->request->artistRole()->set(
                 [ARTIST_MAIN => [$artistName]],
                 $user,
-                $artistMan,
             ),
             'request-add-artist-role'
         );
@@ -513,7 +514,6 @@ class RequestTest extends TestCase {
         $this->request->artistRole()->set(
             [ARTIST_MAIN => ['phpunit req ' . randomString(6)]],
             $this->userList['user'],
-            new Manager\Artist(),
         );
         new Manager\Tag()->softCreate('classical.era', $this->userList['admin'])->addRequest($this->request);
         $this->assertTrue(
@@ -533,7 +533,6 @@ class RequestTest extends TestCase {
         $this->request->artistRole()->set(
             [ARTIST_MAIN => ['phpunit req ' . randomString(6)]],
             $this->userList['user'],
-            new Manager\Artist(),
         );
         new Manager\Tag()
             ->create('phpunit.' . randomString(6), $this->userList['admin'])
@@ -581,7 +580,6 @@ class RequestTest extends TestCase {
         $this->request->artistRole()->set(
             [ARTIST_MAIN => ['phpunit req ' . randomString(6)]],
             $this->userList['user'],
-            $artistMan,
         );
         new Manager\Tag()
             ->create('phpunit.' . randomString(6), $this->userList['admin'])
@@ -737,7 +735,6 @@ class RequestTest extends TestCase {
         $this->request->artistRole()->set(
             [ARTIST_MAIN => ['phpunit req ' . randomString(6)]],
             $this->userList['admin'],
-            new Manager\Artist(),
         );
         new Manager\Tag()
             ->create('phpunit.' . randomString(6), $this->userList['admin'])
@@ -764,6 +761,46 @@ class RequestTest extends TestCase {
                 'list' => new Manager\Request()->findByTGroup($this->tgroup),
             ]),
             'render-tgroup-request-list',
+        );
+    }
+
+    public function testRequestFTS(): void {
+        $user  = $this->userList['admin'];
+        $title = 'phpunit reqfts ' . randomString();
+        $this->request = Helper::makeRequestMusic($user, $title);
+        $artistName    = 'artist ftsreq ' . randomString();
+        $this->request->artistRole()->set([ARTIST_MAIN => [$artistName]], $user);
+        new Manager\Request()->relay();
+
+        $this->assertEquals(
+            $this->request->id,
+            $this->pg()->scalar("
+                select id_request
+                from request
+                where id_request = ?
+                ", $this->request->id
+            ),
+            'request-fts-id', // ensure the request has been relayed
+        );
+        $this->assertEquals(
+            $this->request->id,
+            $this->pg()->scalar("
+                select id_request
+                from request
+                where artist_title_ts @@ websearch_to_tsquery('simple', ?)
+                ", "\"{$artistName}\""
+            ),
+            'request-fts-search-artist'
+        );
+        $this->assertEquals(
+            $this->request->id,
+            $this->pg()->scalar("
+                select id_request
+                from request
+                where artist_title_ts @@ websearch_to_tsquery('simple', ?)
+                ", "\"{$title}\""
+            ),
+            'request-fts-search-title'
         );
     }
 }

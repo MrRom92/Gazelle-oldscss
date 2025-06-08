@@ -8,8 +8,13 @@ class Request extends \Gazelle\ArtistRole {
     /**
      * Create or modify the set of artists associated with a request
      */
-    public function set(array $roleList, \Gazelle\User $user, \Gazelle\Manager\Artist $manager): int {
+    public function set(
+        array                   $roleList,
+        \Gazelle\User           $user,
+        \Gazelle\Manager\Artist $manager = new \Gazelle\Manager\Artist(),
+    ): int {
         self::$db->begin_transaction();
+        $this->pg()->pdo()->beginTransaction();
         foreach ($roleList as $role => $artistList) {
             foreach ($artistList as $n => $name) {
                 $artist = $manager->findByName($name) ?? $manager->create($name);
@@ -49,6 +54,26 @@ class Request extends \Gazelle\ArtistRole {
                 self::$cache->delete_value("artists_requests_{$artist->id}");
             }
         }
+        $this->pg()->prepared_query("
+            update request set
+                artist_title_ts = upd.artist_title_ts
+            from (
+                select r.id_request,
+                    to_tsvector('simple', coalesce(string_agg(aa.\"Name\", ' '), '')
+                        || ' ' || r.title
+                    ) as artist_title_ts
+                from request r
+                left join relay.requests_artists ra on (ra.\"RequestID\" = r.id_request)
+                left join relay.artists_alias aa using (\"AliasID\")
+                left join relay.artist_role ar on (ar.artist_role_id = ra.artist_role_id)
+                where (ar.slug is null or ar.slug != 'guest')
+                    and r.id_request = ?
+                group by r.id_request
+            ) upd
+            where request.id_request = upd.id_request
+            ", $this->object->id()
+        );
+        $this->pg()->pdo()->commit();
         self::$db->commit();
         return $affected;
     }

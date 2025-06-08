@@ -135,24 +135,48 @@ class Request extends \Gazelle\BaseManager {
     public function relay(): int {
         return $this->pg()->prepared_query("
             merge into request r using (
+                with a_t as (
+                    select rr.\"ID\" as id_request,
+                        to_tsvector('simple', coalesce(string_agg(aa.\"Name\", ' '), '')
+                            || ' ' || rr.\"Title\"
+                        ) as artist_title_ts
+                    from relay.requests rr
+                    left join relay.requests_artists ra on    (ra.\"RequestID\" = rr.\"ID\")
+                    left join relay.artists_alias    aa using (\"AliasID\")
+                    left join relay.artist_role      ar on    (ar.artist_role_id = ra.artist_role_id)
+                    where (ar.slug is null or ar.slug != 'guest')
+                        and rr.updated >= (select coalesce(max(modified), '2000-01-01'::timestamptz) from request)
+                    group by rr.\"ID\", rr.\"Title\"
+                ),
+                tl as (
+                    select rt.id_request,
+                        array_agg(rt.id_tag) as tag
+                    from request_tag rt
+                    inner join relay.requests rr on (rr.\"ID\" = rt.id_request)
+                    where rr.updated >= (select coalesce(max(modified), '2000-01-01'::timestamptz) from request)
+                    group by rt.id_request
+                )
                 select
-                    \"ID\" as id_request, \"UserID\" as id_user, \"FillerID\" as id_filler,
-                    \"TorrentID\" as id_torrent, \"GroupID\" as id_tgroup,
-                    \"CategoryID\" as id_category, \"ReleaseType\" as id_release_type,
-                    \"Year\" as year, \"LastVote\" as last_vote, \"TimeFilled\" as filled,
-                    created, updated + '1 microsecond'::interval as updated,
-                    \"Description\" as description, \"Title\" as title, \"Image\" as image,
-                    \"CatalogueNumber\" as catalogue_number, \"RecordLabel\" as record_label,
-                    (case when regexp_replace(coalesce(\"LogCue\", ''), '\D+', '', 'g') = ''
+                    rr.\"ID\" as id_request, rr.\"UserID\" as id_user, rr.\"FillerID\" as id_filler,
+                    rr.\"TorrentID\" as id_torrent, rr.\"GroupID\" as id_tgroup,
+                    rr.\"CategoryID\" as id_category, rr.\"ReleaseType\" as id_release_type,
+                    rr.\"Year\" as year, rr.\"LastVote\" as last_vote, rr.\"TimeFilled\" as filled,
+                    rr.created, rr.updated + '1 microsecond'::interval as updated,
+                    rr.\"Description\" as description, rr.\"Title\" as title, rr.\"Image\" as image,
+                    rr.\"CatalogueNumber\" as catalogue_number, rr.\"RecordLabel\" as record_label,
+                    (case when regexp_replace(coalesce(rr.\"LogCue\", ''), '\D+', '', 'g') = ''
                         then '0'
-                        else regexp_replace(coalesce(\"LogCue\", ''), '\D+', '', 'g')
+                        else regexp_replace(coalesce(rr.\"LogCue\", ''), '\D+', '', 'g')
                         end)::int as log_score,
-                    coalesce(position('Log' in \"LogCue\") > 0, false) as need_log,
-                    coalesce(position('Cue' in \"LogCue\") > 0, false) as need_cue,
-                    case when \"Checksum\" = 0 then false else true end as need_checksum,
-                    \"BitrateList\" as encoding, \"FormatList\" as format, \"MediaList\" as media
-                from relay.requests
-                where updated >= (select coalesce(max(modified), '2000-01-01'::timestamptz) from request)
+                    coalesce(position('Log' in rr.\"LogCue\") > 0, false) as need_log,
+                    coalesce(position('Cue' in rr.\"LogCue\") > 0, false) as need_cue,
+                    case when rr.\"Checksum\" = 0 then false else true end as need_checksum,
+                    rr.\"BitrateList\" as encoding, rr.\"FormatList\" as format, rr.\"MediaList\" as media,
+                    a_t.artist_title_ts,
+                    coalesce(tl.tag, ARRAY[]::int[]) as tag
+                from relay.requests rr
+                inner join a_t on (a_t.id_request = rr.\"ID\")
+                left join tl on (tl.id_request = rr.\"ID\")
             ) as i on r.id_request = i.id_request
                 when not matched then
                     insert (
@@ -162,7 +186,8 @@ class Request extends \Gazelle\BaseManager {
                         description, title, image, catalogue_number,
                         record_label, log_score,
                         need_log, need_cue, need_checksum,
-                        encoding, format, media
+                        encoding_str, format_str, media_str,
+                        artist_title_ts, tag
                     ) values (
                         i.id_request, i.id_user, i.id_filler, i.id_torrent,
                         i.id_tgroup, i.id_category, i.id_release_type, i.year,
@@ -172,7 +197,8 @@ class Request extends \Gazelle\BaseManager {
                         i.need_log, i.need_cue, i.need_checksum,
                         string_to_array(i.encoding::text, '|'),
                         string_to_array(i.format::text, '|'),
-                        string_to_array(i.media::text, '|')
+                        string_to_array(i.media::text, '|'),
+                        i.artist_title_ts, i.tag
                     )
                 when matched then
                     update set
@@ -184,9 +210,11 @@ class Request extends \Gazelle\BaseManager {
                         image = i.image, catalogue_number = i.catalogue_number,
                         record_label = i.record_label, log_score = i.log_score, need_log = i.need_log,
                         need_cue = i.need_cue, need_checksum = i.need_checksum,
-                        encoding = string_to_array(i.encoding::text, '|'),
-                        format = string_to_array(i.format::text, '|'),
-                        media = string_to_array(i.media::text, '|')
+                        encoding_str = string_to_array(i.encoding::text, '|'),
+                        format_str = string_to_array(i.format::text, '|'),
+                        media_str = string_to_array(i.media::text, '|'),
+                        artist_title_ts = i.artist_title_ts,
+                        tag = i.tag
         ");
     }
 }

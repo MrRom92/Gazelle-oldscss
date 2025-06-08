@@ -6,7 +6,7 @@ use Gazelle\Enum\UserAuditEvent;
 use Gazelle\Intf\CategoryHasArtist;
 
 class Request extends BaseObject implements CategoryHasArtist {
-    final public const tableName         = 'requests';
+    final public const tableName  = 'requests';
     protected const CACHE_REQUEST = "request_%d";
     protected const CACHE_ARTIST  = "request_artists_%d";
     protected const CACHE_VOTE    = "request_votes_%d";
@@ -921,8 +921,19 @@ class Request extends BaseObject implements CategoryHasArtist {
             where "RequestID" = $1
             ', $this->id
         );
+        $affected = $result->getAffectedRows();
+        $this->pg()->executeParams('
+            update request set
+                tag = (
+                    select array_agg(id_tag)
+                    from request_tag
+                    where id_request = $1
+                )
+            where id_request = $2
+            ', $this->id, $this->id
+        );
         $this->pg()->cnxrw()->commit();
-        return $result->getAffectedRows();
+        return $affected;
     }
 
     public function remove(): int {

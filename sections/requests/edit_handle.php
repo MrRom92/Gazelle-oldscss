@@ -239,7 +239,7 @@ if (isset($_POST['oclc'])) {
 
 $request->modify();
 if ($categoryName === 'Music' && $Viewer->permittedAny('site_edit_requests', 'site_moderate_requests')) {
-    $request->artistRole()->set($artistRole, $Viewer, new Manager\Artist());
+    $request->artistRole()->set($artistRole, $Viewer);
 }
 if (isset($_POST['tags'])) {
     new Manager\Tag()->replaceTagList(
