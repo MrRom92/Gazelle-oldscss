@@ -183,20 +183,20 @@
                 <td>{{ request.releaseTypeName }}</td>
             </tr>
             <tr>
-                <td class="label">Acceptable encodings</td>
-                <td>{{ request.descriptionEncoding|default('Unknown, please read the description.') }}</td>
+                <td class="label">Acceptable media</td>
+                <td>{{ request.descriptionMedia|default('Any') }}</td>
             </tr>
             <tr>
                 <td class="label">Acceptable formats</td>
-                <td>{{ request.descriptionFormat|default('Unknown, please read the description.') }}</td>
+                <td>{{ request.descriptionFormat|default('Any') }}</td>
             </tr>
             <tr>
-                <td class="label">Acceptable media</td>
-                <td>{{ request.descriptionMedia|default('Unknown, please read the description.') }}</td>
+                <td class="label">Acceptable encodings</td>
+                <td>{{ request.descriptionEncoding|default('Any') }}</td>
             </tr>
-{%  if request.needCue or request.needLog or request.needLogChecksum %}
+{%  if request.needMedia('CD') and request.needFormat('FLAC') %}
             <tr>
-                <td class="label">Required CD FLAC only extras</td>
+                <td class="label">Required for CD FLAC fill</td>
                 <td>{{ request.descriptionLogCue }}</td>
             </tr>
             <tr>

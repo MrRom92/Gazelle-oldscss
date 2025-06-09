@@ -25,31 +25,21 @@ class SearchReportTest extends TestCase {
             tagList:     'disco funk metal',
         );
 
-        $this->request = new Manager\Request()->create(
+        $this->request = Helper::makeRequestMusic(
             user:            $this->userList[1],
-            bounty:          REQUEST_MIN * 1024 * 1024,
-            categoryId:      (int)new Manager\Category()->findIdByName('Music'),
-            year:            (int)date('Y'),
             title:           'phpunit request report',
-            image:           '',
-            description:     'This is a unit test description',
-            recordLabel:     'Unitest Artists',
-            catalogueNumber: 'UA-7890',
-            releaseType:     1,
-            encodingList:    'Lossless',
-            formatList:      'FLAC',
-            mediaList:       'WEB',
-            checksum:        false,
-            logCue:          '',
-            oclc:            '',
+            encoding:        new Request\Encoding(list: ['Lossless']),
+            format:          new Request\Format(list: ['FLAC']),
+            media:           new Request\Media(list: ['WEB']),
+            logCue:          new Request\LogCue(false, false, false, 0),
         );
 
         $manager = new Manager\Report(new Manager\User());
-        $this->reportList['collage'] = $manager->create($this->userList[0], $this->collage->id(), 'collage', 'phpunit search collage report');
+        $this->reportList['collage'] = $manager->create($this->userList[0], $this->collage->id, 'collage', 'phpunit search collage report');
         Helper::sleepTick();
-        $this->reportList['request'] = $manager->create($this->userList[0], $this->request->id(), 'request', 'phpunit search request report');
+        $this->reportList['request'] = $manager->create($this->userList[0], $this->request->id, 'request', 'phpunit search request report');
         Helper::sleepTick();
-        $this->reportList['user'] = $manager->create($this->userList[0], $this->userList[1]->id(), 'user', 'phpunit search user report');
+        $this->reportList['user'] = $manager->create($this->userList[0], $this->userList[1]->id, 'user', 'phpunit search user report');
     }
 
     public function tearDown(): void {
@@ -71,10 +61,10 @@ class SearchReportTest extends TestCase {
             'search-report-default-order'
         );
 
-        $search->setId($this->reportList['collage']->id());
+        $search->setId($this->reportList['collage']->id);
         $this->assertEquals(1, $search->total(), 'search-report-id-total');
         $this->assertEquals(
-            [$this->reportList['collage']->id()],
+            [$this->reportList['collage']->id],
             $search->page(limit: 2, offset: 0),
             'search-report-page-id'
         );
@@ -89,19 +79,19 @@ class SearchReportTest extends TestCase {
 
         $this->assertEquals(
             [
-                $this->reportList['user']->id(),
-                $this->reportList['request']->id(),
-                $this->reportList['collage']->id(),
+                $this->reportList['user']->id,
+                $this->reportList['request']->id,
+                $this->reportList['collage']->id,
             ],
             $search->page(limit: 3, offset: 0),
             'search-report-page-list'
         );
 
-        $this->reportList['request']->resolve($this->userList[0], new Manager\Report(new Manager\User()));
+        $this->reportList['request']->resolve($this->userList[0], new Manager\Report());
         $this->assertEquals(
             [
-                $this->reportList['user']->id(),
-                $this->reportList['collage']->id(),
+                $this->reportList['user']->id,
+                $this->reportList['collage']->id,
             ],
             $search->page(limit: 2, offset: 0),
             'search-report-page-after-resolve-list'
@@ -109,7 +99,7 @@ class SearchReportTest extends TestCase {
 
         $search->setTypeFilter(['collage']);
         $this->assertEquals(
-            [$this->reportList['collage']->id()],
+            [$this->reportList['collage']->id],
             $search->page(limit: 1, offset: 0),
             'search-report-page-id'
         );

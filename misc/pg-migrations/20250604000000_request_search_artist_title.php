@@ -49,7 +49,7 @@ final class RequestSearchArtistTitle extends AbstractMigration {
     }
 
     public function down(): void {
-        // $this->query("drop index rq_at_idx");
+        $this->query("drop index rq_at_idx");
         $this->query("drop index rq_t_idx");
         $this->query("
             alter table request

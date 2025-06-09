@@ -7,7 +7,7 @@ use Gazelle\Intf\CategoryHasArtist;
 
 class Request extends BaseObject implements CategoryHasArtist {
     final public const tableName  = 'requests';
-    protected const CACHE_REQUEST = "request_%d";
+    protected const CACHE_REQUEST = "req_%d";
     protected const CACHE_ARTIST  = "request_artists_%d";
     protected const CACHE_VOTE    = "request_votes_%d";
 
@@ -165,9 +165,28 @@ class Request extends BaseObject implements CategoryHasArtist {
         );
         $info['tag'] = self::$db->collect('Name');
 
-        $info['need_encoding'] = explode('|', $info['encoding_list'] ?? 'Unknown');
-        $info['need_format']   = explode('|', $info['format_list']   ?? 'Unknown');
-        $info['need_media']    = explode('|', $info['media_list']    ?? 'Unknown');
+        $info['need_encoding'] = explode('|', $info['encoding_list']);
+        $info['need_format']   = explode('|', $info['format_list']);
+        $info['need_media']    = explode('|', $info['media_list']);
+
+        $info['encoding'] = new Request\Encoding(
+            $info['encoding_list'] === 'All',
+            explode('|', $info['encoding_list']),
+        );
+        $info['format'] = new Request\Format(
+            $info['format_list'] === 'All',
+            explode('|', $info['format_list']),
+        );
+        $info['media'] = new Request\Media(
+            $info['media_list'] === 'All',
+            explode('|', $info['media_list']),
+        );
+        $info['logCue'] = new Request\LogCue(
+            needLogChecksum: (bool)$info['checksum'],
+            needCue:         strpos($info['log_cue'], 'Cue') !== false,
+            needLog:         strpos($info['log_cue'], 'Log') !== false,
+            minScore:        (int)preg_replace('/\D+/', '', $info['log_cue']),
+        );
 
         $this->info = $info;
         return $this->info;
@@ -272,25 +291,27 @@ class Request extends BaseObject implements CategoryHasArtist {
     }
 
     public function encoding(): Request\Encoding {
-        return new Request\Encoding($this->needEncoding('Any'), array_keys($this->currentEncoding()));
+        return $this->info()['encoding'];
     }
 
     public function format(): Request\Format {
-        return new Request\Format($this->needFormat('Any'), array_keys($this->currentFormat()));
+        return $this->info()['format'];
     }
 
     public function media(): Request\Media {
-        return new Request\Media($this->needMedia('Any'), array_keys($this->currentMedia()));
+        return $this->info()['media'];
     }
 
     public function descriptionEncoding(): ?string {
-        $need = $this->info()['need_encoding'];
-        return empty($need) ? null : implode(', ', $need);
+        return $this->info()['need_encoding'] === 'Unknown'
+            ? null
+            : $this->encoding()->display();
     }
 
     public function descriptionFormat(): ?string {
-        $need = $this->info()['need_format'];
-        return empty($need) ? null : implode(', ', $need);
+        return $this->info()['need_format'] === 'Unknown'
+            ? null
+            : $this->format()->display();
     }
 
     public function descriptionLogCue(): ?string {
@@ -298,8 +319,9 @@ class Request extends BaseObject implements CategoryHasArtist {
     }
 
     public function descriptionMedia(): ?string {
-        $need = $this->info()['need_media'];
-        return empty($need) ? null : implode(', ', $need);
+        return $this->info()['need_media'] === 'Unknown'
+            ? null
+            : $this->media()->display();
     }
 
     public function fillerId(): int {
@@ -343,16 +365,11 @@ class Request extends BaseObject implements CategoryHasArtist {
     }
 
     public function logCue(): Request\LogCue {
-        return new Request\LogCue(
-            needLogChecksum: $this->needLogChecksum(),
-            needCue:         $this->needCue(),
-            needLog:         $this->needLog(),
-            minScore:        $this->needLogScore(),
-        );
+        return $this->info()['logCue'];
     }
 
     public function needCue(): bool {
-        return str_contains($this->descriptionLogCue(), 'Cue');
+        return $this->logCue()->needCue;
     }
 
     public function needEncoding(string $encoding): bool {
@@ -378,17 +395,15 @@ class Request extends BaseObject implements CategoryHasArtist {
     }
 
     public function needLog(): bool {
-        return str_contains($this->descriptionLogCue(), 'Log');
+        return $this->logCue()->needLog;
     }
 
     public function needLogChecksum(): bool {
-        return (bool)$this->info()['checksum'];
+        return $this->logCue()->needLogChecksum;
     }
 
     public function needLogScore(): int {
-        return preg_match('/(\d+)%/', $this->descriptionLogCue(), $match)
-            ? (int)$match[1]
-            : 0;
+        return $this->logCue()->minScore;
     }
 
     public function needMedia(string $media): bool {
@@ -534,18 +549,18 @@ class Request extends BaseObject implements CategoryHasArtist {
                 $this->media()->exists("CD") && $torrent->media() === "CD"
                 && $this->format()->exists("FLAC") && $torrent->format() === "FLAC"
             ) {
-                if ($this->needCue() && !$torrent->hasCue()) {
+                if ($this->logCue()->needCue && !$torrent->hasCue()) {
                     $error[] = "This request requires a cue file.";
                 }
-                if ($this->needLog()) {
+                if ($this->logCue()->needLog) {
                     if (!$torrent->hasLogDb()) {
                         $error[] = "This request requires a valid logfile and none was uploaded with this torrent";
-                    } elseif ($this->needLogChecksum() && !$torrent->logChecksum()) {
+                    } elseif ($this->logCue()->needLogChecksum && !$torrent->logChecksum()) {
                         $error[] = "This request requires a logfile with a valid checksum";
                     } else {
-                        $logScore = $this->needLogScore();
+                        $logScore = $this->logCue()->minScore;
                         if ($logScore > 0 && $logScore > $torrent->logScore()) {
-                            $better = $logScore === 100 ? $logScore : "$logScore or better";
+                            $better = $logScore === 100 ? "$logScore%" : "$logScore% or better";
                             $error[] = "This request requires a logfile with a score of $better";
                         }
                     }
@@ -875,7 +890,7 @@ class Request extends BaseObject implements CategoryHasArtist {
                 Year, ReleaseType, CatalogueNumber, RecordLabel, BitrateList,
                 FormatList, MediaList, LogCue, FillerID, TorrentID,
                 unix_timestamp(TimeFilled) AS TimeFilled, Visible,
-                count(DISTINCT rv.UserID) AS Votes, coalesce(sum(rv.Bounty)) >> 10 AS Bounty,
+                count(DISTINCT rv.UserID) AS Votes, coalesce(sum(rv.Bounty), 0) >> 10 AS Bounty,
                 ?, ?
             FROM requests AS r
             LEFT JOIN requests_votes AS rv ON (rv.RequestID = r.ID)

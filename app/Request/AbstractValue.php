@@ -11,9 +11,10 @@ abstract class AbstractValue {
     ) {
         $legal = $this->legal();
         $this->label = [];
-        foreach ($this->list as $offset) {
-            if (isset($legal[$offset])) {
-                $this->label[$offset] = $legal[$offset];
+        foreach ($this->list as $value) {
+            $offset = array_search($value, $legal);
+            if ($offset !== false) {
+                $this->label[$offset] = $value;
             }
         }
         ksort($this->label);
@@ -22,20 +23,26 @@ abstract class AbstractValue {
     abstract protected function legal(): array;
 
     public function all(): bool {
-        return $this->all || count($this->label) == count($this->legal());
+        return $this->all || in_array(count($this->label), [0, count($this->legal())]);
     }
 
     public function isValid(): bool {
-        return $this->all || count($this->label);
+        return $this->all() || count($this->label) > 0;
     }
 
-    public function exists(string $label): bool {
-        return $this->all || array_search($label, $this->label) !== false;
+    public function exists(string $value): bool {
+        return $this->all() || array_search($value, $this->label) !== false;
     }
 
-    public function dbValue(): ?string {
+    public function dbValue(): string {
         return $this->all || count($this->label) == count($this->legal())
             ? 'Any'
-            : implode('|', $this->label);
+            : implode('|', array_values($this->label));
+    }
+
+    public function display(): string {
+        return $this->all || count($this->label) == count($this->legal())
+            ? 'Any'
+            : implode(', ', array_values($this->label));
     }
 }

@@ -90,23 +90,9 @@ class CommentTest extends TestCase {
     }
 
     public function testCommentRequest(): void {
-        $this->request = new Manager\Request()->create(
-            user:            $this->user,
-            bounty:          REQUEST_MIN * 1024 * 1024,
-            categoryId:      (int)new Manager\Category()->findIdByName('Music'),
-            year:            (int)date('Y'),
-            title:           'phpunit request comment',
-            image:           '',
-            description:     'This is a unit test description',
-            recordLabel:     'Unitest Artists',
-            catalogueNumber: 'UA-7890',
-            releaseType:     1,
-            encodingList:    'Lossless|V0 (VBR)',
-            formatList:      'MP3|FLAC',
-            mediaList:       'CD|WEB',
-            logCue:          'Log (100%) + Cue',
-            checksum:        true,
-            oclc:            '',
+        $this->request = Helper::makeRequestMusic(
+            user:  $this->user,
+            title: 'phpunit request comment',
         );
 
         $manager = new Manager\Comment();

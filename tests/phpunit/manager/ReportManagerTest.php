@@ -56,30 +56,13 @@ class ReportManagerTest extends TestCase {
     }
 
     public function testReportRequest(): void {
-        $categoryId = new Manager\Category()->findIdByName('Comics');
-        $this->assertNotNull($categoryId, 'report-cat-not-null');
-        $this->request = new Manager\Request()->create(
-            user:            $this->userList[1],
-            bounty:          REQUEST_MIN * 1024 * 1024,
-            categoryId:      $categoryId,
-            year:            (int)date('Y'),
-            title:           'phpunit request report',
-            image:           '',
-            description:     'This is a unit test description',
-            recordLabel:     'Unitest Artists',
-            catalogueNumber: 'UA-7890',
-            releaseType:     1,
-            encodingList:    'Lossless',
-            formatList:      'FLAC',
-            mediaList:       'WEB',
-            checksum:        false,
-            logCue:          '',
-            oclc:            '',
+        $this->request = Helper::makeRequestComics(
+            user:        $this->userList[1],
+            title:       'phpunit request report',
+            description: 'This is a unit test comics description',
         );
-
-        $manager = new Manager\Report(new Manager\User());
+        $manager = new Manager\Report();
         $initial = $manager->remainingTotal();
-
         $report = $manager->create($this->userList[1], $this->request->id, 'request', 'phpunit report');
         $this->reportList[] = $report;
 

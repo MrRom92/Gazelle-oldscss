@@ -104,7 +104,10 @@ while (true) {
     }
 
     if (isset($_POST['formats']) && $Viewer->permitted('site_moderate_requests')) {
-        $format = new Request\Format(isset($_POST['all_formats']), $_POST['formats'] ?? []);
+        $format = new Request\Format(
+            isset($_POST['all_formats']),
+            array_map(fn($n) => FORMAT[$n], $_POST['formats'] ?? []),
+        );
         if (!$format->isValid()) {
             $error = 'You must require at least one valid format';
             break;
@@ -117,7 +120,10 @@ while (true) {
     if (!isset($_POST['bitrates'])) {
         $encoding = null;
     } else {
-        $encoding = new Request\Encoding(isset($_POST['all_bitrates']), $_POST['bitrates'] ?? []);
+        $encoding = new Request\Encoding(
+            isset($_POST['all_bitrates']),
+            array_map(fn($n) => ENCODING[$n], $_POST['bitrates'] ?? []),
+        );
         if (!$encoding->isValid()) {
             $error = 'You must require at least one valid encoding';
             break;
@@ -128,7 +134,10 @@ while (true) {
     }
 
     if (isset($_POST['media']) && $Viewer->permitted('site_moderate_requests')) {
-        $media = new Request\Media(isset($_POST['all_media']), $_POST['media'] ?? []);
+        $media = new Request\Media(
+            isset($_POST['all_media']),
+            array_map(fn($n) => MEDIA[$n], $_POST['media'] ?? []),
+        );
         if (!$media->isValid()) {
             $error = 'You must require at least one valid media';
             break;
@@ -149,8 +158,8 @@ while (true) {
                 needLogChecksum: isset($_POST['needcksum']),
                 minScore:        (int)($_POST['minlogscore'] ?? $request->needLogScore()),
             );
-            if ($logCue->needLogChecksum() != $request->needLogChecksum()) {
-                $request->setField('Checksum', (int)$logCue->needLogChecksum());
+            if ($logCue->needLogChecksum != $request->needLogChecksum()) {
+                $request->setField('Checksum', (int)$logCue->needLogChecksum);
             }
             if ($logCue->dbValue() != $request->descriptionLogCue()) {
                 $request->setField('LogCue', $logCue->dbValue());

@@ -354,23 +354,13 @@ class ArtistTest extends TestCase {
         $post = $commentMan->create($this->user, 'artist', $artist->id, 'phpunit smart rename ' . randomString(6));
 
         $requestMan = new Manager\Request();
-        $request = $requestMan->create(
+        $request = Helper::makeRequestMusic(
             user:            $this->user,
-            bounty:          100 * 1024 ** 2,
-            categoryId:      (int)new Manager\Category()->findIdByName('Music'),
-            year:            (int)date('Y'),
             title:           'phpunit smart rename ' . randomString(6),
-            image:           '',
-            description:     'This is a unit test description',
-            recordLabel:     'Unitest Artists',
-            catalogueNumber: 'UA-7890',
             releaseType:     1,
-            encodingList:    'Lossless',
-            formatList:      'MP3',
-            mediaList:       'CD',
-            logCue:          'Log (100%) + Cue',
-            checksum:        true,
-            oclc:            '',
+            encoding:        new Request\Encoding(list: ['Lossless']),
+            format:          new Request\Format(list: ['MP3']),
+            media:           new Request\Media(list: ['CD']),
         );
         $this->assertInstanceOf(
             ArtistRole\Request::class,

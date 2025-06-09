@@ -2,26 +2,31 @@
 
 namespace Gazelle\Manager;
 
+use Gazelle\Request\Encoding;
+use Gazelle\Request\Format;
+use Gazelle\Request\Media;
+use Gazelle\Request\LogCue;
+use Gazelle\User;
+
 class Request extends \Gazelle\BaseManager {
     final public const ID_KEY = 'zz_r_%d';
 
     public function create(
-        \Gazelle\User $user,
-        int $bounty,
-        int $categoryId,
-        int $year,
-        string $title,
-        ?string $image,
-        string $description,
-        string $recordLabel,
-        string $catalogueNumber,
-        int $releaseType,
-        string $encodingList,
-        string $formatList,
-        string $mediaList,
-        string $logCue,
-        bool $checksum,
-        string $oclc,
+        User     $user,
+        int      $bounty,
+        int      $categoryId,
+        int      $year,
+        string   $title,
+        ?string  $image,
+        string   $description,
+        string   $recordLabel,
+        string   $catalogueNumber,
+        int      $releaseType,
+        Encoding $encoding,
+        Format   $format,
+        Media    $media,
+        LogCue   $logCue,
+        string   $oclc,
         int|null $groupId = null,
     ): \Gazelle\Request {
         self::$db->prepared_query('
@@ -31,8 +36,9 @@ class Request extends \Gazelle\BaseManager {
             VALUES (
                 now(), 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             $user->id, $categoryId, $title, $year, $image, $description, $recordLabel,
-            $catalogueNumber, $releaseType, $encodingList, $formatList, $mediaList, $logCue,
-            (int)$checksum ? 1 : 0, $oclc, $groupId
+            $catalogueNumber, $releaseType,
+            $encoding->dbValue(), $format->dbValue(), $media->dbValue(),
+            $logCue->dbValue(), $logCue->needLogChecksum ? 1 : 0, $oclc, $groupId
         );
         $request = new \Gazelle\Request(self::$db->inserted_id());
         $request->vote($user, $bounty);
@@ -61,7 +67,7 @@ class Request extends \Gazelle\BaseManager {
      *
      * @return array of \Gazelle\Request objects
      */
-    public function findUnfilledByUser(\Gazelle\User $user, int $limit): array {
+    public function findUnfilledByUser(User $user, int $limit): array {
         self::$db->prepared_query("
             SELECT DISTINCT r.ID
             FROM requests r

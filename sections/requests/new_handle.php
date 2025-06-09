@@ -33,15 +33,15 @@ $year         = null;
 
 $encoding = new Request\Encoding(
     isset($_POST['all_bitrates']),
-    array_trim_prefix('bitrate_', $_POST['bitrates'] ?? [])
+    array_map(fn($n) => ENCODING[$n], $_POST['bitrates'] ?? []),
 );
 $format = new Request\Format(
     isset($_POST['all_formats']),
-    array_trim_prefix('format_', $_POST['formats'] ?? [])
+    array_map(fn($n) => FORMAT[$n], $_POST['formats'] ?? []),
 );
 $media = new Request\Media(
     isset($_POST['all_media']),
-    array_trim_prefix('media_', $_POST['media'] ?? [])
+    array_map(fn($n) => MEDIA[$n], $_POST['media'] ?? []),
 );
 $releaseType     = (int)$_POST['releasetype'];
 $description     = trim($_POST['description'] ?? '');
@@ -194,11 +194,10 @@ $request = new Manager\Request()->create(
     recordLabel:     trim($_POST['recordlabel'] ?? ''),
     catalogueNumber: trim($_POST['cataloguenumber'] ?? ''),
     releaseType:     $releaseType,
-    encodingList:    $encoding->dbValue(),
-    formatList:      $format->dbValue(),
-    mediaList:       $media->dbValue(),
-    logCue:          $logCue->dbValue(),
-    checksum:        $logCue->needLogChecksum(),
+    encoding:        $encoding,
+    format:          $format,
+    media:           $media,
+    logCue:          $logCue,
     oclc:            trim($_POST['oclc'] ?? ''),
     groupId:         $tgroup?->id(),
 );

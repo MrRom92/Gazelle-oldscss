@@ -3,6 +3,13 @@
 namespace GazelleUnitTest;
 
 use Gazelle\Enum\UserStatus;
+use Gazelle\ForumCategory;
+use Gazelle\Manager\Category;
+use Gazelle\Request\Encoding;
+use Gazelle\Request\Format;
+use Gazelle\Request\Media;
+use Gazelle\Request\LogCue;
+use Gazelle\User;
 
 class Helper {
     public static function makeForum(
@@ -10,7 +17,7 @@ class Helper {
         string                 $description,
         int                    $sequence,
         \Gazelle\ForumCategory $category,
-        \Gazelle\User          $user,
+        User                   $user,
         int                    $minClassRead   = 100,
         int                    $minClassWrite  = 100,
         int                    $minClassCreate = 100,
@@ -32,23 +39,27 @@ class Helper {
     }
 
     public static function makeRequestMusic(
-        \Gazelle\User $user,
-        string        $title,
-        int           $releaseType     = 1,
-        string        $description     = 'This is a unit test description',
-        string        $image           = '',
-        string        $recordLabel     = 'Unitest Artists',
-        string        $catalogueNumber =  'UA-7890',
-        string        $encodingList    = 'Lossless|V0 (VBR)',
-        string        $formatList      = 'MP3|FLAC',
-        string        $mediaList       = 'CD|WEB',
-        string        $logCue          = 'Log (100%) + Cue',
-        bool          $checksum        = true,
+        User     $user,
+        string   $title,
+        int      $releaseType     = 1,
+        string   $description     = 'This is a unit test description',
+        string   $image           = '',
+        string   $recordLabel     = 'Unitest Artists',
+        string   $catalogueNumber =  'UA-7890',
+        Encoding $encoding        = new Encoding(list: ['Lossless', 'V0 (VBR)']),
+        Format   $format          = new Format(list: ['MP3', 'FLAC']),
+        Media    $media           = new Media(list: ['CD', 'WEB']),
+        LogCue   $logCue          = new LogCue(
+            needLogChecksum: true,
+            needCue:         true,
+            needLog:         true,
+            minScore:        100,
+        ),
     ): \Gazelle\Request {
         return new \Gazelle\Manager\Request()->create(
             user:            $user,
             bounty:          100 * 1024 ** 3,
-            categoryId:      (int)new \Gazelle\Manager\Category()->findIdByName('Music'),
+            categoryId:      (int)new Category()->findIdByName('Music'),
             year:            (int)date('Y'),
             title:           $title,
             image:           $image,
@@ -56,11 +67,34 @@ class Helper {
             recordLabel:     $recordLabel,
             catalogueNumber: $catalogueNumber,
             releaseType:     $releaseType,
-            encodingList:    $encodingList,
-            formatList:      $formatList,
-            mediaList:       $mediaList,
+            encoding:        $encoding,
+            format:          $format,
+            media:           $media,
             logCue:          $logCue,
-            checksum:        $checksum,
+            oclc:            '123,456',
+        );
+    }
+
+    public static function makeRequestComics(
+        User     $user,
+        string   $title,
+        string   $description = 'This is a unit test description',
+    ): \Gazelle\Request {
+        return new \Gazelle\Manager\Request()->create(
+            user:            $user,
+            bounty:          100 * 1024 ** 3,
+            categoryId:      (int)new Category()->findIdByName('Comics'),
+            year:            (int)date('Y'),
+            title:           $title,
+            image:           null,
+            description:     $description,
+            recordLabel:     '',
+            catalogueNumber: '',
+            releaseType:     21,
+            encoding:        new Encoding(list: ['Any']),
+            format:          new Format(list: ['Any']),
+            media:           new Media(list: ['Any']),
+            logCue:          new LogCue(false, false, false, 0),
             oclc:            '123,456',
         );
     }
@@ -69,7 +103,7 @@ class Helper {
         string $name,
     ): \Gazelle\TGroup {
         return new \Gazelle\Manager\TGroup()->create(
-            categoryId:      (int)new \Gazelle\Manager\Category()->findIdByName('E-Books'),
+            categoryId:      (int)new Category()->findIdByName('E-Books'),
             name:            $name,
             description:     'phpunit ebook description',
             image:           '',
@@ -88,7 +122,7 @@ class Helper {
         int $releaseType = 1
     ): \Gazelle\TGroup {
         $tgroup = new \Gazelle\Manager\TGroup()->create(
-            categoryId:      (int)new \Gazelle\Manager\Category()->findIdByName('Music'),
+            categoryId:      (int)new Category()->findIdByName('Music'),
             releaseType:     $releaseType,
             name:            $name,
             description:     'phpunit music description',

@@ -58,9 +58,10 @@ if (!empty($_REQUEST['user']) && $isAdmin) {
 array_push($error, ...$request->validate($torrent, $filler, $isAdmin));
 if (count($error)) {
     echo print_or_return(implode('<br />', $error));
+} else {
+    $request->fill($filler, $torrent);
 }
 
-$request->fill($filler, $torrent);
 if (defined('AJAX')) {
     $data = [
         'requestId'  => $request->id(),

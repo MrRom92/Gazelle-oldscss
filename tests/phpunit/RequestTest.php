@@ -196,7 +196,7 @@ class RequestTest extends TestCase {
         $this->assertNull($manager->findById($id), 'request-gone');
     }
 
-    public function testFill(): void {
+    public function testFillBasic(): void {
         $statsReq = new Stats\Request();
         $statsReq->flush();
         $admin  = $this->userList['admin'];
@@ -225,12 +225,11 @@ class RequestTest extends TestCase {
             recordLabel:     'Unitest Artists',
             catalogueNumber: 'UA-7890',
             releaseType:     1,
-            encodingList:    'Lossless|V0 (VBR)',
-            formatList:      'MP3|FLAC',
-            mediaList:       'CD|WEB',
-            logCue:          'Log (100%) + Cue',
-            checksum:        true,
-            oclc:            '123,456',
+            encoding:        new Request\Encoding(list: ['Lossless', 'V0 (VBR)']),
+            format:          new Request\Format(list: ['MP3', 'FLAC']),
+            media:           new Request\Media(list: ['CD', 'WEB']),
+            logCue:          new Request\LogCue(),
+            oclc:            '',
         );
 
         $statsReq->flush();
@@ -347,6 +346,43 @@ class RequestTest extends TestCase {
         $this->assertEquals(1, $this->request->removeBounty($admin, $admin), 'request-bounty-remove');
     }
 
+    public function testFillLooseFit(): void {
+        $this->request = Helper::makeRequestMusic(
+            user:     $this->userList['admin'],
+            title:    'req any fill',
+            encoding: new Request\Encoding(list: []),
+            format:   new Request\Format(list: []),
+            media:    new Request\Media(list: []),
+        );
+        $this->tgroup = Helper::makeTGroupMusic(
+            name:      'phpunit request ' . randomString(6),
+            artistName: [[ARTIST_MAIN], ['Request Girl ' . randomString(12)]],
+            tagName:    ['electronic'],
+            user:       $this->userList['user'],
+        );
+        Helper::makeTorrentMusic(
+            tgroup: $this->tgroup,
+            user:   $this->userList['user'],
+            title:  'Deluxe Edition',
+        );
+        $torrent = new Manager\Torrent()->findById(
+            current($this->tgroup->torrentIdList())
+        );
+        $this->assertEquals(
+            [],
+            $this->request->validate($torrent, $this->userList['user'], isAdmin: false),
+            'request-any-validate',
+        );
+        $this->assertEquals(
+            1,
+            $this->request->fill(
+                $this->userList['user'],
+                $torrent,
+            ),
+            'request-any-fill'
+        );
+    }
+
     public function testValidate(): void {
         $user = $this->userList['user'];
         $user->addBounty(BUFFER_FOR_BOUNTY);
@@ -354,12 +390,12 @@ class RequestTest extends TestCase {
         $this->userList['user2'] = $user2;
 
         $this->request = Helper::makeRequestMusic(
-            user:         $user,
-            title:        'phpunit req validate ' . randomString(6),
-            encodingList: 'Lossless',
-            formatList:   'FLAC',
-            mediaList:    'CD',
-            logCue:       'Log (80%) + Cue',
+            user:     $user,
+            title:    'phpunit req validate ' . randomString(6),
+            encoding: new Request\Encoding(list: ['Lossless']),
+            format:   new Request\Format(list: ['FLAC']),
+            media:    new Request\Media(list: ['CD']),
+            logCue:   new Request\LogCue(minScore: 80, needLogChecksum: true),
         );
         $this->tgroup = Helper::makeTGroupMusic(
             name:       'phpunit request validate ' . randomString(6),
@@ -378,7 +414,7 @@ class RequestTest extends TestCase {
 
         $this->assertEquals(
             ["There is a one hour grace period for new uploads to allow the uploader ({$user2->username()}) to fill the request."],
-            $this->request->validate($torrent, $user, false),
+            $this->request->validate($torrent, $user, isAdmin: false),
             'req-fill-bad-user',
         );
 
@@ -388,14 +424,14 @@ class RequestTest extends TestCase {
                 "MP3 is not an allowed format for this request.",
                 "320 is not an allowed encoding for this request.",
             ],
-            $this->request->validate($torrent, $user2, false),
+            $this->request->validate($torrent, $user2, isAdmin: false),
             'req-fill-web-mp3-320',
         );
 
         $torrent->setField('Encoding', 'Lossless')->setField('Format', 'FLAC')->modify();
         $this->assertEquals(
             ["WEB is not an allowed media for this request."],
-            $this->request->validate($torrent, $user2, false),
+            $this->request->validate($torrent, $user2, isAdmin: false),
             'req-fill-web-flac-lossless',
         );
 
@@ -406,41 +442,41 @@ class RequestTest extends TestCase {
                 "This request requires a valid logfile and none was uploaded with this torrent",
 
             ],
-            $this->request->validate($torrent, $user2, false),
+            $this->request->validate($torrent, $user2, isAdmin: false),
             'req-fill-cd-flac-lossless',
         );
 
         $torrent->setField('HasCue', '1')->setField('HasLogDb', '1')->modify();
         $this->assertEquals(
             ["This request requires a logfile with a valid checksum"],
-            $this->request->validate($torrent, $user2, false),
-            'req-fill-has-cue-log',
+            $this->request->validate($torrent, $user2, isAdmin: false),
+            'req-fill-has-log-checksum',
         );
 
         $torrent->setField('LogChecksum', '1')->modify();
         $this->assertEquals(
-            ["This request requires a logfile with a score of 80 or better"],
-            $this->request->validate($torrent, $user2, false),
+            ["This request requires a logfile with a score of 80% or better"],
+            $this->request->validate($torrent, $user2, isAdmin: false),
             'req-fill-has-low-score',
         );
 
         $torrent->setField('LogScore', 80)->modify();
         $this->assertEquals(
             [],
-            $this->request->validate($torrent, $user, true),
+            $this->request->validate($torrent, $user, isAdmin: true),
             'req-fill-ok',
         );
 
         $this->assertEquals(
             [],
-            $this->request->validate($torrent, $user, true),
+            $this->request->validate($torrent, $user, isAdmin: true),
             'req-fill-override-user',
         );
 
         $torrent->group()->setField('CategoryID', 2)->modify();
         $this->assertEquals(
             ["This torrent is of a different category than the request. If the request is actually miscategorized, please contact staff."],
-            $this->request->validate($torrent, $user, true),
+            $this->request->validate($torrent, $user, isAdmin: true),
             'req-fill-category',
         );
     }
@@ -467,12 +503,11 @@ class RequestTest extends TestCase {
             recordLabel:     'Unitest Artists',
             catalogueNumber: 'UA-7890',
             releaseType:     1,
-            encodingList:    'Lossless|V0 (VBR)',
-            formatList:      'MP3|FLAC',
-            mediaList:       'CD|WEB',
-            logCue:          'Log (100%) + Cue',
-            checksum:        true,
-            oclc:            '123,456',
+            encoding:        new Request\Encoding(list: ['Lossless', 'V0 (VBR)']),
+            format:          new Request\Format(list: ['MP3', 'FLAC']),
+            media:           new Request\Media(list: ['CD', 'WEB']),
+            logCue:          new Request\LogCue(),
+            oclc:            '',
         );
 
         $this->request->vote($user2, $bounty + 1);
@@ -504,11 +539,10 @@ class RequestTest extends TestCase {
             recordLabel:     'Unitest Artists',
             catalogueNumber: 'UA-7890',
             releaseType:     1,
-            encodingList:    'Lossless',
-            formatList:      'FLAC',
-            mediaList:       'WEB',
-            checksum:        false,
-            logCue:          '',
+            encoding:        new Request\Encoding(list: ['Lossless']),
+            format:          new Request\Format(list: ['FLAC']),
+            media:           new Request\Media(list: ['WEB']),
+            logCue:          new Request\LogCue(),
             oclc:            '',
         );
         $this->request->artistRole()->set(
@@ -575,7 +609,10 @@ class RequestTest extends TestCase {
 
     public function testJson(): void {
         $this->userList['admin']->addBounty(BUFFER_FOR_BOUNTY);
-        $this->request = Helper::makeRequestMusic($this->userList['admin'], 'phpunit request json');
+        $this->request = Helper::makeRequestMusic(
+            $this->userList['admin'],
+            'phpunit request json',
+        );
         $artistMan = new Manager\Artist();
         $this->request->artistRole()->set(
             [ARTIST_MAIN => ['phpunit req ' . randomString(6)]],
@@ -633,8 +670,8 @@ class RequestTest extends TestCase {
 
     public function testEncodingValue(): void {
         $allEncoding = new Request\Encoding();
-        $this->assertFalse($allEncoding->isValid(), 'req-enc-all-invalid');
-        $this->assertFalse($allEncoding->exists('Lossless'), 'req-enc-invalid-exists');
+        $this->assertTrue($allEncoding->isValid(), 'req-enc-all-invalid');
+        $this->assertTrue($allEncoding->exists('Lossless'), 'req-enc-invalid-exists');
 
         $allEncoding = new Request\Encoding(true);
         $this->assertTrue($allEncoding->isValid(), 'req-enc-all-valid');
@@ -642,7 +679,7 @@ class RequestTest extends TestCase {
         $this->assertTrue($allEncoding->exists('Morse'), 'req-enc-all-morse'); // because of all encodings shortcut
         $this->assertEquals('Any', $allEncoding->dbValue(), 'req-enc-all-value');
 
-        $some = new Request\Encoding(false, [1, 2]); // 24bit Lossless, V0 (VBR)
+        $some = new Request\Encoding(false, ['24bit Lossless', 'V0 (VBR)']);
         $this->assertTrue($some->isValid(), 'req-enc-some-valid');
         $this->assertTrue($some->exists('24bit Lossless'), 'req-enc-some-lossless');
         $this->assertFalse($some->exists('Morse'), 'req-enc-some-morse');
@@ -651,34 +688,34 @@ class RequestTest extends TestCase {
 
     public function testFormatValue(): void {
         $allFormat = new Request\Format();
-        $this->assertFalse($allFormat->isValid(), 'req-fmt-all-invalid');
-        $this->assertFalse($allFormat->exists('MP3'), 'req-fmt-invalid-exists');
+        $this->assertTrue($allFormat->isValid(), 'req-fmt-all-invalid');
+        $this->assertTrue($allFormat->exists('MP3'), 'req-fmt-invalid-exists');
 
         $allFormat = new Request\Format(true);
         $this->assertTrue($allFormat->isValid(), 'req-fmt-all-valid');
         $this->assertTrue($allFormat->exists('FLAC'), 'req-fmt-all-flac');
         $this->assertEquals('Any', $allFormat->dbValue(), 'req-fmt-all-value');
 
-        $some = new Request\Format(false, [0, 1]); // FLAC, MP3
+        $some = new Request\Format(false, ['FLAC', 'MP3']);
         $this->assertTrue($some->isValid(), 'req-fmt-some-valid');
         $this->assertTrue($some->exists('FLAC'), 'req-fmt-some-flac');
         $this->assertEquals("MP3|FLAC", $some->dbValue(), 'req-fmt-some-value');
 
-        $also = new Request\Format(false, [1, 0]);
+        $also = new Request\Format(false, ['FLAC', 'MP3']);
         $this->assertEquals("MP3|FLAC", $also->dbValue(), 'req-fmt-same-value');
     }
 
     public function testMediaValue(): void {
         $allMedia = new Request\Media();
-        $this->assertFalse($allMedia->isValid(), 'req-med-all-invalid');
-        $this->assertFalse($allMedia->exists('BD'), 'req-med-invalid-exists');
+        $this->assertTrue($allMedia->isValid(), 'req-med-all-invalid');
+        $this->assertTrue($allMedia->exists('BD'), 'req-med-invalid-exists');
 
         $allMedia = new Request\Media(true);
         $this->assertTrue($allMedia->isValid(), 'req-med-all-valid');
         $this->assertTrue($allMedia->exists('CD'), 'req-med-all-cd');
         $this->assertEquals('Any', $allMedia->dbValue(), 'req-med-all-value');
 
-        $some = new Request\Media(false, [8, 0, 1, 2]); // Cassette, CD, WEB, Vinyl
+        $some = new Request\Media(false, ['Cassette', 'CD', 'WEB', 'Vinyl']);
         $this->assertTrue($some->isValid(), 'req-med-some-valid');
         $this->assertTrue($some->exists('Vinyl'), 'req-med-some-vinyl');
         $this->assertEquals("CD|WEB|Vinyl|Cassette", $some->dbValue(), 'req-med-some-value');
@@ -687,36 +724,36 @@ class RequestTest extends TestCase {
     public function testLogCueValue(): void {
         $none = new Request\LogCue();
         $this->assertTrue($none->isValid(), 'req-none-valid');
-        $this->assertEquals(0, $none->minScore(), 'req-none-min-score');
-        $this->assertFalse($none->needLogChecksum(), 'req-none-need-checksum');
-        $this->assertFalse($none->needCue(), 'req-none-need-cue');
-        $this->assertFalse($none->needLog(), 'req-none-need-log');
-        $this->assertEquals('', $none->dbValue(), 'req-none-value');
+        $this->assertEquals(100, $none->minScore, 'req-none-min-score');
+        $this->assertTrue($none->needLogChecksum, 'req-none-need-checksum');
+        $this->assertTrue($none->needCue, 'req-none-need-cue');
+        $this->assertTrue($none->needLog, 'req-none-need-log');
+        $this->assertEquals('Log (100%) + Cue', $none->dbValue(), 'req-none-value');
 
-        $cksum = new Request\LogCue(needLogChecksum: true);
+        $cksum = new Request\LogCue(needLogChecksum: false);
         $this->assertTrue($cksum->isValid(), 'req-cksum-valid');
-        $this->assertTrue($cksum->needLogChecksum(), 'req-cksum-need');
+        $this->assertFalse($cksum->needLogChecksum, 'req-cksum-need');
 
-        $cue = new Request\LogCue(needCue: true);
+        $cue = new Request\LogCue(needCue: false);
         $this->assertTrue($cue->isValid(), 'req-cue-valid');
-        $this->assertEquals('Cue', $cue->dbValue(), 'req-cue-value');
+        $this->assertEquals('Log (100%)', $cue->dbValue(), 'req-cue-value');
 
-        $log = new Request\LogCue(needLog: true);
+        $log = new Request\LogCue(needLog: false);
         $this->assertTrue($log->isValid(), 'req-log-valid');
-        $this->assertEquals('Log', $log->dbValue(), 'req-log-value');
+        $this->assertEquals('Cue', $log->dbValue(), 'req-log-value');
 
-        $logcue = new Request\LogCue(needCue: true, needLog: true);
+        $logcue = new Request\LogCue(needCue: false, needLog: false);
         $this->assertTrue($logcue->isValid(), 'req-log-cue-valid');
-        $this->assertEquals('Log + Cue', $logcue->dbValue(), 'req-log-cue-value');
+        $this->assertEquals('', $logcue->dbValue(), 'req-log-cue-value');
 
-        $logmin = new Request\LogCue(needCue: true, needLog: true, minScore: 50);
+        $logmin = new Request\LogCue(minScore: 50);
         $this->assertTrue($logmin->isValid(), 'req-log-min-valid');
-        $this->assertEquals(50, $logmin->minScore(), 'req-log-min-min-score');
-        $this->assertTrue($logmin->needCue(), 'req-log-min-need-cue');
-        $this->assertTrue($logmin->needLog(), 'req-log-min-need-log');
+        $this->assertEquals(50, $logmin->minScore, 'req-log-min-min-score');
+        $this->assertTrue($logmin->needCue, 'req-log-min-need-cue');
+        $this->assertTrue($logmin->needLog, 'req-log-min-need-log');
         $this->assertEquals('Log (>= 50%) + Cue', $logmin->dbValue(), 'req-log-min-value');
 
-        $logmax = new Request\LogCue(needCue: true, needLog: true, minScore: 100);
+        $logmax = new Request\LogCue();
         $this->assertTrue($logmax->isValid(), 'req-log-max-valid');
         $this->assertEquals('Log (100%) + Cue', $logmax->dbValue(), 'req-log-max-value');
 
