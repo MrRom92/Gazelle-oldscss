@@ -256,7 +256,7 @@ class Twig {
             'UTF-8'
         )));
 
-        $twig->addFunction(new \Twig\TwigFunction('privilege', function (array|null $default, array $config, string $name): \Twig\Markup {
+        $twig->addFunction(new \Twig\TwigFunction('privilege', function (array|null $default, array|null $config, string $name): \Twig\Markup {
             $label = \Gazelle\Manager\Privilege::privilegeList()[$name] ?? "!unknown($name)!";
             if (is_null($default)) {
                 return new \Twig\Markup(
