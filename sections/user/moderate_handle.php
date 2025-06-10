@@ -105,7 +105,7 @@ if ($mergeStatsFrom && ($downloaded != $user->downloadedSize() || $uploaded != $
     Error400::error("Do not transfer buffer and edit upload/download in the same operation.");
 }
 
-$tracker = new Tracker();
+$tracker            = new Tracker();
 $needTrackerAdd     = false;
 $needTrackerRefresh = false;
 
@@ -502,7 +502,6 @@ if ($userStatus != $user->userStatus() && $Viewer->permitted('users_disable_user
     $enableStr = "account status {$user->userStatus()->label()} → {$userStatus->label()}";
     if ($userStatus == UserStatus::disabled) {
         $userMan->disableUserList(
-            $tracker,
             [$user->id],
             UserAuditEvent::activity,
             "Disabled via moderation",
@@ -552,7 +551,6 @@ if ($sendHackedMail && $Viewer->permitted('users_disable_any')) {
         ])
     );
     $userMan->disableUserList(
-        $tracker,
         [$user->id],
         UserAuditEvent::activity,
         "Disabled via hacked email",

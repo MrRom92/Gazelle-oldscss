@@ -8,6 +8,8 @@ use Gazelle\Enum\UserAuditEvent;
 use Gazelle\Enum\UserStatus;
 
 class UserManagerTest extends TestCase {
+    use Pg;
+
     protected array $userList;
     protected Request $request;
 
@@ -45,8 +47,7 @@ class UserManagerTest extends TestCase {
 
         $this->assertEquals(
             3,
-            $userMan->disableUserList
-                (new Tracker(),
+            $userMan->disableUserList(
                 $idList,
                 UserAuditEvent::activity,
                 'phpunit mass disable',
@@ -135,7 +136,6 @@ class UserManagerTest extends TestCase {
         $this->assertEquals(
             1,
             $userMan->disableUserList(
-                new Tracker(),
                 [$this->userList[2]->id],
                 UserAuditEvent::activity,
                 'phpunit fltoken',
@@ -231,9 +231,12 @@ class UserManagerTest extends TestCase {
     }
 
     public function testUserRatioWatch(): void {
-        $tracker = new Tracker();
         $userMan = new Manager\User();
         $this->userList[] = Helper::makeUser('um4.' . randomString(10), 'userman', enable: true, clearInbox: true);
+        $user = $this->userList[0];
+        $this->assertFalse($user->onRatioWatch(), 'utest-personal-on-ratio-watch');
+        $this->assertEquals(0.0, $user->requiredRatio(), 'utest-required-ratio');
+        $this->assertEquals(0, $user->downloadedOnRatioWatch(), 'utest-download-ratio-watch');
         $idList  = array_map(fn ($u) => $u->id, $this->userList);
 
         // put users onto ratio watch
@@ -285,7 +288,7 @@ class UserManagerTest extends TestCase {
         );
         $this->userList[0]->flush();
         $this->assertEquals([$this->userList[0]->id], $userMan->ratioWatchBlockList(), 'uman-ratiowatch-block-list');
-        $this->assertEquals(1, $userMan->ratioWatchBlock($tracker), 'uman-ratiowatch-do-block');
+        $this->assertEquals(1, $userMan->ratioWatchBlock(), 'uman-ratiowatch-do-block');
         $this->userList[0]->flush();
 
         $receiver = $this->userList[0]->inbox();
@@ -316,8 +319,8 @@ class UserManagerTest extends TestCase {
 
         // user[1] is cleared
         $this->assertEquals([$this->userList[1]->id], $userMan->ratioWatchClearList(), 'uman-ratiowatch-clear-list');
-        $this->assertEquals(1, $userMan->ratioWatchClear($tracker), 'uman-ratiowatch-do-clear');
-        $this->assertEquals(0, $userMan->ratioWatchClear($tracker), 'uman-ratiowatch-reprocess-clear');
+        $this->assertEquals(1, $userMan->ratioWatchClear(), 'uman-ratiowatch-do-clear');
+        $this->assertEquals(0, $userMan->ratioWatchClear(), 'uman-ratiowatch-reprocess-clear');
         $this->userList[1]->flush();
 
         $receiver = $this->userList[1]->inbox();
@@ -336,8 +339,8 @@ class UserManagerTest extends TestCase {
 
         // user[2] did nothing, loses download privileges
         $this->assertEquals([$this->userList[2]->id], $userMan->ratioWatchEngageList(), 'uman-ratiowatch-engage-list');
-        $this->assertEquals(1, $userMan->ratioWatchEngage($tracker), 'uman-ratiowatch-do-engage');
-        $this->assertEquals(0, $userMan->ratioWatchEngage($tracker), 'uman-ratiowatch-reprocess-engage');
+        $this->assertEquals(1, $userMan->ratioWatchEngage(), 'uman-ratiowatch-do-engage');
+        $this->assertEquals(0, $userMan->ratioWatchEngage(), 'uman-ratiowatch-reprocess-engage');
         $this->userList[2]->flush();
 
         $receiver = $this->userList[2]->inbox();

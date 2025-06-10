@@ -239,11 +239,11 @@ class InviteTree extends \Gazelle\BaseUser {
         }
         if ($ban) {
             $userMan->disableUserList(
-                $tracker,
                 $ban,
                 UserAuditEvent::invite,
                 $staffNote,
                 \Gazelle\Manager\User::DISABLE_TREEBAN,
+                $tracker,
             );
         }
         return $message;

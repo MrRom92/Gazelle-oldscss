@@ -136,7 +136,6 @@ class Login extends Base {
         $ipaddr = $this->requestContext()->remoteAddr();
         if (BLOCK_TOR && !$user->permitted('can_use_tor') && new Manager\Tor()->isExitNode($ipaddr)) {
             $userMan->disableUserList(
-                new Tracker(),
                 [$user->id],
                 Enum\UserAuditEvent::activity,
                 "Logged in via Tor ($ipaddr)",

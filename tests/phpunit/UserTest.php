@@ -149,11 +149,9 @@ class UserTest extends TestCase {
         $this->assertEquals(0, $this->user->collageUnreadCount(), 'utest-collage-unread-count');
         $this->assertEquals(0, $this->user->forumCatchupEpoch(), 'utest-forum-catchup-epoch');
         $this->assertEquals(0, $this->user->invite()->pendingTotal(), 'utest-pending-invite-count');
-        $this->assertEquals(0, $this->user->downloadedOnRatioWatch(), 'utest-download-ratio-watch');
         $this->assertEquals(0, $this->user->seedingSize(), 'utest-seeding-size');
         $this->assertEquals(0, $this->user->torrentRecentRemoveCount(1), 'utest-torrent-recent-remove-count');
         $this->assertEquals(0, $this->user->trackerIPCount(), 'utest-tracker-ipaddr-total');
-        $this->assertEquals(0.0, $this->user->requiredRatio(), 'utest-required-ratio');
         $this->assertEquals('', $this->user->forbiddenForumsList(), 'utest-forbidden-forum-list');
         $this->assertEquals('', $this->user->referral(), 'utest-referral');
         $this->assertEquals('??', $this->user->ipCountryIso(), 'utest-country-iso');
@@ -178,7 +176,6 @@ class UserTest extends TestCase {
         $this->assertFalse($this->user->isStaffPMReader(), 'utest-is-staff-pm-reader');
         $this->assertFalse($this->user->isWarned(), 'utest-is-not-warned');
         $this->assertFalse($this->user->canCreatePersonalCollage(), 'utest-personal-collage-create');
-        $this->assertFalse($this->user->onRatioWatch(), 'utest-personal-on-ratio-watch');
         $this->assertFalse($this->user->permitted('site_debug'), 'utest-permitted-site-debug');
 
         $this->assertNull($this->user->warningExpiry(), 'utest-warning-expiry');

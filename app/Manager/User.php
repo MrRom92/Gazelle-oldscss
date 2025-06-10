@@ -6,6 +6,8 @@ use Gazelle\Enum\NotificationType;
 use Gazelle\Enum\UserAuditEvent;
 use Gazelle\Enum\UserStatus;
 use Gazelle\SessionCookie;
+use Gazelle\Task;
+use Gazelle\Tracker;
 use Gazelle\User\Session;
 use Gazelle\Util\Time;
 
@@ -870,7 +872,9 @@ class User extends \Gazelle\BaseManager {
         return $processed;
     }
 
-    public function inactiveUserDeactivate(\Gazelle\Tracker $tracker): int {
+    public function inactiveUserDeactivate(
+        Tracker $tracker = new Tracker(),
+    ): int {
         self::$db->prepared_query("
             SELECT DISTiNCT um.ID
             FROM users_main AS um
@@ -897,11 +901,11 @@ class User extends \Gazelle\BaseManager {
             $user = $this->findById($userId);
             if ($user) {
                 $this->disableUserList(
-                    $tracker,
                     [$userId],
                     UserAuditEvent::activity,
                     'Disabled for inactivity.',
                     self::DISABLE_INACTIVITY,
+                    $tracker,
                 );
                 $processed++;
             }
@@ -915,7 +919,13 @@ class User extends \Gazelle\BaseManager {
      *
      * @return int number of users disabled
      */
-    public function disableUserList(\Gazelle\Tracker $tracker, array $idList, UserAuditEvent $event, string $comment, int $reason): int {
+    public function disableUserList(
+        array          $idList,
+        UserAuditEvent $event,
+        string         $comment,
+        int            $reason,
+        Tracker        $tracker = new Tracker(),
+    ): int {
         self::$db->begin_transaction();
         self::$db->prepared_query("
             UPDATE users_main um
@@ -1090,7 +1100,10 @@ class User extends \Gazelle\BaseManager {
         return $criteria;
     }
 
-    public function promote(\Gazelle\Task|null $task = null, bool $commit = true): int {
+    public function promote(
+        Task|null $task   = null,
+        bool      $commit = true,
+    ): int {
         $processed = 0;
         foreach ($this->promotionCriteria() as $level) {
             $fromClass = $this->userclassName($level['From']);
@@ -1145,7 +1158,10 @@ class User extends \Gazelle\BaseManager {
         return $processed;
     }
 
-    public function demote(\Gazelle\Task|null $task = null, bool $commit = true): int {
+    public function demote(
+        Task|null $task   = null,
+        bool      $commit = true,
+    ): int {
         $processed = 0;
         foreach (array_reverse($this->promotionCriteria()) as $level) {
             $fromClass = $this->userclassName($level['To']);  // note: To/From are reversed
@@ -1422,7 +1438,10 @@ class User extends \Gazelle\BaseManager {
         ");
     }
 
-    public function ratioWatchAudit(\Gazelle\Tracker $tracker, \Gazelle\Task|null $task = null): int {
+    public function ratioWatchAudit(
+        Tracker   $tracker = new Tracker(),
+        Task|null $task    = null,
+    ): int {
         // Take users off ratio watch and enable leeching
         return $this->ratioWatchClear($tracker, $task)
             + $this->ratioWatchSet($task);
@@ -1445,8 +1464,7 @@ class User extends \Gazelle\BaseManager {
             WHERE um.can_leech = 1
                 AND ui.RatioWatchEnds IS NOT NULL
                 AND um.Enabled = ?
-                AND cast(uls.Downloaded AS SIGNED INTEGER)
-                    - cast(ui.RatioWatchDownload AS SIGNED INTEGER) > ?
+                AND uls.Downloaded - cast(ui.RatioWatchDownload AS SIGNED) > ?
             ", UserStatus::enabled->value, RATIO_GAMBLE
         );
         return self::$db->collect(0);
@@ -1510,7 +1528,10 @@ class User extends \Gazelle\BaseManager {
     /**
      * Remove leeching privileges from users who were put on ratio watch and did not improve their situation in time
      */
-    public function ratioWatchBlock(\Gazelle\Tracker $tracker, \Gazelle\Task|null $task = null): int {
+    public function ratioWatchBlock(
+        Tracker   $tracker = new Tracker(),
+        Task|null $task    = null,
+    ): int {
         $idList = $this->ratioWatchBlockList();
         if (!$idList) {
             return 0;
@@ -1546,7 +1567,10 @@ class User extends \Gazelle\BaseManager {
     /**
      * Clear users who were on ratio watch and have since improved their situtation
      */
-    public function ratioWatchClear(\Gazelle\Tracker $tracker, \Gazelle\Task|null $task = null): int {
+    public function ratioWatchClear(
+        Tracker   $tracker = new Tracker(),
+        Task|null $task    = null,
+    ): int {
         $idList = $this->ratioWatchClearList();
         if (!$idList) {
             return 0;
@@ -1560,7 +1584,23 @@ class User extends \Gazelle\BaseManager {
                 ui.RatioWatchEnds     = NULL,
                 ui.RatioWatchDownload = '0'
             WHERE um.ID IN (" . placeholders($idList) . ")
-        ", ...$idList);
+            ", ...$idList
+        );
+        $this->pg()->prepared_query('
+            update history_ratio_watch set
+                upload_end   = uls.upload,
+                download_end = uls.download,
+                ratio_watch  = tstzrange(lower(ratio_watch), now())
+            from (
+                select "UserID"  as id_user,
+                    "Uploaded"   as upload,
+                    "Downloaded" as download
+                from relay.users_leech_stats
+                where "UserID" in (' . placeholders($idList) . ')
+            ) uls
+            where uls.id_user = history_ratio_watch.id_user
+            ', ...$idList
+        );
 
         $processed = 0;
         foreach ($idList as $userId) {
@@ -1585,7 +1625,10 @@ class User extends \Gazelle\BaseManager {
         return $processed;
     }
 
-    public function ratioWatchEngage(\Gazelle\Tracker $tracker, \Gazelle\Task|null $task = null): int {
+    public function ratioWatchEngage(
+        Tracker   $tracker = new Tracker(),
+        Task|null $task    = null,
+    ): int {
         $idList = $this->ratioWatchEngageList();
         if (!$idList) {
             return 0;
@@ -1640,7 +1683,16 @@ class User extends \Gazelle\BaseManager {
                 ui.RatioWatchTimes    = ui.RatioWatchTimes + 1,
                 ui.RatioWatchDownload = uls.Downloaded
             WHERE ui.UserID IN (" . placeholders($idList) . ")
-        ", ...$idList);
+            ", ...$idList
+        );
+
+        $this->pg()->prepared_query('
+            insert into history_ratio_watch (id_user, upload_begin, download_begin)
+            select "UserID", "Uploaded", "Downloaded"
+            from relay.users_leech_stats uls
+            where uls."UserID" in (' . placeholders($idList) . ")
+            ", ...$idList
+        );
 
         $processed = 0;
         foreach ($idList as $userId) {
@@ -1727,7 +1779,10 @@ class User extends \Gazelle\BaseManager {
         return count($idList);
     }
 
-    public function expireFreeleechTokens(\Gazelle\Manager\Torrent $torrentMan, \Gazelle\Tracker $tracker): int {
+    public function expireFreeleechTokens(
+        Torrent $torrentMan = new Torrent(),
+        Tracker $tracker    = new Tracker(),
+    ): int {
         $slop   = 1.04; // 4% overshoot on download before forced expiry
 
         self::$db->prepared_query("
