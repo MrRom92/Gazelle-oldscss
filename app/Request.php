@@ -135,7 +135,8 @@ class Request extends BaseObject implements CategoryHasArtist {
                 r.BitrateList     AS encoding_list,
                 r.FormatList      AS format_list,
                 r.MediaList       AS media_list,
-                r.OCLC            AS oclc
+                r.OCLC            AS oclc,
+                r.updated         AS modified
             FROM requests            r
             INNER JOIN category      c ON (c.category_id = r.CategoryID)
             LEFT JOIN release_type rel ON (rel.ID = r.ReleaseType)
@@ -362,6 +363,10 @@ class Request extends BaseObject implements CategoryHasArtist {
 
     public function legacyMediaList(): string {
         return $this->info()['media_list'];
+    }
+
+    public function modified(): string {
+        return $this->info()['modified'];
     }
 
     public function logCue(): Request\LogCue {

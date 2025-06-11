@@ -573,7 +573,7 @@ class DbTest extends TestCase {
     public function testPgWrite(): void {
         $this->expectException(\PDOException::class);
         $this->expectExceptionMessageMatches(
-            '/^SQLSTATE\[\d+\]: Insufficient privilege: \d+ ERROR:  permission denied for table counter$/'
+            '/^SQLSTATE\[\d+\]: Insufficient privilege: \d+ ERROR:  permission denied for table counter/'
         );
         $this->pgro()->prepared_query("
             insert into counter values ('phpunit-testWrite', 'fail on insert', 0)

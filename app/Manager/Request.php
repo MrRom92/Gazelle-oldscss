@@ -27,6 +27,7 @@ class Request extends \Gazelle\BaseManager {
         Media    $media,
         LogCue   $logCue,
         string   $oclc,
+        array    $tagList = [],
         int|null $groupId = null,
     ): \Gazelle\Request {
         self::$db->prepared_query('
@@ -41,6 +42,30 @@ class Request extends \Gazelle\BaseManager {
             $logCue->dbValue(), $logCue->needLogChecksum ? 1 : 0, $oclc, $groupId
         );
         $request = new \Gazelle\Request(self::$db->inserted_id());
+        $this->pg()->prepared_query("
+            insert into request (
+                id_request, id_user, id_tgroup, id_category, id_release_type, year,
+                last_vote, created, modified,
+                description, title, image, catalogue_number, record_label,
+                log_score, need_log, need_cue, need_checksum,
+                artist_title_ts, encoding_str, format_str, media_str, tag
+            ) values (
+                ?, ?, ?, ?, ?, ?,
+                ?, ?, ?,
+                ?, ?, ?, ?, ?,
+                ?, ?, ?, ?,
+                to_tsvector('simple', ?),
+                array[" . placeholders($encoding->dbList()) . "]::text[],
+                array[" . placeholders($format->dbList()) . "]::text[],
+                array[" . placeholders($media->dbList()) . "]::text[],
+                array[" . placeholders($tagList) . "]::int[]
+            )
+            ", $request->id, $user->id, $groupId, $categoryId, $releaseType, $year,
+             $request->lastVoteDate(), $request->created(), $request->modified(),
+             $description, $title, $image, $catalogueNumber, $recordLabel,
+             $logCue->minScore, $logCue->needLog ? 't' : 'f', $logCue->needCue ? 't' : 'f', $logCue->needLogChecksum ? 't' : 'f',
+             $title, ...$encoding->dbList(), ...$format->dbList(), ...$media->dbList(), ...$tagList,
+        );
         $request->vote($user, $bounty);
         $request->artistFlush();
         return $request;
@@ -177,8 +202,10 @@ class Request extends \Gazelle\BaseManager {
                     coalesce(position('Log' in rr.\"LogCue\") > 0, false) as need_log,
                     coalesce(position('Cue' in rr.\"LogCue\") > 0, false) as need_cue,
                     case when rr.\"Checksum\" = 0 then false else true end as need_checksum,
-                    rr.\"BitrateList\" as encoding, rr.\"FormatList\" as format, rr.\"MediaList\" as media,
                     a_t.artist_title_ts,
+                    string_to_array(rr.\"BitrateList\", '|') as encoding_str,
+                    string_to_array(rr.\"FormatList\", '|') as format_str,
+                    string_to_array(rr.\"MediaList\", '|') as media_str,
                     coalesce(tl.tag, ARRAY[]::int[]) as tag
                 from relay.requests rr
                 inner join a_t on (a_t.id_request = rr.\"ID\")
@@ -186,41 +213,38 @@ class Request extends \Gazelle\BaseManager {
             ) as i on r.id_request = i.id_request
                 when not matched then
                     insert (
-                        id_request, id_user, id_filler, id_torrent,
-                        id_tgroup, id_category, id_release_type, year,
-                        last_vote, filled, created, modified,
-                        description, title, image, catalogue_number,
-                        record_label, log_score,
-                        need_log, need_cue, need_checksum,
-                        encoding_str, format_str, media_str,
-                        artist_title_ts, tag
+                        id_request, id_user, id_tgroup, id_category,
+                        id_release_type, year,
+                        last_vote, created, modified,
+                        description, title, image, catalogue_number, record_label,
+                        log_score, need_log, need_cue, need_checksum,
+                        artist_title_ts, tag, encoding_str, format_str, media_str
                     ) values (
-                        i.id_request, i.id_user, i.id_filler, i.id_torrent,
-                        i.id_tgroup, i.id_category, i.id_release_type, i.year,
-                        i.last_vote, i.filled, i.created, i.updated,
-                        i.description, i.title, i.image, i.catalogue_number,
-                        i.record_label, i.log_score,
-                        i.need_log, i.need_cue, i.need_checksum,
-                        string_to_array(i.encoding::text, '|'),
-                        string_to_array(i.format::text, '|'),
-                        string_to_array(i.media::text, '|'),
-                        i.artist_title_ts, i.tag
+                        i.id_request, i.id_user, i.id_tgroup, i.id_category,
+                        i.id_release_type, i.year,
+                        i.last_vote, i.created, i.updated,
+                        i.description, i.title, i.image, i.catalogue_number, i.record_label,
+                        i.log_score, i.need_log, i.need_cue, i.need_checksum,
+                        i.artist_title_ts,
+                        i.tag,
+                        string_to_array(i.encoding_str::text, '|'),
+                        string_to_array(i.format_str::text, '|'),
+                        string_to_array(i.media_str::text, '|')
                     )
                 when matched then
                     update set
-                        id_user = i.id_user, id_filler = i.id_filler, id_torrent = i.id_torrent,
-                        id_tgroup = i.id_tgroup, id_category = i.id_category,
+                        filled = i.filled, id_filler = i.id_filler, id_torrent = i.id_torrent,
+                        id_user = i.id_user, id_tgroup = i.id_tgroup, id_category = i.id_category,
                         id_release_type = i.id_release_type, year = i.year,
-                        last_vote = i.last_vote, filled = i.filled, created = i.created,
-                        modified = i.updated, description = i.description, title = i.title,
-                        image = i.image, catalogue_number = i.catalogue_number,
-                        record_label = i.record_label, log_score = i.log_score, need_log = i.need_log,
+                        last_vote = i.last_vote, created = i.created, modified = i.updated,
+                        description = i.description, title = i.title, image = i.image,
+                        catalogue_number = i.catalogue_number, record_label = i.record_label,
+                        log_score = i.log_score, need_log = i.need_log,
                         need_cue = i.need_cue, need_checksum = i.need_checksum,
-                        encoding_str = string_to_array(i.encoding::text, '|'),
-                        format_str = string_to_array(i.format::text, '|'),
-                        media_str = string_to_array(i.media::text, '|'),
-                        artist_title_ts = i.artist_title_ts,
-                        tag = i.tag
+                        artist_title_ts = i.artist_title_ts, tag = i.tag,
+                        encoding_str = string_to_array(i.encoding_str::text, '|'),
+                        format_str = string_to_array(i.format_str::text, '|'),
+                        media_str = string_to_array(i.media_str::text, '|')
         ");
     }
 }

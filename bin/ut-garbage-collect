@@ -81,13 +81,26 @@ $db->prepared_query("
     WHERE um.ID IS NULL
 ");
 
+$userMan = new Manager\User();
+$collageMan = new Manager\Collage();
+$collageMan->requestContext()->setViewer(
+    $userMan->findById(
+        (int)$db->scalar('
+            SELECT um.id
+            FROM users_main um
+            INNER JOIN permissions p on (p.ID = um.PermissionID)
+            ORDER BY p.level DESC
+            LIMIT 1
+        ')
+    )
+);
+
 // clean collages
 $db->prepared_query("
     SELECT ID
     FROM collages
     WHERE Name regexp '^(phpunit collage (?:ajax|artist|comment|contrib|personal|report) )'
 ");
-$collageMan = new Manager\Collage();
 foreach ($db->collect(0) as $collageId) {
     $collage = $collageMan->findById($collageId);
     echo "collage {$collage->id()} ({$collage->name()})\n";
@@ -148,23 +161,11 @@ foreach ($torrentList as $torrentId) {
         $torrent->removeTorrent(null, 'garbage collection', -1);
     }
 }
-$userMan = new Manager\User();
-$tgMan   = new Manager\TGroup();
-$tgMan->requestContext()->setViewer(
-    $userMan->findById(
-        (int)$db->scalar('
-            SELECT um.id
-            FROM users_main um
-            INNER JOIN permissions p on (p.ID = um.PermissionID)
-            ORDER BY p.level DESC
-            LIMIT 1
-        ')
-    )
-);
 
+$tgMan = new Manager\TGroup();
 foreach ($groupList as $tgroupId) {
     $tgroup = $tgMan->findById($tgroupId);
-    if ($tgroup) {
+    if ($tgroup instanceof TGroup) {
         echo "tgroup $torrentId ({$tgroup->name()})\n";
         $tgroup->remove(new User(1));
     }

@@ -34,6 +34,10 @@ abstract class AbstractValue {
         return $this->all() || array_search($value, $this->label) !== false;
     }
 
+    public function dbList(): array {
+        return array_values($this->label);
+    }
+
     public function dbValue(): string {
         return $this->all || count($this->label) == count($this->legal())
             ? 'Any'

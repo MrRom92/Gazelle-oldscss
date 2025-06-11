@@ -807,7 +807,6 @@ class RequestTest extends TestCase {
         $this->request = Helper::makeRequestMusic($user, $title);
         $artistName    = 'artist ftsreq ' . randomString();
         $this->request->artistRole()->set([ARTIST_MAIN => [$artistName]], $user);
-        new Manager\Request()->relay();
 
         $this->assertEquals(
             $this->request->id,
