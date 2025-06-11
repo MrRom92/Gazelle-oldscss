@@ -493,7 +493,7 @@ function json_hostname(string $ip): false|string {
 function json_encode_pretty(mixed ...$data): string {
     return (string)json_encode(
         (count([...$data]) === 1) ? [...$data][0] : [...$data],
-        JSON_PRETTY_PRINT
+        JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
     );
 }
 
