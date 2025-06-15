@@ -1,0 +1,90 @@
+#! /usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+namespace Gazelle;
+
+require_once(__DIR__ . '/../lib/bootstrap.php');
+
+$pg = new DB\Pg(PG_RW_DSN);
+$pg->pdo()->beginTransaction();
+
+$n = $pg->prepared_query("
+    delete from request
+");
+echo "$n requests removed\n";
+
+$n =$pg->prepared_query("
+    with a_t as (
+        select rr.\"ID\" as id_request,
+            to_tsvector('simple', coalesce(string_agg(aa.\"Name\", ' '), '')
+                || ' ' || rr.\"Title\"
+            ) as artist_title_ts
+        from relay.requests rr
+        left join relay.requests_artists ra on    (ra.\"RequestID\" = rr.\"ID\")
+        left join relay.artists_alias    aa using (\"AliasID\")
+        left join relay.artist_role      ar on    (ar.artist_role_id = ra.artist_role_id)
+        where (ar.slug is null or ar.slug != 'guest')
+            and rr.updated >= (select coalesce(max(modified), '2000-01-01'::timestamptz) from request)
+        group by rr.\"ID\", rr.\"Title\"
+    ),
+    tl as (
+        select rt.id_request,
+            array_agg(rt.id_tag) as tag
+        from request_tag rt
+        inner join relay.requests rr on (rr.\"ID\" = rt.id_request)
+        where rr.updated >= (select coalesce(max(modified), '2000-01-01'::timestamptz) from request)
+        group by rt.id_request
+    )
+    insert into request (
+        id_request, id_user, id_filler, id_tgroup,
+        id_torrent, id_category, id_release_type, year,
+        created, modified, filled,
+        description, title, image, catalogue_number, record_label,
+        log_score, need_log, need_cue, need_checksum,
+        artist_title_ts, tag, encoding_str, format_str, media_str
+    )
+    select
+        rr.\"ID\", rr.\"UserID\", rr.\"FillerID\", rr.\"GroupID\",
+        rr.\"TorrentID\", rr.\"CategoryID\", rr.\"ReleaseType\", rr.\"Year\",
+        rr.created, rr.updated + '1 microsecond'::interval, rr.\"TimeFilled\",
+        rr.\"Description\", rr.\"Title\", rr.\"Image\", rr.\"CatalogueNumber\", rr.\"RecordLabel\",
+        (case when regexp_replace(coalesce(rr.\"LogCue\", ''), '\D+', '', 'g') = ''
+            then '0'
+            else regexp_replace(coalesce(rr.\"LogCue\", ''), '\D+', '', 'g')
+            end)::int,
+        coalesce(position('Log' in rr.\"LogCue\") > 0, false),
+        coalesce(position('Cue' in rr.\"LogCue\") > 0, false),
+        case when rr.\"Checksum\" = 0 then false else true end,
+        coalesce(a_t.artist_title_ts, ''), coalesce(tl.tag, ARRAY[]::int[]),
+        string_to_array(rr.\"BitrateList\", '|'),
+        string_to_array(rr.\"FormatList\", '|'),
+        string_to_array(rr.\"MediaList\", '|')
+    from relay.requests rr
+    left join a_t on (a_t.id_request = rr.\"ID\")
+    left join tl on (tl.id_request = rr.\"ID\")
+");
+echo "$n requests inserted\n";
+
+$n = $pg->prepared_query('
+    insert into request_vote (id_request_vote, id_request, id_user, bounty, created)
+    select rv.requests_votes_id, rv."RequestID", rv."UserID", rv."Bounty", rv.created
+    from relay.requests_votes rv
+    inner join request r on (r.id_request = rv."RequestID")
+');
+echo "$n votes inserted\n";
+
+$n = $pg->prepared_query('
+    insert into request_vote_summary (id_request, bounty_total, user_total, last_vote)
+    select r.id_request,
+        coalesce(sum(rv.bounty)::bigint, 0::bigint),
+        coalesce(count(distinct rv.id_user)::int, 0::int),
+        coalesce(max(rv.created), \'-infinity\')
+    from request r
+    left join request_vote rv using (id_request)
+    group by r.id_request
+');
+echo "$n summaries inserted\n";
+
+$pg->pdo()->commit();

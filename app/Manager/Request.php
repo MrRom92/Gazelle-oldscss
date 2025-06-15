@@ -44,16 +44,16 @@ class Request extends \Gazelle\BaseManager {
         $request = new \Gazelle\Request(self::$db->inserted_id());
         $this->pg()->prepared_query("
             insert into request (
-                id_request, id_user, id_tgroup, id_category, id_release_type, year,
-                last_vote, created, modified,
+                id_request, id_user, id_tgroup, id_category, id_release_type,
+                year, created, modified,
                 description, title, image, catalogue_number, record_label,
                 log_score, need_log, need_cue, need_checksum,
                 artist_title_ts, encoding_str, format_str, media_str, tag
             ) values (
-                ?, ?, ?, ?, ?, ?,
-                ?, ?, ?,
                 ?, ?, ?, ?, ?,
+                ?, ?, ?,
                 ?, ?, ?, ?,
+                ?, ?, ?, ?, ?,
                 to_tsvector('simple', ?),
                 array[" . placeholders($encoding->dbList()) . "]::text[],
                 array[" . placeholders($format->dbList()) . "]::text[],
@@ -61,7 +61,7 @@ class Request extends \Gazelle\BaseManager {
                 array[" . placeholders($tagList) . "]::int[]
             )
             ", $request->id, $user->id, $groupId, $categoryId, $releaseType, $year,
-             $request->lastVoteDate(), $request->created(), $request->modified(),
+             $request->created(), $request->modified(),
              $description, $title, $image, $catalogueNumber, $recordLabel,
              $logCue->minScore, $logCue->needLog ? 't' : 'f', $logCue->needCue ? 't' : 'f', $logCue->needLogChecksum ? 't' : 'f',
              $title, ...$encoding->dbList(), ...$format->dbList(), ...$media->dbList(), ...$tagList,
@@ -191,7 +191,7 @@ class Request extends \Gazelle\BaseManager {
                     rr.\"ID\" as id_request, rr.\"UserID\" as id_user, rr.\"FillerID\" as id_filler,
                     rr.\"TorrentID\" as id_torrent, rr.\"GroupID\" as id_tgroup,
                     rr.\"CategoryID\" as id_category, rr.\"ReleaseType\" as id_release_type,
-                    rr.\"Year\" as year, rr.\"LastVote\" as last_vote, rr.\"TimeFilled\" as filled,
+                    rr.\"Year\" as year, rr.\"TimeFilled\" as filled,
                     rr.created, rr.updated + '1 microsecond'::interval as updated,
                     rr.\"Description\" as description, rr.\"Title\" as title, rr.\"Image\" as image,
                     rr.\"CatalogueNumber\" as catalogue_number, rr.\"RecordLabel\" as record_label,
@@ -213,16 +213,14 @@ class Request extends \Gazelle\BaseManager {
             ) as i on r.id_request = i.id_request
                 when not matched then
                     insert (
-                        id_request, id_user, id_tgroup, id_category,
-                        id_release_type, year,
-                        last_vote, created, modified,
+                        id_request, id_user, id_tgroup, id_category, id_release_type,
+                        year, created, modified,
                         description, title, image, catalogue_number, record_label,
                         log_score, need_log, need_cue, need_checksum,
                         artist_title_ts, tag, encoding_str, format_str, media_str
                     ) values (
-                        i.id_request, i.id_user, i.id_tgroup, i.id_category,
-                        i.id_release_type, i.year,
-                        i.last_vote, i.created, i.updated,
+                        i.id_request, i.id_user, i.id_tgroup, i.id_category, i.id_release_type,
+                        i.year, i.created, i.updated,
                         i.description, i.title, i.image, i.catalogue_number, i.record_label,
                         i.log_score, i.need_log, i.need_cue, i.need_checksum,
                         i.artist_title_ts,
@@ -236,7 +234,7 @@ class Request extends \Gazelle\BaseManager {
                         filled = i.filled, id_filler = i.id_filler, id_torrent = i.id_torrent,
                         id_user = i.id_user, id_tgroup = i.id_tgroup, id_category = i.id_category,
                         id_release_type = i.id_release_type, year = i.year,
-                        last_vote = i.last_vote, created = i.created, modified = i.updated,
+                        created = i.created, modified = i.updated,
                         description = i.description, title = i.title, image = i.image,
                         catalogue_number = i.catalogue_number, record_label = i.record_label,
                         log_score = i.log_score, need_log = i.need_log,

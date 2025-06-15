@@ -132,9 +132,9 @@ class Request extends BaseObject implements CategoryHasArtist {
                 r.TorrentID       AS torrent_id,
                 r.LogCue          AS log_cue,
                 r.Checksum        AS checksum,
-                r.BitrateList     AS encoding_list,
-                r.FormatList      AS format_list,
-                r.MediaList       AS media_list,
+                coalesce(r.BitrateList, '') AS encoding_list,
+                coalesce(r.FormatList, '')  AS format_list,
+                coalesce(r.MediaList, '')   AS media_list,
                 r.OCLC            AS oclc,
                 r.updated         AS modified
             FROM requests            r
@@ -609,6 +609,27 @@ class Request extends BaseObject implements CategoryHasArtist {
                    (id_request_vote, id_request, id_user, bounty)
             values ($1,              $2,         $3,      $4)
             ', self::$db->inserted_id(), $this->id, $user->id, $bounty
+        );
+        $this->pg()->executeParams('
+            merge into request_vote_summary rvs using (
+                select id_request,
+                    sum(bounty)             as bounty_total,
+                    count(distinct id_user) as user_total,
+                    max(created)            as last_vote
+                from request_vote
+                where id_request = $1
+                group by id_request
+            ) as i on rvs.id_request = i.id_request
+                when not matched then
+                    insert (  id_request,   bounty_total,   user_total,   last_vote)
+                    values (i.id_request, i.bounty_total, i.user_total, i.last_vote)
+                when matched then
+                    update set
+                        id_request   = i.id_request,
+                        bounty_total = i.bounty_total,
+                        user_total   = i.user_total,
+                        last_vote    = i.last_vote
+            ', $this->id
         );
         self::$db->prepared_query("
             UPDATE requests SET
