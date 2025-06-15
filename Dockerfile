@@ -4,8 +4,8 @@ ENV DEB_RELEASE=bookworm
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PHP_VER=8.4
 ENV NODE_VERSION=20
-# commit of composer 2.8.8
-ENV COMPOSER_COMMIT=f3108f64b4e1c1ce6eb462b159956461592b3e3e
+# commit of composer 2.8.9
+ENV COMPOSER_COMMIT=8e8829ec2b97fcb05158236984bc252bef902e7b8ff65555a1eeda4ec13fb82b
 
 # Uncomment to skip the chromium download when installing puppeteer. If you do,
 # you'll need to launch puppeteer with:

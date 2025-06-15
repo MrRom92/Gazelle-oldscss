@@ -4,8 +4,8 @@ ENV DEB_RELEASE=bookworm
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PHP_VER=8.4
 ENV NODE_VERSION=20
-# commit of composer 2.8.8
-ENV COMPOSER_COMMIT=f3108f64b4e1c1ce6eb462b159956461592b3e3e
+# commit of composer 2.8.9
+ENV COMPOSER_COMMIT=fe96bbefbdb83fa3ca6504c8edea4018528a5e66
 
 # Uncomment to skip the chromium download when installing puppeteer. If you do,
 # you'll need to launch puppeteer with:
@@ -22,8 +22,8 @@ RUN apt-get update \
         curl \
         gnupg2 \
     && mkdir -p /etc/apt/keyrings \
-    && curl -sL https://packages.sury.org/php/apt.gpg | apt-key add - \
-    && echo "deb https://packages.sury.org/php/ $DEB_RELEASE main" | tee /etc/apt/sources.list.d/php.list \
+    && curl -fsSL https://packages.sury.org/php/apt.gpg > /usr/share/keyrings/debsuryorg-archive-keyring.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ $DEB_RELEASE main" > /etc/apt/sources.list.d/php.list \
     && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
     && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODE_VERSION}.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
     && apt-get update \
