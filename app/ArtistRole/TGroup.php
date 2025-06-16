@@ -149,11 +149,10 @@ class TGroup extends \Gazelle\ArtistRole {
         $aliasList = array_map(fn ($tuple) => $tuple[1], $roleAliasList);
         self::$db->prepared_query("
             UPDATE IGNORE torrents_artists SET
-                artist_role_id = ?,
-                Importance     = ?
+                artist_role_id = ?
             WHERE GroupID = ?
                 AND AliasID IN (" . placeholders($aliasList) . ")
-            ", $role, $role, $this->object->id(), ...$aliasList
+            ", $role, $this->object->id(), ...$aliasList
         );
         $affected = 0;
         foreach ($roleAliasList as [$oldRole, $aliasId]) {

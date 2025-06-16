@@ -381,11 +381,11 @@ function AddArtistField() {
     ArtistField.size = "17";
     x.appendChild(ArtistField);
     x.appendChild(document.createTextNode(' '));
-    let Importance = document.createElement("select");
-    Importance.name = "importance[]";
-    Importance.innerHTML = '<option value="1">Main</option><option value="2">Guest</option><option value="4">Composer</option><option value="5">Conductor</option><option value="6">DJ / Compiler</option><option value="3">Remixer</option><option value="7">Producer</option><option value="8">Arranger</option>';
-    Importance.selectedIndex = selected;
-    x.appendChild(Importance);
+    let role = document.createElement("select");
+    role.name = "importance[]";
+    role.innerHTML = '<option value="1">Main</option><option value="2">Guest</option><option value="4">Composer</option><option value="5">Conductor</option><option value="6">DJ / Compiler</option><option value="3">Remixer</option><option value="7">Producer</option><option value="8">Arranger</option>';
+    role.selectedIndex = selected;
+    x.appendChild(role);
     if ($("#artist").data("gazelle-autocomplete")) {
         $(ArtistField).live('focus', () => {
             $(ArtistField).autocomplete({

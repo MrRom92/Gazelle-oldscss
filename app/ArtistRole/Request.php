@@ -46,9 +46,9 @@ class Request extends \Gazelle\ArtistRole {
             foreach ($artistList as $artist) {
                 self::$db->prepared_query("
                     INSERT INTO requests_artists
-                           (RequestID, UserID, AliasID, artist_role_id, Importance)
-                    VALUES (?,         ?,      ?,       ?,              ?)
-                    ", $this->object->id(), $user->id, $artist->aliasId(), $role, (string)$role
+                           (RequestID, UserID, AliasID, artist_role_id)
+                    VALUES (?,         ?,      ?,       ?)
+                    ", $this->object->id(), $user->id, $artist->aliasId(), $role
                 );
                 $affected += self::$db->affected_rows();
                 self::$cache->delete_value("artists_requests_{$artist->id}");

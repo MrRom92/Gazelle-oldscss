@@ -631,7 +631,6 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
                     $this->requestContext()->viewer()->id,
                     $artist->aliasId(),
                     $role,
-                    (string)$role,
                 );
                 $add[] = "{$artist->label()} as " . ARTIST_TYPE[$role];
             }
@@ -641,8 +640,8 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
         }
         self::$db->prepared_query("
             INSERT INTO torrents_artists
-                   (GroupID, UserID, AliasID, artist_role_id, Importance)
-            VALUES " . placeholders($add, '(?, ?, ?, ?, ?)'),
+                   (GroupID, UserID, AliasID, artist_role_id)
+            VALUES " . placeholders($add, '(?, ?, ?, ?)'),
             ...$args
         );
 

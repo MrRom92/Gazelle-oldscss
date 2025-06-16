@@ -20,7 +20,7 @@ function ChangeCategory(catid) {
 }
 
 function ArtistManager() {
-    var GroupID = window.location.search.match(/[?&]id=(\d+)/);
+    let GroupID = window.location.search.match(/[?&]id=(\d+)/);
     if (typeof GroupID == 'undefined') {
         return;
     } else {
@@ -85,17 +85,17 @@ function ArtistManager() {
         }
         elArtistManager.appendChild(elArtistList);
 
-        var elArtistForm = document.createElement('form');
+        let elArtistForm = document.createElement('form');
         elArtistForm.id = 'artistmanager_form';
         elArtistForm.method = 'post';
 
-        var elGroupID = document.createElement('input');
+        let elGroupID = document.createElement('input');
         elGroupID.type = 'hidden';
         elGroupID.name = 'groupid';
         elGroupID.value = GroupID;
         elArtistForm.appendChild(elGroupID);
 
-        var elAction = document.createElement('input');
+        let elAction = document.createElement('input');
         elAction.type = 'hidden';
         elAction.name = 'manager_action';
         elAction.id = 'manager_action';
@@ -108,67 +108,67 @@ function ArtistManager() {
         elAction.value = 'manage_artists';
         elArtistForm.appendChild(elAction);
 
-        var elAuth = document.createElement('input');
+        let elAuth = document.createElement('input');
         elAuth.type = 'hidden';
         elAuth.name = 'auth';
         elAuth.value = document.body.dataset.auth;
         elArtistForm.appendChild(elAuth);
 
-        var elSelection = document.createElement('input');
+        let elSelection = document.createElement('input');
         elSelection.type = 'hidden';
         elSelection.id = 'artists_selection';
         elSelection.name = 'artists';
         elArtistForm.appendChild(elSelection);
 
-        var elSubmitDiv = document.createElement('div');
-        var elImportance = document.createElement('select');
-        elImportance.name = 'importance';
-        elImportance.id = 'artists_importance';
+        let elSubmitDiv = document.createElement('div');
+        let elRole = document.createElement('select');
+        elRole.name = 'importance';
+        elRole.id = 'artists_importance';
 
-        var elOpt = document.createElement('option');
+        let elOpt = document.createElement('option');
         elOpt.value = 1;
         elOpt.innerHTML = 'Main artist';
-        elImportance.appendChild(elOpt);
+        elRole.appendChild(elOpt);
         elOpt = document.createElement('option');
         elOpt.value = 2;
         elOpt.innerHTML = 'Guest artist';
-        elImportance.appendChild(elOpt);
+        elRole.appendChild(elOpt);
         elOpt = document.createElement('option');
         elOpt.value = 4;
         elOpt.innerHTML = 'Composer';
-        elImportance.appendChild(elOpt);
+        elRole.appendChild(elOpt);
         elOpt = document.createElement('option');
         elOpt.value = 5;
         elOpt.innerHTML = 'Conductor';
-        elImportance.appendChild(elOpt);
+        elRole.appendChild(elOpt);
         elOpt = document.createElement('option');
         elOpt.value = 6;
         elOpt.innerHTML = 'DJ / Compiler';
-        elImportance.appendChild(elOpt);
+        elRole.appendChild(elOpt);
         elOpt = document.createElement('option');
         elOpt.value = 3;
         elOpt.innerHTML = 'Remixer';
-        elImportance.appendChild(elOpt);
+        elRole.appendChild(elOpt);
         elOpt = document.createElement('option');
         elOpt.value = 7;
         elOpt.innerHTML = 'Producer';
-        elImportance.appendChild(elOpt);
+        elRole.appendChild(elOpt);
         elOpt = document.createElement('option');
         elOpt.value = 8;
         elOpt.innerHTML = 'Arranger';
-        elImportance.appendChild(elOpt);
-        elSubmitDiv.appendChild(elImportance);
+        elRole.appendChild(elOpt);
+        elSubmitDiv.appendChild(elRole);
         elSubmitDiv.appendChild(document.createTextNode(' '));
 
         elSubmitDiv.className = 'body';
-        var elSubmit = document.createElement('input');
+        let elSubmit = document.createElement('input');
         elSubmit.type = 'button';
         elSubmit.value = 'Update';
         elSubmit.onclick = ArtistManagerSubmit;
         elSubmitDiv.appendChild(elSubmit);
         elSubmitDiv.appendChild(document.createTextNode(' '));
 
-        var elDelButton = document.createElement('input');
+        let elDelButton = document.createElement('input');
         elDelButton.type = 'button';
         elDelButton.value = 'Delete';
         elDelButton.onclick = ArtistManagerDelete;
@@ -201,9 +201,9 @@ function SelectArtist(e,obj) {
 }
 
 function ArtistManagerSubmit() {
-    var Selection = new Array();
-    var MainSelectionCount = 0;
-    for (var i = 0, boxes = $('[name="artistmanager_box"]'); boxes.raw(i); i++) {
+    let Selection = new Array();
+    let MainSelectionCount = 0;
+    for (let i = 0, boxes = $('[name="artistmanager_box"]'); boxes.raw(i); i++) {
         if (boxes.raw(i).checked) {
             Selection.push(boxes.raw(i).value);
             if (boxes.raw(i).value.substr(0,1) == '1') {
