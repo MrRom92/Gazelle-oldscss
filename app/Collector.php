@@ -240,6 +240,7 @@ abstract class Collector extends Base  {
      * Add a summary to the archive and include a list of files that could not be added. Close the zip archive
      */
     public function emitZip(\ZipStream\ZipStream $zip): void {
+        self::$db->disableQueryLog();
         $this->fillZip($zip);
         $zip->addFile("README.txt", $this->summary());
         if ($this->error) {

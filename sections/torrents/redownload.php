@@ -41,6 +41,8 @@ switch ($_GET['type']) {
 
 $title = "{$user->username()}-{$userTorrent->label()}";
 $collector = new Collector\TList($Viewer, new Manager\Torrent(), $title, 0);
-$collector->setList($userTorrent->idList());
+$idList = $userTorrent->idList();
+$collector->setList($idList);
 $collector->prepare([]);
+set_time_limit((int)max(30, count($idList) * 0.1));
 $collector->emitZip(Util\Zip::make($title));
