@@ -26,49 +26,25 @@ abstract class AbstractUserRank extends \Gazelle\Base {
      * slow.
      */
     public function bucketList(): array {
-        self::$db->dropTemporaryTable("temp_stats");
         self::$db->prepared_query("
-            CREATE TEMPORARY TABLE temp_stats (
-                id integer NOT NULL PRIMARY KEY AUTO_INCREMENT,
-                n bigint NOT NULL DEFAULT 0
+            WITH r(n) AS ({$this->selector()}),
+            p(n, percent) AS (
+              SELECT n,
+                ntile(100) OVER (ORDER BY n)
+              FROM r
             )
-        ");
-        self::$db->prepared_query("
-            INSERT INTO temp_stats (n)
-            " . $this->selector()
-        );
+            SELECT min(n)
+            FROM p
+            GROUP BY percent
+            ORDER BY percent
 
-        /* Classic Mysql cannot do this (although it is fixed in MariaDB)
-         * See: https://stackoverflow.com/questions/343402/getting-around-mysql-cant-reopen-table-error
-         *
-         *  SELECT min(n) as bucket
-         *  FROM temp_stats
-         *  GROUP BY ceil(id / (SELECT count(*)/100 FROM temp_stats))
-         */
-        self::$db->dropTemporaryTable("temp_stats_dup");
-        self::$db->prepared_query("
-            CREATE TEMPORARY TABLE temp_stats_dup LIKE temp_stats
         ");
-        self::$db->prepared_query("
-            INSERT INTO temp_stats_dup
-            SELECT * FROM temp_stats
-        ");
-
-        self::$db->prepared_query("
-            SELECT min(n) as bucket
-            FROM temp_stats
-            GROUP BY ceil(id / (SELECT count(*)/100 FROM temp_stats_dup))
-            ORDER BY 1
-        ");
-        $bucketList = self::$db->collect('bucket');
-        self::$db->dropTemporaryTable("temp_stats");
-        self::$db->dropTemporaryTable("temp_stats_dup");
-        return $bucketList;
+        return self::$db->collect(0);
     }
 
     public function build(): array {
         $raw = $this->bucketList();
-        if (empty($raw)) {
+        if ($raw === []) {
             // This occurs only a fresh installation
             $raw = [0];
         }
@@ -104,10 +80,10 @@ abstract class AbstractUserRank extends \Gazelle\Base {
          * unique per user.
          */
 
-        $previous = 0;
+        $previous   = 0;
         $percentile = 0;
-        $increment = max(1, 100 / count($raw));
-        $table = [];
+        $increment  = max(1, 100 / count($raw));
+        $table      = [];
         foreach ($raw as $bucket) {
             $percentile += $increment;
             if ($previous != $bucket) {
