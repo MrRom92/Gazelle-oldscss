@@ -125,7 +125,7 @@ foreach ($db->collect(0) as $requestId) {
 $db->prepared_query("
     SELECT ID
     FROM forums
-    WHERE Name regexp '^phpunit '
+    WHERE Name regexp '^(phpunit |forum .{6}$)'
 ");
 
 $forMan = new Manager\Forum();
