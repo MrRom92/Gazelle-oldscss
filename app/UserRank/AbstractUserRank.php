@@ -25,7 +25,7 @@ abstract class AbstractUserRank extends \Gazelle\Base {
      * scheduler task, as some aggregations are very
      * slow.
      */
-    public function build(): array {
+    public function bucketList(): array {
         self::$db->dropTemporaryTable("temp_stats");
         self::$db->prepared_query("
             CREATE TEMPORARY TABLE temp_stats (
@@ -60,9 +60,14 @@ abstract class AbstractUserRank extends \Gazelle\Base {
             GROUP BY ceil(id / (SELECT count(*)/100 FROM temp_stats_dup))
             ORDER BY 1
         ");
-        $raw = self::$db->collect('bucket');
+        $bucketList = self::$db->collect('bucket');
         self::$db->dropTemporaryTable("temp_stats");
         self::$db->dropTemporaryTable("temp_stats_dup");
+        return $bucketList;
+    }
+
+    public function build(): array {
+        $raw = $this->bucketList();
         if (empty($raw)) {
             // This occurs only a fresh installation
             $raw = [0];
