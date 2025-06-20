@@ -31,6 +31,27 @@ class MysqlTable extends AbstractTable {
         return self::$db->row("SHOW CREATE TABLE {$this->name}")[1];
     }
 
+    /***
+     * List the tables that have a foreign key reference to the specified table
+     */
+    public function foreignKeyList(): array {
+        self::$db->prepared_query("
+            SELECT kcu.table_name,
+                kcu.column_name,
+                kcu.constraint_name,
+                rc.update_rule,
+                rc.delete_rule
+            FROM information_schema.key_column_usage kcu
+            INNER JOIN information_schema.referential_constraints rc
+                USING (constraint_schema, constraint_name, table_name)
+            WHERE kcu.table_schema = ?
+                AND kcu.referenced_table_name = ?
+            ORDER BY kcu.table_name, kcu.column_name
+            ", MYSQL_DB, $this->name
+        );
+        return self::$db->to_array(false, MYSQLI_ASSOC);
+    }
+
     public function indexRead(): array {
         self::$db->prepared_query("
             SELECT s.INDEX_NAME           AS index_name,

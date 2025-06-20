@@ -55,5 +55,34 @@
         </tr>
 {% endfor %}
     </table>
+</div>
+</div>
+
+<div class="pad"><div class="box pad">
+    <h3>References from other tables</h3>
+{% for r in table.foreignKeyList %}
+{%  if loop.first %}
+    <table>
+        <tr>
+            <th>Table name</th>
+            <th>Column name</th>
+            <th>Constraint name</th>
+            <th class="center">Update cascade</th>
+            <th class="center">Delete cascade</th>
+        </tr>
+{% endif %}
+        <tr>
+            <td><a href="tools.php?action=db-mysql&table={{ r.TABLE_NAME }}">{{ r.TABLE_NAME }}</a></td>
+            <td>{{ r.COLUMN_NAME }}</td>
+            <td>{{ r.CONSTRAINT_NAME }}</td>
+            <td class="center">{{ r.UPDATE_RULE == 'CASCADE' ? '✅' : '·' }}</td>
+            <td class="center">{{ r.DELETE_RULE == 'CASCADE' ? '✅' : '·' }}</td>
+        </tr>
+{%  if loop.last %}
+    </table>
+{%  endif %}
+{% else %}
+No other tables refer to this table via foreign keys
+{% endfor %}
 </div></div>
 {{ footer() }}

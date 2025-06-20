@@ -12,9 +12,10 @@ if (!$Viewer->permitted('site_database_specifics')) {
 
 // View table definition
 if (preg_match('/([\w-]+)/', $_GET['table'] ?? '', $match)) {
-    $table = new DB\MysqlTable($match[1]);
+    $tableName = $match[1];
+    $table = new DB\MysqlTable($tableName);
     if (!$table->exists()) {
-        Error404::error("No such Mysql table {$match[1]}");
+        Error404::error("No such Mysql table {$tableName}");
     }
     echo $Twig->render('admin/mysql-table.twig', [
         'table' => $table,

@@ -308,7 +308,7 @@ class DbTest extends TestCase {
         $bad = new DB\MysqlTable('nosuchtable');
         $this->assertFalse($bad->exists(), 'mysql-table-does-not-exist');
 
-        $table = new DB\MysqlTable('users_main');
+        $table = new DB\MysqlTable('collages');
         $this->assertTrue($table->exists(), 'mysql-table-exists');
         $this->assertEquals(
             "tools.php?action=db-mysql&table={$table->name}",
@@ -316,7 +316,7 @@ class DbTest extends TestCase {
             'mysql-table-location',
         );
         $this->assertEquals(
-            "<a href=\"tools.php?action=db-mysql&amp;table=users_main\">users_main</a>",
+            "<a href=\"tools.php?action=db-mysql&amp;table=collages\">collages</a>",
             $table->link(),
             'mysql-table-link',
         );
@@ -348,6 +348,20 @@ class DbTest extends TestCase {
             ],
             array_keys($table->stats()),
             'mysql-table-stats',
+        );
+        $this->assertEquals(
+            [
+                'bookmarks_collages',
+                'collage_has_attr',
+                'collages_artists',
+                'collages_torrents',
+                'users_collage_subs',
+            ],
+            array_map(
+                fn ($t) => $t['TABLE_NAME'],
+                $table->foreignKeyList(),
+            ),
+            'mysql-fkey-list'
         );
     }
 
