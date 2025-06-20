@@ -48,14 +48,14 @@ $torrentList   = $tgroup->torrentIdList();
 $removed       = $torrentList ? [] : $tgroup->deletedMasteringList();
 
 $section = [
-    ['id' => ARTIST_COMPOSER,  'name' => 'composer',  'class' => 'artists_composers',  'role' => 'Composer',  'title' => 'Composers:'],
-    ['id' => ARTIST_DJ,        'name' => 'dj',        'class' => 'artists_dj',         'role' => 'DJ',        'title' => 'DJ / Compiler:'],
-    ['id' => ARTIST_MAIN,      'name' => 'main',      'class' => 'artists_main',       'role' => 'Artist',    'title' => empty($role['conductor']) ? 'Artists:' : 'Performers:'],
-    ['id' => ARTIST_GUEST,     'name' => 'guest',     'class' => 'artists_guest',      'role' => 'Guest',     'title' => 'With:'],
-    ['id' => ARTIST_CONDUCTOR, 'name' => 'conductor', 'class' => 'artists_conductors', 'role' => 'Conductor', 'title' => 'Conducted by:'],
-    ['id' => ARTIST_REMIXER,   'name' => 'remixer',   'class' => 'artists_remix',      'role' => 'Remixer',   'title' => 'Remixed by:'],
-    ['id' => ARTIST_PRODUCER,  'name' => 'producer',  'class' => 'artists_producer',   'role' => 'Producer',  'title' => 'Produced by:'],
-    ['id' => ARTIST_ARRANGER,  'name' => 'arranger',  'class' => 'artists_arranger',   'role' => 'Arranger',  'title' => 'Arranged by:'],
+    ['id' => ARTIST_COMPOSER,  'name' => 'composer',  'class' => 'artists_composers',  'role' => 'Composer',      'title' => 'Composers:'],
+    ['id' => ARTIST_DJ,        'name' => 'dj',        'class' => 'artists_dj',         'role' => 'DJ / Compiler', 'title' => 'DJ / Compiler:'],
+    ['id' => ARTIST_MAIN,      'name' => 'main',      'class' => 'artists_main',       'role' => 'Artist',        'title' => empty($role['conductor']) ? 'Artists:' : 'Performers:'],
+    ['id' => ARTIST_GUEST,     'name' => 'guest',     'class' => 'artists_guest',      'role' => 'Guest',         'title' => 'With:'],
+    ['id' => ARTIST_CONDUCTOR, 'name' => 'conductor', 'class' => 'artists_conductors', 'role' => 'Conductor',     'title' => 'Conducted by:'],
+    ['id' => ARTIST_REMIXER,   'name' => 'remixer',   'class' => 'artists_remix',      'role' => 'Remixer',       'title' => 'Remixed by:'],
+    ['id' => ARTIST_PRODUCER,  'name' => 'producer',  'class' => 'artists_producer',   'role' => 'Producer',      'title' => 'Produced by:'],
+    ['id' => ARTIST_ARRANGER,  'name' => 'arranger',  'class' => 'artists_arranger',   'role' => 'Arranger',      'title' => 'Arranged by:'],
 ];
 
 echo $Twig->render('torrent/detail-header.twig', [
