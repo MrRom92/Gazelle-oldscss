@@ -72,24 +72,28 @@ while (true) { // break early on error
             $error = 'You did not enter any artists.';
             break;
         }
+        $artistMan  = new Manager\Artist();
         $artistList = $_POST['artists'];
-        $roleList   = $_POST['importance'];
-
-        $main = 0;
-        $seen = [];
+        $roleList   = array_map('intval', $_POST['importance']);
         $artistRole = [];
+        $seen       = [];
+        $main       = 0;
         for ($i = 0, $il = count($artistList); $i < $il; $i++) {
             $name = trim($artistList[$i]);
             if ($name == '' || in_array($name, $seen)) {
                 continue;
             }
             $seen[] = $name;
-            $role = $roleList[$i];
-            if (!isset($artistRole[$role])) {
-                $artistRole[$role] = [];
+            $roleId = $roleList[$i];
+            if (!$artistMan->roleExists(CATEGORY_MUSIC, $roleId)) {
+                // ignore bogus artist role
+                continue;
             }
-            $artistRole[$role][] = $name;
-            if (in_array($role, [ARTIST_ARRANGER, ARTIST_COMPOSER, ARTIST_CONDUCTOR, ARTIST_DJ, ARTIST_MAIN])) {
+            if (!isset($artistRole[$roleId])) {
+                $artistRole[$roleId] = [];
+            }
+            $artistRole[$roleId][] = $name;
+            if (in_array($roleId, [ARTIST_ARRANGER, ARTIST_COMPOSER, ARTIST_CONDUCTOR, ARTIST_DJ, ARTIST_MAIN])) {
                 $main++;
             }
         }

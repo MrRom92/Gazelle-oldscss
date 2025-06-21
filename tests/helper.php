@@ -27,7 +27,7 @@ class Helper {
         return new \Gazelle\Manager\Forum()->create(
             user:           $user,
             sequence:       $sequence,
-            categoryId:     $category->id(),
+            categoryId:     $category->id,
             name:           $name,
             description:    $description,
             minClassRead:   $minClassRead,
@@ -131,7 +131,7 @@ class Helper {
             recordLabel:     'Unitest Artists Corporation',
             catalogueNumber: 'UA-' . random_int(10000, 99999),
         );
-        $tgroup->addArtists($artistName[0], $artistName[1], new \Gazelle\Manager\Artist());
+        $tgroup->addArtists($artistName[0], $artistName[1]);
         $tagMan = new \Gazelle\Manager\Tag();
         foreach ($tagName as $name) {
             $tag = $tagMan->softCreate($name, $user);

@@ -174,6 +174,15 @@ class Artist extends \Gazelle\BaseManager {
         );
     }
 
+    public function roleExists(int $categoryId, int $roleId): bool {
+        // TODO: roles by category are not yet a thing so ignore categoryId for now
+        $categoryId = 0;
+        return (bool)self::$db->scalar("
+            SELECT 1 FROM artist_role WHERE artist_role_id = ?
+            ", $roleId
+        );
+    }
+
     public function tgroupList(int $aliasId, \Gazelle\Manager\TGroup $tgMan): array {
         self::$db->prepared_query("
             SELECT GroupID FROM torrents_artists WHERE AliasID = ?

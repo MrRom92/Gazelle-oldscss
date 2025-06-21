@@ -91,7 +91,7 @@ if (empty($_POST['artists'])) {
     $artistRole = [];
 } else {
     $Artists = $_POST['artists'];
-    $artistRole = $_POST['importance'];
+    $artistRole = array_map('intval', $_POST['importance']);
 }
 
 if (!empty($_POST['requestid'])) {
@@ -201,6 +201,7 @@ switch ($categoryName) {
 }
 
 if ($isMusicUpload && !$Properties['GroupID']) {
+    $artistMan = new Manager\Artist();
     if (count($Artists) !== count($artistRole)) {
         reportError("There is an error with how artists are specified.");
     }
@@ -230,11 +231,15 @@ if ($isMusicUpload && !$Properties['GroupID']) {
         if ($name === '') {
             continue;
         }
-        $role = (int)$artistRole[$i];
-        if (!in_array($name, $ArtistNameByRole[$role])) {
-            $ArtistNameByRole[$role][] = $name;
-            $ArtistForm[$role][] = ['name' => $name];
-            $ArtistRoleList[] = $role;
+        $roleId = $artistRole[$i];
+        if (!$artistMan->roleExists($categoryId, $roleId)) {
+            // ignore bogus artist role
+            continue;
+        }
+        if (!in_array($name, $ArtistNameByRole[$roleId])) {
+            $ArtistNameByRole[$roleId][] = $name;
+            $ArtistForm[$roleId][] = ['name' => $name];
+            $ArtistRoleList[] = $roleId;
             $ArtistNameList[] = $name;
         }
     }
@@ -514,7 +519,7 @@ if ($tgroup) {
     }
 
     if ($isMusicUpload) {
-        $tgroup->addArtists($ArtistRoleList, $ArtistNameList, new Manager\Artist());
+        $tgroup->addArtists($ArtistRoleList, $ArtistNameList);
         $Cache->increment_value('stats_album_count', count($ArtistNameList));
     }
     $Viewer->stats()->increment('unique_group_total');

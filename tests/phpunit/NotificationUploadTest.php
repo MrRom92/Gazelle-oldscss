@@ -27,7 +27,7 @@ class NotificationUploadTest extends TestCase {
             catalogueNumber: 'UA-246',
             showcase:        false,
         );
-        $tgroup->addArtists([ARTIST_MAIN], ['Notify Man ' . randomString(12)], new Manager\Artist());
+        $tgroup->addArtists([ARTIST_MAIN], ['Notify Man ' . randomString(12)]);
 
         $tagMan = new Manager\Tag();
         foreach (['electronic', 'funk', 'jazz'] as $name) {

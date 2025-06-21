@@ -604,7 +604,11 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
      * Add artists to a group. The role and name arrays must be the same length, and
      * are walked down in step, to match the artist with their role in the group
      */
-    public function addArtists(array $roles, array $names, Manager\Artist $artistMan): int {
+    public function addArtists(
+        array $roles,
+        array $names,
+        Manager\Artist $artistMan = new Manager\Artist(),
+    ): int {
         $add = [];
         $args = [];
         $seen = [];

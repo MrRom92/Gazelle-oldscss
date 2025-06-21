@@ -1,5 +1,4 @@
 <?php
-/** @phpstan-var \Gazelle\User $Viewer */
 
 declare(strict_types=1);
 
@@ -13,13 +12,7 @@ if (is_null($tgroup)) {
     Error404::error();
 }
 
-$count = $tgroup->addArtists(
-    $_POST['importance'],
-    $_POST['aliasname'],
-    new Manager\Artist(),
-);
-
-if ($count < 1) {
+if ($tgroup->addArtists($_POST['importance'], $_POST['aliasname']) < 1) {
     Error400::error("artist already added");
 }
 

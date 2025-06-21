@@ -123,7 +123,7 @@ class TGroupTest extends TestCase {
         $artistName = 'phpunit ' . randomString(6) . ' band';
         $this->assertEquals(
             1,
-            $this->tgroup->addArtists([ARTIST_MAIN], [$artistName], $artMan),
+            $this->tgroup->addArtists([ARTIST_MAIN], [$artistName]),
             'tgroup-artist-add'
         );
         $this->assertEquals(
@@ -200,7 +200,6 @@ class TGroupTest extends TestCase {
             $this->tgroup->addArtists(
                 [ARTIST_MAIN,     ARTIST_GUEST],
                 [$addName, "$artistName-guest"],
-                $artMan,
             ),
             'tgroup-artist-add-2'
         );

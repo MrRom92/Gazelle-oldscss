@@ -142,14 +142,14 @@ class Artist extends BaseAttrObject implements CollageEntry {
             ", $this->id
         );
         $this->artistRole = [
-            ARTIST_MAIN => 0,
-            ARTIST_GUEST => 0,
-            ARTIST_REMIXER => 0,
-            ARTIST_COMPOSER => 0,
+            ARTIST_MAIN      => 0,
+            ARTIST_GUEST     => 0,
+            ARTIST_REMIXER   => 0,
+            ARTIST_COMPOSER  => 0,
             ARTIST_CONDUCTOR => 0,
-            ARTIST_DJ => 0,
-            ARTIST_PRODUCER => 0,
-            ARTIST_ARRANGER => 0,
+            ARTIST_DJ        => 0,
+            ARTIST_PRODUCER  => 0,
+            ARTIST_ARRANGER  => 0,
         ];
 
         while ([$groupId, $role, $releaseTypeId] = self::$db->next_record(MYSQLI_NUM)) {
@@ -158,9 +158,9 @@ class Artist extends BaseAttrObject implements CollageEntry {
                 ARTIST_ARRANGER => ARTIST_SECTION_ARRANGER,
                 ARTIST_PRODUCER => ARTIST_SECTION_PRODUCER,
                 ARTIST_COMPOSER => ARTIST_SECTION_COMPOSER,
-                ARTIST_REMIXER => ARTIST_SECTION_REMIXER,
-                ARTIST_GUEST => ARTIST_SECTION_GUEST,
-                default => $releaseTypeId,
+                ARTIST_REMIXER  => ARTIST_SECTION_REMIXER,
+                ARTIST_GUEST    => ARTIST_SECTION_GUEST,
+                default         => $releaseTypeId,
             };
             if (!isset($this->section[$sectionId])) {
                 $this->section[$sectionId] = [];

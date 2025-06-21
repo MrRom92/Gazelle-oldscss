@@ -89,8 +89,8 @@ class ArtistTest extends TestCase {
         $_GET['artist_id'] = $artist->id;
         $this->assertEquals(
             [
-                'ArtistID' => $artist->id(),
-                'Name' => $artist->name(),
+                'ArtistID' => $artist->id,
+                'Name'     => $artist->name(),
             ],
             new API\Artist([])->run(),
             'artist-api',
@@ -587,7 +587,7 @@ class ArtistTest extends TestCase {
             $this->tgroupList[] = $tgroup;
         }
         $this->tgroupList[0]
-            ->addArtists([ARTIST_COMPOSER], [$composer], $manager);
+            ->addArtists([ARTIST_COMPOSER], [$composer]);
         global $Cache;
         $Cache->delete_multi([
             $manager->autocompleteKey("%"),
@@ -642,5 +642,11 @@ class ArtistTest extends TestCase {
         );
         $this->assertEquals($name, $artist->discogs()->name(), 'artist-self-discogs-name');
         $this->assertEquals(1, $artist->removeDiscogsRelation(), 'artist-discogs-remove');
+    }
+
+    public function testArtistRole(): void {
+        $manager = new Manager\Artist();
+        $this->assertTrue($manager->roleExists(0, ARTIST_MAIN), 'artist-role-main');
+        $this->assertFalse($manager->roleExists(0, 99), 'artist-role-inexistent');
     }
 }
