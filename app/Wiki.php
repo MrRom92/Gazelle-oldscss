@@ -35,10 +35,10 @@ class Wiki extends BaseObject {
                     w.MinClassRead  AS min_class_read,
                     w.Revision      AS revision,
                     w.Author        AS author_id,
-                    group_concat(a.Alias) as aliases,
-                    group_concat(a.UserID) as users
+                    coalesce(group_concat(wa.Alias), '')  AS aliases,
+                    coalesce(group_concat(wa.UserID), '') AS users
                 FROM wiki_articles AS w
-                LEFT JOIN wiki_aliases AS a ON (w.ID = a.ArticleID)
+                LEFT JOIN wiki_aliases AS wa ON (w.ID = wa.ArticleID)
                 WHERE w.ID = ?
                 GROUP BY w.ID
                 ", $this->id
