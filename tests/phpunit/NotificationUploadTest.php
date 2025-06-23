@@ -97,7 +97,7 @@ class NotificationUploadTest extends TestCase {
             ->setLabel('Artists')
             ->setMultiLine('artist', $artistName);
         $this->assertTrue($artistFilter->isConfigured(), 'filter-artist-configured');
-        $filter['artist'] = $artistFilter->create($this->userList['artist']->id());
+        $filter['artist'] = $artistFilter->create($this->userList['artist']);
         $this->assertGreaterThan(0, $filter['artist'], 'filter-artist-created');
         $nextFilter = $filter['artist'] + 1;
 
@@ -108,7 +108,7 @@ class NotificationUploadTest extends TestCase {
                 ->setMultiLine('artist', '') // TODO: INSERT fails on not null assertion
                 ->setMultiValue('encoding', ['Lossless', '24bit Lossless'])
                 ->setMultiValue('media',  ['WEB', 'CD'])
-                ->create($this->userList['enc.med']->id()),
+                ->create($this->userList['enc.med']),
             'filter-enc.med-created'
         );
 
@@ -118,7 +118,7 @@ class NotificationUploadTest extends TestCase {
                 ->setLabel('No compilations')
                 ->setMultiLine('artist', '')
                 ->setBoolean('exclude_va', true)
-                ->create($this->userList['xva']->id()),
+                ->create($this->userList['xva']),
             'filter-exclude-va-created'
         );
 
@@ -128,7 +128,7 @@ class NotificationUploadTest extends TestCase {
                 ->setLabel('Release')
                 ->setMultiLine('artist', '')
                 ->setMultiLine('release_type', "Single")
-                ->create($this->userList['release']->id()),
+                ->create($this->userList['release']),
             'filter-tag-created'
         );
 
@@ -138,7 +138,7 @@ class NotificationUploadTest extends TestCase {
                 ->setLabel('Tags')
                 ->setMultiLine('artist', '')
                 ->setMultiLine('tag', "electronic\n\n")
-                ->create($this->userList['tag']->id()),
+                ->create($this->userList['tag']),
             'filter-tag-created'
         );
 
@@ -148,7 +148,7 @@ class NotificationUploadTest extends TestCase {
                 ->setLabel('Two Tags')
                 ->setMultiLine('artist', '')
                 ->setMultiLine('tag', "jazz\nelectronic\n")
-                ->create($this->userList['tag2yes']->id()),
+                ->create($this->userList['tag2yes']),
             'filter-two-tag-created'
         );
 
@@ -158,7 +158,7 @@ class NotificationUploadTest extends TestCase {
                 ->setLabel('Two Tags+')
                 ->setMultiLine('artist', '')
                 ->setMultiLine('tag', "jazz.rock\nhard.bop\n")
-                ->create($this->userList['tag2no']->id()),
+                ->create($this->userList['tag2no']),
             'filter-two-tag-no-created'
         );
 
@@ -168,7 +168,7 @@ class NotificationUploadTest extends TestCase {
                 ->setLabel('Not these tags')
                 ->setMultiLine('artist', '')
                 ->setMultiLine('not_tag', "funk\nfolk\n")
-                ->create($this->userList['tagno']->id()),
+                ->create($this->userList['tagno']),
             'filter-not-tag-created'
         );
 
@@ -177,8 +177,8 @@ class NotificationUploadTest extends TestCase {
             $filter['user'] = new Notification\Filter()
                 ->setLabel('Users')
                 ->setMultiLine('artist', '')
-                ->setUsers(new Manager\User(), $this->torrent->uploader()->username())
-                ->create($this->userList['user']->id()),
+                ->setUsers($this->torrent->uploader()->username())
+                ->create($this->userList['user']),
             'filter-users-created'
         );
 
@@ -188,7 +188,7 @@ class NotificationUploadTest extends TestCase {
                 ->setLabel('Tags')
                 ->setMultiLine('artist', '')
                 ->setMultiLine('category', "Music")
-                ->create($this->torrent->uploaderId()),
+                ->create($this->torrent->uploader()),
             'filter-self-created'
         );
 
@@ -198,7 +198,7 @@ class NotificationUploadTest extends TestCase {
                 ->setLabel('Year')
                 ->setMultiLine('artist', '')
                 ->setYears(2020, 2022)
-                ->create($this->userList['year']->id()),
+                ->create($this->userList['year']),
             'filter-year-created'
         );
 
@@ -210,9 +210,9 @@ class NotificationUploadTest extends TestCase {
         $this->assertEquals(NotificationTicketState::Pending, $ticket->state(), 'ntick-state');
 
         // it should be pending, so make it active
-        $this->assertNull($ticketManager->findByExclusion(NotificationTicketState::Pending, exclude: [$this->torrent->id()]), 'ntick-pending-exclude');
+        $this->assertNull($ticketManager->findByExclusion(NotificationTicketState::Pending, exclude: [$this->torrent->id]), 'ntick-pending-exclude');
         $ticket = $ticketManager->findByExclusion(NotificationTicketState::Pending, exclude: []);
-        $this->assertEquals($this->torrent->id(), $ticket?->torrentId(), 'ntick-pending-torrent-id');
+        $this->assertEquals($this->torrent->id, $ticket?->torrentId(), 'ntick-pending-torrent-id');
         $ticket?->setActive();
         $this->assertEquals($ticket?->state(), NotificationTicketState::Active, 'ntick-active-value');
         $this->assertEquals(1, new Manager\Notification()->ticketStats()['active']['total'], 'notifier-ticket-stats-now-active');
@@ -271,21 +271,21 @@ class NotificationUploadTest extends TestCase {
         $this->assertEquals(0, $this->userList['release']->removeNotificationFilter($filter['tag']), 'user-remove-other-filter');
 
         // look for an unread user notification
-        $notifier = new Notification\Torrent($this->userList['artist']->id());
+        $notifier = new Notification\Torrent($this->userList['artist']->id);
         $this->assertEquals(1, $notifier->total(), 'notifier-artist-total');
         $unreadList = $notifier->unreadList(1, 0);
         $this->assertCount(1, $unreadList, 'notifier-artist-unread-list');
-        $this->assertEquals($this->torrent->id(), $unreadList[0]['torrentId'], 'notifier-artist-unread-torrent-id');
+        $this->assertEquals($this->torrent->id, $unreadList[0]['torrentId'], 'notifier-artist-unread-torrent-id');
 
         // catch notifications
         unset($notifier);
-        $notifier = new Notification\Torrent($this->userList['enc.med']->id());
+        $notifier = new Notification\Torrent($this->userList['enc.med']->id);
         $this->assertEquals(1, $notifier->catchup(), 'notifier-encmed-catchup');
         $this->assertCount(1, $notifier->unreadList(1, 0), 'notifier-encmed-unread'); // FIXME: it's actually read+unread
 
         // clear unread user notifications
         unset($notifier);
-        $notifier = new Notification\Torrent($this->userList['tag']->id());
+        $notifier = new Notification\Torrent($this->userList['tag']->id);
         $this->assertEquals(1, $notifier->catchupFilter($filter['tag']), 'notifier-tag-catchup-filter');
         $this->assertCount(1, $notifier->unreadList(1, 0), 'notifier-tag-catchup-unread');
         $this->assertEquals(1, $notifier->clearFilter($filter['tag']), 'notifier-tag-clear-filter');
@@ -301,7 +301,7 @@ class NotificationUploadTest extends TestCase {
             ->setLabel('Record Labels')
             ->setMultiLine('artist', '') // TODO: INSERT fails on not null assertion
             ->setMultiLine('record.label', "Unitest Artists Corporation")
-            ->create($this->userList['record.label']->id());
+            ->create($this->userList['record.label']);
 
         // create the ticket and pretend it is seeding
         $ticketManager = new Manager\NotificationTicket();
@@ -314,7 +314,7 @@ class NotificationUploadTest extends TestCase {
 
         // ticket has been handled
         unset($ticket);
-        $ticket = $ticketManager->findById($this->torrent->id());
+        $ticket = $ticketManager->findById($this->torrent->id);
         $this->assertTrue($ticket?->isDone(), 'ntick-is-done');
     }
 
@@ -326,7 +326,7 @@ class NotificationUploadTest extends TestCase {
             ->setLabel('Backlog')
             ->setMultiLine('artist', '') // TODO: INSERT fails on not null assertion
             ->setMultiLine('record.label', "Unitest Artists Corporation")
-            ->create($this->userList['backlog']->id());
+            ->create($this->userList['backlog']);
 
         $ticketManager = new Manager\NotificationTicket();
         $ticket = $ticketManager->create($this->torrent);
@@ -343,11 +343,11 @@ class NotificationUploadTest extends TestCase {
 
         // ticket has been handled
         unset($ticket);
-        $ticket = $ticketManager->findById($this->torrent->id());
+        $ticket = $ticketManager->findById($this->torrent->id);
         $this->assertTrue($ticket?->isDone(), 'backlog-is-done');
 
         $rss  = new Feed()->byFeedName($this->userList['backlog'], 'torrents_music');
-        $link = SITE_URL . "/torrents.php?id={$this->torrent->groupId()}&amp;torrentid={$this->torrent->id()}&amp;action=download&amp;torrent_pass={$this->userList['backlog']->announceKey()}";
+        $link = SITE_URL . "/torrents.php?id={$this->torrent->groupId()}&amp;torrentid={$this->torrent->id}&amp;action=download&amp;torrent_pass={$this->userList['backlog']->announceKey()}";
         $tags = implode(',', $this->torrent->group()->tagNameList());
         $this->assertStringContainsString("<guid>$link</guid>", $rss, 'notif-rss-guid');
         $this->assertStringContainsString("<category><![CDATA[{$tags}]]></category>", $rss, 'notif-rss-tags');
@@ -362,7 +362,7 @@ class NotificationUploadTest extends TestCase {
             ->setLabel('Stale')
             ->setMultiLine('artist', '') // TODO: INSERT fails on not null assertion
             ->setMultiLine('record.label', "Unitest Artists Corporation")
-            ->create($this->userList['backlog']->id());
+            ->create($this->userList['backlog']);
 
         $ticketManager = new Manager\NotificationTicket();
         $ticket        = $ticketManager->create($this->torrent);
@@ -372,12 +372,12 @@ class NotificationUploadTest extends TestCase {
         }
 
         unset($ticket);
-        $ticket = $ticketManager->findById($this->torrent->id());
+        $ticket = $ticketManager->findById($this->torrent->id);
         $this->assertTrue($ticket?->isPending(), 'ntick-stale-is-pending');
 
         $manager->processBacklog($ticketManager, $this->torMan);
         unset($ticket);
-        $ticket = $ticketManager->findById($this->torrent->id());
+        $ticket = $ticketManager->findById($this->torrent->id);
         $this->assertTrue($ticket?->isStale(), 'ntick-stale-is-stale');
     }
 
@@ -390,7 +390,7 @@ class NotificationUploadTest extends TestCase {
             ->setLabel('New Group')
             ->setMultiLine('artist', '') // TODO: INSERT fails on not null assertion
             ->setBoolean('new_groups_only', true)
-            ->create($this->userList['new.grp']->id());
+            ->create($this->userList['new.grp']);
 
         $ticketManager = new Manager\NotificationTicket();
         $ticket        = $ticketManager->create($this->torrent);
@@ -400,7 +400,7 @@ class NotificationUploadTest extends TestCase {
         $manager = new Manager\Notification();
         $manager->handleTicket($ticket, $this->torMan);
 
-        $notifier = new Notification\Torrent($this->userList['new.grp']->id());
+        $notifier = new Notification\Torrent($this->userList['new.grp']->id);
         $this->assertEquals(1, $notifier->total(), 'notifier-new-group-1-total');
         $this->assertEquals(1, $notifier->catchupFilter($filter), 'notifier-new-group-catchup');
         $this->assertEquals(1, $notifier->clearFilter($filter), 'notifier-new-group-clear');
@@ -429,7 +429,7 @@ class NotificationUploadTest extends TestCase {
         Helper::generateTorrentSeed($newTorrent, $newTorrent->uploader());
         $manager->handleTicket($ticket, $this->torMan);
 
-        $notifier = new Notification\Torrent($this->userList['new.grp']->id());
+        $notifier = new Notification\Torrent($this->userList['new.grp']->id);
         $this->assertEquals(0, $notifier->total(), 'notifier-no-new-group-2-total');
 
         $stats = $manager->ticketStats();
@@ -451,7 +451,7 @@ class NotificationUploadTest extends TestCase {
             ->setLabel('Search')
             ->setMultiLine('release_type', "Compilation")
             ->setMultiLine('artist', '')
-            ->create($this->userList['search']->id());
+            ->create($this->userList['search']);
 
         $torrent = $this->torMan->create(
             tgroup:                  $this->torrent->group(),
@@ -490,10 +490,10 @@ class NotificationUploadTest extends TestCase {
 
         $item = current($page);
         $this->assertEquals($filter, $item['id'], 'notif-search-filter-id');
-        $this->assertEquals($filter, $item['filter']->id(), 'notif-search-filter-id');
+        $this->assertEquals($filter, $item['filter']->id, 'notif-search-filter-id');
 
         $result = $item['result'];
-        $this->assertEquals($torrent->id(), $result[0]['torrent']->id(), 'notif-search-torrent-id');
+        $this->assertEquals($torrent->id, $result[0]['torrent']->id, 'notif-search-torrent-id');
         $this->assertEquals(1, $result[0]['unread'], 'notif-search-unread');
     }
 }

@@ -12,17 +12,24 @@ if (!$Viewer->permitted('site_torrents_notify')) {
 authorize();
 
 $releaseTypes = new ReleaseType()->list();
-
-$formId = (int)$_POST['formid'];
+$formId       = (int)$_POST['formid'];
+$tags         = trim($_POST['tags' . $formId]);
+$notTags      = trim($_POST['nottags' . $formId]);
+if (strlen($tags) > 500) {
+    Error400::error('Tag list cannot exceed 500 characters');
+}
+if (strlen($notTags) > 500) {
+    Error400::error('"Not Tag" list cannot exceed 500 characters');
+}
 
 $filter = new Notification\Filter()
     ->setYears((int)$_POST['fromyear' . $formId], (int)$_POST['toyear' . $formId])
-    ->setUsers(new Manager\User(), $_POST['users' . $formId])
+    ->setUsers($_POST['users' . $formId])
     ->setBoolean('exclude_va', isset($_POST['excludeva' . $formId]))
     ->setBoolean('new_groups_only', isset($_POST['newgroupsonly' . $formId]))
     ->setMultiLine('artist', $_POST['artists' . $formId])
-    ->setMultiLine('tag', $_POST['tags' . $formId])
-    ->setMultiLine('not_tag', $_POST['nottags' . $formId])
+    ->setMultiLine('tag', $tags)
+    ->setMultiLine('not_tag', $notTags)
     ->setMultiLine('record_label', $_POST['recordlabel' . $formId])
     ->setMultiValue('category', array_map(fn($id) => CATEGORY[$id], $_POST['categories' . $formId] ?? []))
     ->setMultiValue('format', array_map(fn($id) => FORMAT[$id], $_POST['formats' . $formId] ?? []))
@@ -48,9 +55,9 @@ if ($error) {
 }
 
 if ($filterId) {
-    $filter->modify($Viewer->id(), $filterId);
+    $filter->modify($Viewer, $filterId);
 } else {
-    $filter->create($Viewer->id());
+    $filter->create($Viewer);
 }
 
 $Cache->delete_multi(["u_notify_" . $Viewer->id(), "notify_artists_" . $Viewer->id()]);

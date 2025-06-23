@@ -2,6 +2,9 @@
 
 namespace Gazelle\Notification;
 
+use Gazelle\Manager\User as UserManager;
+use Gazelle\User         as User;
+
 class Filter extends \Gazelle\Base {
     protected int $id;
     protected array $field = [];
@@ -23,9 +26,9 @@ class Filter extends \Gazelle\Base {
         'user'            => 'Users',
     ];
 
-    public function create(int $userId): int {
+    public function create(User $user): int {
         $set = ['UserID', 'Label'];
-        $args = [$userId, $this->field['label']];
+        $args = [$user->id, $this->field['label']];
         foreach ($this->fieldMap as $field => $column) {
             if (isset($this->field[$field])) {
                 $set[] = $column;
@@ -83,11 +86,10 @@ class Filter extends \Gazelle\Base {
         return $this;
     }
 
-    public function setUsers(\Gazelle\Manager\User $userMan, string $data): static {
-        $usernames = $this->multiLineSplit($data);
-        foreach ($usernames as $username) {
+    public function setUsers($data, UserManager $userMan = new UserManager()): static {
+        foreach ($this->multiLineSplit($data) as $username) {
             $user = $userMan->findByUsername($username);
-            if ($user && !$user->isParanoid('notifications')) {
+            if ($user instanceof User && !$user->isParanoid('notifications')) {
                 $this->field['user'][] = $user->id;
             }
         }
@@ -118,7 +120,7 @@ class Filter extends \Gazelle\Base {
         return null;
     }
 
-    public function modify(int $userId, int $filterId): int {
+    public function modify(User $user, int $filterId): int {
         $set = [];
         $args = [];
         foreach ($this->fieldMap as $field => $column) {
@@ -130,7 +132,7 @@ class Filter extends \Gazelle\Base {
                 $args[] = $this->arg((string)$field);
             }
         }
-        $args[] = $userId;
+        $args[] = $user->id;
         $args[] = $filterId;
         self::$db->prepared_query("
             UPDATE users_notify_filters SET
