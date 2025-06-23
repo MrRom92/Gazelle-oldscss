@@ -413,38 +413,37 @@ class Users extends \Gazelle\Base {
         ");
 
         self::$db->prepared_query("
-            INSERT INTO user_summary_new (user_id, collage_total)
-                SELECT c.UserID, count(*)
-                FROM collages c
-                INNER JOIN users_main um ON (um.ID = c.UserID)
-                WHERE c.Deleted = '0'
-                GROUP BY c.UserID
+            INSERT INTO user_summary_new (user_id, collage_total, collage_contrib)
+                WITH c AS (
+                    SELECT um.ID    AS user_id,
+                        count(c.ID) AS total
+                    FROM users_main um
+                    LEFT JOIN collages c ON (c.UserID = um.ID AND c.Deleted = '0')
+                    GROUP BY um.ID
+                ),
+                ca AS (
+                    SELECT um.ID                    AS user_id,
+                        count(DISTINCT ca.ArtistID) AS total
+                    FROM users_main um
+                    LEFT JOIN collages_artists ca ON (ca.UserID = um.ID)
+                    LEFT JOIN collages c ON (c.ID = ca.CollageID AND c.Deleted = '0')
+                    GROUP BY um.ID
+                ),
+                ct AS (
+                    SELECT um.ID                   AS user_id,
+                        count(DISTINCT ct.GroupID) AS total
+                    FROM users_main um
+                    LEFT JOIN collages_torrents ct ON (ct.UserID = um.ID)
+                    LEFT JOIN collages c ON (c.ID = ct.CollageID AND c.Deleted = '0')
+                    GROUP BY um.ID
+                )
+                SELECT c.user_id, c.total, ca.total + ct.total
+                FROM c
+                LEFT JOIN ca USING (user_id)
+                LEFT JOIN ct USING (user_id)
             ON DUPLICATE KEY UPDATE
-                collage_total = VALUES(collage_total)
-        ");
-
-        self::$db->prepared_query("
-            INSERT INTO user_summary_new (user_id, collage_contrib)
-                SELECT ct.UserID, count(*)
-                FROM collages c
-                INNER JOIN collages_torrents ct ON (ct.CollageID = c.ID)
-                INNER JOIN users_main um ON (um.ID = ct.UserID)
-                WHERE c.Deleted = '0'
-                GROUP BY ct.UserID
-            ON DUPLICATE KEY UPDATE
-                collage_contrib = collage_contrib + VALUES(collage_contrib)
-        ");
-
-        self::$db->prepared_query("
-            INSERT INTO user_summary_new (user_id, collage_contrib)
-                SELECT ca.UserID, count(*)
-                FROM collages c
-                INNER JOIN collages_artists ca ON (ca.CollageID = c.ID)
-                INNER JOIN users_main um ON (um.ID = ca.UserID)
-                WHERE c.Deleted = '0'
-                GROUP BY ca.UserID
-            ON DUPLICATE KEY UPDATE
-                collage_contrib = collage_contrib + VALUES(collage_contrib)
+                collage_total = VALUES(collage_total),
+                collage_contrib = VALUES(collage_contrib)
         ");
 
         self::$db->prepared_query("
