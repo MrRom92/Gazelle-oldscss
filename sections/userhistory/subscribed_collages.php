@@ -87,6 +87,9 @@ View::show_header('Subscribed collages', ['js' => 'browse,collage']);
     <tr class="colhead">
         <td width="1%"><!-- expand/collapse --></td>
         <td class="m_th_left" width="70%"><strong>Torrents</strong></td>
+<?php if ($Viewer->ordinal()->value('file-count-display')) { ?>
+        <td>Files</td>
+<?php } ?>
         <td>Size</td>
         <td class="sign snatches"><img src="<?= $urlStem ?>snatched.png" class="tooltip" alt="Snatches" title="Snatches" /></td>
         <td class="sign seeders"><img src="<?= $urlStem ?>seeders.png" class="tooltip" alt="Seeders" title="Seeders" /></td>
@@ -99,13 +102,13 @@ View::show_header('Subscribed collages', ['js' => 'browse,collage']);
             $vh = $tgroup->isShowcase() ? ' [<abbr class="tooltip" title="This is a Showcase release">Showcase</abbr>]' : '';
             if (count($torrentIdList) > 1 || $tgroup->categoryGrouped()) {
 ?>
-    <tr class="group groupid_<?= $s['collageId'] . $tgroup->id() ?>_header discog<?=$SnatchedGroupClass?>" id="group_<?= $s['collageId'] . $tgroup->id() ?>">
+    <tr class="group groupid_<?= $s['collageId'] . $tgroup->id ?>_header discog<?=$SnatchedGroupClass?>" id="group_<?= $s['collageId'] . $tgroup->id ?>">
         <td class="center">
-            <div id="showimg_<?= $s['collageId'] . $tgroup->id() ?>" class="<?=($showGroups ? 'hide' : 'show')?>_torrents">
-                <a href="#" class="tooltip show_torrents_link" onclick="toggle_group(<?= $s['collageId'] . $tgroup->id() ?>, this, event);" title="Expand this group. Hold [Command] <em>(Mac)</em> or [Ctrl] <em>(PC)</em> while clicking to expand all groups on this page."></a>
+            <div id="showimg_<?= $s['collageId'] . $tgroup->id ?>" class="<?=($showGroups ? 'hide' : 'show')?>_torrents">
+                <a href="#" class="tooltip show_torrents_link" onclick="toggle_group(<?= $s['collageId'] . $tgroup->id ?>, this, event);" title="Expand this group. Hold [Command] <em>(Mac)</em> or [Ctrl] <em>(PC)</em> while clicking to expand all groups on this page."></a>
             </div>
         </td>
-        <td colspan="5" class="big_info">
+        <td colspan="<?= $Viewer->ordinal()->value('file-count-display') ? 6 : 5 ?>" class="big_info">
 <?php if ($Viewer->option('CoverArt')) { ?>
             <div class="group_image float_left clear">
                 <?= $imgProxy->tgroupThumbnail($tgroup) ?>
@@ -135,7 +138,7 @@ View::show_header('Subscribed collages', ['js' => 'browse,collage']);
                     continue;
                 }
 ?>
-    <tr class="torrent<?= $snatcher->showSnatch($torrent) ? ' snatched_torrent' : '' ?>" id="group_<?= $s['collageId'] . $tgroup->id() ?>">
+    <tr class="torrent<?= $snatcher->showSnatch($torrent) ? ' snatched_torrent' : '' ?>" id="group_<?= $s['collageId'] . $tgroup->id ?>">
         <td></td>
         <td class="td_collage_category center">
             <div title="<?= $tgroup->primaryTag() ?>" class="tooltip <?= $tgroup->categoryCss() ?> <?= $tgroup->primaryTagCss() ?>"></div>
