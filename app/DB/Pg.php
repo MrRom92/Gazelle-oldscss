@@ -4,6 +4,9 @@ namespace Gazelle\DB;
 
 use sad_spirit\pg_wrapper\Connection;
 use sad_spirit\pg_wrapper\Result;
+use sad_spirit\pg_wrapper\converters\containers\ArrayConverter;
+use sad_spirit\pg_wrapper\converters\StringConverter;
+use sad_spirit\pg_wrapper\exceptions\server\ProgrammingException;
 
 /* There are (at least) two ways to interact with Postgresql databases
  * in PHP: PDO and pg_wrapper. (There are others but they are less
@@ -79,9 +82,17 @@ class Pg {
         return $this->cnxrw;
     }
 
+    public function arrayConverter(): ArrayConverter {
+        return new ArrayConverter(new StringConverter());
+    }
+
     public function execute(string $query): Result {
         $begin = microtime(true);
-        $result = $this->cnxrw->execute($query);
+        try {
+            $result = $this->cnxrw->execute($query);
+        } catch (ProgrammingException $e) {
+            throw new ProgrammingException("{$e->getMessage()} $query");
+        }
         $this->stats->register($query, $result->getAffectedRows(), $begin, []);
         return $result;
     }
@@ -91,7 +102,14 @@ class Pg {
      */
     public function executeParams(string $query, mixed ...$args): Result {
         $begin = microtime(true);
-        $result = $this->cnxrw->executeParams($query, [...$args]); /** @phpstan-ignore-line mixed mess */
+        try {
+            $result = $this->cnxrw->executeParams($query, [...$args]); /** @phpstan-ignore-line mixed mess */
+        } catch (ProgrammingException $e) {
+            throw new ProgrammingException(
+                "{$e->getMessage()} $query argc=" . count($args) . ' '
+                    . json_encode($args, JSON_UNESCAPED_SLASHES)
+            );
+        }
         $this->stats->register($query, $result->getAffectedRows(), $begin, $args);
         return $result;
     }

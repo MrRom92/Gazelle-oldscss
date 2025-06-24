@@ -46,10 +46,10 @@ $n =$pg->prepared_query("
         artist_title_ts, tag, encoding_str, format_str, media_str
     )
     select
-        rr.\"ID\", rr.\"UserID\", rr.\"FillerID\", rr.\"GroupID\",
-        rr.\"TorrentID\", rr.\"CategoryID\", rr.\"ReleaseType\", rr.\"Year\",
+        rr.\"ID\", rr.\"UserID\", nullif(rr.\"FillerID\", 0), nullif(rr.\"GroupID\", 0),
+        nullif(rr.\"TorrentID\", 0), rr.\"CategoryID\", nullif(rr.\"ReleaseType\", 0), nullif(rr.\"Year\", 0),
         rr.created, rr.updated + '1 microsecond'::interval, rr.\"TimeFilled\",
-        rr.\"Description\", rr.\"Title\", rr.\"Image\", rr.\"CatalogueNumber\", rr.\"RecordLabel\",
+        rr.\"Description\", rr.\"Title\", nullif(rr.\"Image\", ''), nullif(rr.\"CatalogueNumber\",''),  nullif(rr.\"RecordLabel\", ''),
         (case when regexp_replace(coalesce(rr.\"LogCue\", ''), '\D+', '', 'g') = ''
             then '0'
             else regexp_replace(coalesce(rr.\"LogCue\", ''), '\D+', '', 'g')
@@ -58,9 +58,9 @@ $n =$pg->prepared_query("
         coalesce(position('Cue' in rr.\"LogCue\") > 0, false),
         case when rr.\"Checksum\" = 0 then false else true end,
         coalesce(a_t.artist_title_ts, ''), coalesce(tl.tag, ARRAY[]::int[]),
-        string_to_array(rr.\"BitrateList\", '|'),
-        string_to_array(rr.\"FormatList\", '|'),
-        string_to_array(rr.\"MediaList\", '|')
+        case when coalesce(rr.\"BitrateList\", '') in ('Any', '') then null else string_to_array(rr.\"BitrateList\", '|') end,
+        case when coalesce(rr.\"FormatList\", '') in ('Any', '') then null else string_to_array(rr.\"FormatList\", '|') end,
+        case when coalesce(rr.\"MediaList\", '') in ('Any', '') then null else string_to_array(rr.\"MediaList\", '|') end
     from relay.requests rr
     left join a_t on (a_t.id_request = rr.\"ID\")
     left join tl on (tl.id_request = rr.\"ID\")
@@ -82,7 +82,7 @@ $n = $pg->prepared_query('
         coalesce(count(distinct rv.id_user)::int, 0::int),
         coalesce(max(rv.created), \'-infinity\')
     from request r
-    left join request_vote rv using (id_request)
+    inner join request_vote rv using (id_request)
     group by r.id_request
 ');
 echo "$n summaries inserted\n";

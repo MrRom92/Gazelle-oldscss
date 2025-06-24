@@ -2,6 +2,7 @@
 
 namespace Gazelle\Manager;
 
+use Gazelle\Request\AbstractValue;
 use Gazelle\Request\Encoding;
 use Gazelle\Request\Format;
 use Gazelle\Request\Media;
@@ -41,30 +42,37 @@ class Request extends \Gazelle\BaseManager {
             $encoding->dbValue(), $format->dbValue(), $media->dbValue(),
             $logCue->dbValue(), $logCue->needLogChecksum ? 1 : 0, $oclc, $groupId
         );
-        $request = new \Gazelle\Request(self::$db->inserted_id());
-        $this->pg()->prepared_query("
+        $request   = new \Gazelle\Request(self::$db->inserted_id());
+        $converter = $this->pg()->arrayConverter();
+        $this->pg()->executeParams('
             insert into request (
                 id_request, id_user, id_tgroup, id_category, id_release_type,
                 year, created, modified,
                 description, title, image, catalogue_number, record_label,
                 log_score, need_log, need_cue, need_checksum,
-                artist_title_ts, encoding_str, format_str, media_str, tag
+                artist_title_ts, tag, encoding_str, format_str, media_str
             ) values (
-                ?, ?, ?, ?, ?,
-                ?, ?, ?,
-                ?, ?, ?, ?,
-                ?, ?, ?, ?, ?,
-                to_tsvector('simple', ?),
-                array[" . placeholders($encoding->dbList()) . "]::text[],
-                array[" . placeholders($format->dbList()) . "]::text[],
-                array[" . placeholders($media->dbList()) . "]::text[],
-                array[" . placeholders($tagList) . "]::int[]
-            )
-            ", $request->id, $user->id, $groupId, $categoryId, $releaseType, $year,
-             $request->created(), $request->modified(),
-             $description, $title, $image, $catalogueNumber, $recordLabel,
-             $logCue->minScore, $logCue->needLog ? 't' : 'f', $logCue->needCue ? 't' : 'f', $logCue->needLogChecksum ? 't' : 'f',
-             $title, ...$encoding->dbList(), ...$format->dbList(), ...$media->dbList(), ...$tagList,
+                $1, $2, $3, $4, $5,
+                $6, $7, $8,
+                $9, $10, $11, $12, $13,
+                $14, $15, $16, $17,
+                to_tsvector(\'simple\', $18), $19::int[],
+                $20::text[], $21::text[], $22::text[]
+            )',
+            $request->id, $user->id, $groupId, $categoryId, $releaseType === 0 ? null : $releaseType, // 5
+            $year === 0 ? null : $year, $request->created(), $request->modified(), // 8
+            $description, $title,
+            $image           === '' ? null : $image,
+            $catalogueNumber === '' ? null : $catalogueNumber,
+            $recordLabel     === '' ? null : $recordLabel, // 13
+            $logCue->minScore,
+            $logCue->needLog         ? 't' : 'f',
+            $logCue->needCue         ? 't' : 'f',
+            $logCue->needLogChecksum ? 't' : 'f', // 17
+            $title, $converter->output($tagList), // 19
+            $converter->output($encoding->dbList()),
+            $converter->output($format->dbList()),
+            $converter->output($media->dbList()), // 22
         );
         $request->vote($user, $bounty);
         $request->artistFlush();
@@ -188,13 +196,13 @@ class Request extends \Gazelle\BaseManager {
                     group by rt.id_request
                 )
                 select
-                    rr.\"ID\" as id_request, rr.\"UserID\" as id_user, rr.\"FillerID\" as id_filler,
-                    rr.\"TorrentID\" as id_torrent, rr.\"GroupID\" as id_tgroup,
-                    rr.\"CategoryID\" as id_category, rr.\"ReleaseType\" as id_release_type,
-                    rr.\"Year\" as year, rr.\"TimeFilled\" as filled,
+                    rr.\"ID\" as id_request, rr.\"UserID\" as id_user, nullif(rr.\"FillerID\", 0) as id_filler,
+                    nullif(rr.\"TorrentID\", 0) as id_torrent, nullif(rr.\"GroupID\", 0) as id_tgroup,
+                    rr.\"CategoryID\" as id_category, nullif(rr.\"ReleaseType\", 0) as id_release_type,
+                    nullif(rr.\"Year\", 0) as year, rr.\"TimeFilled\" as filled,
                     rr.created, rr.updated + '1 microsecond'::interval as updated,
-                    rr.\"Description\" as description, rr.\"Title\" as title, rr.\"Image\" as image,
-                    rr.\"CatalogueNumber\" as catalogue_number, rr.\"RecordLabel\" as record_label,
+                    rr.\"Description\" as description, rr.\"Title\" as title, nullif(rr.\"Image\", '') as image,
+                    nullif(rr.\"CatalogueNumber\", '') as catalogue_number, nullif(rr.\"RecordLabel\", '') as record_label,
                     (case when regexp_replace(coalesce(rr.\"LogCue\", ''), '\D+', '', 'g') = ''
                         then '0'
                         else regexp_replace(coalesce(rr.\"LogCue\", ''), '\D+', '', 'g')
@@ -202,11 +210,10 @@ class Request extends \Gazelle\BaseManager {
                     coalesce(position('Log' in rr.\"LogCue\") > 0, false) as need_log,
                     coalesce(position('Cue' in rr.\"LogCue\") > 0, false) as need_cue,
                     case when rr.\"Checksum\" = 0 then false else true end as need_checksum,
-                    a_t.artist_title_ts,
-                    string_to_array(rr.\"BitrateList\", '|') as encoding_str,
-                    string_to_array(rr.\"FormatList\", '|') as format_str,
-                    string_to_array(rr.\"MediaList\", '|') as media_str,
-                    coalesce(tl.tag, ARRAY[]::int[]) as tag
+                    a_t.artist_title_ts, coalesce(tl.tag, ARRAY[]::int[]) as tag,
+                    string_to_array(nullif(rr.\"BitrateList\", ''), '|') as encoding_str,
+                    string_to_array(nullif(rr.\"FormatList\", ''), '|') as format_str,
+                    string_to_array(nullif(rr.\"MediaList\", ''), '|') as media_str
                 from relay.requests rr
                 inner join a_t on (a_t.id_request = rr.\"ID\")
                 left join tl on (tl.id_request = rr.\"ID\")
