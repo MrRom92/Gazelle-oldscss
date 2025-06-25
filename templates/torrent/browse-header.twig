@@ -1,4 +1,11 @@
-{% from 'macro/form.twig' import autocomplete, checked, selected %}
+{% from 'macro/form.twig' import autocomplete, checked, hidden, selected %}
+{% if show_basic %}
+{%  set search_mode = 'basic' %}
+{%  set search_toggle = 'advanced' %}
+{% else %}
+{%  set search_mode = 'advanced' %}
+{%  set search_toggle = 'basic' %}
+{% endif %}
 {{ header('Browse Torrents', {'js': 'browse'}) }}
 <div class="thin widethin">
 <div class="header">
@@ -21,27 +28,27 @@
 {% endif %}</span>&nbsp;
     </div>
 
-    <div id="ft_container" class="pad{% if not show_search %} hidden{% endif %}">
+    <div id="ft_container" class="pad{{ hidden(not show_search) }}">
     <table class="layout">
-        <tr id="artist_name" class="ftr_advanced{{ hide_advanced }}">
+        <tr id="artist_name" class="ftr_advanced{{ hidden(show_basic)  }}">
             <td class="label">Artist name:</td>
             <td colspan="3" class="ft_artistname">
                 <input type="search" spellcheck="false" size="40" name="artistname" class="inputtext smaller fti_advanced" value="{{ input.artistname }}" />
             </td>
         </tr>
-        <tr id="album_torrent_name" class="ftr_advanced{{ hide_advanced }}">
+        <tr id="album_torrent_name" class="ftr_advanced{{ hidden(show_basic)  }}">
             <td class="label">Album/Torrent name:</td>
             <td colspan="3" class="ft_groupname">
                 <input type="search" spellcheck="false" size="40" name="groupname" class="inputtext smaller fti_advanced" value="{{ input.groupname }}" />
             </td>
         </tr>
-        <tr id="record_label" class="ftr_advanced{{ hide_advanced }}">
+        <tr id="record_label" class="ftr_advanced{{ hidden(show_basic)  }}">
             <td class="label">Record label:</td>
             <td colspan="3" class="ft_recordlabel">
                 <input type="search" spellcheck="false" size="40" name="recordlabel" class="inputtext smaller fti_advanced" value="{{ input.recordlabel }}" />
             </td>
         </tr>
-        <tr id="catalogue_number_year" class="ftr_advanced{{ hide_advanced }}">
+        <tr id="catalogue_number_year" class="ftr_advanced{{ hidden(show_basic)  }}">
             <td class="label">Catalogue number:</td>
             <td class="ft_cataloguenumber">
                 <input type="search" size="40" name="cataloguenumber" class="inputtext smallest fti_advanced" value="{{ input.cataloguenumber }}" />
@@ -51,12 +58,12 @@
                 <input type="search" name="year" class="inputtext smallest fti_advanced" value="{{ input.year }}" size="4" />
             </td>
         </tr>
-        <tr id="edition_expand" class="ftr_advanced{{ hide_advanced }}">
+        <tr id="edition_expand" class="ftr_advanced{{ hidden(show_basic and (not show_remaster))  }}">
             <td colspan="4" class="center ft_edition_expand">
                 <a href="#" class="brackets" onclick="ToggleEditionRows(); return false;">Click here to toggle searching for specific remaster information</a>
             </td>
         </tr>
-        <tr id="edition_title" class="ftr_advanced{{ hide_advanced ~ hide_remaster }}">
+        <tr id="edition_title" class="ftr_advanced{{ hidden(show_basic or (not show_remaster)) }}">
             <td class="label">Edition title:</td>
             <td class="ft_remastertitle">
                 <input type="search" spellcheck="false" size="40" name="remastertitle" class="inputtext smaller fti_advanced" value="{{ input.remastertitle }}" />
@@ -66,31 +73,31 @@
                 <input type="search" name="remasteryear" class="inputtext smallest fti_advanced" value="{{ input.remasteryear }}" size="4" />
             </td>
         </tr>
-        <tr id="edition_label" class="ftr_advanced{{ hide_advanced ~ hide_remaster }}">
-            <td class="label">Edition release label:</td>
+        <tr id="edition_label" class="ftr_advanced{{ hidden(show_basic or (not show_remaster)) }}">
+            <td class="label">Edition record label:</td>
             <td colspan="3" class="ft_remasterrecordlabel">
                 <input type="search" spellcheck="false" size="40" name="remasterrecordlabel" class="inputtext smaller fti_advanced" value="{{ input.remasterrecordlabel }}" />
             </td>
         </tr>
-        <tr id="edition_catalogue" class="ftr_advanced{{ hide_advanced ~ hide_remaster }}">
+        <tr id="edition_catalogue" class="ftr_advanced{{ hidden(show_basic or (not show_remaster)) }}">
             <td class="label">Edition catalogue number:</td>
             <td colspan="3" class="ft_remastercataloguenumber">
                 <input type="search" size="40" name="remastercataloguenumber" class="inputtext smallest fti_advanced" value="{{ input.remastercataloguenumber }}" />
             </td>
         </tr>
-        <tr id="file_list" class="ftr_advanced{{ hide_advanced }}">
+        <tr id="file_list" class="ftr_advanced{{ hidden(show_basic) }}">
             <td class="label">File list:</td>
             <td colspan="3" class="ft_filelist">
                 <input type="search" spellcheck="false" size="40" name="filelist" class="inputtext fti_advanced" value="{{ input.filelist }}" />
             </td>
         </tr>
-        <tr id="torrent_description" class="ftr_advanced{{ hide_advanced }}">
+        <tr id="torrent_description" class="ftr_advanced{{ hidden(show_basic) }}">
             <td class="label"><span title="Search torrent descriptions (not group information)" class="tooltip">Torrent description:</span></td>
             <td colspan="3" class="ft_description">
                 <input type="search" spellcheck="false" size="40" name="description" class="inputtext fti_advanced" value="{{ input.description }}" />
             </td>
         </tr>
-        <tr id="rip_specifics" class="ftr_advanced{{ hide_advanced }}">
+        <tr id="rip_specifics" class="ftr_advanced{{ hidden(show_basic) }}">
             <td class="label">Rip specifics:</td>
             <td class="nobr ft_ripspecifics" colspan="3">
                 <select name="releasetype" class="ft_releasetype fti_advanced">
@@ -119,7 +126,7 @@
                 </select>
             </td>
         </tr>
-        <tr id="misc" class="ftr_advanced{{ hide_advanced }}">
+        <tr id="misc" class="ftr_advanced{{ hidden(show_basic) }}">
             <td class="label">Miscellaneous:</td>
             <td class="nobr ft_misc" colspan="3">
                 <select name="haslog" class="ft_haslog fti_advanced">
@@ -154,7 +161,7 @@
                 </select>
             </td>
         </tr>
-        <tr id="search_terms" class="ftr_basic{% if search_plus %} hidden{% endif %}">
+        <tr id="search_terms" class="ftr_basic{{ hidden(not show_basic) }}">
             <td class="label">Search terms:</td>
             <td colspan="3" class="ftb_searchstr">
                 <input type="search" spellcheck="false" size="40" name="searchstr" class="inputtext fti_basic" value="{{ input.searchstr }}" />
@@ -201,8 +208,8 @@
         <tr>
 {% for key, name in constant('CATEGORY') %}
             <td style="width:{{ (100 / constant('CATEGORY')|length)|round(1) }}%; padding-left: 1.6em; text-indent:-1.6em">
-                <input type="checkbox" name="filter_cat[{{ key + 1 }}]" id="cat_{{ key + 1 }}" value="1"{{ checked(input.filter_cat[key + 1]) }} />
-                <label for="{{ key + 1 }}">{{ name }}</label>
+                <label><input type="checkbox" name="filter_cat[{{ key + 1 }}]" id="cat_{{ key + 1 }}" value="1"{{ checked(input.filter_cat[key + 1]) }} />
+                {{ name }}</label>
             </td>
 {% endfor %}
         </tr>

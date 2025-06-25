@@ -15,14 +15,12 @@ $GroupResults = ($_GET['group_results'] ?? '1') != '0';
 $Page = (int)($_GET['page'] ?? 1);
 
 $Search = new Search\Torrent(
-    new Manager\TGroup(),
-    new Manager\Torrent(),
     $GroupResults,
     $OrderBy,
     $OrderWay,
     $Page,
     TORRENTS_PER_PAGE,
-    $Viewer->permitted('site_search_many')
+    $Viewer->permitted('site_search_many'),
 );
 $Results     = $Search->query($_GET);
 $resultTotal = $Search->record_count();

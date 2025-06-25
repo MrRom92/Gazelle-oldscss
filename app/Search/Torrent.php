@@ -5,6 +5,8 @@ namespace Gazelle\Search;
 
 use Gazelle\Enum\LeechType;
 use Gazelle\Error500;
+use Gazelle\Manager\TGroup  as TGroupManager;
+use Gazelle\Manager\Torrent as TorrentManager;
 
 class Torrent {
     final protected const TAGS_ANY = 0;
@@ -178,14 +180,14 @@ class Torrent {
     private array $UsedTorrentFields = [];
 
     public function __construct(
-        protected \Gazelle\Manager\TGroup $tgMan,
-        protected \Gazelle\Manager\Torrent $torMan,
-        protected readonly bool $GroupResults,
+        protected readonly bool   $GroupResults,
         protected readonly string $OrderBy,
         protected readonly string $OrderWay,
-        protected int $Page,
-        protected int $PageSize,
-        protected readonly bool $searchMany,
+        protected int             $Page,
+        protected readonly int    $PageSize,
+        protected readonly bool   $searchMany,
+        protected TGroupManager   $tgMan  = new TGroupManager(),
+        protected TorrentManager  $torMan = new TorrentManager(),
     ) {
         if (
             $this->GroupResults && !isset(self::$SortOrdersGrouped[$OrderBy])

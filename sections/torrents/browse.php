@@ -63,14 +63,12 @@ if (!isset($_GET['tags_type'])) {
 
 $paginator = new Util\Paginator(TORRENTS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $Search = new Search\Torrent(
-    new Manager\TGroup(),
-    new Manager\Torrent(),
     $GroupResults,
     $header->orderKey(),
     $header->dir(),
     $paginator->page(),
     TORRENTS_PER_PAGE,
-    $Viewer->permitted('site_search_many')
+    $Viewer->permitted('site_search_many'),
 );
 $Results = $Search->query($_GET);
 if ($Results == false) {
@@ -92,33 +90,24 @@ $paginator->setTotal($NumResults);
 /* if the user has the privilege of advanced search, we prioritze the url param 'action'
  * if it is present, otherwise we fall back to their personal preference.
  */
-$AdvancedSearch = $Viewer->permitted('site_advanced_search')
-    && ($_GET['action'] ?? ['basic ', 'advanced'][$Viewer->option('SearchType') ?? 0]) == 'advanced';
-
-if ($AdvancedSearch) {
-    $hideAdvanced = '';
-    $searchMode = 'advanced';
-    $toggleSearchMode = 'basic';
-} else {
-    $hideAdvanced = ' hidden';
-    $searchMode = 'basic';
-    $toggleSearchMode = 'advanced';
-}
+$advancedSearch = $Viewer->permitted('site_advanced_search')
+    && ($_GET['action'] ?? ['basic ', 'advanced'][$Viewer->option('SearchType') ?? 0])
+        == 'advanced';
 
 echo $Twig->render('torrent/browse-header.twig', [
     'input'         => $_GET,
     'filtered'      => $Search->has_filters(),
     'grouped'       => $GroupResults,
-    'hide_remaster' => ($_GET['remastertitle'] ?? $_GET['remasteryear'] ?? $_GET['remastercataloguenumber'] ?? '') != ''
-        ? '' : ' hidden',
-    'hide_advanced' => $hideAdvanced,
     'release_type'  => new ReleaseType()->list(),
     'results_total' => $RealNumResults,
     'results_shown' => $NumResults,
-    'search_mode'   => $searchMode,
-    'search_plus'   => $AdvancedSearch,
-    'search_toggle' => $toggleSearchMode,
-    'show_search'   => $Viewer->option('ShowTorFilter') ?? true,
+    'show_basic'    => !$advancedSearch,
+    'show_remaster' =>
+           isset($_GET['remastercataloguenumber'])
+        || isset($_GET['remasterrecordlabel'])
+        || isset($_GET['remastertitle'])
+        || isset($_GET['remasteryear']),
+    'show_search'   => (bool)$Viewer->option('ShowTorFilter'),
     'tag_default'   => $tagMan->genreList(),
     'tag_list'      => $Search->get_terms('taglist'),
     'viewer'        => $Viewer,
@@ -198,7 +187,9 @@ foreach ($Results as $Key => $GroupID) {
                 </span>
                 <br />
                 <div class="tags"><?= implode(', ',
-                    array_map(fn($name) => "<a href=\"torrents.php?action={$searchMode}&amp;taglist=$name\">$name</a>", $tgroup->tagNameList())
+                    array_map(fn ($name) => "<a href=\"torrents.php?action="
+                        . ($advancedSearch ? 'advanced' : 'basic')
+                        . "&amp;taglist=$name\">$name</a>", $tgroup->tagNameList())
                     ) ?></div>
             </div>
         </td>
@@ -295,7 +286,9 @@ foreach ($Results as $Key => $GroupID) {
                 ]) ?>
                 <?= $torrent->fullLink() ?>
                 <div class="tags"><?= implode(', ',
-                    array_map(fn($name) => "<a href=\"torrents.php?action={$searchMode}&amp;taglist=$name\">$name</a>", $tgroup->tagNameList())
+                    array_map(fn ($name) => "<a href=\"torrents.php?action="
+                        . ($advancedSearch ? 'advanced' : 'basic')
+                        . "&amp;taglist=$name\">$name</a>", $tgroup->tagNameList())
                     ) ?></div>
             </div>
         </td>
