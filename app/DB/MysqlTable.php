@@ -87,6 +87,17 @@ class MysqlTable extends AbstractTable {
         );
     }
 
+    public function recentUpdate(int $seconds): bool {
+        return (bool)self::$db->scalar("
+            SELECT 1
+            FROM information_schema.tables
+            WHERE table_schema = ?
+                AND table_name = ?
+                AND update_time > now() - INTERVAL ? SECOND
+            ", MYSQL_DB, $this->name, $seconds
+        );
+    }
+
     public function stats(): array {
         return self::$db->rowAssoc("
             SELECT t.TABLE_ROWS,

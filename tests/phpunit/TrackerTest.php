@@ -182,4 +182,21 @@ class TrackerTest extends TestCase {
         $this->assertEquals(1, $tracker->expireFreeleechTokens("$userId:$torrentId,$userId:$fakeId"), 'tracker-expire-tokens');
         $downloader->remove();
     }
+
+    public function testTrackerUpdate(): void {
+        $this->user = Helper::makeUser('trkfree.' . randomString(10), 'tracker');
+        $this->user->requestContext()->setViewer($this->user);
+        $this->torrent = Helper::makeTorrentMusic(
+            Helper::makeTGroupMusic(
+                name:       'tracker ' . randomString(10),
+                artistName: [[ARTIST_MAIN], ['Tracker Girl ' . randomString(12)]],
+                tagName:    ['trap'],
+                user:       $this->user,
+            ),
+            user:  $this->user,
+            title: 'tracker ' . randomString(10),
+        );
+        Helper::generateTorrentSeed($this->torrent, $this->user);
+        $this->assertTrue(new Tracker()->recentUpdate(60), 'tracker-recent-update');
+    }
 }

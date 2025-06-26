@@ -48,7 +48,6 @@ class View extends Base {
                 ->setReport(new Stats\Report())
                 ->setPayment($payMan)
                 ->setApplicant(new Manager\Applicant())
-                ->setDb(new DB())
                 ->setScheduler(new TaskScheduler())
                 ->setSSLHost(new Manager\SSLHost())
                 ->setAutoReport(
@@ -57,6 +56,23 @@ class View extends Base {
                         $raTypeMan
                     )
                 );
+
+            if ($user->permitted('admin_site_debug')) {
+                $longRunning = new DB()->longRunning();
+                if ($longRunning > 0) {
+                    $message = "$longRunning long-running DB operation" . plural($longRunning);
+                    $activity->setAlert("<span title=\"$message\" class=\"sys-error\">DB</span>");
+                }
+                // Check that Ocelot is still writing to xbt_files_users.
+                // If not, look for database locks and check the Ocelot log
+
+                if (!new Tracker()->recentUpdate(TRACKER_REFRESH_TIMEOUT)) {
+                    $activity->setAlert('<span title="No update received from tracker within '
+                        . Util\Time::convertSeconds(TRACKER_REFRESH_TIMEOUT)
+                        . '" class="sys-error">TRACKER</span>'
+                    );
+                }
+            }
 
             $threshold = new Manager\SiteOption()
                 ->findValueByName('download-warning-threshold');

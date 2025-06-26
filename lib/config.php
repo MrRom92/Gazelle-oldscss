@@ -194,6 +194,9 @@ defined('MYSQL_RO_USER') or define('MYSQL_RO_USER', 'gazro');
 // The password of the above account.
 defined('MYSQL_RO_PASS') or define('MYSQL_RO_PASS', 'passro');
 
+// Warn if there is a query that has been running for too long
+defined('MYSQL_SLOW_QUERY_TIMEOUT') or define('MYSQL_SLOW_QUERY_TIMEOUT', 1200);
+
 // The username of the Phinx account (used for schema modifications).
 // In production, this account will have a different set of grants compared
 // to the website account (so that if the website account is compromised, it
@@ -291,6 +294,12 @@ defined('TRACKER_NAME') or define('TRACKER_NAME', '127.0.0.1' . ":" . TRACKER_PO
 // Shared secret that is compiled into Ocelot (see config.cpp). Must
 // be exactly 32 alphanumeric characters.
 defined('TRACKER_SECRET') or define('TRACKER_SECRET', '00000000000000000000000000000000');
+
+// How long to wait in the absense of an update from the tracker to warn of a
+// problem? Busy with millions of peears receive multiple updates per second.
+// Sites with a few thousand peers or less may not see an update for several
+// seconds.
+defined('TRACKER_REFRESH_TIMEOUT') or define('TRACKER_REFRESH_TIMEOUT', 5);
 
 // Second shared secret that is compiled into Ocelot (see config.cpp). Must
 // be exactly 32 alphanumeric characters.

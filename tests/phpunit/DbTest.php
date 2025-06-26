@@ -363,6 +363,8 @@ class DbTest extends TestCase {
             ),
             'mysql-fkey-list'
         );
+        // not a problem that the table does not exist, the SQL is being tested
+        $this->assertFalse($bad->recentUpdate(600), 'mysql-table-recent-update');
     }
 
     public function testPgTable(): void {

@@ -186,8 +186,9 @@ class DB extends Base {
             SELECT count(*)
             FROM performance_schema.processlist
             WHERE COMMAND NOT IN ('Sleep')
-                AND TIME > 1200;
-        ");
+                AND TIME > ?
+            ", MYSQL_SLOW_QUERY_TIMEOUT
+        );
     }
 
     public static function lookupDirection(string $direction): Direction {

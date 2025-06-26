@@ -341,4 +341,14 @@ class Tracker extends Base {
         ");
         return self::$db->to_array(false, MYSQLI_ASSOC);
     }
+
+    public function recentUpdate(int $seconds): bool {
+        return (bool)self::$db->scalar("
+            SELECT 1
+            FROM xbt_files_users
+            WHERE mtime > unix_timestamp(now() - INTERVAL ? SECOND)
+            LIMIT 1
+            ", $seconds
+        );
+    }
 }

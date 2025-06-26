@@ -30,7 +30,6 @@ class UserActivityTest extends TestCase {
 
         $this->assertInstanceOf(User\Activity::class, $activity->configure(), 'user-activity-configure');
         $this->assertInstanceOf(User\Activity::class, $activity->setApplicant(new Manager\Applicant()), 'user-activity-applicant');
-        $this->assertInstanceOf(User\Activity::class, $activity->setDb(new DB()), 'user-activity-db');
         $this->assertInstanceOf(User\Activity::class, $activity->setPayment(new Manager\Payment()), 'user-activity-payment');
         $this->assertInstanceOf(User\Activity::class, $activity->setReferral(new Manager\Referral()), 'user-activity-referral');
         $this->assertInstanceOf(User\Activity::class, $activity->setReport(new Stats\Report()), 'user-activity-report');

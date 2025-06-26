@@ -75,22 +75,6 @@ class Activity extends \Gazelle\BaseUser {
         return $this;
     }
 
-    public function setDb(\Gazelle\DB $dbMan): static {
-        if ($this->user->permitted('admin_site_debug')) {
-            $longRunning = $dbMan->longRunning();
-            if ($longRunning > 0) {
-                $message = "$longRunning long-running DB operation" . plural($longRunning);
-                $this->setAlert("<span title=\"$message\" class=\"sys-error\">DB</span>");
-            }
-            // If Ocelot can no longer write to xbt_files_users, it will drain after an hour
-            // Look for database locks and check the Ocelot log
-            if (!self::$db->scalar('SELECT fid FROM xbt_files_users LIMIT 1')) {
-                $this->setAlert('<span style="color: red">Ocelot not updating!</span>');
-            }
-        }
-        return $this;
-    }
-
     public function setPayment(\Gazelle\Manager\Payment $payMan): static {
         if ($this->user->permitted('admin_manage_payments')) {
             $soon = $payMan->soon();
