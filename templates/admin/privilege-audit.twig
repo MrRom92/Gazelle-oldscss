@@ -1,0 +1,60 @@
+{{ header('Audit Userclass Privileges') }}
+<div class="thin">
+    <div class="header">
+        <div class="linkbox">
+            <a href="tools.php?action=privilege_matrix" class="brackets">Privileges Matrix</a>
+        <a href="tools.php?action=userclass" class="brackets">Userclass list</a>
+            <a href="tools.php?action=staff_groups" class="brackets">Staff Groups</a>
+        </div>
+    </div>
+</div>
+<div class="box pad">
+{% for section in config %}
+<h2>{{ section.heading }}</h2>
+{%  for comparison in privilege_manager.pairUserclass(section.compare) %}
+{%      if loop.first %}
+    <div class="compare-grid">
+{%      endif %}
+        <div class="compare">
+            <h3>
+{%-     if comparison.lower -%}
+{{ user_manager.userclassName(comparison.lower) }} 🠞 {{ user_manager.userclassName(comparison.higher) -}}
+{%      else -%}
+Initial 🠞 {{ user_manager.userclassName(comparison.higher) -}}
+{%      endif -%}
+            </h3>
+{%      set result = privilege_manager.compareUserclass(comparison.lower, comparison.higher) %}
+            <div class="pair-grid">
+                <div class="added">
+                <ul>
+{%      for r in result.add %}
+                <li>{{ r }}</li>
+{%      else %}
+{%          if result.remove %}
+                <li><i>None</i></li>
+{%          endif %}
+{%      endfor %}
+                </ul>
+                </div>
+                <div class="removed">
+                <ul>
+{%      for r in result.remove %}
+                <li>{{ r }}</li>
+{%      else %}
+{%          if result.add %}
+                <li><i>None</i></li>
+{%          endif %}
+{%      endfor %}
+                </ul>
+                </div>
+{%      if not (result.add or result.remove) %}
+            <span class="no-change">No change</span>
+{%      endif %}
+            </div>
+        </div>
+{%      if loop.last %}
+    </div>
+{%      endif %}
+{%  endfor %}
+{% endfor %}
+{{ footer() }}

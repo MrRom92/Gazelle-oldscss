@@ -829,6 +829,22 @@ defined('FORUM_MOD') or define('FORUM_MOD',           21);
 defined('MOD') or define('MOD',                       11);
 defined('SYSOP') or define('SYSOP',                   15);
 
+// When adding a new privilege userclasses, care must be taken to
+// ensure all classes beyond the initial class receive it. The
+// Privileges Audit page is configured entirely by this definition.
+defined('USERCLASS_AUDIT') or define('USERCLASS_AUDIT',
+    [
+        [
+            'heading' => 'User classes',
+            'compare' => [USER, MEMBER, POWER, ELITE, TORRENT_MASTER, POWER_TM, ELITE_TM],
+        ],
+        [
+            'heading' => 'Staff classes',
+            'compare' => [FORUM_MOD, MOD, SYSOP],
+        ],
+    ]
+);
+
 // Permission ID of secondary class.
 defined('DONOR') or define('DONOR',             42);
 defined('FLS_TEAM') or define('FLS_TEAM',       23);

@@ -152,6 +152,9 @@ switch ($_REQUEST['action'] ?? '') {
     case 'privilege-alter':
         include_once 'managers/userclass_alter.php';
         break;
+    case 'privilege-audit':
+        include_once 'managers/privilege_audit.php';
+        break;
     case 'privilege_matrix':
         include_once 'managers/privilege_matrix.php';
         break;

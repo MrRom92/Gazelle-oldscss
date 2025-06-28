@@ -119,6 +119,40 @@ class Privilege extends \Gazelle\BaseManager {
     }
 
     /**
+     * Given a list of userclasses [A, B, C, D], return a list of pairs
+     * [ ['lower' => 0, 'higher' => A], ['lower' => A, 'higher' => B], ..., ['lower' => C, 'higher' => D] ]
+     * These will be used by compareUserclass()
+     */
+    public function pairUserclass(array $userclassList): array {
+        $result = [];
+        array_unshift($userclassList, 0);
+        for ($n = 0, $end = count($userclassList) - 1; $n < $end; ++$n) {
+            $result[] = [
+                'lower'  => $userclassList[$n],
+                'higher' => $userclassList[$n + 1],
+            ];
+        }
+        return $result;
+    }
+
+    /**
+     * Given two userclasses (permissions.ID) return an array of
+     * all privileges that have been added to the second class over the first,
+     * and the privileges which are in the first class but not in the second.
+     */
+    public function compareUserclass(int $lowerPermissionID, int $higherPermissionID): array {
+        $list   = $this->privilege();
+        $lower  = array_keys(array_filter($list, fn ($i) => in_array($lowerPermissionID, $i['can'])));
+        $higher = array_keys(array_filter($list, fn ($i) => in_array($higherPermissionID, $i['can'])));
+        sort($lower);
+        sort($higher);
+        return [
+            'add'    => array_values(array_diff($higher, $lower)),
+            'remove' => array_values(array_diff($lower, $higher)),
+        ];
+    }
+
+    /**
      * The list of defined privileges. The `can` field
      * in the returned array acts as a sparse matrix.
      *

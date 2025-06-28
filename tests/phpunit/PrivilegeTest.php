@@ -152,6 +152,26 @@ class PrivilegeTest extends TestCase {
         $this->assertEquals($total + 1, $flsList[0]['total'], 'privilege-one-new-fls');
     }
 
+    public function testPrivilegeCompare(): void {
+        $manager = new Manager\Privilege();
+        $compare = $manager->compareUserclass(USER, MEMBER);
+        $this->assertCount(2, $compare, 'privilege-compare-count');
+        $this->assertEquals([], $compare['remove'], 'privilege-compare-remove');
+        $this->assertEquals(
+            [
+                'edit_unknowns',
+                'site_advanced_top10',
+                'site_collages_manage',
+                'site_collages_subscribe',
+                'site_make_bookmarks',
+                'site_submit_requests',
+                'zip_downloader',
+            ],
+            $compare['add'],
+            'privilege-compare-add',
+        );
+    }
+
     public function testCustomPrivilege(): void {
         $admin = $this->userList['admin'];
         $user  = $this->userList['user'];
