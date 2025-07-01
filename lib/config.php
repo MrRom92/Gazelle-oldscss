@@ -296,10 +296,8 @@ defined('TRACKER_SECRET') or define('TRACKER_SECRET', '0000000000000000000000000
 // be exactly 32 alphanumeric characters.
 defined('TRACKER_REPORTKEY') or define('TRACKER_REPORTKEY', '00000000000000000000000000000000');
 
-// Announce URLs for users. Some clients cannot do HTTPS, and some people
-// persist in using these clients, which is a great pity.
-defined('ANNOUNCE_HTTP_URL') or define('ANNOUNCE_HTTP_URL', 'http://' . TRACKER_NAME);
-defined('ANNOUNCE_HTTPS_URL') or define('ANNOUNCE_HTTPS_URL', 'https://' . TRACKER_NAME);
+// Announce URLs for users. Plaintext (port 80) connections are not supported.
+defined('TRACKER_PUBLIC_HOST') or define('TRACKER_PUBLIC_HOST', 'https://' . TRACKER_NAME);
 
 // Define this to be a file (writable by the web server user) to trace the
 // expiry of freeleech tokens by Ocelot. Note that if this is set in

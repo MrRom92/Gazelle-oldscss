@@ -459,7 +459,7 @@ class UserTest extends TestCase {
 
         $this->assertEquals(0, $this->user->history()->announceKeyTotal(), 'utest-announce-key-count');
         $this->assertEquals(32, strlen($key), 'utest-announce-key');
-        $this->assertStringStartsWith(ANNOUNCE_HTTPS_URL, $url, 'utest-announce-url-begin');
+        $this->assertStringStartsWith(TRACKER_PUBLIC_HOST, $url, 'utest-announce-url-begin');
         $this->assertStringEndsWith('/announce', $url, 'utest-announce-url-end');
         $this->assertCount(0, $this->user->history()->announceKeyList(), 'utest-announce-key-list');
 

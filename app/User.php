@@ -199,9 +199,6 @@ class User extends BaseAttrObject {
         $this->info['ParanoiaRaw'] = $this->info['Paranoia'];
         $this->info['Paranoia']    = $this->info['Paranoia'] ? unserialize($this->info['Paranoia']) : [];
         $this->info['SiteOptions'] = $this->info['SiteOptions'] ? unserialize($this->info['SiteOptions']) : [];
-        if (!isset($this->info['SiteOptions']['HttpsTracker'])) {
-            $this->info['SiteOptions']['HttpsTracker'] = true;
-        }
         $this->info['RatioWatchEndsEpoch'] = $this->info['RatioWatchEnds']
             ? strtotime($this->info['RatioWatchEnds']) : 0;
         $this->info['warning_expiry'] = new User\Warning($this)->warningExpiry();
@@ -257,8 +254,7 @@ class User extends BaseAttrObject {
     }
 
     public function announceUrl(): string {
-        return ($this->info()['SiteOptions']['HttpsTracker'] ? ANNOUNCE_HTTPS_URL : ANNOUNCE_HTTP_URL)
-            . '/' . $this->announceKey() . '/announce';
+        return  TRACKER_PUBLIC_HOST . "/{$this->announceKey()}/announce";
     }
 
     public function auth(): string {

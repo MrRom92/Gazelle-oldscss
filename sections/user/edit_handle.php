@@ -206,11 +206,6 @@ foreach (['DefaultSearch', 'DisableFreeTorrentTop10'] as $opt) {
         $option[$opt] = $user->option($opt);
     }
 }
-if ($user->option('HttpsTracker') == 1) {
-    $option['HttpsTracker'] = 1;
-} else {
-    $option['HttpsTracker'] = !empty($_POST['httpstracker']) ? 1 : 0;
-}
 if (empty($_POST['sorthide'])) {
     $option['SortHide'] = [];
 } else {
