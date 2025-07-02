@@ -38,14 +38,19 @@ class Helper {
         );
     }
 
+    /**
+     * @param array<int> $tagList
+     */
     public static function makeRequestMusic(
         User     $user,
         string   $title,
         int      $releaseType     = 1,
+        int      $year            = 2001,
         string   $description     = 'This is a unit test description',
         string   $image           = '',
         string   $recordLabel     = 'Unitest Artists',
         string   $catalogueNumber =  'UA-7890',
+        array    $tagList         = [],
         Encoding $encoding        = new Encoding(list: ['Lossless', 'V0 (VBR)']),
         Format   $format          = new Format(list: ['MP3', 'FLAC']),
         Media    $media           = new Media(list: ['CD', 'WEB']),
@@ -60,7 +65,7 @@ class Helper {
             user:            $user,
             bounty:          100 * 1024 ** 3,
             categoryId:      (int)new Category()->findIdByName('Music'),
-            year:            (int)date('Y'),
+            year:            $year,
             title:           $title,
             image:           $image,
             description:     $description,
@@ -72,13 +77,18 @@ class Helper {
             media:           $media,
             logCue:          $logCue,
             oclc:            '123,456',
+            tagList:         $tagList,
         );
     }
 
+    /**
+     * @param array<int> $tagList
+     */
     public static function makeRequestComics(
         User     $user,
         string   $title,
         string   $description = 'This is a unit test description',
+        array    $tagList     = [],
     ): \Gazelle\Request {
         return new \Gazelle\Manager\Request()->create(
             user:            $user,
@@ -96,6 +106,7 @@ class Helper {
             media:           new Media(list: ['Any']),
             logCue:          new LogCue(false, false, false, 0),
             oclc:            '123,456',
+            tagList:         $tagList,
         );
     }
 

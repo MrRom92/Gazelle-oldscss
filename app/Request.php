@@ -7,19 +7,11 @@ use Gazelle\Intf\CategoryHasArtist;
 
 class Request extends BaseObject implements CategoryHasArtist {
     final public const tableName  = 'requests';
-    protected const CACHE_REQUEST = "req_%d";
-    protected const CACHE_ARTIST  = "request_artists_%d";
-    protected const CACHE_VOTE    = "request_votes_%d";
 
     public function flush(): static {
         if ($this->tgroupId()) {
             self::$cache->delete_value("requests_group_" . $this->tgroupId());
         }
-        self::$cache->delete_multi([
-            sprintf(self::CACHE_REQUEST, $this->id),
-            sprintf(self::CACHE_ARTIST, $this->id),
-            sprintf(self::CACHE_VOTE, $this->id),
-        ]);
         unset($this->info);
         return $this;
     }
@@ -114,7 +106,7 @@ class Request extends BaseObject implements CategoryHasArtist {
         $info = self::$db->rowAssoc("
             SELECT r.UserID       AS user_id,
                 r.FillerID        AS filler_id,
-                r.TimeAdded       AS created,
+                r.created         AS created,
                 r.TimeFilled      AS fill_date,
                 r.LastVote        AS last_vote_date,
                 r.CategoryID      AS category_id,

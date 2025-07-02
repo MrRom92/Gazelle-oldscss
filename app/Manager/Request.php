@@ -56,7 +56,7 @@ class Request extends \Gazelle\BaseManager {
                 $6, $7, $8,
                 $9, $10, $11, $12, $13,
                 $14, $15, $16, $17,
-                to_tsvector(\'simple\', $18), $19::int[],
+                to_tsvector(\'simple\', unaccent($18)), $19::int[],
                 $20::text[], $21::text[], $22::text[]
             )',
             $request->id, $user->id, $groupId, $categoryId, $releaseType === 0 ? null : $releaseType, // 5
@@ -176,8 +176,12 @@ class Request extends \Gazelle\BaseManager {
             merge into request r using (
                 with a_t as (
                     select rr.\"ID\" as id_request,
-                        to_tsvector('simple', coalesce(string_agg(aa.\"Name\", ' '), '')
-                            || ' ' || rr.\"Title\"
+                        to_tsvector(
+                            'simple',
+                            unaccent(
+                                coalesce(string_agg(aa.\"Name\", ' '), '')
+                                    || ' ' || rr.\"Title\"
+                            )
                         ) as artist_title_ts
                     from relay.requests rr
                     left join relay.requests_artists ra on    (ra.\"RequestID\" = rr.\"ID\")

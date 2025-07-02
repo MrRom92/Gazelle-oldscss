@@ -1,11 +1,44 @@
+{% set header_title %}
+{%  if search.isBookmarkView %}
+Bookmarked Requests
+{%  elseif type == 'created' %}
+Requests created
+{%  elseif type == 'filled' %}
+Requests created
+{%  elseif type == 'voted' %}
+Requests voted
+{%  else %}
+Requests
+{%  endif %}
+{% endset %}
 {% from 'macro/form.twig' import autocomplete, checked %}
-{{ header(search.text, {'js': 'requests'}) }}
+{{ header(header_title, {'js': 'requests'}) }}
 <div class="thin">
     <div class="header">
-        <h2>{{ search.title|raw }}</h2>
+        <h2>
+{%- if search.isBookmarkView %}
+{{  user.id|user_url }} › Bookmarked Requests
+{% elseif type == 'created' %}
+{{  user.id|user_url }} › Requests created
+{% elseif type == 'filled' %}
+{{  user.id|user_url }} › Requests filled
+{% elseif type == 'voted' %}
+{{  user.id|user_url }} › Requests voted
+{% else %}
+Requests
+{% endif -%}
+        </h2>
     </div>
     <div class="linkbox">
-{% if bookmark_view %}
+{% if search.isBookmarkView %}
+        <a href="bookmarks.php?type=torrents" class="brackets">Torrents</a>
+        <a href="bookmarks.php?type=artists" class="brackets">Artists</a>
+        <a href="bookmarks.php?type=collages" class="brackets">Collages</a>
+{% endif -%}
+        </h2>
+    </div>
+    <div class="linkbox">
+{% if search.isBookmarkView %}
         <a href="bookmarks.php?type=torrents" class="brackets">Torrents</a>
         <a href="bookmarks.php?type=artists" class="brackets">Artists</a>
         <a href="bookmarks.php?type=collages" class="brackets">Collages</a>
@@ -21,9 +54,9 @@
         <a href="bookmarks.php?type=requests" class="brackets">Bookmarked requests</a>
 {% endif %}
     </div>
-{% if not bookmark_view %}
+{% if not search.isBookmarkView %}
     <form class="search_form" name="requests" action="" method="get">
-{%  if bookmark_view %}
+{%  if search.isBookmarkView %}
         <input type="hidden" name="action" value="view" />
         <input type="hidden" name="type" value="requests" />
 {%  elseif type %}
@@ -38,26 +71,23 @@
                 <td class="label">Search terms:</td>
                 <td>
                     <input type="search" name="search" size="75" value="{{ search_text }}" />
+                    <br />
+                    <br />
+                    Tips on searching: {{ "[[searchfulltext]]" | bb_format }}
                 </td>
             </tr>
             <tr id="tagfilter">
                 <td class="label">Tags (comma-separated):</td>
                 <td>
-                    <input type="search" name="tags" id="tags" size="60" value="{{ search.tagList }}"{{ autocomplete(user, 'other') }} />&nbsp;
-                    <label><input type="radio" name="tag_mode" value="any"{{ checked(tag_mode == 'any') }} /> Any</label>&nbsp;&nbsp;
-                    <label><input type="radio" name="tag_mode" value="all"{{ checked(tag_mode == 'all') }} /> All</label>
+                    <input type="search" name="tags" id="tags" size="60" value="{{ search.tagList.list }}"{{ autocomplete(user, 'other') }} />&nbsp;
+                    <label><input type="radio" name="tag_mode" value="any"{{ checked(search.tagList.mode.value == 'any') }} /> Any</label>&nbsp;&nbsp;
+                    <label><input type="radio" name="tag_mode" value="all"{{ checked(search.tagList.mode.value == 'all') }} /> All</label>
                 </td>
             </tr>
             <tr id="include_filled">
                 <td class="label"><label for="include_filled_box">Include filled:</label></td>
                 <td>
-                    <input type="checkbox" id="include_filled_box" name="show_filled"{{ checked(show_filled or (initial and type == 'filled')) }} />
-                </td>
-            </tr>
-            <tr id="include_old">
-                <td class="label"><label for="include_old_box">Include old:</label></td>
-                <td>
-                    <input type="checkbox" id="include_old_box" name="showall"{{ checked(show_old or initial) }} />
+                    <input type="checkbox" id="include_filled_box" name="show_filled"{{ checked(search.isShowFilled) }} />
                 </td>
             </tr>
         </table>
@@ -71,8 +101,8 @@
                     <br />
 {%  for key, name in constant('CATEGORY') %}
                     <label class="req-choice">
-                    <input type="checkbox" name="filter_cat[]" id="cat_{{ key }}" value="{{ key }}"{{ 
-                        checked(key in filter_cat or initial) }} /> {{ name }}</label>
+                    <input type="checkbox" name="filter_cat[]" id="cat_{{ key }}" value="{{ key }}"{{
+                        checked(not filter_cat or key in filter_cat or initial) }} /> {{ name }}</label>
 {%  endfor %}
                 </td>
             </tr>
@@ -96,8 +126,8 @@
             <tr id="media_list">
                 <td class="label">Media</td>
                 <td>
-                    <label><input type="checkbox" id="toggle_media" {{ 
-                        checked(search.mediaList|length in [0, constant('MEDIA')|length])
+                    <label><input type="checkbox" id="toggle_media" {{
+                        checked(not search.mediaList or search.mediaList.list|length in [0, constant('MEDIA')|length])
                     }} />
                     All</label>
                     <label class="tooltip" title="Requests that also specify other media will be excluded from the results">
@@ -108,7 +138,7 @@
 {%  for key, name in constant('MEDIA') %}
                     <label class="req-choice">
                     <input type="checkbox" name="media[]" value="{{ key }}" id="media_{{ key }}"{{
-                        checked(not search.mediaList or key in search.mediaList or initial)
+                        checked(not search.mediaList or key in search.mediaList.list or initial)
                         }} /> {{ name }}</label>
 {%  endfor %}
                 </td>
@@ -117,8 +147,8 @@
             <tr id="format_list">
                 <td class="label">Formats</td>
                 <td>
-                    <label><input type="checkbox" id="toggle_formats" {{ 
-                        checked(search.formatList|length in [0, constant('FORMAT')|length])
+                    <label><input type="checkbox" id="toggle_formats" {{
+                        checked(not search.formatList or search.formatList.list|length in [0, constant('FORMAT')|length])
                     }} />
                     All</label>
                     <label class="tooltip" title="Requests that also specify other formats will be excluded from the results">
@@ -129,7 +159,7 @@
 {%  for key, name in constant('FORMAT') %}
                     <label class="req-choice">
                     <input type="checkbox" name="formats[]" value="{{ key }}" id="format_{{ key }}" {{
-                        checked(not search.formatList or key in search.formatList or initial)
+                        checked(not search.formatList or key in search.formatList.list or initial)
                         }} /> {{ name }}</label>
 {%  endfor %}
                 </td>
@@ -138,8 +168,8 @@
             <tr id="bitrate_list">
                 <td class="label">Encoding</td>
                 <td>
-                    <label><input type="checkbox" id="toggle_bitrates" {{ 
-                        checked(search.encodingList|length in [0, constant('ENCODING')|length])
+                    <label><input type="checkbox" id="toggle_bitrates" {{
+                        checked(not search.encodingList or search.encodingList.list|length in [0, constant('ENCODING')|length])
                     }} />
                     All</label>
                     <label class="tooltip" title="Requests that also specify other encodings will be excluded from the results">
@@ -150,7 +180,7 @@
 {%  for key, name in constant('ENCODING') %}
                     <label class="req-choice">
                     <input type="checkbox" name="bitrates[]" value="{{ key }}" id="bitrate_{{ key }}"{{
-                        checked(not search.encodingList or key in search.encodingList or initial)
+                        checked(not search.encodingList or key in search.encodingList.list or initial)
                         }} /> {{ name }}</label>
 {%  endfor %}
                 </td>
@@ -159,6 +189,8 @@
             <tr>
                 <td colspan="2" class="center">
                     <input type="submit" value="Search requests" />
+{%  set total = search.total %}
+                    <h5>{{ total }} request{{ total|plural }} matched</h5>
                 </td>
             </tr>
         </table>
@@ -169,17 +201,17 @@
     with {
         'bounty'    : bounty,
         'filtering' : filtering,
-        'header'    : header,
-        'list'      : search.list,
+        'header'    : search.heading,
+        'list'      : result,
         'paginator' : paginator,
         'viewer'    : viewer,
     }
     only
 %}
 
-{% if not search.list %}
+{% if not result %}
 <div class="box pad" align="center">
-{%- if bookmark_view -%}
+{%- if search.isBookmarkView -%}
     <h3>You have not bookmarked any requests.</h3>
 {%- else -%}
     <h3>Nothing found with these filters.</h3>

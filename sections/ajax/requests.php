@@ -5,8 +5,6 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$search = new Search\Request(new Manager\Request());
-
 $userMan = new Manager\User();
 if (!isset($_GET['userid'])) {
     $user = null;
@@ -17,7 +15,8 @@ if (!isset($_GET['userid'])) {
     }
 }
 
-$type = $_GET['type'] ?? '';
+$search = new Search\Request();
+$type   = $_GET['type'] ?? '';
 switch ($type) {
     case 'created':
         if ($user) {
@@ -56,18 +55,15 @@ switch ($type) {
         }
         break;
     case 'bookmarks':
-        $Title = 'Your bookmarked requests';
         if (is_null($user)) {
             json_die("No user id given");
         }
         $search->setBookmarker($user);
+        $Title = 'Your bookmarked requests';
         $BookmarkView = true;
         break;
     default:
         $Title = 'Requests';
-        if (!isset($_GET['showall'])) {
-            $search->setVisible(true);
-        }
         break;
 }
 
@@ -75,54 +71,26 @@ $strict = true;
 $search->setFormat($_GET['formats'] ?? [], $strict)
     ->setMedia($_GET['media'] ?? [], $strict)
     ->setEncoding($_GET['bitrates'] ?? [], $strict)
-    ->setText($_GET['search'] ?? '')
+    ->setSearch($_GET['search'] ?? '')
     ->setTag(
-        $_GET['tags'] ?? '',
+        trim($_GET['tags'] ?? ''),
         match ($_GET['tag_type'] ?? '1') {
-            '1'     => 'all',
-            default => 'any',
+            '1'     => Enum\SearchTag::all,
+            default => Enum\SearchTag::any,
         },
     )
     ->setCategory($_GET['filter_cat'] ?? [])
-    ->setReleaseType($_GET['releases'] ?? [], new \Gazelle\ReleaseType()->list());
+    ->setReleaseType($_GET['releases'] ?? []);
 
-if (!isset($_GET['show_filled'])) {
-    $search->showUnfilled();
+if (isset($_GET['show_filled'])) {
+    $search->showFilled();
 }
 
 if (isset($_GET['year'])) {
     $search->setYear((int)$_GET['year']);
 }
 
-if (isset($_GET['requestor'])) {
-    $requestor = (int)$_GET['requestor'];
-    if ($requestor) {
-        $search->setRequestor($requestor);
-    } else {
-        json_die('requestor not found');
-    }
-}
-
 $paginator = new Util\Paginator(REQUESTS_PER_PAGE, (int)($_GET['page'] ?? 1));
-if ($type === 'random') {
-    $search->limit(0, REQUESTS_PER_PAGE, REQUESTS_PER_PAGE);
-} else {
-    $offset = ($paginator->page() - 1) * REQUESTS_PER_PAGE;
-    $search->limit($offset, REQUESTS_PER_PAGE, $offset + REQUESTS_PER_PAGE);
-}
-
-$search->execute(
-    match ($type) {
-        'year'     => 'year',
-        'votes'    => 'votes',
-        'bounty'   => 'bounty',
-        'filled'   => 'timefilled',
-        'lastvote' => 'lastvote',
-        'random'   => 'RAND()',
-        default    => 'timeadded',
-    },
-    ($_GET['sort'] ?? 'desc') === 'asc' ? 'asc' : 'desc'
-);
 $paginator->setTotal($search->total());
 
 echo new Json\Requests($search, $paginator->page(), $userMan)

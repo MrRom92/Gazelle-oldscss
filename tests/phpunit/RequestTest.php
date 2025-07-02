@@ -46,7 +46,8 @@ class RequestTest extends TestCase {
         $manager       = new Manager\Request();
         $title         = 'phpunit ' . randomString(6) . ' Test Sessions (bonus VIP)';
         $image         = 'https://example.com/req.jpg';
-        $this->request = Helper::makeRequestMusic($admin, $title, image: $image);
+        $year          = 2002;
+        $this->request = Helper::makeRequestMusic($admin, $title, image: $image, year: $year);
         $id = $this->request->id;
 
         $this->assertInstanceOf(Request::class, $this->request, 'request-create');
@@ -85,7 +86,6 @@ class RequestTest extends TestCase {
         // Request::info() will now succeed
         $this->assertEquals($admin->id, $this->request->userId(), 'request-user-id');
         $this->assertEquals($admin->id, $this->request->ajaxInfo()['requestorId'], 'request-ajax-user-id');
-        $year = date('Y');
         $this->assertEquals("$artistName – $title [$year]", $this->request->text(), 'request-text');
         $find = $manager->findByArtist($artistMan->findByName($artistName));
         $this->assertCount(1, $find, 'request-find-by-artist');
