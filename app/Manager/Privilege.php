@@ -6,11 +6,11 @@ class Privilege extends \Gazelle\BaseManager {
     protected const ID_KEY = 'zz_prv_%d';
     protected const CACHE_KEY = 'privilege_list';
 
-    protected array $info = [];
+    protected array $info;
 
     public function flush(): static {
         self::$cache->delete_value(self::CACHE_KEY);
-        $this->info = [];
+        unset($this->info);
         return $this;
     }
 
@@ -49,51 +49,51 @@ class Privilege extends \Gazelle\BaseManager {
     }
 
     protected function info(): array {
-        if (empty($this->info)) {
-            $info = self::$cache->get_value(self::CACHE_KEY);
-            if ($info !== false) {
-                $this->info = $info;
-            } else {
-                $privilege = [];
-                $plist = self::privilegeList();
-                foreach ($plist as $name => $description) {
-                    $privilege[$name] = [
-                        'can'         => [],
-                        'description' => $description,
-                        'name'        => $name,
-                        'orphan'      => 0
-                    ];
-                }
-
-                self::$db->prepared_query("
-                    SELECT ID, `Values` AS Permissions
-                    FROM permissions
-                    ORDER BY Secondary DESC, Level, Name
-                ");
-                $permission = self::$db->to_pair('ID', 'Permissions');
-
-                // decorate the privileges with those user classes that have benn granted access
-                foreach ($permission as $id => $perm) {
-                    $perm = unserialize($perm);
-                    foreach (array_keys($perm) as $p) {
-                        if (!isset($privilege[$p])) {
-                            // orphan permissions in the db that no longer do anything
-                            $privilege[$p] = [
-                                'can'         => [],
-                                'description' => $p,
-                                'name'        => $p,
-                                'orphan'      => 1
-                            ];
-                        }
-                        $privilege[$p]['can'][] = $id;
-                    }
-                }
-                $this->info = [
-                    'privilege' => $privilege,
-                ];
-                self::$cache->cache_value(self::CACHE_KEY, $this->info, 7200);
-            }
+        if (isset($this->info)) {
+            return $this->info;
         }
+        $info = self::$cache->get_value(self::CACHE_KEY);
+        if ($info === false) {
+            $privilege = [];
+            $plist = self::privilegeList();
+            foreach ($plist as $name => $description) {
+                $privilege[$name] = [
+                    'can'         => [],
+                    'description' => $description,
+                    'name'        => $name,
+                    'orphan'      => 0
+                ];
+            }
+
+            self::$db->prepared_query("
+                SELECT ID, `Values` AS Permissions
+                FROM permissions
+                ORDER BY Secondary DESC, Level, Name
+            ");
+            $permission = self::$db->to_pair('ID', 'Permissions');
+
+            // decorate the privileges with those user classes that have benn granted access
+            foreach ($permission as $id => $perm) {
+                $perm = unserialize($perm);
+                foreach (array_keys($perm) as $p) {
+                    if (!isset($privilege[$p])) {
+                        // orphan permissions in the db that no longer do anything
+                        $privilege[$p] = [
+                            'can'         => [],
+                            'description' => $p,
+                            'name'        => $p,
+                            'orphan'      => 1
+                        ];
+                    }
+                    $privilege[$p]['can'][] = $id;
+                }
+            }
+            $info = [
+                'privilege' => $privilege,
+            ];
+            self::$cache->cache_value(self::CACHE_KEY, $info, 0);
+        }
+        $this->info = $info;
         return $this->info;
     }
 

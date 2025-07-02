@@ -159,8 +159,6 @@ class PrivilegeTest extends TestCase {
         $this->assertEquals([], $compare['remove'], 'privilege-compare-remove');
         $this->assertEquals(
             [
-                'edit_unknowns',
-                'site_advanced_top10',
                 'site_collages_manage',
                 'site_collages_subscribe',
                 'site_make_bookmarks',

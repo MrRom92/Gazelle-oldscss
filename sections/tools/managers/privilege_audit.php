@@ -10,8 +10,13 @@ if (!$Viewer->permitted('admin_manage_permissions')) {
     Error403::error();
 }
 
+$privilegeManager = new Manager\Privilege();
+if (isset($_GET['flush'])) {
+    $privilegeManager->flush();
+}
+
 echo $Twig->render('admin/privilege-audit.twig', [
-    'privilege_manager' => new Manager\Privilege(),
+    'privilege_manager' => $privilegeManager,
     'user_manager'      => new Manager\User(),
     'config'            => USERCLASS_AUDIT,
 ]);
