@@ -124,6 +124,12 @@ class TextTest extends TestCase {
             \Text::full_format($collage->publicLocation()),
             'text-collage-url'
         );
+        $url = SITE_URL . '/collages.php?order=subscribers&sort=desc&page=2';
+        $this->assertEquals(
+            "<a href=\"$url\">" . htmlentities($url) . "</a>",
+            \Text::full_format($url),
+            'text-collage-url-no-id',
+        );
         $commentMan = new Manager\Comment();
         $comment    = $commentMan->create($this->userList['admin'], 'collages', $collage->id, "nice collage!");
         $this->assertEquals(

@@ -359,6 +359,9 @@ class Text {
                 return new \Gazelle\Manager\Artist()->findById((int)($args['id'] ?? 0))?->link();
 
             case '/collages.php':
+                if (!isset($args['id']) && !isset($args['collageid'])) {
+                    return "<a href=\"$rawurl\">$url</a>";
+                }
                 return self::bbcodeCollageUrl((int)($args['id'] ?? $args['collageid']));
 
             case '/forums.php':
