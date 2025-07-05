@@ -38,9 +38,10 @@ if (isset($_REQUEST['confirm'])) {
         ['email', true, 'email', 'You did not enter a valid email address.'],
         ['password', true, 'regex', 'A strong password is 8 characters or longer, contains at least 1 lowercase and uppercase letter, and contains at least a number or symbol, or is 20 characters or longer', ['regex' => Util\PasswordCheck::REGEXP]],
         ['confirm_password', true, 'compare', 'Your passwords do not match.', ['comparefield' => 'password']],
-        ['readrules', true, 'checkbox', 'You did not select the box that says you will read the rules.'],
-        ['readwiki', true, 'checkbox', 'You did not select the box that says you will read the wiki.'],
-        ['agereq', true, 'checkbox', 'You did not select the box that says you are 13 years of age or older.'],
+        ['readrules', true, 'checkbox', 'You did not check the box that says you will read the rules.'],
+        ['readwiki',  true, 'checkbox', 'You did not check the box that says you will read the wiki.'],
+        ['agereq',    true, 'checkbox', 'You did not check the box that says you are 13 years of age or older.'],
+        ['vpn',       true, 'checkbox', 'You did not check the box that says you are not connected via a VPN.'],
     ]);
 
     $error = false;
@@ -123,6 +124,7 @@ if (isset($_REQUEST['confirm'])) {
         'readrules' => isset($_REQUEST['readrules']),
         'readwiki'  => isset($_REQUEST['readwiki']),
         'agereq'    => isset($_REQUEST['agereq']),
+        'vpn'       => isset($_REQUEST['vpn']),
     ]);
 } else {
     echo $Twig->render(isset($_GET['welcome'])

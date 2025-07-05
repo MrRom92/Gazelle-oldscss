@@ -1,17 +1,15 @@
 {{ header('No pending confirmation found') }}
 {% include 'logo.twig' %}
-
 <style type="text/css">
 li { margin-bottom: 10px; }
 </style>
 
-<div style="width: 100%">
-<div style="width: 45%; margin: auto;">
+<div class="main">
 
 <h2>No pending confirmation found</h2>
 
 <div>There is no pending confirmation waiting at the link you accessed. There
-are three possibilities:
+are four possibilities:
 
 <ul>
 
@@ -23,16 +21,17 @@ correct it and try again.</li>
 <li>The confirmation code was issued more than 24 hours ago.</li>
 
 <li>The code was already used by you or someone else.</li>
+
+<li>Your account has alread been confirmed. Try <a href="login.php">logging in</a>.
 </ul>
 
 <p>In any event, you should try logging in with your credentials. If your
 account is still unconfirmed, a new email will be sent to the address you
-gave when signing up.<p>
+gave when signing up.</p>
 
-<p>When all else fails, try contacting staff on IRC. Join
+<p>When all else fails, contact staff on IRC. Join
 <code>{{ constant('IRC_HOSTNAME') }}</code>, channel <code>#disabled</code>. Depending on the
-timezone you may have to wait, but you will receive a response.</li>
+timezone you may have to wait, but you will receive a response.</p>
 
 </div>
-</div>
-</div>
+{{ footer() }}

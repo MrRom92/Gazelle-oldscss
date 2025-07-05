@@ -44,7 +44,7 @@ Please enable JavaScript in your browser.</span><br /><br /></noscript>
 {% endif %}
 <div class="auth">
 {% if delta <= 0 %}
-<form class="auth_form" name="login" id="loginform" method="post" action="login.php" autocomplete="off">
+<form class="auth-form" name="login" id="loginform" method="post" action="login.php" autocomplete="off">
     <div>
         <label for="username">Username</label>
         <input type="text" name="username" id="username" class="inputtext" required maxlength="20" pattern="[\w.]{1,20}" autofocus="autofocus" placeholder="Username" />
@@ -52,7 +52,7 @@ Please enable JavaScript in your browser.</span><br /><br /></noscript>
     <div>
         <label for="password">Password</label>
         <input type="password" name="password" id="password" class="inputtext" required minlength="8" placeholder="Password" />
-        <span id="password_toggle">&#x1FAE3;</span>
+        <span id="password-toggle">🫣</span>
     </div>
     <div>
         <label title="MFA key (or recovery key), if configured" for="keeplogged">MFA Key</label>
@@ -62,7 +62,7 @@ Please enable JavaScript in your browser.</span><br /><br /></noscript>
         <label title="Keep me logged in for 90 days" for="keeplogged">Remember me</label>
         <input title="Keep me logged in for 90 days" type="checkbox" id="keeplogged" name="keeplogged" value="1"{{ checked(keep_logged) }} />
     </div>
-    <div id="login_buttons">
+    <div id="login-buttons">
         <div>
             <input style="margin: auto" type="submit" name="login" value="Log in" class="submit" />
         </div>

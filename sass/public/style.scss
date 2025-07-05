@@ -50,16 +50,13 @@ input[type="password"]:valid {
 
 input[type="text"]:invalid,
 input[type="password"]:invalid {
-  border-top-style: none;
-  border-bottom-style: none;
-  border-left-style: none;
-  border-right-style: solid 2px;
+  border-style: none solid 2px none none;
   border-color: red;
 }
 
 body {
   background-color: #041813;
-  font-family: Bitstream Vera Sans, Tahoma, sans-serif;
+  font-family: "Bitstream Vera Sans", Tahoma, sans-serif;
   color: #e0e0e0;
 }
 
@@ -89,11 +86,19 @@ a:hover {
 }
 
 .auth {
+  line-height: 1.8;
   margin: 0 auto;
   width: max-content;
 }
 
-.auth_form a {
+.auth label {
+  display: inline-block;
+  margin-right: 4px;
+  text-align: right;
+  width: 120px;
+}
+
+.auth-form a {
   display: block;
   font-size: 0.7em;
   margin-left: 80px;
@@ -130,14 +135,8 @@ a:hover {
 }
 
 .main {
-  width: 100%;
-}
-
-.main label {
-  display: inline-block;
-  font-size: 0.85em;
-  line-height: 1.8em;
-  width: 110px;
+  margin: 0 auto;
+  max-width: 800px;
 }
 
 .main .submit {
@@ -193,17 +192,17 @@ a:hover {
   text-align: center;
 }
 
-#password_toggle {
+#password-toggle {
   display: inline-block;
   width: 21px;
   cursor: pointer;
   text-align: center;
 }
 
-#login_buttons {
+#login-buttons {
   text-align: center;
 }
 
-#login_buttons a {
-  margin: 10px 0px;
+#login-buttons a {
+  margin: 10px 0;
 }

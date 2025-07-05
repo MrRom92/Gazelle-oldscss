@@ -116,7 +116,7 @@ class Validator {
     public function validate(array $ValidateArray): bool {
         reset($this->Fields);
         foreach ($this->Fields as $FieldKey => $Field) {
-            if (!isset($ValidateArray[$FieldKey]) && $Field['Required']) {
+            if (!isset($ValidateArray[$FieldKey]) && $Field['Required'] && $Field['Type'] !== 'checkbox') {
                 $this->errorMessage = "$FieldKey is not specified";
                 break;
             }

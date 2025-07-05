@@ -1,7 +1,7 @@
 "use strict";
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('password_toggle')?.addEventListener('click', (e) => {
+    document.getElementById('password-toggle')?.addEventListener('click', (e) => {
         for (const name of ['password', 'new_pass_1', 'new_pass_2']) {
             let field = document.getElementById(name);
             if (field) {
