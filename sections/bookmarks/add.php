@@ -19,9 +19,6 @@ $object = match ($_GET['type'] ?? '') {
     default   => json_error('bad type'),
 };
 if ($object instanceof Intf\Bookmarked && new User\Bookmark($Viewer)->create($object)) {
-    if ($object instanceof Request) {
-        $object->updateBookmarkStats();
-    }
     print(json_encode('OK'));
 } else {
     json_error('not bookmarked');

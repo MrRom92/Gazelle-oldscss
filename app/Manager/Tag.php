@@ -280,11 +280,8 @@ class Tag extends \Gazelle\BaseManager {
             ", $new->id, $new->id, $new->id, $new->id
         );
 
-        // update cache and sphinx
+        // update cache
         // (some of these may not have changed, skipping them would be a false optimization)
-        foreach ($affectedRequests as $id) {
-            new \Gazelle\Request($id)->updateSphinx();
-        }
         foreach ($affectedTGroups as $id) {
             new \Gazelle\TGroup($id)->refresh();
         }
@@ -422,7 +419,6 @@ class Tag extends \Gazelle\BaseManager {
         }
         self::$db->commit();
         $request->relayTag();
-        $request->updateSphinx();
         return $affected;
     }
 

@@ -128,7 +128,6 @@ class RequestTest extends TestCase {
         $this->assertTrue($this->request->hasArtistRole(), 'request-has-artist-role');
         $this->assertInstanceOf(ArtistRole\Request::class, $this->request->artistRole(), 'request-artist-role');
         $this->assertEquals($nameList, $this->request->flush()->tagNameList(), 'request-tag-list');
-        $this->assertEquals(str_replace('.', '_', "{$nameList[0]} {$nameList[1]}"), $this->request->tagNameToSphinx(), 'request-tag-sphinx');
         $this->assertEquals(
             "<a href=\"requests.php?tags={$nameList[0]}\">{$nameList[0]}</a> <a href=\"requests.php?tags={$nameList[1]}\">{$nameList[1]}</a>",
             $this->request->tagLinkList(), 'request-tag-linklist'
@@ -266,7 +265,7 @@ class RequestTest extends TestCase {
         Helper::sleepTick(); // to ensure lastVoteDate() > created()
         // add some bounty
         $this->assertTrue($this->request->vote($user, $bounty), 'request-more-bounty');
-        $this->assertTrue($this->request->hasNewVote(), 'request-has-new-vote');
+        $this->assertTrue($this->request->flush()->hasNewVote(), 'request-has-new-vote');
         $this->assertEquals(2, $this->request->userVotedTotal(), 'request-total-voted');
         $this->assertEquals(2 * $taxedBounty, $this->request->bountyTotal(), 'request-total-bounty-added');
         $this->assertTrue(Helper::recentDate($this->request->lastVoteDate()), 'request-last-vote-date');
@@ -554,7 +553,6 @@ class RequestTest extends TestCase {
             new User\Bookmark($this->userList['user'])->create($this->request),
             'request-bookmark-add'
         );
-        $this->assertEquals(1, $this->request->updateBookmarkStats(), 'request-bookmark-update');
         $find = $manager->findUnfilledByUser($this->userList['admin'], 2);
         $this->assertCount(1, $find, 'request-find-unfilled');
         $this->assertEquals($this->request->id, $find[0]->id, 'request-found');
@@ -761,24 +759,6 @@ class RequestTest extends TestCase {
 
         $under = new Request\LogCue(needCue: true, needLog: true, minScore: -1);
         $this->assertFalse($under->isValid(), 'req-log-score-under');
-    }
-
-    public function testRelayRequest(): void {
-        $manager = new Manager\Request();
-        $manager->relay();
-        $this->userList['admin']->addBounty(BUFFER_FOR_BOUNTY);
-        $this->request = Helper::makeRequestMusic($this->userList['admin'], 'phpunit request json');
-        $this->request->artistRole()->set(
-            [ARTIST_MAIN => ['phpunit req ' . randomString(6)]],
-            $this->userList['admin'],
-        );
-        new Manager\Tag()
-            ->create('phpunit.' . randomString(6), $this->userList['admin'])
-            ->addRequest($this->request);
-        $this->assertEquals(1, $manager->relay(), 'request-relay-initial');
-        Helper::sleepTick();
-        $this->request->setField('Title', 'phpunit modified')->modify();
-        $this->assertEquals(1, $manager->relay(), 'request-relay-second');
     }
 
     public function testRenderRequest(): void {

@@ -711,7 +711,7 @@ class Artist extends BaseAttrObject implements Bookmarked, CollageEntry {
             $tgMan->findById($tgroupId)?->refresh();
         }
         foreach ($requestList as $requestId) {
-            $reqMan->findById($requestId)?->updateSphinx();
+            $reqMan->findById($requestId)?->reindex();
         }
 
         // Delete the old artist
@@ -854,7 +854,7 @@ class Artist extends BaseAttrObject implements Bookmarked, CollageEntry {
         self::$db->commit();
 
         foreach ($requests as $requestId) {
-            $reqMan->findById($requestId)->updateSphinx();
+            $reqMan->findById($requestId)->reindex();
         }
         $this->flush();
         return $newId;

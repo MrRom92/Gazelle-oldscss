@@ -74,6 +74,5 @@ foreach ($refund as $user) {
 foreach ($remove as $user) {
     $request->removeBounty($user, $Viewer);
 }
-$request->updateSphinx();
 
 header('Location: ' . $request->location());

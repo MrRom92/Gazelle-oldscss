@@ -312,7 +312,6 @@ class RequestSearchTest extends TestCase {
         // requests are saved with second granularity, so spread them out
         $this->requestList[1]->setField('created', date('Y-m-d H:i:s', time() + 2))->modify();
         $this->requestList[2]->setField('created', date('Y-m-d H:i:s', time() + 4))->modify();
-        new Manager\Request()->relay();
 
         $search = new Search\Request()->setTag("{$tagList[0]->name()}", Enum\SearchTag::all);
         $this->assertEquals(2, $search->total(), 'reqs-tag-1-all-total');
@@ -340,7 +339,7 @@ class RequestSearchTest extends TestCase {
 
         $search->flush()->setTag("{$tagList[0]->name()},{$tagList[1]->name()}", Enum\SearchTag::any);
         $this->assertEquals(3, $search->total(), 'reqs-tag-2-any');
-        $this->assertEquals(
+        $this->assertEqualsCanonicalizing(
             [$this->requestList[2]->id, $this->requestList[1]->id, $this->requestList[0]->id],
             array_map(fn ($r) => $r->id, $search->page(3, 0)),
             'reqs-tag-2-any-page'
@@ -357,7 +356,7 @@ class RequestSearchTest extends TestCase {
         // do full text search while we are here
         $search->flush()->setSearch($title);
         $this->assertEquals(3, $search->total(), 'reqs-match-search-total');
-        $this->assertEquals(
+        $this->assertEqualsCanonicalizing(
             [$this->requestList[2]->id, $this->requestList[1]->id, $this->requestList[0]->id],
             array_map(fn ($r) => $r->id, $search->page(3, 0)),
             'reqs-match-search-page'

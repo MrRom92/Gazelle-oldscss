@@ -37,18 +37,11 @@ GRANT ALTER, CREATE, DELETE, DROP, INSERT, SELECT, UPDATE ON `gazelle`.* TO 'adm
 -- Grants for sphinx
 GRANT DELETE, INSERT, SELECT ON `gazelle`.`sphinx_index_last_pos` TO 'spx'@'localhost';
 GRANT DELETE, SELECT ON `gazelle`.`sphinx_delta` TO 'spx'@'localhost';
-GRANT DELETE, SELECT ON `gazelle`.`sphinx_requests_delta` TO 'spx'@'localhost';
 GRANT DROP, INSERT, SELECT ON `gazelle`.`sphinx_a` TO 'spx'@'localhost';
 GRANT DROP, INSERT, SELECT ON `gazelle`.`sphinx_t` TO 'spx'@'localhost';
 GRANT DROP, INSERT, SELECT ON `gazelle`.`sphinx_tg` TO 'spx'@'localhost';
-GRANT DROP, INSERT, SELECT, UPDATE ON `gazelle`.`sphinx_requests` TO 'spx'@'localhost';
 GRANT SELECT ON `gazelle`.`artists_alias` TO 'spx'@'localhost';
-GRANT SELECT ON `gazelle`.`bookmarks_requests` TO 'spx'@'localhost';
 GRANT SELECT ON `gazelle`.`log` TO 'spx'@'localhost';
-GRANT SELECT ON `gazelle`.`requests_artists` TO 'spx'@'localhost';
-GRANT SELECT ON `gazelle`.`requests_tags` TO 'spx'@'localhost';
-GRANT SELECT ON `gazelle`.`requests_votes` TO 'spx'@'localhost';
-GRANT SELECT ON `gazelle`.`requests` TO 'spx'@'localhost';
 GRANT SELECT ON `gazelle`.`tags` TO 'spx'@'localhost';
 GRANT SELECT ON `gazelle`.`torrents_artists` TO 'spx'@'localhost';
 GRANT SELECT ON `gazelle`.`torrents_group` TO 'spx'@'localhost';

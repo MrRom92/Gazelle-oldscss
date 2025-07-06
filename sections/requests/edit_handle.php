@@ -262,7 +262,6 @@ if (isset($_POST['tags'])) {
         $Viewer,
     );
 }
-$request->updateSphinx();
 $tgroup?->flush();
 
 header("Location: " . $request->location());

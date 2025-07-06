@@ -464,10 +464,6 @@ class Request extends BaseObject implements Bookmarked, CategoryHasArtist {
         return $this->info()['tag'];
     }
 
-    public function tagNameToSphinx(): string {
-        return implode(' ', array_map(fn ($t) => str_replace('.', '_', $t), $this->tagNameList()));
-    }
-
     public function tgroupId(): ?int {
         return $this->info()['tgroup_id'];
     }
@@ -653,8 +649,6 @@ class Request extends BaseObject implements Bookmarked, CategoryHasArtist {
                 request_vote_total = VALUES(request_vote_total)
             ", $user->id
         );
-
-        $this->updateSphinx();
         self::$db->commit();
 
         $user->flush();
@@ -690,13 +684,6 @@ class Request extends BaseObject implements Bookmarked, CategoryHasArtist {
             ", $user->id, $torrent->id, $this->id
         );
         $updated = self::$db->affected_rows();
-        $this->updateSphinx();
-        new \SphinxqlQuery()->raw_query(
-            sprintf("
-                UPDATE requests, requests_delta SET torrentid = %d, fillerid = %d WHERE id = %d
-                ", $torrent->id, $user->id, $this->id
-            ), false
-        );
         self::$db->commit();
 
         $user->addBounty($bounty);
@@ -738,17 +725,9 @@ class Request extends BaseObject implements Bookmarked, CategoryHasArtist {
             ", $this->id
         );
         $updated = self::$db->affected_rows();
-        $this->updateSphinx();
         $filler->addBounty(-$bounty);
         $filler->flush();
         self::$db->commit();
-
-        new \SphinxqlQuery()->raw_query("
-            UPDATE requests, requests_delta SET
-                torrentid = 0,
-                fillerid = 0
-            WHERE id = " . $this->id, false
-        );
 
         if ($filler->id !== $admin->id) {
             $filler->inbox()->createSystem(
@@ -902,52 +881,36 @@ class Request extends BaseObject implements Bookmarked, CategoryHasArtist {
     }
 
     /**
-     * Update the sphinx requests delta table.
+     * Rebuild the fulltext artist/title text vector when either changes
      */
-    public function updateSphinx(): int {
-        self::$db->prepared_query("
-            REPLACE INTO sphinx_requests_delta (
-                ID, UserID, TimeAdded, LastVote, CategoryID, Title,
-                Year, ReleaseType, CatalogueNumber, RecordLabel, BitrateList,
-                FormatList, MediaList, LogCue, FillerID, TorrentID,
-                TimeFilled, Visible, Votes, Bounty, TagList, ArtistList)
-            SELECT
-                ID, r.UserID, unix_timestamp(TimeAdded) AS TimeAdded,
-                unix_timestamp(LastVote) AS LastVote, CategoryID, Title,
-                Year, ReleaseType, CatalogueNumber, RecordLabel, BitrateList,
-                FormatList, MediaList, LogCue, FillerID, TorrentID,
-                unix_timestamp(TimeFilled) AS TimeFilled, Visible,
-                count(DISTINCT rv.UserID) AS Votes, coalesce(sum(rv.Bounty), 0) >> 10 AS Bounty,
-                ?, ?
-            FROM requests AS r
-            LEFT JOIN requests_votes AS rv ON (rv.RequestID = r.ID)
-            WHERE r.ID = ?
-            GROUP BY r.ID
-            ", $this->tagNameToSphinx(), implode(' ', $this->artistRole()?->nameList() ?? []), $this->id
+    public function reindex(): int {
+        return $this->pg()->prepared_query(
+        <<<END_SQL
+            with r(id_request, artist_title_ts) as (
+                select
+                    rr."ID",
+                    to_tsvector(
+                        'simple',
+                        unaccent(
+                            coalesce(string_agg(aa."Name", ' '), '')
+                                || ' ' || rr."Title"
+                        )
+                    )
+                from relay.requests rr
+                left join relay.requests_artists ra on    (ra."RequestID" = rr."ID")
+                left join relay.artists_alias    aa using ("AliasID")
+                left join relay.artist_role      ar on    (ar.artist_role_id = ra.artist_role_id)
+                where (ar.slug is null or ar.slug != 'guest')
+                    and rr."ID" = ?
+                group by rr."ID", rr."Title"
+            )
+            update request set
+                artist_title_ts = r.artist_title_ts
+            from r
+            where request.id_request = r.id_request
+END_SQL
+            , $this->id
         );
-        $affected = self::$db->affected_rows();
-        $this->flush();
-        return $affected;
-    }
-
-    public function updateBookmarkStats(): int {
-        self::$db->prepared_query("
-            SELECT UserID FROM bookmarks_requests WHERE RequestID = ?
-            ", $this->id
-        );
-        $affected = (int)self::$db->record_count();
-        if ($affected > 100) {
-            // Sphinx doesn't like huge MVA updates. Update sphinx_requests_delta
-            // and live with the <= 1 minute delay if we have more than 100 bookmarkers
-            $this->updateSphinx();
-        } else {
-            new \SphinxqlQuery()->raw_query(
-                "UPDATE requests, requests_delta SET bookmarker = ("
-                . implode(',', self::$db->collect('UserID'))
-                . ") WHERE id = {$this->id}"
-            );
-        }
-        return $affected;
     }
 
     public function relayTag(): int {
@@ -978,6 +941,14 @@ class Request extends BaseObject implements Bookmarked, CategoryHasArtist {
         return $affected;
     }
 
+    public function modify(): bool {
+        $affected = parent::modify();
+        if ($affected) {
+            new Manager\Request()->relay();
+        }
+        return $affected;
+    }
+
     public function remove(): int {
         self::$db->begin_transaction();
         self::$db->prepared_query("DELETE FROM requests_votes WHERE RequestID = ?", $this->id);
@@ -994,10 +965,6 @@ class Request extends BaseObject implements Bookmarked, CategoryHasArtist {
         $artisIds = self::$db->collect(0);
         self::$db->prepared_query('
             DELETE FROM requests_artists WHERE RequestID = ?', $this->id
-        );
-        self::$db->prepared_query("
-            REPLACE INTO sphinx_requests_delta (ID) VALUES (?)
-            ", $this->id
         );
         new Manager\Comment()->remove('requests', $this->id);
         self::$db->commit();
