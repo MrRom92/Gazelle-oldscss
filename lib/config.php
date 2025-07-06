@@ -605,17 +605,18 @@ defined('IMAGE_HOST_RECOMMENDED') or define('IMAGE_HOST_RECOMMENDED', []);
 // What are the relative weights of user percentiles, in order to calculate
 // the overall percentile rank.
 defined('RANKING_WEIGHT') or define('RANKING_WEIGHT', [
-    'uploaded'   => [ 8, 'DataUpload'],
-    'downloaded' => [20, 'DataDownload'],
-    'uploads'    => [25, 'Uploads'],
-    'requests'   => [10, 'RequestsFilled'],
-    'posts'      => [ 3, 'ForumPosts'],
-    'bounty'     => [ 4, 'BountySpent'],
-    'artists'    => [ 1, 'ArtistsAdded'],
-    'collage'    => [ 5, 'CollageContribution'],
-    'votes'      => [ 5, 'ReleaseVotes'],
-    'bonus'      => [ 6, 'BonusPoints'],
-    'comment-t'  => [18, 'CommentTorrent'],
+    'uploaded'       => [10, 'DataUpload'],
+    'downloaded'     => [25, 'DataDownload'],
+    'uploads'        => [25, 'Uploads'],
+    'requests'       => [15, 'RequestsFilled'],
+    'posts'          => [ 6, 'ForumPosts'],
+    'bounty'         => [ 4, 'BountySpent'],
+    'artists'        => [ 2, 'ArtistsAdded'],
+    'collage-add'    => [ 5, 'CollageContributed'],
+    'collage-create' => [ 8, 'CollageCreated'],
+    'votes'          => [ 7, 'ReleaseVotes'],
+    'bonus'          => [ 4, 'BonusPoints'],
+    'comment-t'      => [16, 'CommentTorrent'],
 ]);
 
 // Successive login failures generate increasing delays.

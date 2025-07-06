@@ -166,7 +166,7 @@ class ForumTest extends TestCase {
         $this->assertFalse($thread->isLocked(), 'fthread-is-not-locked');
         $this->assertFalse($thread->isPinned(), 'fthread-is-not-pinned');
 
-        $this->assertEquals(1, $admin->stats()->forumThreadTotal(), 'fthread-user-stats-total');
+        $this->assertEquals(1, $admin->stats()->flush()->forumThreadTotal(), 'fthread-user-stats-total');
         $this->assertCount(0, $this->userList['user']->forumLastReadList(1, $this->forum), 'fthread-user-unread');
 
         // Forum Thread Notes

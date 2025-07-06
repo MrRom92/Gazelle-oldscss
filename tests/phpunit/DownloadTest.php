@@ -133,7 +133,7 @@ class DownloadTest extends TestCase {
         $this->assertFalse($this->torrent->isFreeleechPersonal(), 'redown-torrent-is-still-not-pfl');
 
         new Stats\Users()->refresh();
-        $this->assertEquals(2, $user->stats()->downloadTotal(), 'redown-user-download-total');
+        $this->assertEquals(2, $user->stats()->flush()->downloadTotal(), 'redown-user-download-total');
         $this->assertEquals(1, $user->stats()->downloadUnique(), 'redown-user-download-unique');
 
         $this->assertEquals(2, $user->history()->resetDownloaded(), 'redown-reset-downloaded');

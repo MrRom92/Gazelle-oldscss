@@ -20,11 +20,11 @@ class User extends \Gazelle\BaseObject {
     protected array $commentTotal;
 
     public function flush(): static {
-        $this->info = [];
         self::$cache->delete_multi([
             sprintf(self::CACHE_COMMENT_TOTAL, $this->id),
             sprintf(self::CACHE_GENERAL, $this->id),
         ]);
+        unset($this->info);
         return $this;
     }
 
@@ -66,7 +66,7 @@ class User extends \Gazelle\BaseObject {
      * @see \Gazelle\Stats\Users::refresh()
      */
     public function info(): array {
-        if (isset($this->info) && !empty($this->info)) {
+        if (isset($this->info)) {
             return $this->info;
         }
         $key = sprintf(self::CACHE_GENERAL, $this->id);

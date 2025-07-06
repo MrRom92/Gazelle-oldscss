@@ -27,6 +27,7 @@ class User extends \Gazelle\Json {
         $artistsAdded    = $this->valueOrNull($stats->artistAddedTotal(),       'artistsadded');
         $torrentComments = $this->valueOrNull($stats->commentTotal('torrents'), 'torrentcomments++');
         $collageContribs = $this->valueOrNull($stats->collageContrib(),         'collagecontribs+');
+        $collageTotal    = $this->valueOrNull($stats->collageTotal(),           'collagecontribs+');
 
         if (!$user->propertyVisibleMulti($viewer, ['requestsfilled_count', 'requestsfilled_bounty'])) {
             $requestsFilled = null;
@@ -43,17 +44,18 @@ class User extends \Gazelle\Json {
         $rank = new \Gazelle\UserRank(
             new \Gazelle\UserRank\Configuration(RANKING_WEIGHT),
             [
-                'posts'      => $forumPosts,
-                'votes'      => $releaseVotes,
-                'artists'    => (int)$artistsAdded,
-                'downloaded' => (int)$downloaded,
-                'bounty'     => (int)$totalSpent,
-                'collage'    => (int)$collageContribs,
-                'comment-t'  => (int)$torrentComments,
-                'requests'   => (int)$requestsFilled,
-                'uploaded'   => (int)$uploaded,
-                'uploads'    => (int)$uploads,
-                'bonus'      => new \Gazelle\User\Bonus($user)->pointsSpent(),
+                'posts'          => $forumPosts,
+                'votes'          => $releaseVotes,
+                'artists'        => (int)$artistsAdded,
+                'downloaded'     => (int)$downloaded,
+                'bounty'         => (int)$totalSpent,
+                'collage-create' => (int)$collageContribs,
+                'collage-add'    => (int)$collageTotal,
+                'comment-t'      => (int)$torrentComments,
+                'requests'       => (int)$requestsFilled,
+                'uploaded'       => (int)$uploaded,
+                'uploads'        => (int)$uploads,
+                'bonus'          => new \Gazelle\User\Bonus($user)->pointsSpent(),
             ]
         );
 
@@ -81,17 +83,18 @@ class User extends \Gazelle\Json {
                 },
             ],
             'ranks' => [
-                'uploaded'   => $this->valueOrNull($rank->rank('uploaded'),   'uploaded'),
-                'downloaded' => $this->valueOrNull($rank->rank('downloaded'), 'downloaded'),
-                'uploads'    => $this->valueOrNull($rank->rank('uploads'),    'uploads+'),
-                'requests'   => $this->valueOrNull($rank->rank('requests'),   'requestsfilled_count'),
-                'bounty'     => $this->valueOrNull($rank->rank('bounty'),     'requestsvoted_bounty'),
-                'artists'    => $this->valueOrNull($rank->rank('artists'),    'artistsadded'),
-                'collage'    => $this->valueOrNull($rank->rank('collage'),    'collagecontribs+'),
-                'posts'      => $rank->rank('posts'),
-                'votes'      => $rank->rank('votes'),
-                'bonus'      => $rank->rank('bonus'),
-                'overall'    => $user->propertyVisibleMulti($viewer, ['uploaded', 'downloaded', 'uploads+', 'requestsfilled_count', 'requestsvoted_bounty', 'artistsadded', 'collagecontribs+'])
+                'uploaded'       => $this->valueOrNull($rank->rank('uploaded'),       'uploaded'),
+                'downloaded'     => $this->valueOrNull($rank->rank('downloaded'),     'downloaded'),
+                'uploads'        => $this->valueOrNull($rank->rank('uploads'),        'uploads+'),
+                'requests'       => $this->valueOrNull($rank->rank('requests'),       'requestsfilled_count'),
+                'bounty'         => $this->valueOrNull($rank->rank('bounty'),         'requestsvoted_bounty'),
+                'artists'        => $this->valueOrNull($rank->rank('artists'),        'artistsadded'),
+                'collage-add'    => $this->valueOrNull($rank->rank('collage-add'),    'collagecontribs+'),
+                'collage-create' => $this->valueOrNull($rank->rank('collage-create'), 'collagecontribs+'),
+                'posts'          => $rank->rank('posts'),
+                'votes'          => $rank->rank('votes'),
+                'bonus'          => $rank->rank('bonus'),
+                'overall'        => $user->propertyVisibleMulti($viewer, ['uploaded', 'downloaded', 'uploads+', 'requestsfilled_count', 'requestsvoted_bounty', 'artistsadded', 'collagecontribs+'])
                     ? $rank->score() * $user->rankFactor() : null,
             ],
             'personal' => [

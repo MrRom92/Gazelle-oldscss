@@ -163,7 +163,7 @@ class CollageTest extends TestCase {
 
         $this->assertEquals(
             1,
-            $this->userList['u1']->stats()->collageTotal(),
+            $this->userList['u1']->stats()->flush()->collageTotal(),
             'collage-user-total'
         );
 

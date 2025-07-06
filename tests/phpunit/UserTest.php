@@ -333,6 +333,7 @@ class UserTest extends TestCase {
         $this->assertStringContainsString('100%', $next['goal']['Time']['percent'], 'user-next-has-time');
 
         $this->user->addBounty(7 * 1024 * 1024 * 1024);
+        $this->user->stats()->flush();
         $next = $this->user->nextClass($manager);
         $this->assertIsArray($next, 'user-next-requirements-next-3-array');
         $this->assertStringContainsString('100%',  $next['goal']['Upload']['percent'], 'user-next-has-upload');
@@ -536,21 +537,22 @@ class UserTest extends TestCase {
         $rank = new UserRank(
             new UserRank\Configuration(RANKING_WEIGHT),
             [
-                'uploaded'   => STARTING_UPLOAD,
-                'downloaded' => 1,
-                'uploads'    => 0,
-                'requests'   => 0,
-                'posts'      => 0,
-                'bounty'     => 0,
-                'artists'    => 0,
-                'collage'    => 0,
-                'votes'      => 0,
-                'bonus'      => 0,
-                'comment-t'  => 0,
+                'downloaded'     => 0,
+                'uploaded'       => STARTING_UPLOAD,
+                'uploads'        => 0,
+                'requests'       => 0,
+                'posts'          => 0,
+                'bounty'         => 0,
+                'artists'        => 0,
+                'collage-add'    => 0,
+                'collage-create' => 0,
+                'votes'          => 0,
+                'bonus'          => 0,
+                'comment-t'      => 0,
             ]
         );
         $this->assertEquals(0, $rank->score(), 'userrank-score');
-        $this->assertEquals(1, $rank->rank('downloaded'), 'userrank-rank');
+        $this->assertEquals(0, $rank->rank('downloaded'), 'userrank-rank');
     }
 
     public function testUserHash(): void {

@@ -415,34 +415,33 @@ class Users extends \Gazelle\Base {
         self::$db->prepared_query("
             INSERT INTO user_summary_new (user_id, collage_total, collage_contrib)
                 WITH c AS (
-                    SELECT um.ID    AS user_id,
+                    SELECT c.UserID AS user_id,
                         count(c.ID) AS total
-                    FROM users_main um
-                    LEFT JOIN collages c ON (c.UserID = um.ID AND c.Deleted = '0')
-                    GROUP BY um.ID
+                    FROM collages c
+                    WHERE c.Deleted = '0'
+                    GROUP BY c.UserID
                 ),
                 ca AS (
-                    SELECT um.ID                    AS user_id,
+                    SELECT ca.UserID                AS user_id,
                         count(DISTINCT ca.ArtistID) AS total
-                    FROM users_main um
-                    LEFT JOIN collages_artists ca ON (ca.UserID = um.ID)
-                    LEFT JOIN collages c ON (c.ID = ca.CollageID AND c.Deleted = '0')
-                    GROUP BY um.ID
+                    FROM collages_artists ca
+                    INNER JOIN collages c ON (c.ID = ca.CollageID AND c.Deleted = '0')
+                    GROUP BY ca.UserID
                 ),
                 ct AS (
-                    SELECT um.ID                   AS user_id,
+                    SELECT ct.UserID                AS user_id,
                         count(DISTINCT ct.GroupID) AS total
-                    FROM users_main um
-                    LEFT JOIN collages_torrents ct ON (ct.UserID = um.ID)
-                    LEFT JOIN collages c ON (c.ID = ct.CollageID AND c.Deleted = '0')
-                    GROUP BY um.ID
+                    FROM collages_torrents ct
+                    INNER JOIN collages c ON (c.ID = ct.CollageID AND c.Deleted = '0')
+                    GROUP BY ct.UserID
                 )
-                SELECT c.user_id, c.total, ca.total + ct.total
-                FROM c
-                LEFT JOIN ca USING (user_id)
-                LEFT JOIN ct USING (user_id)
+                SELECT um.ID, coalesce(c.total, 0), coalesce(ca.total, 0) + coalesce(ct.total, 0)
+                FROM users_main um
+                LEFT JOIN c ON (c.user_id = um.ID)
+                LEFT JOIN ca ON (ca.user_id = um.ID)
+                LEFT JOIN ct ON (ct.user_id = um.ID)
             ON DUPLICATE KEY UPDATE
-                collage_total = VALUES(collage_total),
+                collage_total   = VALUES(collage_total),
                 collage_contrib = VALUES(collage_contrib)
         ");
 
