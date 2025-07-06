@@ -81,6 +81,17 @@ $db->prepared_query("
     WHERE um.ID IS NULL
 ");
 
+// clean wiki
+$db->prepared_query("
+    DELETE FROM wiki_aliases WHERE Alias REGEXP '^(phpunittitle|wikieditreadable)'
+");
+$db->prepared_query("
+    DELETE FROM wiki_revisions WHERE Title LIKE 'phpunit title %';
+");
+$db->prepared_query("
+    DELETE FROM wiki_articles WHERE Title REGEXP '^(wiki edit readable|phpunit title) '
+");
+
 $userMan = new Manager\User();
 $collageMan = new Manager\Collage();
 $collageMan->requestContext()->setViewer(
@@ -236,6 +247,12 @@ $db->prepared_query("
 $db->prepared_query("
     DELETE u
     FROM users_stats_yearly u
+    LEFT JOIN users_main um ON (um.ID = u.UserID)
+    WHERE um.ID IS NULL
+");
+$db->prepared_query("
+    DELETE u
+    FROM users_info u
     LEFT JOIN users_main um ON (um.ID = u.UserID)
     WHERE um.ID IS NULL
 ");
