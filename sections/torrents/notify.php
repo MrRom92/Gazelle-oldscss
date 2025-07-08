@@ -21,7 +21,7 @@ if ($Viewer->permitted('users_mod') && (int)($_GET['userid'] ?? 0)) {
     $user = $Viewer;
 }
 $UserID = $user->id;
-$ownProfile = $UserID === $Viewer->id();
+$ownProfile = $UserID === $Viewer->id;
 
 $imgTag = '<img loading="lazy" src="' . new User\Stylesheet($Viewer)->imagePath()
     . '%s.png" class="tooltip" alt="%s" title="%s"/>';
@@ -113,7 +113,7 @@ View::show_header(($ownProfile ? 'My' : $user->username() . "'s") . ' notificati
 <?php
         foreach ($filter['result'] as $result) {
             $torrent   = $result['torrent'];
-            $torrentId = $torrent->id();
+            $torrentId = $torrent->id;
             $tgroup    = $torrent->group();
             $match     = $tgroup->artistRole()?->matchName($filter['filter']->artistList());
 ?>
@@ -150,8 +150,8 @@ View::show_header(($ownProfile ? 'My' : $user->username() . "'s") . ' notificati
             }
             echo $Twig->render('bookmark/action.twig', [
                 'class'         => 'torrent',
-                'id'            => $tgroup->id(),
-                'is_bookmarked' => $bookmark->isTorrentBookmarked($tgroup->id()),
+                'id'            => $tgroup->id,
+                'is_bookmarked' => $bookmark->isTGroupBookmarked($tgroup),
             ]);
 ?>
                 </div>

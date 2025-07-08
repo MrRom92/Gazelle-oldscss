@@ -21,15 +21,15 @@ class Artist extends \Gazelle\Json {
 
     public function payload(): array {
         $artist   = $this->artist;
-        $artistId = $artist->id();
+        $artistId = $artist->id;
         $artist->loadArtistRole();
-        $GroupIDs = $artist->groupIds();
+        $tgroupIds = $artist->groupIds();
 
         $JsonTorrents = [];
         $Tags = [];
 
-        foreach ($GroupIDs as $GroupID) {
-            $tgroup = $this->tgMan->findById($GroupID);
+        foreach ($tgroupIds as $tgroupId) {
+            $tgroup = $this->tgMan->findById($tgroupId);
             if (is_null($tgroup)) {
                 continue;
             }
@@ -57,8 +57,8 @@ class Artist extends \Gazelle\Json {
                 }
 
                 $InnerTorrents[] = [
-                    'id'                   => $torrent->id(),
-                    'groupId'              => $GroupID,
+                    'id'                   => $torrent->id,
+                    'groupId'              => $tgroupId,
                     'media'                => $torrent->media(),
                     'format'               => $torrent->format(),
                     'encoding'             => $torrent->encoding(),
@@ -77,11 +77,11 @@ class Artist extends \Gazelle\Json {
                     'seeders'              => $torrent->seederTotal(),
                     'snatched'             => $torrent->snatchTotal(),
                     'time'                 => $torrent->created(),
-                    'hasFile'              => $torrent->id(), /* legacy wtf */
+                    'hasFile'              => $torrent->id, /* legacy wtf */
                 ];
             }
             $JsonTorrents[] = [
-                'groupId'              => $GroupID,
+                'groupId'              => $tgroupId,
                 'groupName'            => $tgroup->name(),
                 'groupYear'            => $tgroup->year(),
                 'groupRecordLabel'     => $tgroup->recordLabel(),
@@ -91,7 +91,7 @@ class Artist extends \Gazelle\Json {
                 'releaseType'          => (int)$tgroup->releaseType(),
                 'wikiImage'            => $tgroup->image(),
                 'groupVanityHouse'     => $tgroup->isShowcase(),
-                'hasBookmarked'        => $this->bookmark->isTorrentBookmarked($GroupID),
+                'hasBookmarked'        => $this->bookmark->isTGroupBookmarked($tgroup),
                 'artists'              => $artists,
                 'extendedArtists'      => $tgroup->artistRole()->legacyList(),
                 'torrent'              => $InnerTorrents,
@@ -112,7 +112,7 @@ class Artist extends \Gazelle\Json {
         if (!$this->user->disableRequests()) {
             $requestList = array_map(
                 fn ($r) => [
-                    'requestId'  => $r->id(),
+                    'requestId'  => $r->id,
                     'categoryId' => $r->categoryId(),
                     'title'      => $r->title(),
                     'year'       => $r->year(),
@@ -128,7 +128,7 @@ class Artist extends \Gazelle\Json {
             'id'                   => $artistId,
             'name'                 => $artist->name(),
             'notificationsEnabled' => $this->user->hasArtistNotification($artist->name()),
-            'hasBookmarked'        => $this->bookmark->isArtistBookmarked($artistId),
+            'hasBookmarked'        => $this->bookmark->isArtistBookmarked($artist),
             'image'                => $artist->image(),
             'body'                 => \Text::full_format($artist->body()),
             'bodyBbcode'           => $artist->body(),

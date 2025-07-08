@@ -20,7 +20,7 @@ class Request extends \Gazelle\Json {
         return [
             ...$request->ajaxInfo(),
             'requestorName'   => $user->username(),
-            'isBookmarked'    => $this->bookmark->isRequestBookmarked($request->id()),
+            'isBookmarked'    => $this->bookmark->isRequestBookmarked($request),
             'requestTax'      => REQUEST_TAX,
             'canEdit'         => $request->canEdit($this->viewer),
             'canVote'         => $request->canVote($this->viewer),

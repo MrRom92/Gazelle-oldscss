@@ -18,7 +18,7 @@ $tgroup = $tgMan->findById((int)($_GET['id'] ?? 0));
 if (is_null($tgroup)) {
     Error404::error();
 }
-$tgroupId = $tgroup->id();
+$tgroupId = $tgroup->id;
 $RevisionID = (int)($_GET['revisionid'] ?? 0);
 
 // Comments (must be loaded before View::show_header so that subscriptions and quote notifications are handled properly)
@@ -59,7 +59,7 @@ $section = [
 ];
 
 echo $Twig->render('torrent/detail-header.twig', [
-    'is_bookmarked' => new User\Bookmark($Viewer)->isTorrentBookmarked($tgroup->id()),
+    'is_bookmarked' => new User\Bookmark($Viewer)->isTGroupBookmarked($tgroup),
     'is_subscribed' => $isSubscribed,
     'revision_id'   => $RevisionID,
     'tgroup'        => $tgroup,
@@ -138,7 +138,7 @@ if ($musicRelease) {
 echo $Twig->render('tgroup/stats.twig', [
     'collage_list' => $collageMan->addToCollageDefault($tgroup, $Viewer),
     'featured'     => new Manager\FeaturedAlbum()->findById($tgroupId),
-    'tag_undo'     => $Cache->get_value("deleted_tags_{$tgroupId}_{$Viewer->id()}"),
+    'tag_undo'     => $Cache->get_value("deleted_tags_{$tgroupId}_{$Viewer->id}"),
     'tgroup'       => $tgroup,
     'viewer'       => $Viewer,
     'vote'         => $vote,

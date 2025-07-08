@@ -38,13 +38,13 @@ $collMan   = new Manager\Collage()->setImageProxy(new Util\ImageProxy($Viewer));
 $paginator = new Util\Paginator(200, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($bookmark->torrentTotal());
 
-$bookmarkList      = $bookmark->torrentList($paginator->limit(), $paginator->offset());
+$bookmarkList      = $bookmark->tgroupList($paginator->limit(), $paginator->offset());
 $NumGroups         = count($bookmarkList);
-$artistLeaderboard = $bookmark->torrentArtistLeaderboard(new Manager\Artist());
-$tagLeaderboard    = $bookmark->torrentTagLeaderboard();
+$artistLeaderboard = $bookmark->tgroupArtistLeaderboard();
+$tagLeaderboard    = $bookmark->tgroupTagLeaderboard();
 $CollageCovers     = (int)($Viewer->option('CollageCovers') ?? 25);
 
-View::show_header($user->username() . " › Bookmarked torrent groups", ['js' => 'browse,collage']);
+View::show_header($user->username() . " › Bookmarked Torrent Groups", ['js' => 'browse,collage']);
 ?>
 <div class="thin">
     <div class="header">
@@ -56,10 +56,10 @@ if ($ownProfile) {
             <a href="feeds.php?feed=<?= $feed
             ?>&amp;passkey=<?= $Viewer->announceKey()
             ?>&amp;auth=<?= $Viewer->rssAuth($feed)
-            ?>&amp;name=<?= urlencode(SITE_NAME . ': Bookmarked Torrents')
+            ?>&amp;name=<?= urlencode(SITE_NAME . ': Bookmarked Torrent Groups')
             ?>"><img src="<?=STATIC_SERVER?>/common/symbols/rss.png" alt="RSS feed" /></a>&nbsp;
 <?php } ?>
-            <?= $user->link() ?> › Bookmarked torrent groups
+            <?= $user->link() ?> › Bookmarked Torrent Groups
         </h2>
         <div class="linkbox">
             <a href="bookmarks.php?type=torrents" class="brackets">Torrents</a>
@@ -90,7 +90,7 @@ if (count($bookmarkList) === 0) { ?>
             <div class="head"><strong>Stats</strong></div>
             <ul class="stats nobullet">
                 <li>Torrent groups: <?=$NumGroups?></li>
-                <li>Artists: <?= $bookmark->torrentArtistTotal() ?></li>
+                <li>Artists: <?= $bookmark->tgroupArtistTotal() ?></li>
             </ul>
         </div>
         <div class="box box_artists">

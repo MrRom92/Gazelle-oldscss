@@ -273,8 +273,8 @@ class ArtistTest extends TestCase {
             'artist-merge-n',
         );
         $this->assertNull($manager->findById($old->id), 'art-merge-no-old');
-        $this->assertTrue($userBk->isArtistBookmarked($new->id), 'art-merge-user-bookmarked-new');
-        $this->assertTrue($extraBk->isArtistBookmarked($new->id), 'art-merge-extra-bookmarked-new');
+        $this->assertTrue($userBk->isArtistBookmarked($new), 'art-merge-user-bookmarked-new');
+        $this->assertTrue($extraBk->isArtistBookmarked($new), 'art-merge-extra-bookmarked-new');
         $this->assertCount(1, $extraBk->artistList(), 'art-merge-extra-bookmarked-list');
 
         // FIXME: flushed collage objects cannot be refreshed

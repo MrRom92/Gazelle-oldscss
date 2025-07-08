@@ -11,7 +11,7 @@ if (is_null($request)) {
     Error404::error();
 }
 
-$commentPage = new Comment\Request($request->id(), (int)($_GET['page'] ?? 0), (int)($_GET['postid'] ?? 0));
+$commentPage = new Comment\Request($request->id, (int)($_GET['page'] ?? 0), (int)($_GET['postid'] ?? 0));
 $commentPage->load()->handleSubscription($Viewer);
 
 $paginator = new Util\Paginator(TORRENT_COMMENTS_PER_PAGE, $commentPage->pageNum());
@@ -35,8 +35,8 @@ echo $Twig->render('request/detail.twig', [
     'unit_GiB'      => isset($unitGiB),
     'comment_page'  => $commentPage,
     'filler'        => $userMan->findById($request->fillerId()),
-    'is_bookmarked' => new User\Bookmark($Viewer)->isRequestBookmarked($request->id()),
-    'is_subscribed' => new User\Subscription($Viewer)->isSubscribedComments('requests', $request->id()),
+    'is_bookmarked' => new User\Bookmark($Viewer)->isRequestBookmarked($request),
+    'is_subscribed' => new User\Subscription($Viewer)->isSubscribedComments('requests', $request->id),
     'paginator'     => $paginator,
     'reply'         => new Util\Textarea('quickpost', '', 90, 8)->setPreviewManual(true),
     'request'       => $request,

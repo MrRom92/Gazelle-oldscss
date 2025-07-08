@@ -18,7 +18,7 @@ class TGroup extends \Gazelle\Json {
             'wikiBBcode'      => $tgroup->description(),
             'wikiImage'       => $tgroup->image(),
             'proxyImage'      => image_cache_encode($tgroup->image()),
-            'id'              => $tgroup->id(),
+            'id'              => $tgroup->id,
             'name'            => $tgroup->name(),
             'year'            => $tgroup->year(),
             'recordLabel'     => $tgroup->recordLabel() ?? '',
@@ -29,7 +29,7 @@ class TGroup extends \Gazelle\Json {
             'categoryName'    => $tgroup->categoryName(),
             'time'            => $tgroup->time(),
             'vanityHouse'     => $tgroup->isShowcase(),
-            'isBookmarked'    => new \Gazelle\User\Bookmark($this->user)->isTorrentBookmarked($tgroup->id()),
+            'isBookmarked'    => new \Gazelle\User\Bookmark($this->user)->isTGroupBookmarked($tgroup),
             'tags'            => array_values($tgroup->tagNameList()),
             'musicInfo'       => $musicInfo,
         ];

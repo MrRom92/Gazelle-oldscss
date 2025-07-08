@@ -8,14 +8,12 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-/** @var Collage $Collage required from collage.php */
-$Collage->setViewer($Viewer);
-$CollageID       = $Collage->id();
-$CollageCovers   = (int)($Viewer->option('CollageCovers') ?? 25) * (1 - (int)$Viewer->option('HideCollage'));
-$CollagePages    = [];
-$NumGroups       = $Collage->numEntries();
-$Artists         = $Collage->artistList();
-$NumGroups       = $Collage->numArtists();
+/** @var Collage $collage required from collage.php */
+$collage->setViewer($Viewer);
+$collageCovers   = (int)($Viewer->option('CollageCovers') ?? 25) * (1 - (int)$Viewer->option('HideCollage'));
+$collagePages    = [];
+$Artists         = $collage->artistList();
+$NumGroups       = $collage->numArtists();
 $NumGroupsByUser = 0;
 $Render          = [];
 $ArtistTable     = '';
@@ -31,30 +29,30 @@ foreach ($Artists as $id => $Artist) {
     $Render[] = "<li class=\"image_group_$id\"><a href=\"artist.php?id=$id\">$image</a></li>";
 }
 
-if ($CollageCovers) {
-    if ($NumGroups > $CollageCovers) {
+if ($collageCovers) {
+    if ($NumGroups > $collageCovers) {
         $Render = array_merge($Render,
-            array_fill(0, $CollageCovers * (int)ceil($NumGroups / $CollageCovers) - $NumGroups, '<li></li>')
+            array_fill(0, $collageCovers * (int)ceil($NumGroups / $collageCovers) - $NumGroups, '<li></li>')
         );
     }
-    for ($i = 0; $i < $NumGroups / $CollageCovers; $i++) {
-        $CollagePages[] = implode('', array_slice($Render, $i * $CollageCovers, $CollageCovers));
+    for ($i = 0; $i < $NumGroups / $collageCovers; $i++) {
+        $collagePages[] = implode('', array_slice($Render, $i * $collageCovers, $collageCovers));
     }
 }
 
 echo $Twig->render('collage/header.twig', [
-    'bookmarked' => new User\Bookmark($Viewer)->isCollageBookmarked($CollageID),
-    'collage'    => $Collage,
+    'bookmarked' => new User\Bookmark($Viewer)->isCollageBookmarked($collage),
+    'collage'    => $collage,
     'object'     => 'artist',
     'viewer'     => $Viewer,
 ]);
 
 echo $Twig->render('collage/sidebar.twig', [
     'artists'      => 0, // only makes sense for torrent collages
-    'collage'      => $Collage,
-    'comments'     => new Manager\Comment()->collageSummary($Collage),
-    'contributors' => array_slice($Collage->contributors(), 0, 5, true),
-    'entries'      => $Collage->numArtists(),
+    'collage'      => $collage,
+    'comments'     => new Manager\Comment()->collageSummary($collage),
+    'contributors' => array_slice($collage->contributors(), 0, 5, true),
+    'entries'      => $collage->numArtists(),
     'object'       => 'artist',
     'object_name'  => 'artist',
     'viewer'       => $Viewer,
@@ -62,32 +60,32 @@ echo $Twig->render('collage/sidebar.twig', [
 ?>
     </div>
     <div class="main_column">
-<?php if ($CollageCovers != 0) { ?>
+<?php if ($collageCovers != 0) { ?>
         <div id="coverart" class="box">
             <div class="head" id="coverhead"><strong>Cover Art</strong></div>
             <ul class="collage_images" id="collage_page0">
 <?php
-    $Page1 = array_slice($Render, 0, $CollageCovers);
+    $Page1 = array_slice($Render, 0, $collageCovers);
     foreach ($Page1 as $Group) {
         echo $Group;
     }
 ?>
             </ul>
         </div>
-<?php if ($NumGroups > $CollageCovers) { ?>
+<?php if ($NumGroups > $collageCovers) { ?>
         <div class="linkbox pager" style="clear: left;" id="pageslinksdiv">
             <span id="firstpage" class="invisible"><a href="#" class="pageslink" onclick="collageShow.page(0); return false;"><strong>&laquo; First</strong></a> | </span>
             <span id="prevpage" class="invisible"><a href="#" class="pageslink" onclick="collageShow.prevPage(); return false;"><strong>&lsaquo; Prev</strong></a> | </span>
 <?php
-        for ($i = 0; $i < $NumGroups / $CollageCovers; $i++) { ?>
-            <span id="pagelink<?=$i?>" class="<?=($i > 4 ? 'hidden' : '')?><?=($i == 0 ? 'selected' : '')?>"><a href="#" class="pageslink" onclick="collageShow.page(<?=$i?>, this); return false;"><strong><?=$CollageCovers * $i + 1?>-<?=min($NumGroups, $CollageCovers * ($i + 1))?></strong></a><?=(($i != ceil($NumGroups / $CollageCovers) - 1) ? ' | ' : '')?></span>
+        for ($i = 0; $i < $NumGroups / $collageCovers; $i++) { ?>
+            <span id="pagelink<?=$i?>" class="<?=($i > 4 ? 'hidden' : '')?><?=($i == 0 ? 'selected' : '')?>"><a href="#" class="pageslink" onclick="collageShow.page(<?=$i?>, this); return false;"><strong><?=$collageCovers * $i + 1?>-<?=min($NumGroups, $collageCovers * ($i + 1))?></strong></a><?=(($i != ceil($NumGroups / $collageCovers) - 1) ? ' | ' : '')?></span>
 <?php   } ?>
-            <span id="nextbar" class="<?=($NumGroups / $CollageCovers > 5) ? 'hidden' : ''?>"> | </span>
+            <span id="nextbar" class="<?=($NumGroups / $collageCovers > 5) ? 'hidden' : ''?>"> | </span>
             <span id="nextpage"><a href="#" class="pageslink" onclick="collageShow.nextPage(); return false;"><strong>Next</strong></a> ›</span>
-            <span id="lastpage" class="<?=(ceil($NumGroups / $CollageCovers) == 2 ? 'invisible' : '')?>"> | <a href="#" class="pageslink" onclick="collageShow.page(<?=ceil($NumGroups / $CollageCovers) - 1?>); return false;"><strong>Last &raquo;</strong></a></span>
+            <span id="lastpage" class="<?=(ceil($NumGroups / $collageCovers) == 2 ? 'invisible' : '')?>"> | <a href="#" class="pageslink" onclick="collageShow.page(<?=ceil($NumGroups / $collageCovers) - 1?>); return false;"><strong>Last &raquo;</strong></a></span>
         </div>
         <script type="text/javascript">//<![CDATA[
-            collageShow.init(<?=json_encode($CollagePages)?>);
+            collageShow.init(<?=json_encode($collagePages)?>);
         //]]></script>
 <?php
     }

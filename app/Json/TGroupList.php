@@ -47,7 +47,7 @@ class TGroupList extends \Gazelle\Json {
                     $prev = $current;
 
                     $groupList[] = [
-                        'torrentId'               => $torrent->id(),
+                        'torrentId'               => $torrent->id,
                         'editionId'               => $EditionID,
                         'artists'                 => $tgroup->artistRole()->roleList()['main'],
                         'remastered'              => $torrent->isRemastered(),
@@ -83,7 +83,7 @@ class TGroupList extends \Gazelle\Json {
                     'artist'        => $tgroup->artistName(),
                     'cover'         => $tgroup->image(),
                     'tags'          => array_values($tgroup->tagNameList()),
-                    'bookmarked'    => $this->bookmark->isTorrentBookmarked($tgroup->id()),
+                    'bookmarked'    => $this->bookmark->isTGroupBookmarked($tgroup),
                     'vanityHouse'   => $tgroup->isShowcase(),
                     'groupYear'     => $tgroup->year(),
                     'releaseType'   => $tgroup->releaseTypeName() ?? '',
@@ -108,7 +108,7 @@ class TGroupList extends \Gazelle\Json {
                 $list[] = [
                     'groupId'             => $tgroupId,
                     'groupName'           => $tgroup->name(),
-                    'torrentId'           => $torrent->id(),
+                    'torrentId'           => $torrent->id,
                     'tags'                => array_values($tgroup->tagNameList()),
                     'category'            => $tgroup->categoryName(),
                     'fileCount'           => $torrent->fileTotal(),

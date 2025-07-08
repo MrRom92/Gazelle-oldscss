@@ -40,7 +40,7 @@ class Collage extends \Gazelle\Json {
         $entryList = $this->collage->entryList();
         return array_merge(
             [
-                'id'                  => $this->collage->id(),
+                'id'                  => $this->collage->id,
                 'name'                => $this->collage->name(),
                 'description'         => \Text::full_format($this->collage->description()),
                 'description_raw'     => $this->collage->description(),
@@ -51,7 +51,7 @@ class Collage extends \Gazelle\Json {
                 'locked'              => $this->collage->isLocked(),
                 'maxGroups'           => $this->collage->maxGroups(),
                 'maxGroupsPerUser'    => $this->collage->maxGroupsPerUser(),
-                'hasBookmarked'       => new \Gazelle\User\Bookmark($this->user)->isCollageBookmarked($this->collage->id()),
+                'hasBookmarked'       => new \Gazelle\User\Bookmark($this->user)->isCollageBookmarked($this->collage),
                 'subscriberCount'     => $this->collage->numSubscribers(),
                 'torrentGroupIDList'  => $entryList,
                 'pages'               => $this->collage->isArtist() ? 1 : ceil(count($entryList) / static::$ENTRIES_PER_PAGE),

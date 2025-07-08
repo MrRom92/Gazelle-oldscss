@@ -1,15 +1,15 @@
 {% from 'macro/form.twig' import autocomplete, checked, selected %}
 {% set is_bookmark =  search.isBookmarkView %}
 {% if is_bookmark %}
-{{ header('Bookmarked collages', {'js': 'collage'}) }}
+{{ header('Bookmarked Collages', {'js': 'collage'}) }}
 {% else %}
-{{ header('Browse collages', {'js': 'collage'}) }}
+{{ header('Browse Collages', {'js': 'collage'}) }}
 {% endif %}
   
 <div class="thin">
     <div class="header">
 {% if is_bookmark %}
-        <h2>{{ search.userLink|raw }} › Bookmarked collages</h2>
+        <h2>{{ search.userLink|raw }} › Bookmarked Collages</h2>
 {% else %}
 {%  if search.userLink %}
         <h2>{{ search.userLink|raw }} › {% if search.isContributor %}Collage contributions{% else %}Collages{% endif %}</h2>
@@ -105,7 +105,7 @@
 {%  if viewer.permitted('site_collages_subscribe') %}
         <a href="userhistory.php?action=subscribed_collages" class="brackets">Subscribed collages</a>
 {%  endif %}
-        <a href="bookmarks.php?type=collages" class="brackets">Bookmarked collages</a>
+        <a href="bookmarks.php?type=collages" class="brackets">Bookmarked Collages</a>
         <a href="random.php?action=collage" class="brackets">Random collage</a>
 {%  if viewer.permitted('site_collages_recover') %}
         <a href="collages.php?action=recover" class="brackets">Recover collage</a>

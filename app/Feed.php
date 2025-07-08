@@ -90,7 +90,7 @@ class Feed extends Base {
     public function bookmark(User $user, string $feedName): string {
         return $this->wrap(
             $this->channel(
-                'Bookmarked torrent notifications',
+                'Bookmarked Torrent Notifications',
                 'RSS feed for bookmarked torrents'
             )
             . $this->retrieve($user, $feedName)

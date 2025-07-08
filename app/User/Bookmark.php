@@ -2,6 +2,11 @@
 
 namespace Gazelle\User;
 
+use Gazelle\Artist;
+use Gazelle\Collage;
+use Gazelle\Request;
+use Gazelle\TGroup;
+
 class Bookmark extends \Gazelle\BaseUser {
     final public const tableName = 'pm_conversations_users'; // not really
 
@@ -134,29 +139,29 @@ class Bookmark extends \Gazelle\BaseUser {
     /**
      * Check if an artist is bookmarked by a user
      */
-    public function isArtistBookmarked(int $artistId): bool {
-        return in_array($artistId, $this->allBookmarks('artist'));
+    public function isArtistBookmarked(Artist $artist): bool {
+        return in_array($artist->id, $this->allBookmarks('artist'));
     }
 
     /**
      * Check if a collage is bookmarked by a user
      */
-    public function isCollageBookmarked(int $collageId): bool {
-        return in_array($collageId, $this->allBookmarks('collage'));
+    public function isCollageBookmarked(Collage $collage): bool {
+        return in_array($collage->id, $this->allBookmarks('collage'));
     }
 
     /**
      * Check if a request is bookmarked by a user
      */
-    public function isRequestBookmarked(int $requestId): bool {
-        return in_array($requestId, $this->allBookmarks('request'));
+    public function isRequestBookmarked(Request $request): bool {
+        return in_array($request, $this->allBookmarks('request'));
     }
 
     /**
      * Check if an torrent is bookmarked by a user
      */
-    public function isTorrentBookmarked(int $tgroupId): bool {
-        return in_array($tgroupId, $this->allBookmarks('torrent'));
+    public function isTGroupBookmarked(TGroup $tgroup): bool {
+        return in_array($tgroup->id, $this->allBookmarks('torrent'));
     }
 
     /**
@@ -181,7 +186,9 @@ class Bookmark extends \Gazelle\BaseUser {
         return $bookmarkList;
     }
 
-    public function torrentArtistLeaderboard(\Gazelle\Manager\Artist $artistMan): array {
+    public function tgroupArtistLeaderboard(
+        \Gazelle\Manager\Artist $artistMan = new \Gazelle\Manager\Artist(),
+    ): array {
         self::$db->prepared_query("
             SELECT aa.ArtistID AS id,
                 count(*) AS total
@@ -206,7 +213,7 @@ class Bookmark extends \Gazelle\BaseUser {
         return $list;
     }
 
-    public function torrentArtistTotal(): int {
+    public function tgroupArtistTotal(): int {
         return (int)self::$db->scalar("
             SELECT count(*) AS total
             FROM bookmarks_torrents b
@@ -216,7 +223,7 @@ class Bookmark extends \Gazelle\BaseUser {
         );
     }
 
-    public function torrentTagLeaderboard(): array {
+    public function tgroupTagLeaderboard(): array {
         self::$db->prepared_query("
             SELECT t.Name AS name,
                 count(*)  AS total
@@ -261,7 +268,7 @@ class Bookmark extends \Gazelle\BaseUser {
      * Returns an array of torrent bookmarks
      * @return array containing [group_id, seq, added, torrent_id]
      */
-    public function torrentList(int $limit, int $offset): array {
+    public function tgroupList(int $limit, int $offset): array {
         self::$db->prepared_query("
             SELECT b.GroupID       AS tgroup_id,
                 b.Sort             AS seq,

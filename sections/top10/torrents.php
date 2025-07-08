@@ -218,7 +218,7 @@ foreach ($context as $c) {
             continue;
         }
         $tgroup       = $torrent->group();
-        $isBookmarked = $bookmark->isTorrentBookmarked($tgroup->id());
+        $isBookmarked = $bookmark->isTGroupBookmarked($tgroup);
 ?>
     <tr class="torrent row<?=$index % 2 ? 'a' : 'b'?> <?=($isBookmarked ? ' bookmarked' : '')
         . ($snatcher->showSnatch($torrent) ? ' snatched_torrent' : '')?>">

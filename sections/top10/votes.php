@@ -184,7 +184,7 @@ echo ' [' . $tgroup->year() . ']'; } ?></strong>
             <?= $Twig->render('bookmark/action.twig', [
                 'class'         => 'torrent',
                 'id'            => $tgroupId,
-                'is_bookmarked' => $bookmark->isTorrentBookmarked($tgroupId),
+                'is_bookmarked' => $bookmark->isTGroupBookmarked($tgroup),
             ]) ?><br />
             <span style="white-space: nowrap;">
                 <span class="favoritecount_small tooltip" title="<?=$upVotes . ($upVotes == 1 ? ' upvote' : ' upvotes')?>"><span id="upvotes"><?=number_format($upVotes)?></span> <span class="vote_album_up">&#x25b2;</span></span>

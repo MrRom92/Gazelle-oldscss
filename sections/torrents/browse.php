@@ -165,7 +165,7 @@ foreach ($Results as $Key => $GroupID) {
     if ($GroupResults && (count($torrentList) > 1 || $tgroup->categoryGrouped())) {
 ?>
     <tr class="group groupid_<?=$GroupID?>_header<?=$SnatchedGroupClass?>">
-<?= $Twig->render('tgroup/collapse-tgroup.twig', [ 'closed' => $groupsClosed, 'id' => $tgroup->id() ]) ?>
+<?= $Twig->render('tgroup/collapse-tgroup.twig', ['closed' => $groupsClosed, 'id' => $tgroup->id]) ?>
         <td class="center cats_col">
             <div title="<?= $tgroup->primaryTag() ?>" class="tooltip <?= $tgroup->categoryCss() ?> <?= $tgroup->primaryTagCss() ?>">
             </div>
@@ -181,8 +181,8 @@ foreach ($Results as $Key => $GroupID) {
                 <span style="float: right">
                 <?= $Twig->render('bookmark/action.twig', [
                     'class'         => 'torrent',
-                    'id'            => $tgroup->id(),
-                    'is_bookmarked' => $bookmark->isTorrentBookmarked($tgroup->id()),
+                    'id'            => $tgroup->id,
+                    'is_bookmarked' => $bookmark->isTGroupBookmarked($tgroup),
                 ]) ?>
                 </span>
                 <br />
@@ -203,9 +203,9 @@ foreach ($Results as $Key => $GroupID) {
         <td class="td_leechers number_column m_td_right"><?=number_format($tgroup->stats()->leechTotal())?></td>
     </tr>
 <?php
-        $prev           = '';
-        $EditionID      = 0;
-        $UnknownCounter = 0;
+        $prev             = '';
+        $EditionID        = 0;
+        $UnknownCounter   = 0;
         $prevPrimaryTotal = null;
 
         foreach ($torrentList as $torrentId) {
@@ -222,7 +222,7 @@ foreach ($Results as $Key => $GroupID) {
                 $EditionID++;
 
 ?>
-    <tr class="group_torrent groupid_<?=$tgroup->id()?> edition<?=$SnatchedGroupClass . ($groupsClosed ? ' hidden' : '')?>">
+    <tr class="group_torrent groupid_<?=$tgroup->id?> edition<?=$SnatchedGroupClass . ($groupsClosed ? ' hidden' : '')?>">
         <td colspan="<?= $Viewer->ordinal()->value('file-count-display') ? 9 : 8 ?>" class="edition_info">
             <?= $Twig->render('torrent/edition-header.twig', [
                 'edition_id' => $EditionID,
@@ -236,7 +236,7 @@ foreach ($Results as $Key => $GroupID) {
             $prev = $current;
             $SnatchedTorrentClass = $snatcher->showSnatch($torrent) ? ' snatched_torrent' : '';
 ?>
-    <tr class="group_torrent groupid_<?=$tgroup->id()?> edition_<?=$EditionID?><?=$SnatchedTorrentClass . $SnatchedGroupClass . ($groupsClosed ? ' hidden' : '')?>">
+    <tr class="group_torrent groupid_<?=$tgroup->id?> edition_<?=$EditionID?><?=$SnatchedTorrentClass . $SnatchedGroupClass . ($groupsClosed ? ' hidden' : '')?>">
         <td class="td_info" colspan="3">
             <?= $Twig->render('torrent/action-v2.twig', [
                 'pl'      => true,

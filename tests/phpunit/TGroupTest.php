@@ -115,6 +115,34 @@ class TGroupTest extends TestCase {
         $this->assertEquals(2, $this->userList['user']->stats()->uploadTotal(), 'tgroup-user-stats-upload');
         $this->assertEquals(1, $this->userList['user']->stats()->uniqueGroupTotal(), 'tgroup-user-stats-unique');
         $this->assertEquals(1, $this->userList['admin']->stats()->uploadTotal(), 'tgroup-user-admin-upload');
+
+        $bookmarker = new User\Bookmark($this->userList['user']);
+        $bookmarker->create('torrent', $this->tgroup->id);
+        $page = $bookmarker->tgroupList(2, 0);
+        $this->assertCount(1, $page, 'bookmark-tgroup-page-total');
+        $this->assertEquals(
+            $this->tgroup->id,
+            $page[0]['tgroup_id'],
+            'bookmark-tgroup-page-item'
+        );
+        // no tags, but verify the SQL works
+        $this->assertCount(
+            0,
+            $bookmarker->tgroupTagLeaderboard(),
+            'bookmark-tag-leaderboard',
+        );
+        $this->assertEquals(
+            1,
+            $bookmarker->removeObject('torrent', $this->tgroup->id),
+            'tgroup-bookmark-user-remove',
+        );
+
+        $bookmarker->create('torrent', $this->tgroup->id);
+        $this->assertEquals(
+            1,
+            $bookmarker->remove(),
+            'tgroup-bookmark-user-all-remove',
+        );
     }
 
     public function testTGroupArtist(): void {
@@ -435,11 +463,6 @@ class TGroupTest extends TestCase {
             'tgroup-merge-general'
         );
 
-        $this->assertTrue(
-            new User\Bookmark($admin)->isTorrentBookmarked($this->tgroup->id),
-            'tgroup-merge-bookmark'
-        );
-
         // create new vote objects to pick up the state change
         unset($adminVote);
         unset($userVote);
@@ -529,11 +552,49 @@ class TGroupTest extends TestCase {
 
         // test increment
         $total = $stats->bookmarkTotal();
-        $bookmark = new User\Bookmark($this->userList['user']);
-        $bookmark->create('torrent', $this->tgroup->id);
+        $bookmarker = new User\Bookmark($this->userList['user']);
+        $bookmarker->create('torrent', $this->tgroup->id);
 
         new Stats\TGroups()->refresh();
         $stats->flush();
         $this->assertEquals($total + 1, $stats->bookmarkTotal(), 'tgroup-stats-update-bookmark');
+
+        $this->assertTrue(
+            $bookmarker->isTGroupBookmarked($this->tgroup),
+            'tgroup-merge-bookmark',
+        );
+        $list = $bookmarker->tgroupBookmarkList();
+        $this->assertCount(1, $list, 'tgroup-bookmark-user-total');
+        $this->assertEquals(
+            $this->tgroup->id,
+            $list[0]['tgroup_id'],
+            'tgroup-bookmark-user-id',
+        );
+        $this->assertEquals(
+            3,
+            $bookmarker->torrentTotal(),
+            'tgroup-bookmark-tgroup-total',
+        );
+        // artists have not been assigned, but this tests the SQL
+        $this->assertEquals(
+            [],
+            $bookmarker->tgroupArtistLeaderboard(),
+            'tgroup-bookmark-leaderboard',
+        );
+        $this->assertEquals(
+            0,
+            $bookmarker->tgroupArtistTotal(),
+            'tgroup-bookmark-artist-total',
+        );
+
+        Helper::generateTorrentSnatch(
+            new Torrent($this->tgroup->torrentIdList()[0]),
+            $bookmarker->user()
+        );
+        $this->assertEquals(
+            1,
+            $bookmarker->removeSnatched(),
+            'tgroup-bookmark-remove-snatched',
+        );
     }
 }

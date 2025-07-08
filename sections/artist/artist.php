@@ -17,7 +17,7 @@ if (is_null($artist)) {
     Error404::error();
 }
 $artist->loadArtistRole();
-$artistId = $artist->id();
+$artistId = $artist->id;
 
 $bookmark   = new User\Bookmark($Viewer);
 $collageMan = new Manager\Collage();
@@ -39,7 +39,7 @@ if (count($artist->groupIds()) > 1000) {
 
 echo $Twig->render('artist/header.twig', [
     'artist'        => $artist,
-    'is_bookmarked' => $bookmark->isArtistBookmarked($artist->id()),
+    'is_bookmarked' => $bookmark->isArtistBookmarked($artist),
     'is_subscribed' => $isSubscribed,
     'revision_id'   => $revisionId,
     'viewer'        => $Viewer,
@@ -247,7 +247,7 @@ if ($sections = $artist->sections()) {
         echo $Twig->render('bookmark/action.twig', [
             'class'         => 'torrent',
             'id'            => $groupId,
-            'is_bookmarked' => $bookmark->isTorrentBookmarked($groupId),
+            'is_bookmarked' => $bookmark->isTGroupBookmarked($tgroup),
         ]);
 
         if (!$Viewer->option('NoVoteLinks')) {
