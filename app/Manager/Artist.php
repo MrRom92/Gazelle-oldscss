@@ -118,10 +118,11 @@ class Artist extends \Gazelle\BaseManager {
         return $this->findById(
             (int)self::$db->scalar("
                 SELECT r1.artist_id
-                FROM artist_usage r1,
-                (SELECT rand() * max(artist_id) AS artist_id FROM artist_usage) AS r2
+                FROM artist_usage AS r1
+                INNER JOIN artist_role AS ar USING (artist_role_id)
+                CROSS JOIN (SELECT rand() * max(artist_id) AS artist_id FROM artist_usage) AS r2
                 WHERE r1.artist_id >= r2.artist_id
-                    AND r1.role in ('1', '3', '4', '5', '6', '7')
+                    AND ar.slug IN ('main', 'remixer', 'composer', 'conductor', 'dj', 'producer')
                 GROUP BY r1.artist_id
                 HAVING sum(r1.uses) >= ?
                 LIMIT 1
