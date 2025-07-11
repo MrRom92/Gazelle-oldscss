@@ -154,7 +154,7 @@ class Bookmark extends \Gazelle\BaseUser {
      * Check if a request is bookmarked by a user
      */
     public function isRequestBookmarked(Request $request): bool {
-        return in_array($request, $this->allBookmarks('request'));
+        return in_array($request->id, $this->allBookmarks('request'));
     }
 
     /**

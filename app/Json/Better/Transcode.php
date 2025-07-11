@@ -20,7 +20,7 @@ class Transcode extends \Gazelle\Json {
             $payload[] = [
                 'torrentId'   => $torrent->id(),
                 'groupId'     => $tgroup->id(),
-                'artistInfo'  => $this->artistPayload($torrent->group()),
+                'artistInfo'  => static::artistPayload($torrent->group()),
                 'groupName'   => $tgroup->name(),
                 'groupYear'   => $tgroup->year(),
                 'downloadUrl' => "torrents.php?action=download&id={$torrent->id()}&torrent_pass={$this->announceKey}",

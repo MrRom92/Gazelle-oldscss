@@ -236,9 +236,9 @@ class Request extends \Gazelle\BaseManager {
                         i.log_score, i.need_log, i.need_cue, i.need_checksum,
                         i.artist_title_ts,
                         i.tag,
-                        string_to_array(i.encoding_str::text, '|'),
-                        string_to_array(i.format_str::text, '|'),
-                        string_to_array(i.media_str::text, '|')
+                        i.encoding_str,
+                        i.format_str,
+                        i.media_str
                     )
                 when matched then
                     update set
@@ -251,9 +251,9 @@ class Request extends \Gazelle\BaseManager {
                         log_score = i.log_score, need_log = i.need_log,
                         need_cue = i.need_cue, need_checksum = i.need_checksum,
                         artist_title_ts = i.artist_title_ts, tag = i.tag,
-                        encoding_str = string_to_array(i.encoding_str::text, '|'),
-                        format_str = string_to_array(i.format_str::text, '|'),
-                        media_str = string_to_array(i.media_str::text, '|')
+                        encoding_str = i.encoding_str,
+                        format_str = i.format_str,
+                        media_str = i.media_str
         ");
     }
 }

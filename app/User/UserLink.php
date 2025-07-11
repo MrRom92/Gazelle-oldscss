@@ -21,11 +21,11 @@ class UserLink extends \Gazelle\BaseUser {
     }
 
     public function groupId(\Gazelle\User $user): ?int {
-        $id = (int)self::$db->scalar("
+        $id = self::$db->scalar("
             SELECT GroupID FROM users_dupes WHERE UserID = ?
             ", $user->id
         );
-        return $id ? (int)$id : null;
+        return is_null($id) ? null : (int)$id;
     }
 
     public function info(): array {

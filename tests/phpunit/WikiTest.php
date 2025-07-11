@@ -125,7 +125,6 @@ class WikiTest extends TestCase {
     public function testWikiAlias(): void {
         $manager = new Manager\Wiki();
         $title   = 'phpunit title ' . randomString(6);
-        $alias   = Wiki::normalizeAlias($title);
         $article = $manager->create(
             $title,
             'wiki body',

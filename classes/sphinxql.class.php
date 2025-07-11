@@ -62,7 +62,7 @@ class Sphinxql extends mysqli {
         global $Debug;
         $Debug->mark("Connecting to Sphinx server $this->Ident");
         for ($Attempt = 0; $Attempt < 3; $Attempt++) {
-            parent::__construct($this->Server, '', '', '', $this->Port, $this->Socket);
+            parent::__construct($this->Server, '', '', '', $this->Port, $this->Socket); /** @phpstan-ignore-line kittens were drowned for this */
             if (!$this->connect_errno) {
                 $this->Connected = true;
                 break;

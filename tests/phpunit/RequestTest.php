@@ -613,7 +613,6 @@ class RequestTest extends TestCase {
             $this->userList['admin'],
             'phpunit request json',
         );
-        $artistMan = new Manager\Artist();
         $this->request->artistRole()->set(
             [ARTIST_MAIN => ['phpunit req ' . randomString(6)]],
             $this->userList['user'],

@@ -194,8 +194,8 @@ class MatchCandidate {
                         continue;
                     }
 
-                    $end = $end ?? $start;
-                    $otherEnd = $otherEnd ?? $otherStart;
+                    $end ??= $start;
+                    $otherEnd ??= $otherStart;
 
                     /* possible cases:
                        * any two dates are very close

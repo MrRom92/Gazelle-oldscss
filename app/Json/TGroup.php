@@ -11,7 +11,7 @@ class TGroup extends \Gazelle\Json {
 
     public function tgroupPayload(): array {
         $tgroup = $this->tgroup;
-        $musicInfo = $this->artistPayload($tgroup);
+        $musicInfo = static::artistPayload($tgroup);
 
         return [
             'wikiBody'        => \Text::full_format($tgroup->description()),

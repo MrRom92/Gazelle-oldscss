@@ -176,8 +176,8 @@ class Request extends BaseObject implements CategoryHasArtist {
         );
         $info['logCue'] = new Request\LogCue(
             needLogChecksum: (bool)$info['checksum'],
-            needCue:         strpos($info['log_cue'], 'Cue') !== false,
-            needLog:         strpos($info['log_cue'], 'Log') !== false,
+            needCue:         str_contains($info['log_cue'], 'Cue'),
+            needLog:         str_contains($info['log_cue'], 'Log'),
             minScore:        (int)preg_replace('/\D+/', '', $info['log_cue']),
         );
 

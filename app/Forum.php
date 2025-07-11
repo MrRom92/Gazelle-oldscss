@@ -260,9 +260,7 @@ class Forum extends BaseObject {
         );
     }
 
-    /**
-     * @deprecated
-     */
+    #[\Deprecated]
     public function threadCount(): int {
         $toc = $this->tableOfContentsForum();
         return $toc ? current($toc)['threadCount'] : 0;
@@ -283,9 +281,8 @@ class Forum extends BaseObject {
      *    - int 'LastPostAuthorID' User id of author of most recent post
      *    - int 'stickyCount' Number of sticky posts
      *    - int 'threadCount' Total number of threads in forum
-     *
-     * @deprecated
      */
+    #[\Deprecated]
     public function tableOfContentsForum(int $page = 1): array {
         $key = sprintf(self::CACHE_TOC_FORUM, $this->id);
         $forumToc = null;

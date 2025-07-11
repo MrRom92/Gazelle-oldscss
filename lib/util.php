@@ -549,7 +549,7 @@ function array_key_filter_and_map(string $prefix, array $list, bool $cast = true
         if (!str_starts_with($k, $prefix)) {
             continue;
         }
-        $key = $cast ? (int)explode('-', (string)$k, 2)[1] : explode('-', (string)$k, 2)[1];
+        $key = $cast ? (int)explode('-', $k, 2)[1] : explode('-', $k, 2)[1];
         $out[$key] = $v;
     }
     return $out;
@@ -831,7 +831,7 @@ function check_paranoia(string $Property, string|array $Paranoia, int $UserClass
 function httpProxy(): ?string {
     $proxy = getenv('HTTP_PROXY');
     if ($proxy !== false) {
-        return (string)$proxy;
+        return $proxy;
     } elseif (HTTP_PROXY != false) {
         return HTTP_PROXY;
     }

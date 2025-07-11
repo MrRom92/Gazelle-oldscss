@@ -8,7 +8,7 @@ use GazelleUnitTest\Helper;
 class DnuTest extends TestCase {
     protected User $user;
 
-    public function setup(): void {
+    public function setUp(): void {
         $this->user = Helper::makeUser('dnu.' . randomString(10), 'dnu');
     }
 

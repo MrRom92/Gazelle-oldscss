@@ -63,7 +63,6 @@ class UserAdvancedTest extends TestCase {
 
     #[DataProvider('dataDate')]
     public function testSearchUserDate(string $name, string $compare, string $expected): void {
-        $search = new Search\User('');
         $this->assertEquals(
             $expected,
             new Search\User('')->date('f', $compare),

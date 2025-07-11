@@ -12,18 +12,47 @@ parameters:
     checkMissingCallableSignature: true
     checkTooWideReturnTypesInProtectedAndPublicMethods: true
     polluteScopeWithAlwaysIterableForeach: false
+    polluteScopeWithBlock: false
     polluteScopeWithLoopInitialAssignments: false
     rememberPossiblyImpureFunctionValues: true
     reportAlwaysTrueInLastCondition: true
     reportAnyTypeWideningInVarTag: true
     reportMaybesInMethodSignatures: true
+    reportMaybesInPropertyPhpDocTypes: true
+    reportPossiblyNonexistentConstantArrayOffset: true
+    reportPossiblyNonexistentGeneralArrayOffset: true
     reportStaticMethodSignatures: true
     reportWrongPhpDocTypeInVarTag: true
+
+    strictRules:
+        booleansInConditions: false
+        booleansInLoopConditions: false
+        closureUsesThis: true
+        disallowedBacktick: true
+        disallowedEmpty: false
+        disallowedImplicitArrayCreation: false
+        disallowedLooseComparison: false
+        disallowedShortTernary: false
+        dynamicCallOnStaticMethod: true
+        illegalConstructorMethodCall: true
+        matchingInheritedMethodNames: true
+        noVariableVariables: false
+        numericOperandsInArithmeticOperators: false
+        overwriteVariablesWithLoop: false
+        requireParentConstructorCall: false
+        strictArrayFilter: false
+        strictFunctionCalls: false
+        switchConditionsMatchingType: true
+        uselessCast: true
+
     errorFormat: table
+
     bootstrapFiles:
         - ../lib/config.php
+
     scanFiles:
         - ../lib/bootstrap.php
+
     paths:
         - ../lib/util.php
         - ../app
@@ -32,8 +61,12 @@ parameters:
         - ../misc
         - ../tests
         - ../sections
+
     parallel:
-        maximumNumberOfProcesses: 1
+        jobSize: 20
+        maximumNumberOfProcesses: 12
+        minimumNumberOfJobsPerProcess: 2
+
     dynamicConstantNames:
         - AJAX
         - BITCOIN_DONATION_XYZPUB
@@ -75,6 +108,14 @@ parameters:
         - USER_LIMIT
 
     ignoreErrors:
+
+    -
+      identifier: offsetAccess.notFound
+
+    -
+      identifier: staticMethod.dynamicCall
+      paths:
+        -  ../tests/phpunit/*
 
     -
       message: '#^Cannot unset property \S+ because it might have hooks in a subclass\.$#'
