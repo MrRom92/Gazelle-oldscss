@@ -49,7 +49,8 @@
 {% if viewer.permitted('zip_downloader') and source|length > 0 %}
             <br />
             <br />
-            <a class="brackets" href="torrents.php?action=collector&amp;title=better&amp;ids={{ source|join(',') }}" onclick="return confirm('If you do not have the content, your ratio WILL be affected; be sure to check the size of all torrents before downloading.');">Download All</a>
+{%  set id_list = source|join(',') %}
+            <a class="brackets" href="torrents.php?action=collector&amp;title=better&amp;ids={{ id_list }}&amp;sig={{ viewer.hashHmac('collector', id_list) }}" onclick="return confirm('If you do not have the content, your ratio WILL be affected; be sure to check the size of all torrents before downloading.');">Download All</a>
 {% endif %}
         </p>
     </div>
