@@ -255,7 +255,7 @@ if ($sections = $artist->sections()) {
                         <br /><?= $vote->links($tgroup) ?>
 <?php   } ?>
                         </span>
-                        <div class="tags"><?= implode(' ', $tgroup->torrentTagList()) ?></div>
+                        <div class="tags"><?= implode(', ', $tgroup->torrentTagList()) ?></div>
                     </div>
                 </td>
             </tr>
