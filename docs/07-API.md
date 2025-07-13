@@ -19,7 +19,7 @@ After generating a token on your user profile, you can use it by sending a reque
 `Authorization: token ${api_token}` or `Authorization: ${api_token}` (deprecated).
 
 NOTE: For the API token, please be aware we heavily discourage people from using the latter form and that it only
-exists for the sake of interopability and may go away in the future.
+exists for the sake of interoperability and may go away in the future.
 
 ##### Table of Contents
 
@@ -54,7 +54,6 @@ exists for the sake of interopability and may go away in the future.
 * [Collages](#collages)
 * [Notifications](#notifications)
 * [Announcements](#announcements)
-* [Give FL Tokens](#give-fl-tokens)
 * [Unofficial projects that utilize the API](#unofficial-projects-that-utilize-the-api)
 
 Questions about the API can be answered in `#develop`.
@@ -1943,37 +1942,6 @@ version: 3
         ],
         "blogPosts": []
     }
-}
-```
-
-## Give FL Tokens
-
-__NOTE__: Requires using the API token or using `$_POST['authkey']`
-
-**URL:**
-`ajax.php?action=give_fltokens`
-
-**Arguments**
-
-`id` - user id to send tokens to
-
-`fltype` - type of fl tokens to give where:
-
-* `fl-other-1`: 1 token
-* `fl-other-4`: 5 tokens
-* `fl-other-2`: 10 tokens
-* `fl-other-3`: 50 tokens
-
-`fltokens` - number of tokens to send, must be either 1, 5, 10, or 50
-
-__NOTE__: Must use either `fltype` or `fltokens`, should not use both
-
-**Response format:**
-
-```json
-{
-    "status": "success",
-    "response": "FL tokens sent"
 }
 ```
 
