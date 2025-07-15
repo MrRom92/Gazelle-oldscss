@@ -2,6 +2,8 @@
 
 namespace Gazelle\Torrent;
 
+use Gazelle\File\RipLogHTML as RipLogHTML;
+
 class Log extends \Gazelle\Base {
     public function __construct(
         public readonly int $id,
@@ -37,7 +39,6 @@ class Log extends \Gazelle\Base {
         );
         $logs = self::$db->to_array('LogID', MYSQLI_ASSOC);
         $details = [];
-        $htmlFiler = new \Gazelle\File\RipLogHTML();
         foreach ($logs as $log) {
             $details[$log['LogID']] = [
                 'adjustment' => !$log['is_adjusted']
@@ -48,7 +49,7 @@ class Log extends \Gazelle\Base {
                         'adjusted' => $log['AdjustedScore'],
                         'reason'   => empty($log['AdjustmentReason']) ? 'none supplied' : $log['AdjustmentReason'],
                     ],
-                'log'    => $htmlFiler->get([$this->id, $log['LogID']]),
+                'log'    => new RipLogHTML($this->id, $log['LogID'])->get(),
                 'status' => array_merge(explode("\n", $log['Details']), unserialize($log['AdjustmentDetails'])),
             ];
             if (($log['Adjusted'] === '0' && $log['Checksum'] === '0') || ($log['Adjusted'] === '1' && $log['AdjustedChecksum'] === '0')) {

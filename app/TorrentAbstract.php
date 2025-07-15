@@ -5,6 +5,8 @@ namespace Gazelle;
 use Gazelle\Enum\LeechReason;
 use Gazelle\Enum\LeechType;
 use Gazelle\Enum\TorrentFlag;
+use Gazelle\File\RipLog as RipLog;
+use Gazelle\File\RipLogHTML as RipLogHTML;
 
 abstract class TorrentAbstract extends BaseAttrObject {
     final public const CACHE_LOCK           = 'torrent_lock_%d';
@@ -481,7 +483,7 @@ abstract class TorrentAbstract extends BaseAttrObject {
         return $this->info()['LogScore'];
     }
 
-    public function logfileList(File\RipLog $ripFiler, File\RipLogHTML $htmlFiler): array {
+    public function logfileList(): array {
         self::$db->prepared_query("
             SELECT LogID AS id,
                 Score,
@@ -499,13 +501,13 @@ abstract class TorrentAbstract extends BaseAttrObject {
         );
         $list = self::$db->to_array(false, MYSQLI_ASSOC);
         foreach ($list as &$log) {
-            $log['has_riplog'] = $ripFiler->exists([$this->id, $log['id']]);
-            $log['html_log'] = $htmlFiler->get([$this->id, $log['id']]);
+            $log['has_riplog']         = new RipLog($this->id, $log['id'])->exists();
+            $log['html_log']           = new RipLogHTML($this->id, $log['id'])->get();
             $log['adjustment_details'] = unserialize($log['AdjustmentDetails']);
-            $log['adjusted'] = ($log['Adjusted'] === '1');
-            $log['adjusted_checksum'] = ($log['AdjustedChecksum'] === '1');
-            $log['checksum'] = ($log['Checksum'] === '1');
-            $log['details'] = empty($log['Details']) ? [] : explode("\r\n", trim($log['Details']));
+            $log['adjusted']           = ($log['Adjusted'] === '1');
+            $log['adjusted_checksum']  = ($log['AdjustedChecksum'] === '1');
+            $log['checksum']           = ($log['Checksum'] === '1');
+            $log['details']            = explode("\r\n", trim($log['Details'] ?? ''));
             if ($log['adjusted'] && $log['checksum'] !== $log['adjusted_checksum']) {
                 $log['details'][] = 'Bad/No Checksum(s)';
             }

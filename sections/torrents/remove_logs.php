@@ -7,7 +7,9 @@ namespace Gazelle;
 
 authorize();
 if (!$Viewer->permitted('torrents_delete')) {
-    Error403::error();
+    Error403::error(
+        'You are not allowed to delete torrents. Please report the torrent instead.'
+    );
 }
 
 $torrent = new Manager\Torrent()->findById((int)($_GET['torrentid'] ?? 0));
@@ -15,9 +17,5 @@ if (is_null($torrent)) {
     Error404::error();
 }
 
-$torrent->removeAllLogs(
-    $Viewer,
-    new File\RipLog(),
-    new File\RipLogHTML(),
-);
+$torrent->removeAllLogs($Viewer);
 header('Location: ' . $torrent->location());

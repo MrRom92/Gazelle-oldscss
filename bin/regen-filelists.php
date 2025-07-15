@@ -4,7 +4,6 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 $Cache->disableLocalCache();
 
 $torMan  = new Gazelle\Manager\Torrent();
-$filer   = new Gazelle\File\Torrent();
 $encoder = new OrpheusNET\BencodeTorrent\BencodeTorrent();
 $db      = Gazelle\DB::DB();
 $max     = $db->scalar("SELECT max(ID) FROM torrents");
@@ -22,7 +21,7 @@ while ($id < $max) {
     $list = $db->collect(0);
     foreach ($list as $id) {
         try {
-            $torMan->findById($id)->regenerateFilelist($filer, $encoder);
+            $torMan->findById($id)->regenerateFilelist($encoder);
         } catch (RuntimeException $e) {
             echo "$id: fail: " . $e->getMessage() . "\n";
         }

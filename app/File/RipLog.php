@@ -2,55 +2,74 @@
 
 namespace Gazelle\File;
 
+/* Note that there can be multiple rip logs per torrent, so there is one
+ * torrent id and one or more log ids. In the usual course of operations,
+ * an object is created with new File(<torrent-int>, <log-int>) which
+ * points to one log (among possibly multiple) belonging to a torrent.
+ *
+ * A variant construction is allowed: new File(<int>, '*') which means
+ * "all the log files". In this case, calling the remove() method removes
+ * *all* the logs. You can of course remove just one log file if the log
+ * id is specified in the constructor with new File(<int>, <int>).
+ */
+
 class RipLog extends \Gazelle\File {
-    /**
-     * Move an existing rip log to the file storage location.
-     * NOTE: This is a change in behaviour from the parent class,
-     *      which is expecting the file contents.
-     *
-     * $source Path to the file, usually the result of a POST operation.
-     * $id The unique identifier [torrentId, logId] of the object
-     */
-    public function put(string $source, mixed $id): bool {
-        return false !== move_uploaded_file($source, $this->path($id));
+    public function __construct(
+        public readonly int $id,
+        public readonly int|string $logId,
+    ) {}
+
+    public function flush(): static {
+        return $this;
     }
 
-    /**
-     * Remove one or more rip logs of a torrent
-     *
-     * $id The unique identifier [torrentId, logId] of the object
-     *     If logId is null, all logs are taken into consideration
-     */
-    public function remove(mixed $id): bool {
-        [$torrentId, $logId] = $id;
-        if (is_null($logId)) {
-            $logfiles = glob($this->path([$torrentId, '*']));
-            if ($logfiles === false) {
-                return false;
-            }
-            foreach ($logfiles as $path) {
-                if (preg_match('/(\d+)\.log/', $path, $match)) {
-                    $logId = $match[1];
-                    $this->remove([$torrentId, $logId]);
-                }
-            }
-            return true;
-        } else {
-            if ($this->exists($id)) {
-                return unlink($this->path($id));
-            }
-            return false;
-        }
+    public function location(): string {
+        return "";
+    }
+
+    public function link(): string {
+        return "";
     }
 
     /**
      * Path of a rip log.
      */
-    public function path(mixed $id): string {
-        [$torrentId, $logId] = $id;
-        $key = strrev(sprintf('%04d', $torrentId));
-        return sprintf("%s/%02d/%02d/{$torrentId}_{$logId}.log",
+    public function path(): string {
+        $key = strrev(sprintf('%04d', $this->id));
+        return sprintf("%s/%02d/%02d/{$this->id}_{$this->logId}.log",
             STORAGE_PATH_RIPLOG, substr($key, 0, 2), substr($key, 2, 2)
         );
+    }
+
+    /**
+     * Move an existing rip log to the file storage location.
+     * NOTE: This is a change in behaviour from the parent class,
+     *      which is expecting the file contents.
+     */
+    public function put(string $source): bool {
+        return move_uploaded_file($source, $this->path()) !== false;
+    }
+
+    /**
+     * Remove one or more rip logs of a torrent
+     */
+    public function remove(): int {
+        if ($this->exists()) {
+             return (int)unlink($this->path());
+        } elseif ($this->logId === '*') {
+            $fileList = glob($this->path());
+            if ($fileList === false) {
+                return 0;
+            }
+            foreach ($fileList as $path) {
+                if (preg_match('/(\d+)\.log/', $path, $match)) {
+                    if (!new self($this->id, (int)$match[1])->remove()) {
+                        return 0;
+                    }
+                }
+            }
+            return 1;
+        }
+        return 0;
     }
 }

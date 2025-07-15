@@ -9,8 +9,8 @@ class RipLog extends \Gazelle\Json {
     ) {}
 
     public function payload(): array {
-        $filer = new \Gazelle\File\RipLog();
-        if (!$filer->exists([$this->torrentId, $this->logId])) {
+        $ripLog = new \Gazelle\File\RipLog($this->torrentId, $this->logId);
+        if (!$ripLog->exists()) {
             return [
                 'id'                => $this->torrentId,
                 'logid'             => $this->logId,
@@ -32,7 +32,7 @@ class RipLog extends \Gazelle\Json {
             ];
         }
 
-        $logFile = $filer->get([$this->torrentId, $this->logId]);
+        $logFile = $ripLog->get();
         $ripLog  = new \Gazelle\RipLog($this->torrentId, $this->logId);
         return [
             'id'                => $this->torrentId,

@@ -133,9 +133,9 @@ RUN useradd -ms /bin/bash gazelle \
         | sed -r 's/pcntl_(fork|signal|signal_dispatch|waitpid),//g' \
         > /etc/php/${PHP_VER}/cli/conf.d/99-boris.ini \
     && echo "Generate file storage directories..." \
-    && perl /var/www/bin/generate-storage-dirs /var/lib/gazelle/torrent 2 100 \
     && perl /var/www/bin/generate-storage-dirs /var/lib/gazelle/riplog 2 100 \
     && perl /var/www/bin/generate-storage-dirs /var/lib/gazelle/riploghtml 2 100 \
+    && perl /var/www/bin/generate-storage-dirs /var/lib/gazelle/torrent 2 100 \
     && chown -R gazelle:gazelle /var/lib/gazelle /var/www
 
 EXPOSE 80/tcp

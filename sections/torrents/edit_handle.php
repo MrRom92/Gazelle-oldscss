@@ -209,7 +209,7 @@ $db->begin_transaction(); // It's all or nothing
 if (isset($_FILES['logfiles'])) {
     $logfileSummary = new LogfileSummary($_FILES['logfiles']);
     if ($logfileSummary->total()) {
-        $torrentLogManager = new Manager\TorrentLog(new File\RipLog(), new File\RipLogHTML());
+        $torrentLogManager = new Manager\TorrentLog();
         $checkerVersion = Logchecker::getLogcheckerVersion();
         foreach ($logfileSummary->all() as $logfile) {
             $torrentLogManager->create($torrent, $logfile, $checkerVersion);

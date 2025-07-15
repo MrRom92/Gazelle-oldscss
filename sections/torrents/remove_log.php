@@ -16,11 +16,11 @@ if (is_null($torrent) || !$logId) {
     Error404::error();
 }
 
-new File\RipLog()->remove([$torrent->id(), $logId]);
+new File\RipLog($torrent->id, $logId)->remove();
 $torrent->logger()->torrent(
     $torrent,
     $Viewer,
-    "Riplog ID $logId removed from torrent {$torrent->id()}",
+    "Riplog ID $logId removed from torrent {$torrent->id}",
 );
 $torrent->clearLog($logId);
 

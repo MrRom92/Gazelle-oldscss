@@ -65,9 +65,10 @@ defined('TMPDIR') or define('TMPDIR', '/tmp');
 
 // Paths for storing uploaded assets outside the database. See bin/generate-storage-dirs
 // Should also be moved out of the root partition.
-defined('STORAGE_PATH_TORRENT')    or define('STORAGE_PATH_TORRENT',    '/var/lib/gazelle/torrent');
+defined('STORAGE_PATH_GENERAL')    or define('STORAGE_PATH_GENERAL',    '/var/lib/gazelle/general');
 defined('STORAGE_PATH_RIPLOG')     or define('STORAGE_PATH_RIPLOG',     '/var/lib/gazelle/riplog');
 defined('STORAGE_PATH_RIPLOGHTML') or define('STORAGE_PATH_RIPLOGHTML', '/var/lib/gazelle/riploghtml');
+defined('STORAGE_PATH_TORRENT')    or define('STORAGE_PATH_TORRENT',    '/var/lib/gazelle/torrent');
 
 // Host static assets (images, css, js) on another server.
 // In development it is just a folder
@@ -134,15 +135,19 @@ defined('AUTHKEY') or define('AUTHKEY', 'changeme');
 // Extra salt added into RSS authentication
 defined('RSS_HASH') or define('RSS_HASH', 'changeme');
 
-// Seedbox ids are hashified with this salt.
-defined('SEEDBOX_SALT') or define('SEEDBOX_SALT', 'changeme');
-
 // User avatars are hashed with this salt.
 defined('AVATAR_SALT') or define('AVATAR_SALT', 'changeme');
+
+// General storage files are hashed with this salt
+// Changing this after site launch will expire all short-term links
+defined('FILE_SALT') or define('FILE_SALT', 'changeme');
 
 // Salt for folder clashes. Changing this after site launch will
 // invalidate cache keys that will be regenerated on next call.
 defined('FOLDER_CLASH_SALT') or define('FOLDER_CLASH_SALT', 'changeme');
+
+// Seedbox ids are hashified with this salt.
+defined('SEEDBOX_SALT') or define('SEEDBOX_SALT', 'changeme');
 
 // Salt for custom Top 10 lists. Changing this after site launch will
 // invalidate cache keys that will be regenerated on next call.

@@ -9,7 +9,7 @@ $torrent = new Manager\Torrent()->findById((int)($_GET['id'] ?? 0));
 if (is_null($torrent)) {
     json_error('bad parameters');
 }
-if ($torrent->uploaderId() != $Viewer->id() && !$Viewer->permitted('admin_add_log')) {
+if ($torrent->uploaderId() != $Viewer->id && !$Viewer->permitted('admin_add_log')) {
     json_error('Not your upload.');
 }
 if (empty($_FILES) || empty($_FILES['logfiles'])) {
@@ -19,7 +19,7 @@ if (empty($_FILES) || empty($_FILES['logfiles'])) {
 echo new Json\AddLog(
     $torrent,
     $Viewer,
-    new Manager\TorrentLog(new File\RipLog(), new File\RipLogHTML()),
+    new Manager\TorrentLog(),
     new LogfileSummary($_FILES['logfiles']),
 )
     ->setVersion(1)

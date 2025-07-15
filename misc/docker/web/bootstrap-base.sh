@@ -103,9 +103,10 @@ fi
 
 if [ ! -d /var/lib/gazelle/torrent ]; then
     echo "Generate file storage directories..."
-    perl "${CI_PROJECT_DIR}/bin/generate-storage-dirs" /var/lib/gazelle/torrent 2 100
+    perl "${CI_PROJECT_DIR}/bin/generate-storage-dirs" /var/lib/gazelle/general 1 100
     perl "${CI_PROJECT_DIR}/bin/generate-storage-dirs" /var/lib/gazelle/riplog 2 100
     perl "${CI_PROJECT_DIR}/bin/generate-storage-dirs" /var/lib/gazelle/riploghtml 2 100
+    perl "${CI_PROJECT_DIR}/bin/generate-storage-dirs" /var/lib/gazelle/torrent 2 100
     chown -R gazelle /var/lib/gazelle
 fi
 

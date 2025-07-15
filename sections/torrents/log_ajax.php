@@ -16,8 +16,8 @@ if (is_null($torrent)) {
 }
 
 echo $Twig->render('torrent/riplog.twig', [
-    'id'        => $torrent->id(),
-    'list'      => $torrent->logfileList(new File\RipLog(), new File\RipLogHTML()),
+    'id'        => $torrent->id,
+    'list'      => $torrent->logfileList(),
     'log_score' => $torrent->logScore(),
     'viewer'    => $Viewer,
 ]);

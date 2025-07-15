@@ -17,9 +17,9 @@ if (is_null($torrent) || !$logId) {
     Error404::error();
 }
 
-$logpath = new File\RipLog()->path([$torrent->id(), $logId]);
+$logpath = new File\RipLog($torrent->id, $logId)->path();
 $logfile = new Logfile($logpath, basename($logpath));
-new File\RipLogHTML()->put($logfile->text(), [$torrent->id(), $logId]);
+new File\RipLogHTML($torrent->id, $logId)->put($logfile->text());
 
 $torrent->rescoreLog($logId, $logfile, Logchecker::getLogcheckerVersion());
 

@@ -29,8 +29,6 @@ $requestMan    = new Manager\Request();
 $userMan       = new Manager\User();
 $search        = new Search\Torrent\Report($_GET['view'] ?? '', $_GET['id'] ?? '', $reportTypeMan, $userMan);
 $imgProxy      = new Util\ImageProxy($Viewer);
-$ripFiler      = new File\RipLog();
-$htmlFiler     = new File\RipLogHTML();
 
 $paginator = new Util\Paginator(REPORTS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($search->total());
@@ -173,34 +171,36 @@ if ($search->canUnclaim($Viewer)) {
 <?php
                             } else {
         foreach ($details as $logId => $info) {
-                                            if ($info['adjustment']) {
-                            $adj = $info['adjustment'];
-                            $adjUser = $userMan->findById($adj['userId']);
-            ?>
+                                if ($info['adjustment']) {
+                                    $adj = $info['adjustment'];
+                                    $adjUser = $userMan->findById($adj['userId']);
+                    ?>
                                 <li>Log adjusted <?= $adjUser ? "by {$adjUser->link()}" : '' ?> from score <?= $adj['score']
-                        ?> to <?= $adj['adjusted'] . ($adj['reason'] ? ', reason: ' .  $adj['reason'] : '') ?></li>
-            <?php
-                                            }
-                                            if (isset($info['status']['tracks'])) {
-                $info['status']['tracks'] = implode(', ', array_keys($info['status']['tracks']));
-                                            }
-                                            foreach ($info['status'] as $s) {
-                if ($s) {
-                                                    ?>
+                                            ?> to <?= $adj['adjusted'] . ($adj['reason'] ? ', reason: ' .  $adj['reason'] : '') ?></li>
+                    <?php
+                                                    }
+                                if (isset($info['status']['tracks'])) {
+                                    $info['status']['tracks'] = implode(', ', array_keys($info['status']['tracks']));
+                                                    }
+                                foreach ($info['status'] as $s) {
+                                    if ($s) {
+                    ?>
                                 <li><?= $s ?></li>
-                                                            <?php
-                }
-                                            }
-                                ?>
+<?php
+                                    }
+                                                    }
+                                        ?>
                                 <li>
                                     <span class="nobr"><strong>Logfile #<?= $logId ?></strong>: </span>
-                                    <a href="javascript:void(0);" onclick="BBCode.spoiler(this);" class="brackets">Show</a><pre class="hidden"><?= $ripFiler->get([ $torrentId , $logId]) ?></pre>
+                                    <a href="javascript:void(0);" onclick="BBCode.spoiler(this);" class="brackets">Show</a><pre class="hidden"><?=
+                                        new File\RipLog($torrentId, $logId)->get() ?></pre>
                                 </li>
                                 <li>
                                     <span class="nobr"><strong>HTML logfile #<?= $logId ?></strong>: </span>
-                                    <a href="javascript:void(0);" onclick="BBCode.spoiler(this);" class="brackets">Show</a><pre class="hidden"><?= $info['log'] ?></pre>
+                                    <a href="javascript:void(0);" onclick="BBCode.spoiler(this);" class="brackets">Show</a><pre class="hidden"><?=
+                                        $info['log'] ?></pre>
                                 </li>
-                                        <?php
+                                                            <?php
         }
                             }
                         ?>
@@ -210,37 +210,39 @@ if ($search->canUnclaim($Viewer)) {
                         <?php
                             $log = new Torrent\Log($extra->id);
                             $details = $log->logDetails();
-?>
+                        ?>
                                 <ul class="nobullet logdetails">
-                        <?php                       if (!count($details)) { ?>
+                        <?php if (!count($details)) { ?>
                                 <li class="nobr">No logs</li>
-<?php
+    <?php
                             } else {
         foreach ($details as $logId => $info) {
-                                            if ($info['adjustment']) {
-                            $adj = $info['adjustment'];
-                            $adjUser = $userMan->findById($adj['userId']);
-            ?>
+                                if ($info['adjustment']) {
+                                    $adj = $info['adjustment'];
+                                    $adjUser = $userMan->findById($adj['userId']);
+                                ?>
                                 <li>Log adjusted <?= $adjUser ? "by {$adjUser->link()}" : '' ?> from score <?= $adj['score']
-                        ?> to <?= $adj['adjusted'] . ($adj['reason'] ? ', reason: ' .  $adj['reason'] : '') ?></li>
-            <?php
-                                            }
-                                            if (isset($info['status']['tracks'])) {
-                $info['status']['tracks'] = implode(', ', array_keys($info['status']['tracks']));
-                                            }
-                                            foreach ($info['status'] as $s) {
-            ?>
+                                            ?> to <?= $adj['adjusted'] . ($adj['reason'] ? ', reason: ' .  $adj['reason'] : '') ?></li>
+                                <?php
+                                                    }
+                                if (isset($info['status']['tracks'])) {
+                                    $info['status']['tracks'] = implode(', ', array_keys($info['status']['tracks']));
+                                                    }
+                                foreach ($info['status'] as $s) {
+                                ?>
                                 <li><?= $s ?></li>
-<?php                               } ?>
+                    <?php       } ?>
                                 <li>
                                     <span class="nobr"><strong>Raw logfile #<?= $logId ?></strong>: </span>
-                                    <a href="javascript:void(0);" onclick="BBCode.spoiler(this);" class="brackets">Show</a><pre class="hidden"><?= $ripFiler->get([$extra->id, $logId]) ?></pre>
+                                    <a href="javascript:void(0);" onclick="BBCode.spoiler(this);" class="brackets">Show</a><pre class="hidden"><?=
+                                                new File\RipLog($extra->id, $logId)->get() ?></pre>
                                 </li>
                                 <li>
                                     <span class="nobr"><strong>HTML logfile #<?= $logId ?></strong>: </span>
-                                    <a href="javascript:void(0);" onclick="BBCode.spoiler(this);" class="brackets">Show</a><pre class="hidden"><?= $info['log'] ?></pre>
+                                    <a href="javascript:void(0);" onclick="BBCode.spoiler(this);" class="brackets">Show</a><pre class="hidden"><?=
+                                                $info['log'] ?></pre>
                                 </li>
-                    <?php
+                                                                        <?php
         }
                             }
                         ?>

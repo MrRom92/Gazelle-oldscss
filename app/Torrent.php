@@ -97,8 +97,7 @@ class Torrent extends TorrentAbstract {
      * Convert a stored torrent into a binary file that can be loaded in a torrent client
      */
     public function torrentBody(string $announceUrl): string {
-        $filer = new File\Torrent();
-        $contents = $filer->get($this->id);
+        $contents = new File\Torrent($this->id)->get();
         if ($contents == false) {
             return '';
         }
@@ -209,11 +208,7 @@ class Torrent extends TorrentAbstract {
      *
      * @return int number of logfiles removed
      */
-    public function removeAllLogs(
-        User $user,
-        File\RipLog $ripLog,
-        File\RipLogHTML $ripLogHtml,
-    ): int {
+    public function removeAllLogs(User $user): int {
         self::$db->begin_transaction();
         self::$db->prepared_query("
             DELETE FROM torrents_logs WHERE TorrentID = ?
@@ -232,9 +227,8 @@ class Torrent extends TorrentAbstract {
         $this->logger()->torrent($this, $user, "All logs removed from torrent");
         self::$db->commit();
         $this->flush();
-
-        $ripLog->remove([$this->id, null]);
-        $ripLogHtml->remove([$this->id, null]);
+        new File\RipLog($this->id, '*')->remove();
+        new File\RipLogHTML($this->id, '*')->remove();
 
         return $affected;
     }
@@ -457,8 +451,8 @@ class Torrent extends TorrentAbstract {
      *
      * @return int number of files regenned
      */
-    public function regenerateFilelist(File\Torrent $filer, \OrpheusNET\BencodeTorrent\BencodeTorrent $encoder): int {
-        $torrentFile = $filer->get($this->id);
+    public function regenerateFilelist(\OrpheusNET\BencodeTorrent\BencodeTorrent $encoder): int {
+        $torrentFile = new File\Torrent($this->id)->get();
         if ($torrentFile === false) {
             return 0;
         }

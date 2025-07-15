@@ -14,8 +14,7 @@ if (is_null($torrent)) {
     Error404::error();
 }
 $torrent->regenerateFilelist(
-    new File\Torrent(),
-    new \OrpheusNET\BencodeTorrent\BencodeTorrent()
+    new \OrpheusNET\BencodeTorrent\BencodeTorrent(),
 );
 
 header("Location: " . $torrent->location());

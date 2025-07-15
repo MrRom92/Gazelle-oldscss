@@ -92,10 +92,7 @@ class LogcheckerTest extends TestCase {
         $this->assertCount(1, $logfileSummary->all(), 'logfilesummary-all');
         $this->assertEquals(1, $logfileSummary->total(), 'logfilesummary-total');
 
-        $torrentLogManager = new Manager\TorrentLog(
-            new File\RipLog(),
-            new File\RipLogHTML()
-        );
+        $torrentLogManager = new Manager\TorrentLog();
         $checkerVersion = Logchecker::getLogcheckerVersion();
         $torrentLog = null;
         foreach ($logfileSummary->all() as $logfile) {

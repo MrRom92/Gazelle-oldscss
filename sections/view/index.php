@@ -23,7 +23,7 @@ switch ($_GET['type']) {
         }
         header('Content-type: text/plain');
         header("Content-Disposition: inline; filename=\"{$match[1]}_{$match[2]}.txt\"");
-        echo new File\RipLog()->get([$match[1], $match[2]]);
+        echo new File\RipLog((int)$match[1], (int)$match[2])->get();
         break;
     default:
         Error404::error();

@@ -17,7 +17,7 @@ if (is_null($torrent)) {
 if ($torrent->media() !== 'CD') {
     Error400::error('Media of torrent precludes adding a log.');
 }
-if ($torrent->uploaderId() != $Viewer->id() && !$Viewer->permitted('admin_add_log')) {
+if ($torrent->uploaderId() != $Viewer->id && !$Viewer->permitted('admin_add_log')) {
     Error403::error('Not your upload.');
 }
 
@@ -27,13 +27,10 @@ $logfileSummary = new LogfileSummary($_FILES['logfiles']);
 if (!$logfileSummary->total()) {
     Error400::error("No logfiles uploaded.");
 } else {
-    $ripFiler = new File\RipLog();
-    $htmlFiler = new File\RipLogHTML();
-
     $torrent->removeLogDb();
-    $ripFiler->remove([$torrent->id(), null]);
-    $htmlFiler->remove([$torrent->id(), null]);
-    $torrentLogManager = new Manager\TorrentLog($ripFiler, $htmlFiler);
+    new File\RipLog($torrent->id, '*')->remove();
+    new File\RipLogHTML($torrent->id, '*')->remove();
+    $torrentLogManager = new Manager\TorrentLog();
 
     $checkerVersion = Logchecker::getLogcheckerVersion();
     foreach ($logfileSummary->all() as $logfile) {

@@ -88,13 +88,13 @@ class TorrentTest extends TestCase {
         $bencoder->decodeFile(__DIR__ . '/../fixture/valid_torrent.torrent');
         $info = $bencoder->getData();
         $this->assertIsArray($info, 'torrent-file-data-array');
-        $torrentFiler = new File\Torrent();
+        $torrentFile = new File\Torrent($this->torrent->id);
         $this->assertTrue(
-            $torrentFiler->put($bencoder->getEncode(), $this->torrent->id()),
+            $torrentFile->put($bencoder->getEncode()),
             'torrent-file-put'
         );
         $this->assertTrue(
-            $torrentFiler->exists($this->torrent->id()),
+            $torrentFile->exists(),
             'torrent-file-exists'
         );
 
@@ -137,8 +137,9 @@ class TorrentTest extends TestCase {
 
         $this->assertEquals(8215612, $totalSize, 'torrent-file-total-size');
         $this->assertCount(3, $fileList, 'torrent-file-list');
-        $this->assertTrue(
-            $torrentFiler->remove($this->torrent->id()),
+        $this->assertEquals(
+            1,
+            $torrentFile->remove(),
             'torrent-file-remove'
         );
     }
@@ -169,7 +170,7 @@ class TorrentTest extends TestCase {
             4,
             new Manager\User()->sendRemovalPm(
                 $this->user,
-                $torrent->id(),
+                $torrent->id,
                 $name,
                 $path,
                 log: 'phpunit removal test',
@@ -275,18 +276,14 @@ class TorrentTest extends TestCase {
         );
         $this->assertEquals(
             0,
-            $this->torrent->removeAllLogs(
-                $this->user,
-                new File\RipLog(),
-                new File\RipLogHTML(),
-            ),
+            $this->torrent->removeAllLogs($this->user),
             'torrent-remove-all-logs'
         );
     }
 
     public function testTorrentBBCode(): void {
-        $torrentId = $this->torrent->id();
-        $tgroupId  = $this->torrent->group()->id();
+        $torrentId = $this->torrent->id;
+        $tgroupId  = $this->torrent->group()->id;
 
         $torrentRegexp = "^<a href=\"artist\.php\?id=\d+\" dir=\"ltr\">.*</a> – <a title=\".*?\" href=\"/torrents\.php\?id={$tgroupId}&torrentid={$torrentId}#torrent{$torrentId}\">.* \[\d+ .*?\]</a>";
         $this->assertMatchesRegularExpression("@{$torrentRegexp} .*$@",

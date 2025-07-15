@@ -22,9 +22,7 @@ $errLog    = 0;
 $newHtml   = 0;
 $errHtml   = 0;
 
-$db        = Gazelle\DB::DB();
-$logFiler  = new Gazelle\File\RipLog();
-$htmlFiler = new Gazelle\File\RipLogHTML();
+$db = Gazelle\DB::DB();
 
 while (true) {
     $db->prepared_query('
@@ -49,10 +47,10 @@ while (true) {
             ++$newLog;
         }
         if (!file_exists($htmlFiler->path([$torrentId, $logId]))) {
-            if (!$htmlFiler->put($log, [$torrentId, $logId])) {
+            if (!new RipLog($torrentId, $logId)->put($log)) {
                 ++$errHtml;
             }
-            $htmlFiler->put($log . "\n", [$torrentId, $logId]);
+            new RipLogHTML($torrentId, $logId)->put("$log\n");
             ++$newHtml;
         }
     }

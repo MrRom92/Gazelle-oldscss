@@ -309,14 +309,14 @@ $upload = [
     'new'   => [], // list of newly created Torrent objects
 ];
 
-$torrentFiler = new File\Torrent();
-$torrent      = $torMan->findByInfohash(bin2hex($bencoder->getHexInfoHash()));
+$torrent = $torMan->findByInfohash(bin2hex($bencoder->getHexInfoHash()));
 if ($torrent) {
-    if ($torrentFiler->exists($torrent->id)) {
+    $torrentFile = new File\Torrent($torrent->id);
+    if ($torrentFile->exists()) {
         reportError("The exact same torrent file already exists on the site! {$torrent->link()}");
     } else {
         // A lost torrent
-        $torrentFiler->put($bencoder->getEncode(), $torrent->id);
+        $torrentFile->put($bencoder->getEncode());
         reportError("Thank you for fixing this torrent {$torrent->link()}");
     }
 }
@@ -364,11 +364,12 @@ if ($isMusicUpload) {
 
             $torrent = $torMan->findByInfohash(bin2hex($xbencoder->getHexInfoHash()));
             if ($torrent) {
-                if ($torrentFiler->exists($torrent->id)) {
+                $torrentFile = new File\Torrent($torrent->id);
+                if ($torrentFile->exists()) {
                     reportError("The exact same torrent file already exists on the site! {$torrent->link()}");
                 } else {
                     // A lost torrent
-                    $torrentFiler->put($bencoder->getEncode(), $torrent->id);
+                    $torrentFile->put($bencoder->getEncode());
                     reportError("Thank you for fixing this torrent {$torrent->link()}");
                 }
             }
@@ -588,7 +589,7 @@ foreach ($upload['extra'] as $info) {
 
     $size            = number_format($extra->size() / (1024 * 1024), 2);
     $upload['new'][] = $extra;
-    $torrentFiler->put($info['TorEnc'], $extra->id);
+    new File\Torrent($extra->id)->put($info['TorEnc']);
     $extra->logger()->torrent($extra, $Viewer, "uploaded ($size MiB)")
         ->general("Torrent {$extra->id} ($logName) ($size MiB) was uploaded by " . $Viewer->username());
 }
@@ -597,7 +598,7 @@ foreach ($upload['extra'] as $info) {
 //--------------- Write Files To Disk ------------------------------------------//
 
 if ($logfileSummary?->total()) {
-    $torrentLogManager = new Manager\TorrentLog(new File\RipLog(), new File\RipLogHTML());
+    $torrentLogManager = new Manager\TorrentLog();
     $checkerVersion = Logchecker::getLogcheckerVersion();
     foreach ($logfileSummary->all() as $logfile) {
         $torrentLogManager->create($torrent, $logfile, $checkerVersion);
@@ -608,7 +609,7 @@ $size = number_format($TotalSize / (1024 * 1024), 2);
 $torrent->logger()->torrent($torrent, $Viewer, "uploaded ($size MiB)")
     ->general("Torrent $TorrentID ($logName) ($size MiB) was uploaded by " . $Viewer->username());
 
-if (!$torrentFiler->put($bencoder->getEncode(), $TorrentID)) {
+if (!new File\Torrent($TorrentID)->put($bencoder->getEncode())) {
     reportError("Internal error saving torrent file. Please report this in the bugs forum.");
 }
 $db->commit(); // We have a usable upload, any subsequent failures can be repaired ex post facto
