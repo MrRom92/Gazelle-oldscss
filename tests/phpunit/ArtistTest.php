@@ -221,7 +221,7 @@ class ArtistTest extends TestCase {
         $this->artistIdList[] = $new->id;
 
         $userBk = new User\Bookmark($this->user);
-        $userBk->create('artist', $old->id);
+        $userBk->create($old);
 
         $commentMan = new Manager\Comment();
         $postList = [
@@ -231,8 +231,8 @@ class ArtistTest extends TestCase {
 
         $this->extra = Helper::makeUser('merge.' . randomString(10), 'merge');
         $extraBk = new User\Bookmark($this->extra);
-        $extraBk->create('artist', $old->id);
-        $extraBk->create('artist', $new->id);
+        $extraBk->create($old);
+        $extraBk->create($new);
 
         $collMan = new Manager\Collage();
         $this->collage = $collMan->create(
@@ -273,8 +273,8 @@ class ArtistTest extends TestCase {
             'artist-merge-n',
         );
         $this->assertNull($manager->findById($old->id), 'art-merge-no-old');
-        $this->assertTrue($userBk->isArtistBookmarked($new), 'art-merge-user-bookmarked-new');
-        $this->assertTrue($extraBk->isArtistBookmarked($new), 'art-merge-extra-bookmarked-new');
+        $this->assertTrue($userBk->isBookmarked($new), 'art-merge-user-bookmarked-new');
+        $this->assertTrue($extraBk->isBookmarked($new), 'art-merge-extra-bookmarked-new');
         $this->assertCount(1, $extraBk->artistList(), 'art-merge-extra-bookmarked-list');
 
         // FIXME: flushed collage objects cannot be refreshed
@@ -605,7 +605,7 @@ class ArtistTest extends TestCase {
         $artist = $manager->create($name);
         $this->artistIdList[] = $artist->id;
 
-        new User\Bookmark($this->user)->create('artist', $artist->id);
+        new User\Bookmark($this->user)->create($artist);
         $json = new Json\Bookmark\Artist(new User\Bookmark($this->user));
         $this->assertEquals(
             [[

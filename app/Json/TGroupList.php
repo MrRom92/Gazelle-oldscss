@@ -83,7 +83,7 @@ class TGroupList extends \Gazelle\Json {
                     'artist'        => $tgroup->artistName(),
                     'cover'         => $tgroup->image(),
                     'tags'          => array_values($tgroup->tagNameList()),
-                    'bookmarked'    => $this->bookmark->isTGroupBookmarked($tgroup),
+                    'bookmarked'    => $this->bookmark->isBookmarked($tgroup),
                     'vanityHouse'   => $tgroup->isShowcase(),
                     'groupYear'     => $tgroup->year(),
                     'releaseType'   => $tgroup->releaseTypeName() ?? '',

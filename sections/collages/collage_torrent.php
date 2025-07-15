@@ -26,7 +26,7 @@ $entryList     = $collage->entryList();
 $groupsClosed  = (bool)$Viewer->option('TorrentGrouping');
 
 echo $Twig->render('collage/header.twig', [
-    'bookmarked' => $bookmark->isCollageBookmarked($collage),
+    'bookmarked' => $bookmark->isBookmarked($collage),
     'collage'    => $collage,
     'object'     => 'torrent',
     'viewer'     => $Viewer,
@@ -225,7 +225,7 @@ foreach ($entryList as $tgroupId) {
                 echo $Twig->render('bookmark/action.twig', [
                     'class'         => 'torrent',
                     'id'            => $tgroupId,
-                    'is_bookmarked' => $bookmark->isTGroupBookmarked($tgroup),
+                    'is_bookmarked' => $bookmark->isBookmarked($tgroup),
                 ]);
                 if (!$Viewer->option('NoVoteLinks') && $Viewer->permitted('site_album_votes')) {
 ?>

@@ -5,16 +5,16 @@ namespace Gazelle;
 use Gazelle\Enum\CollageType;
 use Gazelle\Enum\LeechType;
 use Gazelle\Enum\LeechReason;
+use Gazelle\Intf\Bookmarked;
 use Gazelle\Intf\CollageEntry;
 
-class Collage extends BaseAttrObject {
+class Collage extends BaseAttrObject implements Bookmarked {
     /**
      * A Gazelle\Collage is a holder object that delegates most functionality to
      * an underlying Gazelle\Collage\AbstractCollage object. The latter knows
      * how to add and remove entries to the associated tables underneath
      * (artists or torrent groups).
      */
-
     final public const tableName    = 'collages';
     final public const CACHE_KEY    = 'collagev4_%d';
     final public const SUBS_KEY     = 'collage_subs_user_%d';
@@ -83,6 +83,14 @@ class Collage extends BaseAttrObject {
         }
         $this->info = $info;
         return $this->info;
+    }
+
+    public function bookmarkTable(): string {
+        return 'bookmark_collage';
+    }
+
+    public function bookmarkColumnName(): string {
+        return 'id_collage';
     }
 
     public function categoryId(): int {

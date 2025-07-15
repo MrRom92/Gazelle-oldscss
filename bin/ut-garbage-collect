@@ -210,6 +210,30 @@ foreach ($db->collect(0) as $userId) {
 
 $db->prepared_query("
     DELETE u
+    FROM bookmarks_artists u
+    LEFT JOIN users_main um ON (um.ID = u.UserID)
+    WHERE um.ID IS NULL
+");
+$db->prepared_query("
+    DELETE u
+    FROM bookmarks_collages u
+    LEFT JOIN users_main um ON (um.ID = u.UserID)
+    WHERE um.ID IS NULL
+");
+$db->prepared_query("
+    DELETE u
+    FROM bookmarks_requests u
+    LEFT JOIN users_main um ON (um.ID = u.UserID)
+    WHERE um.ID IS NULL
+");
+$db->prepared_query("
+    DELETE u
+    FROM bookmarks_torrents u
+    LEFT JOIN users_main um ON (um.ID = u.UserID)
+    WHERE um.ID IS NULL
+");
+$db->prepared_query("
+    DELETE u
     FROM users_freeleeches u
     LEFT JOIN users_main um ON (um.ID = u.UserID)
     WHERE um.ID IS NULL

@@ -99,7 +99,7 @@ class RequestSearchTest extends TestCase {
             title: $title,
         );
         $this->assertTrue(
-            new User\Bookmark($user)->create('request', $this->requestList[0]->id),
+            new User\Bookmark($user)->create($this->requestList[0]),
             'reqs-bookmark-create',
         );
 

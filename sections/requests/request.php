@@ -35,7 +35,7 @@ echo $Twig->render('request/detail.twig', [
     'unit_GiB'      => isset($unitGiB),
     'comment_page'  => $commentPage,
     'filler'        => $userMan->findById($request->fillerId()),
-    'is_bookmarked' => new User\Bookmark($Viewer)->isRequestBookmarked($request),
+    'is_bookmarked' => new User\Bookmark($Viewer)->isBookmarked($request),
     'is_subscribed' => new User\Subscription($Viewer)->isSubscribedComments('requests', $request->id),
     'paginator'     => $paginator,
     'reply'         => new Util\Textarea('quickpost', '', 90, 8)->setPreviewManual(true),

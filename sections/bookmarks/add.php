@@ -7,13 +7,22 @@ namespace Gazelle;
 
 authorize();
 
-$type = $_GET['type'] ??  '';
-$id   = (int)($_GET['id'] ?? 0);
-if (!new User\Bookmark($Viewer)->create($type, $id)) {
-    json_error('bad parameters');
+$id = (int)($_GET['id'] ?? 0);
+if ($id === 0) {
+    json_error('bad id');
 }
-
-if ($type === 'request') {
-    new Manager\Request()->findById($id)?->updateBookmarkStats();
+$object = match ($_GET['type'] ?? '') {
+    'artist'  => new Manager\Artist()->findById($id),
+    'collage' => new Manager\Collage()->findById($id),
+    'request' => new Manager\Request()->findById($id),
+    'torrent' => new Manager\TGroup()->findById($id),
+    default   => json_error('bad type'),
+};
+if ($object instanceof Intf\Bookmarked && new User\Bookmark($Viewer)->create($object)) {
+    if ($object instanceof Request) {
+        $object->updateBookmarkStats();
+    }
+    print(json_encode('OK'));
+} else {
+    json_error('not bookmarked');
 }
-print(json_encode('OK'));

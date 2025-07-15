@@ -117,7 +117,7 @@ class TGroupTest extends TestCase {
         $this->assertEquals(1, $this->userList['admin']->stats()->uploadTotal(), 'tgroup-user-admin-upload');
 
         $bookmarker = new User\Bookmark($this->userList['user']);
-        $bookmarker->create('torrent', $this->tgroup->id);
+        $bookmarker->create($this->tgroup);
         $page = $bookmarker->tgroupList(2, 0);
         $this->assertCount(1, $page, 'bookmark-tgroup-page-total');
         $this->assertEquals(
@@ -133,11 +133,11 @@ class TGroupTest extends TestCase {
         );
         $this->assertEquals(
             1,
-            $bookmarker->removeObject('torrent', $this->tgroup->id),
+            $bookmarker->removeObject($this->tgroup),
             'tgroup-bookmark-user-remove',
         );
 
-        $bookmarker->create('torrent', $this->tgroup->id);
+        $bookmarker->create($this->tgroup);
         $this->assertEquals(
             1,
             $bookmarker->remove(),
@@ -432,7 +432,7 @@ class TGroupTest extends TestCase {
         $oldId   = $this->tgroupExtra->id;
         $oldName = $this->tgroupExtra->name();
 
-        new User\Bookmark($admin)->create('torrent', $oldId);
+        new User\Bookmark($admin)->create($this->tgroupExtra);
         new Manager\Comment()->create($user, 'torrents', $oldId, 'phpunit comment ' . randomString(10));
         $adminVote = new User\Vote($admin);
         $userVote = new User\Vote($user);
@@ -553,14 +553,14 @@ class TGroupTest extends TestCase {
         // test increment
         $total = $stats->bookmarkTotal();
         $bookmarker = new User\Bookmark($this->userList['user']);
-        $bookmarker->create('torrent', $this->tgroup->id);
+        $bookmarker->create($this->tgroup);
 
         new Stats\TGroups()->refresh();
         $stats->flush();
         $this->assertEquals($total + 1, $stats->bookmarkTotal(), 'tgroup-stats-update-bookmark');
 
         $this->assertTrue(
-            $bookmarker->isTGroupBookmarked($this->tgroup),
+            $bookmarker->isBookmarked($this->tgroup),
             'tgroup-merge-bookmark',
         );
         $list = $bookmarker->tgroupBookmarkList();
@@ -595,6 +595,10 @@ class TGroupTest extends TestCase {
             1,
             $bookmarker->removeSnatched(),
             'tgroup-bookmark-remove-snatched',
+        );
+        $this->assertFalse(
+            $bookmarker->isBookmarked($this->tgroup),
+            'tgroup-bookmark-unsnatched',
         );
     }
 }

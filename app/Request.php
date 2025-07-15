@@ -3,9 +3,10 @@
 namespace Gazelle;
 
 use Gazelle\Enum\UserAuditEvent;
+use Gazelle\Intf\Bookmarked;
 use Gazelle\Intf\CategoryHasArtist;
 
-class Request extends BaseObject implements CategoryHasArtist {
+class Request extends BaseObject implements Bookmarked, CategoryHasArtist {
     final public const tableName  = 'requests';
 
     public function flush(): static {
@@ -22,6 +23,14 @@ class Request extends BaseObject implements CategoryHasArtist {
 
     public function location(): string {
         return 'requests.php?action=view&id=' . $this->id;
+    }
+
+    public function bookmarkTable(): string {
+        return 'bookmark_request';
+    }
+
+    public function bookmarkColumnName(): string {
+        return 'id_request';
     }
 
     /**

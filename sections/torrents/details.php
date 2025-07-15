@@ -59,7 +59,7 @@ $section = [
 ];
 
 echo $Twig->render('torrent/detail-header.twig', [
-    'is_bookmarked' => new User\Bookmark($Viewer)->isTGroupBookmarked($tgroup),
+    'is_bookmarked' => new User\Bookmark($Viewer)->isBookmarked($tgroup),
     'is_subscribed' => $isSubscribed,
     'revision_id'   => $RevisionID,
     'tgroup'        => $tgroup,

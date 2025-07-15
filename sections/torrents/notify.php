@@ -151,7 +151,7 @@ View::show_header(($ownProfile ? 'My' : $user->username() . "'s") . ' notificati
             echo $Twig->render('bookmark/action.twig', [
                 'class'         => 'torrent',
                 'id'            => $tgroup->id,
-                'is_bookmarked' => $bookmark->isTGroupBookmarked($tgroup),
+                'is_bookmarked' => $bookmark->isBookmarked($tgroup),
             ]);
 ?>
                 </div>

@@ -4,10 +4,11 @@ namespace Gazelle;
 
 use Gazelle\Enum\LeechReason;
 use Gazelle\Enum\LeechType;
+use Gazelle\Intf\Bookmarked;
 use Gazelle\Intf\CategoryHasArtist;
 use Gazelle\Intf\CollageEntry;
 
-class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
+class TGroup extends BaseAttrObject implements Bookmarked, CategoryHasArtist, CollageEntry {
     final public const tableName            = 'torrents_group';
     final public const CACHE_KEY            = 'tg_%d';
     final public const CACHE_TLIST_KEY      = 'tlist_%d';
@@ -53,6 +54,14 @@ class TGroup extends BaseAttrObject implements CategoryHasArtist, CollageEntry {
 
     public function location(): string {
         return "torrents.php?id={$this->id}";
+    }
+
+    public function bookmarkTable(): string {
+        return 'bookmark_tgroup';
+    }
+
+    public function bookmarkColumnName(): string {
+        return 'id_tgroup';
     }
 
     public function torrentLink(int $torrentId): string {

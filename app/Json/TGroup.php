@@ -29,7 +29,7 @@ class TGroup extends \Gazelle\Json {
             'categoryName'    => $tgroup->categoryName(),
             'time'            => $tgroup->time(),
             'vanityHouse'     => $tgroup->isShowcase(),
-            'isBookmarked'    => new \Gazelle\User\Bookmark($this->user)->isTGroupBookmarked($tgroup),
+            'isBookmarked'    => new \Gazelle\User\Bookmark($this->user)->isBookmarked($tgroup),
             'tags'            => array_values($tgroup->tagNameList()),
             'musicInfo'       => $musicInfo,
         ];

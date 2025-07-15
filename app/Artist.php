@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
+use Gazelle\Intf\Bookmarked;
 use Gazelle\Intf\CollageEntry;
 
-class Artist extends BaseAttrObject implements CollageEntry {
+class Artist extends BaseAttrObject implements Bookmarked, CollageEntry {
     final public const pkName               = 'ArtistID';
     final public const tableName            = 'artists_group';
     final public const CACHE_REQUEST_ARTIST = 'artists_requests_%d';
@@ -66,6 +67,14 @@ class Artist extends BaseAttrObject implements CollageEntry {
 
     public function location(): string {
         return 'artist.php?id=' . $this->id;
+    }
+
+    public function bookmarkTable(): string {
+        return 'bookmark_artist';
+    }
+
+    public function bookmarkColumnName(): string {
+        return 'id_artist';
     }
 
     public function info(): array {

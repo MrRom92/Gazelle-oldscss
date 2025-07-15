@@ -468,7 +468,10 @@ class CollageTest extends TestCase {
         foreach (range(0, 3) as $n) {
             $collage->addEntry($this->tgroupList[$n], $this->userList['u3']);
         }
-        $this->assertTrue(new User\Bookmark($this->userList['u1'])->create('collage', $collage->id), 'collage-bookmark');
+        $this->assertTrue(
+            new User\Bookmark($this->userList['u1'])->create($collage),
+            'collage-bookmark'
+        );
 
         $payload = new Json\Collage(
                 $collage,

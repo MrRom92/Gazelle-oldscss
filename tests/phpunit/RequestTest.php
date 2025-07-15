@@ -551,7 +551,7 @@ class RequestTest extends TestCase {
         );
         new Manager\Tag()->softCreate('classical.era', $this->userList['admin'])->addRequest($this->request);
         $this->assertTrue(
-            new User\Bookmark($this->userList['user'])->create('request', $this->request->id),
+            new User\Bookmark($this->userList['user'])->create($this->request),
             'request-bookmark-add'
         );
         $this->assertEquals(1, $this->request->updateBookmarkStats(), 'request-bookmark-update');

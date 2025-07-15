@@ -2,17 +2,26 @@
 
 namespace Gazelle\User;
 
+use Gazelle\Intf\Bookmarked;
+use Gazelle\BookmarkList;
 use Gazelle\Artist;
 use Gazelle\Collage;
 use Gazelle\Request;
 use Gazelle\TGroup;
 
+/* Note: BaseObject defines a public readonly $id but when a sub-classed
+ * object is typed through an interface, the property is not accessible.
+ * For this reason, the id() method must be used.
+ */
+
 class Bookmark extends \Gazelle\BaseUser {
     final public const tableName = 'pm_conversations_users'; // not really
+    final protected const CACHE_KEY = 'bk_%s_%d';
 
-    protected array $all;
+    protected array $bookmarkList;
 
     public function flush(): static {
+        unset($this->bookmarkList);
         $this->user()->flush();
         return $this;
     }
@@ -21,55 +30,53 @@ class Bookmark extends \Gazelle\BaseUser {
      * Get the bookmark schema.
      * Recommended usage:
      * [$table, $column] = $bookmark->schema('torrent');
-     *
-     * @param string $type the type to get the schema for
      */
-    public function schema($type): array {
-        return match ($type) {
-            'artist'  => ['bookmarks_artists',  'ArtistID'],
-            'collage' => ['bookmarks_collages', 'CollageID'],
-            'request' => ['bookmarks_requests', 'RequestID'],
-            'torrent' => ['bookmarks_torrents', 'GroupID'],
+    public function schema(Bookmarked $object): array {
+        return match ($object->bookmarkTable()) {
+            'bookmark_artist'  => ['bookmarks_artists',  'ArtistID'],
+            'bookmark_collage' => ['bookmarks_collages', 'CollageID'],
+            'bookmark_request' => ['bookmarks_requests', 'RequestID'],
+            'bookmark_tgroup'  => ['bookmarks_torrents', 'GroupID'],
             default   => [null, null],
         };
     }
 
     /**
      * Bookmark an object by a user
-     *
-     * @param string $type (on of artist, collage, request, torrent)
-     * @param int $id The ID of the object
      */
-    public function create(string $type, int $id): bool {
-        [$table, $column] = $this->schema($type);
+    public function create(Bookmarked $object): bool {
+        [$table, $column] = $this->schema($object);
         if (
             (bool)self::$db->scalar("
                 SELECT 1 FROM $table WHERE UserID = ? AND $column = ?
-                ", $this->user->id, $id
+                ", $this->id, $object->id()
             )
         ) {
             // overbooked
             return false;
         }
+        $type = explode('_', $object->bookmarkTable())[1];
         switch ($type) {
-            case 'torrent':
+            case 'tgroup':
                 self::$db->prepared_query("
                     INSERT IGNORE INTO bookmarks_torrents
                            (GroupID,  UserID, Sort)
                     VALUES (?,        ?,
                         (1 + coalesce((SELECT max(m.Sort) from bookmarks_torrents m WHERE m.UserID = ?), 0))
-                    )", $id, $this->user->id, $this->user->id
+                    )", $object->id(), $this->id, $this->id
                 );
-                self::$cache->delete_multi(["u_book_t_" . $this->user->id, "bookmarks_{$type}_" . $this->user->id, "bookmarks_group_ids_" . $this->user->id]);
+                self::$cache->delete_multi([
+                    "bookmarks_group_ids_" . $this->id
+                ]);
 
                 $torMan = new \Gazelle\Manager\Torrent();
-                $tgroup = new \Gazelle\Manager\TGroup()->findById($id);
+                $tgroup = new \Gazelle\Manager\TGroup()->findById($object->id());
                 $tgroup->stats()->increment('bookmark_total');
 
                 // RSS feed stuff
                 $Feed = new \Gazelle\Feed();
-                foreach ($tgroup->torrentIdList() as $id) {
-                    $torrent = $torMan->findById($id);
+                foreach ($tgroup->torrentIdList() as $torrentId) {
+                    $torrent = $torMan->findById($torrentId);
                     if (is_null($torrent)) {
                         continue;
                     }
@@ -77,7 +84,7 @@ class Bookmark extends \Gazelle\BaseUser {
                         $Feed->item(
                             "{$torrent->name()} [{$torrent->label($this->user)}]",
                             \Text::strip_bbcode($tgroup->description()),
-                            "torrents.php?action=download&id={$id}&torrent_pass=[[PASSKEY]]",
+                            "torrents.php?action=download&id={$torrentId}&torrent_pass=[[PASSKEY]]",
                             date('r'),
                             $this->user->username(),
                             $torrent->group()->location(),
@@ -86,82 +93,66 @@ class Bookmark extends \Gazelle\BaseUser {
                     );
                 }
                 break;
-            case 'request':
-                self::$db->prepared_query("
-                    INSERT IGNORE INTO bookmarks_requests (RequestID, UserID) VALUES (?, ?)
-                    ", $id, $this->user->id
-                );
-                self::$cache->delete_value("bookmarks_{$type}_" . $this->user->id);
-                break;
             default:
                 self::$db->prepared_query("
                     INSERT IGNORE INTO $table ($column, UserID) VALUES (?, ?)
-                    ", $id, $this->user->id
+                    ", $object->id(), $this->id
                 );
-                self::$cache->delete_value("bookmarks_{$type}_" . $this->user->id);
                 break;
         }
+        $this->pg()->prepared_query("
+            insert into {$object->bookmarkTable()}
+                   ({$object->bookmarkColumnName()}, id_user)
+            values (?, ?)
+            ", $object->id(), $this->id
+        );
+        self::$cache->delete_value(sprintf(self::CACHE_KEY, $type, $this->id));
+        $this->flush();
         return true;
     }
 
     /**
-     * Fetch all bookmarks of a certain type for a user.
+     * To see if an object is bookmarked, fetch all bookmarks of that type.
      * This may seem like an inefficient way to go about this, but it means
-     * that the database is only hit once, no matter how * many checks are
+     * that the database is only hit once, no matter how many checks are
      * made (and most pages where this is needed may have dozens)...
-     *
-     * @param string $type type of bookmarks to fetch
-     * @return array the bookmarks
      */
-    public function allBookmarks(string $type): array {
-        if (isset($this->all)) {
-            return $this->all;
+    public function isBookmarked(Bookmarked $object): bool {
+        $type = explode('_', $object->bookmarkTable())[1];
+        if (isset($this->bookmarkList[$type])) {
+            // must use the method name for a BaseObject declared via an interface
+            return in_array($object->id(), $this->bookmarkList[$type]);
         }
-        $key = "bookmarks_{$type}_" . $this->user->id;
+        $key = sprintf(self::CACHE_KEY, $type, $this->id);
         $all = self::$cache->get_value($key);
         if ($all === false) {
-            [$table, $column] = $this->schema($type);
             $q = self::$db->get_query_id();
+            $bookmarkTable = match ($type) {
+                'artist'  => 'bookmarks_artists',
+                'collage' => 'bookmarks_collages',
+                'request' => 'bookmarks_requests',
+                'tgroup'  => 'bookmarks_torrents',
+                default   => 'bookmark_table_unknown',
+            };
+            $columnName = match ($type) {
+                'artist'  => 'ArtistID',
+                'collage' => 'CollageID',
+                'request' => 'RequestID',
+                'tgroup'  => 'GroupID',
+                default   => 'bookmark_column_unknown',
+            };
             self::$db->prepared_query("
-                SELECT $column
-                FROM $table
+                SELECT $columnName AS c
+                FROM $bookmarkTable
                 WHERE UserID = ?
-                ", $this->user->id
+                ", $this->id
             );
-            $all = self::$db->collect($column);
+            $all = self::$db->collect('c');
             self::$db->set_query_id($q);
             self::$cache->cache_value($key, $all, 0);
         }
-        $this->all = $all;
-        return $this->all;
-    }
-
-    /**
-     * Check if an artist is bookmarked by a user
-     */
-    public function isArtistBookmarked(Artist $artist): bool {
-        return in_array($artist->id, $this->allBookmarks('artist'));
-    }
-
-    /**
-     * Check if a collage is bookmarked by a user
-     */
-    public function isCollageBookmarked(Collage $collage): bool {
-        return in_array($collage->id, $this->allBookmarks('collage'));
-    }
-
-    /**
-     * Check if a request is bookmarked by a user
-     */
-    public function isRequestBookmarked(Request $request): bool {
-        return in_array($request->id, $this->allBookmarks('request'));
-    }
-
-    /**
-     * Check if an torrent is bookmarked by a user
-     */
-    public function isTGroupBookmarked(TGroup $tgroup): bool {
-        return in_array($tgroup->id, $this->allBookmarks('torrent'));
+        $this->bookmarkList[$type] = $all;
+        return in_array($object->id(), $this->bookmarkList[$type]);
     }
 
     /**
@@ -169,7 +160,7 @@ class Bookmark extends \Gazelle\BaseUser {
      * @return array Group IDs, Bookmark Data, Torrent List
      */
     public function tgroupBookmarkList(): array {
-        $key = "bookmarks_group_ids_" . $this->user->id;
+        $key = "bookmarks_group_ids_" . $this->id;
         $bookmarkList = self::$cache->get_value($key);
         $bookmarkList = false;
         self::$db->prepared_query("
@@ -179,7 +170,7 @@ class Bookmark extends \Gazelle\BaseUser {
                 FROM bookmarks_torrents b
                 WHERE b.UserID = ?
                 ORDER BY b.Sort, b.Time
-                ", $this->user->id
+                ", $this->id
         );
         $bookmarkList = self::$db->to_array(false, MYSQLI_ASSOC);
         self::$cache->cache_value($key, $bookmarkList, 3600);
@@ -199,7 +190,7 @@ class Bookmark extends \Gazelle\BaseUser {
             GROUP BY aa.ArtistID
             ORDER BY total DESC, id
             LIMIT 10
-            ", $this->user->id
+            ", $this->id
         );
         $result = self::$db->to_array(false, MYSQLI_ASSOC);
         $list = [];
@@ -219,7 +210,7 @@ class Bookmark extends \Gazelle\BaseUser {
             FROM bookmarks_torrents b
             INNER JOIN torrents_artists ta USING (GroupID)
             WHERE b.UserID = ?
-            ", $this->user->id
+            ", $this->id
         );
     }
 
@@ -234,7 +225,7 @@ class Bookmark extends \Gazelle\BaseUser {
             GROUP BY t.Name
             ORDER By 2 desc, t.Name
             LIMIT 10
-            ", $this->user->id
+            ", $this->id
         );
         return self::$db->to_array(false, MYSQLI_ASSOC);
     }
@@ -245,7 +236,7 @@ class Bookmark extends \Gazelle\BaseUser {
             FROM bookmarks_torrents b
             INNER JOIN torrents t USING (GroupID)
             WHERE b.UserID = ?
-            ", $this->user->id
+            ", $this->id
         );
     }
 
@@ -259,7 +250,7 @@ class Bookmark extends \Gazelle\BaseUser {
             INNER JOIN artists_alias aa ON (ag.PrimaryAlias = aa.AliasID)
             WHERE ba.UserID = ?
             ORDER BY aa.Name
-            ", $this->user->id
+            ", $this->id
         );
         return self::$db->to_array(false, MYSQLI_ASSOC);
     }
@@ -283,7 +274,7 @@ class Bookmark extends \Gazelle\BaseUser {
             GROUP BY b.GroupID, b.Sort, b.Time
             ORDER BY seq, added
             LIMIT ? OFFSET ?
-            ", $this->user->id, $limit, $offset
+            ", $this->id, $limit, $offset
         );
         return self::$db->to_array(false, MYSQLI_ASSOC);
     }
@@ -299,28 +290,54 @@ class Bookmark extends \Gazelle\BaseUser {
                 WHERE s.uid = ?
             ) AS s USING (GroupID)
             WHERE b.UserID = ?
-            ", $this->user->id, $this->user->id
+            ", $this->id, $this->id
         );
-        self::$cache->delete_value("bookmarks_group_ids_" . $this->user->id);
-        return self::$db->affected_rows();
+        $affected = self::$db->affected_rows();
+        $this->pg()->prepared_query('
+            with snatched(id_tgroup, id_user) as (
+                select distinct t."GroupID",
+                    xs.uid
+                from relay.torrents t
+                inner join relay.xbt_snatched xs on (xs.fid = t."ID")
+                where xs.uid = ?
+            )
+            delete from bookmark_tgroup d
+            using snatched
+            where d.id_tgroup = snatched.id_tgroup
+                and d.id_user = snatched.id_user
+            ', $this->id
+        );
+        self::$cache->delete_multi([
+            sprintf(self::CACHE_KEY, 'tgroup', $this->id),
+            "bookmarks_group_ids_" . $this->id,
+        ]);
+        $this->flush();
+        return $affected;
     }
 
     /**
      * Remove a bookmark of an object by a user
      */
-    public function removeObject(string $type, int $id): int {
-        [$table, $column] = $this->schema($type);
+    public function removeObject(Bookmarked $object): int {
+        [$table, $column] = $this->schema($object);
         self::$db->prepared_query("
-            DELETE FROM $table WHERE UserID = ?  AND $column = ?
-            ", $this->user->id, $id
+            DELETE FROM $table WHERE UserID = ? AND $column = ?
+            ", $this->id, $object->id()
         );
         $affected = self::$db->affected_rows();
-        self::$cache->delete_multi(["u_book_t_" . $this->user->id, "bookmarks_{$type}_" . $this->user->id]);
-
-        if ($type === 'torrent' && self::$db->affected_rows()) {
-            self::$cache->delete_value("bookmarks_group_ids_" . $this->user->id);
-            new \Gazelle\TGroup($id)->stats()->increment('bookmark_total', -1);
+        $this->pg()->prepared_query("
+            delete from {$object->bookmarkTable()}
+            where {$object->bookmarkColumnName()} = ?
+                and id_user = ?
+            ", $object->id(), $this->id
+        );
+        $type = explode('_', $object->bookmarkTable())[1];
+        if ($type === 'tgroup' && self::$db->affected_rows()) {
+            self::$cache->delete_value("bookmarks_group_ids_" . $this->id);
+            new \Gazelle\TGroup($object->id())->stats()->increment('bookmark_total', -1);
         }
+        self::$cache->delete_value(sprintf(self::CACHE_KEY, $type, $this->id));
+        $this->flush();
         return $affected;
     }
 
@@ -340,6 +357,20 @@ class Bookmark extends \Gazelle\BaseUser {
             );
             $affected += self::$db->affected_rows();
         }
+        foreach (
+            [
+                'bookmark_artist',
+                'bookmark_collage',
+                'bookmark_request',
+                'bookmark_tgroup',
+            ] as $table
+        ) {
+            $this->pg()->prepared_query("
+                delete from $table where id_user = ?
+                ", $this->id
+            );
+        }
+        $this->flush();
         return $affected;
     }
 }

@@ -41,7 +41,7 @@ if ($collageCovers) {
 }
 
 echo $Twig->render('collage/header.twig', [
-    'bookmarked' => new User\Bookmark($Viewer)->isCollageBookmarked($collage),
+    'bookmarked' => new User\Bookmark($Viewer)->isBookmarked($collage),
     'collage'    => $collage,
     'object'     => 'artist',
     'viewer'     => $Viewer,
