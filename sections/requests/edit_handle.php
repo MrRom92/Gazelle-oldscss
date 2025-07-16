@@ -200,6 +200,7 @@ while (true) {
         $roleList   = array_map('intval', $_POST['importance']);
         $seen       = [];
         $main       = 0;
+        show($artistList, $_POST['importance'], $roleList);
         for ($i = 0, $il = count($artistList); $i < $il; $i++) {
             $name = trim($artistList[$i]);
             if ($name == '' || in_array($name, $seen)) {
@@ -207,6 +208,7 @@ while (true) {
             }
             $seen[] = $name;
             $roleId = $roleList[$i];
+            show($i, $roleId);
             if (!$artistMan->roleExists(CATEGORY_MUSIC, $roleId)) {
                 // ignore bogus artist role
                 continue;

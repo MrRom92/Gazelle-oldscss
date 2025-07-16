@@ -58,11 +58,12 @@
             <p id="vawarning" class="hidden"><strong class="important">Please use
             the multiple artists feature rather than adding "Various Artists" as
             an artist; read <a href="wiki.php?action=article&amp;id=64"
-            target="_blank">this</a> for more information.</p>
-{%      for role, name_list in artist_role -%}
-{%          for idx, name in name_list -%}
-            <input type="text" size="45" id="artist_{{ loop.parent.loop.index0 }}" name="artists[]"{{ autocomplete(viewer, 'other') }} value="{{ name }}" />
-            <select id="importance_{{ loop.parent.loop.index0 }}" name="importance[]">
+            target="_blank">this</a> for more information.</strong></p>
+{%      set n = 0 %}
+{%      for role, name_list in artist_role %}
+{%          for idx, name in name_list %}
+            <input type="text" size="45" id="artist_{{ n }}" name="artists[]"{{ autocomplete(viewer, 'other') }} value="{{ name }}" />
+            <select id="importance_{{ n }}" name="importance[]">
               <option value="{{ constant('ARTIST_MAIN') }}"{{ selected(role == constant('ARTIST_MAIN')) }}>Main</option>
               <option value="{{ constant('ARTIST_GUEST') }}"{{ selected(role == constant('ARTIST_GUEST')) }}>Guest</option>
               <option value="{{ constant('ARTIST_COMPOSER') }}"{{ selected(role == constant('ARTIST_COMPOSER')) }}>Composer</option>
@@ -72,12 +73,13 @@
               <option value="{{ constant('ARTIST_PRODUCER') }}"{{ selected(role == constant('ARTIST_PRODUCER')) }}>Producer</option>
               <option value="{{ constant('ARTIST_ARRANGER') }}"{{ selected(role == constant('ARTIST_ARRANGER')) }}>Arranger</option>
             </select>
-{%          if loop.parent.loop.first and loop.first -%}
+{%              if loop.parent.loop.first and loop.first %}
 <a href="#" id="artist-add" class="brackets">+</a> <a href="#" id="artist-remove" class="brackets">−</a>
+{%              endif %}
             <br />
-{%          endif -%}
-{%          endfor -%}
-{%      else -%}
+{%             set n = n + 1 %}
+{%          endfor %}
+{%      else %}
             <input type="text" size="45" id="artist_0" name="artists[]"{{ autocomplete(viewer, 'other') }} />
             <select id="importance_0" name="importance[]">
               <option value="{{ constant('ARTIST_MAIN') }}">Main</option>

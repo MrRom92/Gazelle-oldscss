@@ -1,0 +1,30 @@
+#! /usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+namespace Gazelle;
+
+require_once __DIR__ . '/../../lib/bootstrap.php';
+
+$pg = new \Gazelle\DB\Pg(PG_RW_DSN);
+$pg->pdo()->beginTransaction();
+
+$pg->prepared_query("
+    truncate table request_artist
+");
+$inserted = $pg->prepared_query(
+<<<END_SQL
+    insert into request_artist
+    select "RequestID",
+        "AliasID",
+        artist_role_id,
+        "UserID",
+        created
+    from relay.requests_artists
+END_SQL
+);
+
+$pg->pdo()->commit();
+
+echo "request_artist: $inserted inserted\n";

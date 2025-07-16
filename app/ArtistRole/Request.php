@@ -39,6 +39,10 @@ class Request extends \Gazelle\ArtistRole {
             DELETE FROM requests_artists WHERE RequestID = ?
             ", $this->object->id()
         );
+        $this->pg()->prepared_query("
+            delete from request_artist where id_request = ?
+            ", $this->object->id()
+        );
 
         // and (re)create
         $affected = 0;
@@ -51,6 +55,12 @@ class Request extends \Gazelle\ArtistRole {
                     ", $this->object->id(), $user->id, $artist->aliasId(), $role
                 );
                 $affected += self::$db->affected_rows();
+                $this->pg()->prepared_query("
+                    insert into request_artist
+                           (id_request, id_alias, id_artist_role, id_user)
+                    VALUES (?,         ?,      ?,       ?)
+                    ", $this->object->id(), $artist->aliasId(), $role, $user->id
+                );
                 self::$cache->delete_value("artists_requests_{$artist->id}");
             }
         }
