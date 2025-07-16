@@ -653,7 +653,7 @@ class Tag extends \Gazelle\BaseManager {
                 SELECT t.Name AS name,
                     count(*)  AS uses,
                     0         AS posVotes,
-                    0         AS netVotes
+                    0         AS negVotes
                 FROM tags AS t
                 INNER JOIN requests_tags AS r ON (r.TagID = t.ID)
                 GROUP BY r.TagID

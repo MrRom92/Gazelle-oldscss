@@ -7,8 +7,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_top10')) {
-    $Twig->render('top10/dissabled.twig');
-    exit();
+    Error403::error('Your class does not have permission to view the top 10 lists.');
 }
 
 require_once match ($_GET['type'] ?? 'torrents') {

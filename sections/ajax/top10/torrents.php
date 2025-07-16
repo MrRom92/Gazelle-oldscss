@@ -101,7 +101,7 @@ print json_encode([
 function payload(Manager\Torrent $torMan, array $details): array {
     $results = [];
     foreach ($details as $detail) {
-        $torrent = $torMan->findById($detail[0]);
+        $torrent = $torMan->findById($detail['torrent_id']);
         if (is_null($torrent)) {
             continue;
         }
