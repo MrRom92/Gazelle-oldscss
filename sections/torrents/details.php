@@ -91,7 +91,7 @@ if ($musicRelease) {
                 }
 ?>
                 <li class="<?= $s['class'] ?> artist_entry" data-aliasid="<?= $artist->aliasId() ?>">
-                    <?= $artist->link() ?>&lrm;
+                    <span dir="ltr"><?= $artist->link() ?></span>
 <?php           if ($Viewer->permitted('torrents_edit')) { ?>
                     (<span class="tooltip" title="Artist alias ID"><?= $artist->aliasId()
                         ?></span>)&nbsp;<span class="remove remove_artist"><a href="javascript:void(0);" onclick="ajax.get('torrents.php?action=delete_alias&amp;auth='+authkey+'&amp;groupid=<?=
