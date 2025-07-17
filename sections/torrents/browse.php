@@ -219,6 +219,7 @@ foreach ($Results as $Key => $GroupID) {
             }
 
             if ($prev != $current || $UnknownCounter === 1) {
+                $prevPrimaryTotal = null;
                 $EditionID++;
 
 ?>
