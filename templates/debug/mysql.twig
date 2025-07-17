@@ -17,6 +17,7 @@
         </td>
         <td class="rowa debug_info debug_query_time" style="width: 130px;">{{
             q.elapsed|number_format(5) }} ms</td>
+{%    if q.warning is defined %}
 {%      for w in q.warning %}
 {%          if loop.first %}
     </tr>
@@ -40,6 +41,7 @@
         </td>
 {%          endif %}
 {%      endfor %}
+{%  endif %}
     </tr>
 {%  if loop.last %}
 </table>

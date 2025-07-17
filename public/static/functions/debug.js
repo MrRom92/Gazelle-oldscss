@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ['debug-view-perf',      'debug_perf'],
         ['debug-view-query-my',  'debug-query-my'],
         ['debug-view-query-pg',  'debug-query-pg'],
+        ['debug-view-error-pg',  'debug-error-pg'],
         ['debug-view-sphinxql',  'debug_sphinxql'],
     ];
     elemIdMap.forEach(val => {

@@ -234,6 +234,7 @@ class View extends Base {
             'pg'           => self::pgStatic()->stats(),
             'textarea_js'  => Util\Textarea::activate(),
             'time_ms'      => $Debug->duration() * 1000,
+            'tracker'      => new Tracker(),
             'viewer'       => $user,
             'sphinxql'     => class_exists('Sphinxql') && !empty(\Sphinxql::$Queries)
                 ? ['list'  => \Sphinxql::$Queries, 'time' => \Sphinxql::$Time]

@@ -17,7 +17,7 @@
 {%      include 'debug/sphinxql.twig' with {'list': sphinxql.list, 'time': sphinxql.time} only %}
 {%  endif %}
 {%  include 'debug/cache.twig' with {'cache': cache} only %}
-{%  include 'debug/ocelot.twig' with {'list': debug.requestList} only %}
+{%  include 'debug/ocelot.twig' with {'list': tracker.requestList} %}
     </div>
 {% endif %}
 
