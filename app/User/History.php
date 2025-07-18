@@ -224,6 +224,12 @@ class History extends \Gazelle\BaseUser {
             ", $this->user->id, $newEmail, $ipaddr, $useragent
         );
         $affected = self::$db->affected_rows();
+        $this->pg()->insert("
+            insert into history_email
+                   (id_user, email, useragent, ip)
+            values (?,       ?,     ?,         ?::inet)
+            ", $this->id, $newEmail, $useragent, $ipaddr
+        );
         if ($notify) {
             $irc::sendMessage(
                 $this->user->username(),

@@ -143,10 +143,15 @@ class Pg {
     public function insert(string $query, ...$args): int {
         $begin = microtime(true);
         $st = $this->prepare($query);
-        if ($st->execute([...$args])) {
-            $id = (int)$this->pdo->lastInsertId();
-            $this->stats->register($query, $id, $begin, [...$args]);
-            return $id;
+        try {
+            if ($st->execute([...$args])) {
+                $id = (int)$this->pdo->lastInsertId();
+                $this->stats->register($query, $id, $begin, [...$args]);
+                return $id;
+            }
+        } catch (\PDOException $e) {
+            throw new \PDOException($e->getMessage()
+                . " $query " . json_encode($args, JSON_UNESCAPED_SLASHES));
         }
         $this->stats->error($query);
         return 0;

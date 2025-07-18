@@ -158,7 +158,13 @@ class UserCreator extends Base {
                 INSERT INTO users_history_emails
                        (UserID, Email, IP, useragent, created)
                 VALUES (?,      ?,     ?,  ?,         now() - INTERVAL ? SECOND)
-                ', $this->id, $e, $ipaddr, $useragent, $past--
+                ', $this->id, $e, $ipaddr, $useragent, $past
+            );
+            $this->pg()->insert("
+                insert into history_email
+                       (id_user, email, useragent, ip,      created)
+                values (?,       ?,     ?,         ?::inet, now() - '1 second'::interval * ?)
+                ", $this->id, $e, $useragent, $ipaddr, $past--
             );
         }
 
