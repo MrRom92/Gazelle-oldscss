@@ -42,10 +42,7 @@
 {% for sheet in scss_style %}
 {{ scss(sheet) }}
 {% endfor %}
-<link rel="stylesheet" type="text/css" media="screen" href="{{ constant('STATIC_SERVER') }}/styles/katex/katex-0.16.10.min.css?v={{ mtime_css('katex/katex-0.16.10.min.css') }}" />
-{% for sheet in css_style %}
-{{ css(sheet) }}
-{% endfor -%}
+{{ css('katex/katex-0.16.10.min.css') }}
 {% if viewer.option('UseOpenDyslexic') %}
 {{ scss('opendyslexic/style.css') }}
 {% endif %}
