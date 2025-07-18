@@ -13,6 +13,12 @@ require_once(__DIR__ . '/../lib/bootstrap.php');
 
 $db = DB::DB();
 
+$db->prepared_query("SHOW TABLES LIKE 'phpunit_%'");
+$tableList = $db->collect(0);
+foreach($tableList as $t) {
+    $db->prepared_query("DROP TABLE $t");
+}
+
 // clean artists
 
 $db->prepared_query("SET foreign_key_checks = 0");
