@@ -13,10 +13,6 @@ class Log extends Base {
             insert into site_log (note) values (?)
             ", trim($message)
         );
-        self::$db->prepared_query("
-            INSERT INTO log (Message) VALUES (?)
-            ", mb_substr(trim($message), 0, 800)
-        );
         return $this;
     }
 
