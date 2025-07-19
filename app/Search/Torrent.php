@@ -225,10 +225,12 @@ class Torrent {
             $this->SphQL->select($Select)
                 ->group_by('groupid')
                 ->order_group_by(self::$SortOrdersGrouped[$OrderBy], $OrderWay)
-                ->order_by(self::$SortOrdersGrouped[$OrderBy], $OrderWay);
+                ->order_by(self::$SortOrdersGrouped[$OrderBy], $OrderWay)
+                ->order_by('groupid');
         } else {
             $this->SphQL->select('id, groupid')
-                ->order_by(self::$SortOrders[$OrderBy], $OrderWay);
+                ->order_by(self::$SortOrders[$OrderBy], $OrderWay)
+                ->order_by('id');
         }
         $Offset = ($this->Page - 1) * $ResultLimit;
         $MaxMatches = $Offset + $ResultLimit;

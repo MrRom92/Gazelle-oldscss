@@ -290,7 +290,7 @@ class Request extends \Gazelle\Base {
     }
 
     public function pageSql(): string {
-        return "select r.id_request from request r{$this->filter()} order by {$this->heading()->orderBy()} {$this->heading()->dir()} limit ? offset ?";
+        return "select r.id_request from request r{$this->filter()} order by {$this->heading()->orderBy()} {$this->heading()->dir()}, r.id_request limit ? offset ?";
     }
 
     public function page(int $limit, int $offset): array {

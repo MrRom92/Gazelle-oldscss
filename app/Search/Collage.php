@@ -183,7 +183,7 @@ class Collage extends \Gazelle\Base {
                 c.Updated      AS updated
             FROM collages AS c {$this->join}
             WHERE {$this->where}
-            ORDER BY $orderBy $orderDir
+            ORDER BY $orderBy $orderDir, id
             LIMIT ? OFFSET ?
             ", ...[...$this->args, $limit, $offset]
         );
