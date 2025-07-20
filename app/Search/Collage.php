@@ -63,6 +63,14 @@ class Collage extends \Gazelle\Base {
         return $this->filtered;
     }
 
+    public function hiddenTags(): array {
+        self::$db->prepared_query("
+                SELECT Name
+                FROM tags
+                WHERE find_in_set (id, ?)", implode(',', HIDDEN_TAGS));
+        return self::$db->collect(0);
+    }
+
     public function setBookmarkView(\Gazelle\User $user): static {
         $this->bookmarkView = true;
         $this->userLink = $user->link();
@@ -148,6 +156,12 @@ class Collage extends \Gazelle\Base {
                     array_fill(0, count($this->taglist), "c.TagList LIKE concat('%', ?, '%')"))
                 . ')';
             array_push($this->args, ...$this->taglist);
+        }
+        if ($this->filtered) {
+            foreach ($this->hiddenTags() as $htag) {
+                $this->whereList[] = "NOT find_in_set(?, replace(c.Taglist, ' ', ','))";
+                array_push($this->args, $htag);
+            }
         }
         $this->join = implode(' ', $this->joinList);
         $this->where = implode(' AND ', $this->whereList);

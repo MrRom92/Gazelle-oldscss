@@ -78,7 +78,8 @@ class Collage extends BaseAttrObject implements Bookmarked {
                 WHERE c.ID = ?
                 ", $this->id
             );
-            $info['tag_list'] = explode(' ', $info['tag_string']);
+            $info['tag_list'] = explode(',', $info['tag_string']);
+
             self::$cache->cache_value($key, $info, 7200);
         }
         $this->info = $info;
