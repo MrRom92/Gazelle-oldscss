@@ -988,7 +988,7 @@ function uploadFormInit() {
                 const resp = response['response'];
                 let url;
                 if (resp['fillRequest']) {
-                    url = 'requests.php?id=' + resp['fillRequest']['requestId'];
+                    url = 'requests.php?action=view&id=' + resp['fillRequest']['requestId'];
                 } else {
                     const gid = resp['groupId'];
                     const tid = resp['torrentId'];
