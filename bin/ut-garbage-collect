@@ -184,6 +184,10 @@ foreach ($groupList as $tgroupId) {
     $tgroup = $tgMan->findById($tgroupId);
     if ($tgroup instanceof TGroup) {
         echo "tgroup $torrentId ({$tgroup->name()})\n";
+        $db->prepared_query("
+            DELETE FROM bookmarks_torrents bt WHERE GroupID = ?
+            ", $tgroupId
+        );
         $tgroup->remove(new User(1));
     }
 }

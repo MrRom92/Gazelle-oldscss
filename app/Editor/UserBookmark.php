@@ -19,8 +19,15 @@ class UserBookmark extends \Gazelle\Base {
                 AND GroupID IN (" . placeholders($groupIds) . ")
             ", $this->userId, ...$groupIds
         );
+        $affected = self::$db->affected_rows();
+        $this->pg()->prepared_query("
+            delete from bookmark_tgroup
+            where id_user = ?
+                and id_tgroup in (" . placeholders($groupIds) . ")
+            ", $this->userId, ...$groupIds
+        );
         self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->userId));
-        return self::$db->affected_rows();
+        return $affected;
     }
 
     /**
@@ -38,6 +45,7 @@ class UserBookmark extends \Gazelle\Base {
         if (empty($placeholders)) {
             return 0;
         }
+        $affected = self::$db->affected_rows();
         self::$db->prepared_query("
             INSERT INTO bookmarks_torrents
                 (GroupID, Sort, UserID)
@@ -46,7 +54,14 @@ class UserBookmark extends \Gazelle\Base {
                 Sort = VALUES (Sort)
             ", ...$args
         );
+        $this->pg()->prepared_query("
+            insert into bookmark_tgroup
+                (id_tgroup, seq, id_user)
+            values " . implode(', ', $placeholders) . "
+            on conflict (id_tgroup, id_user) do update set seq = EXCLUDED.seq
+            ", ...$args
+        );
         self::$cache->delete_value(sprintf(self::CACHE_KEY, $this->userId));
-        return self::$db->affected_rows();
+        return $affected;
     }
 }

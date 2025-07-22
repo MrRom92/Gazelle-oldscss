@@ -5,6 +5,7 @@ namespace Gazelle\User;
 use Gazelle\Intf\Bookmarked;
 use Gazelle\BookmarkList;
 use Gazelle\Artist;
+use Gazelle\Feed;
 use Gazelle\Collage;
 use Gazelle\Request;
 use Gazelle\TGroup;
@@ -56,56 +57,62 @@ class Bookmark extends \Gazelle\BaseUser {
             return false;
         }
         $type = explode('_', $object->bookmarkTable())[1];
-        switch ($type) {
-            case 'tgroup':
-                self::$db->prepared_query("
-                    INSERT IGNORE INTO bookmarks_torrents
-                           (GroupID,  UserID, Sort)
-                    VALUES (?,        ?,
-                        (1 + coalesce((SELECT max(m.Sort) from bookmarks_torrents m WHERE m.UserID = ?), 0))
-                    )", $object->id(), $this->id, $this->id
-                );
-                self::$cache->delete_multi([
-                    "bookmarks_group_ids_" . $this->id
-                ]);
+        if ($type === 'tgroup') {
+            self::$db->prepared_query("
+                INSERT IGNORE INTO bookmarks_torrents
+                       (GroupID,  UserID, Sort)
+                VALUES (?,        ?,
+                    (1 + coalesce((SELECT max(m.Sort) from bookmarks_torrents m WHERE m.UserID = ?), 0))
+                )", $object->id(), $this->id, $this->id
+            );
+            $this->pg()->prepared_query("
+                insert into bookmark_tgroup
+                       (id_tgroup, id_user, seq)
+                values (?, ?,
+                    (1 + coalesce((select max(m.seq) from bookmark_tgroup m where m.id_user = ?), 0))
+                )
+                ", $object->id(), $this->id, $this->id
+            );
+            self::$cache->delete_multi([
+                "bookmarks_group_ids_" . $this->id
+            ]);
+            // Intf\Bookmarked has no knowledge of TGroup methods
+            $tgroup = new TGroup($object->id());
+            $tgroup->stats()->increment('bookmark_total');
 
-                $torMan = new \Gazelle\Manager\Torrent();
-                $tgroup = new \Gazelle\Manager\TGroup()->findById($object->id());
-                $tgroup->stats()->increment('bookmark_total');
-
-                // RSS feed stuff
-                $Feed = new \Gazelle\Feed();
-                foreach ($tgroup->torrentIdList() as $torrentId) {
-                    $torrent = $torMan->findById($torrentId);
-                    if (is_null($torrent)) {
-                        continue;
-                    }
-                    $Feed->populate('torrents_bookmarks_t_' . $this->user->announceKey(),
-                        $Feed->item(
-                            "{$torrent->name()} [{$torrent->label($this->user)}]",
-                            \Text::strip_bbcode($tgroup->description()),
-                            "torrents.php?action=download&id={$torrentId}&torrent_pass=[[PASSKEY]]",
-                            date('r'),
-                            $this->user->username(),
-                            $torrent->group()->location(),
-                            implode(',', $tgroup->tagNameList()),
-                        )
-                    );
+            // RSS feed stuff
+            $feed   = new Feed();
+            $torMan = new \Gazelle\Manager\Torrent();
+            foreach ($tgroup->torrentIdList() as $torrentId) {
+                $torrent = $torMan->findById($torrentId);
+                if (is_null($torrent)) {
+                    continue;
                 }
-                break;
-            default:
-                self::$db->prepared_query("
-                    INSERT IGNORE INTO $table ($column, UserID) VALUES (?, ?)
-                    ", $object->id(), $this->id
+                $feed->populate('torrents_bookmarks_t_' . $this->user->announceKey(),
+                    $feed->item(
+                        "{$torrent->name()} [{$torrent->label($this->user)}]",
+                        \Text::strip_bbcode($tgroup->description()),
+                        "torrents.php?action=download&id={$torrentId}&torrent_pass=[[PASSKEY]]",
+                        date('r'),
+                        $this->user->username(),
+                        $tgroup->location(),
+                        implode(',', $tgroup->tagNameList()),
+                    )
                 );
-                break;
+            }
+        } else {
+            self::$db->prepared_query("
+                INSERT IGNORE INTO $table ($column, UserID) VALUES (?, ?)
+                ", $object->id(), $this->id
+            );
+            $this->pg()->prepared_query("
+                insert into {$object->bookmarkTable()}
+                       ({$object->bookmarkColumnName()}, id_user)
+                values (?, ?)
+                ", $object->id(), $this->id
+            );
         }
-        $this->pg()->prepared_query("
-            insert into {$object->bookmarkTable()}
-                   ({$object->bookmarkColumnName()}, id_user)
-            values (?, ?)
-            ", $object->id(), $this->id
-        );
+
         self::$cache->delete_value(sprintf(self::CACHE_KEY, $type, $this->id));
         $this->flush();
         return true;

@@ -640,7 +640,6 @@ class Artist extends BaseAttrObject implements Bookmarked, CollageEntry {
         // Update the old artist id to the new one in the target object,
         // if it does not yet exists there. Delete any remaining old ids
         // as the new id is already present in the target object.
-        // In Postgresql this will be handled by a merge statement.
         $newId = $this->id;
         self::$db->prepared_query("
             UPDATE bookmarks_artists
@@ -651,6 +650,26 @@ class Artist extends BaseAttrObject implements Bookmarked, CollageEntry {
         );
         self::$db->prepared_query("
             DELETE FROM bookmarks_artists WHERE ArtistID = ?
+            ", $old->id
+        );
+        $this->pg()->executeParams('
+            update bookmark_artist set
+                id_artist = $2
+            where id_user in (
+                select ba_initial.id_user
+                from bookmark_artist ba_initial
+                where ba_initial.id_artist = $1
+                    and not exists (
+                        select 1
+                        from bookmark_artist ba_new
+                        where ba_new.id_user = ba_initial.id_user
+                            and ba_new.id_artist = $2
+                    )
+            )
+            ', $old->id, $newId
+        );
+        $this->pg()->prepared_query("
+            delete from bookmark_artist where id_artist = ?
             ", $old->id
         );
         self::$db->prepared_query("

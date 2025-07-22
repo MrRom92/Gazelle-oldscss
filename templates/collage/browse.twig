@@ -90,9 +90,8 @@
         </form>
     </div>
 {% endif %}
-
-    <div class="linkbox">
 {% if not is_bookmark %}
+    <div class="linkbox">
 {%  if viewer.canCreatePersonalCollage or viewer.permitted('site_collages_create') %}
         <a href="collages.php?action=new" class="brackets">New collage</a>
 {%  endif %}
@@ -111,13 +110,12 @@
         <a href="collages.php?action=recover" class="brackets">Recover collage</a>
 {%  endif %}
         <br />
-{% endif %}
-{% if viewer.permittedAny('site_collages_create') %}
+{%  if viewer.permittedAny('site_collages_create') %}
         <a href="collages.php?userid={{ viewer.id }}" class="brackets">Collages you started</a>
         <a href="collages.php?userid={{ viewer.id }}&amp;contrib=1" class="brackets">Collages you contributed to</a>
-{% endif %}
+{%  endif %}
     </div>
-
+{% endif %}
 {% if not page %}
 <div class="box pad" align="center">
 {%  if is_bookmark %}

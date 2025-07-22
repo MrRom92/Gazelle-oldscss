@@ -151,6 +151,10 @@ class TGroup extends AbstractCollage {
                 DELETE FROM bookmarks_collages WHERE CollageID = ?
                 ", $this->id
             );
+            $this->pg()->prepared_query("
+                delete from bookmark_collage where id_collage = ?
+                ", $this->id
+            );
             self::$db->prepared_query("
                 DELETE FROM collage_has_attr WHERE CollageID = ?
                 ", $this->id

@@ -973,6 +973,10 @@ class TGroup extends BaseAttrObject implements Bookmarked, CategoryHasArtist, Co
             DELETE FROM bookmarks_torrents WHERE GroupID = ?
             ", $this->id
         );
+        $this->pg()->prepared_query("
+            delete from bookmark_tgroup where id_tgroup = ?
+            ", $this->id
+        );
 
         // Collages
         self::$db->prepared_query("

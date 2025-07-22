@@ -10,43 +10,83 @@ require_once __DIR__ . '/../../lib/bootstrap.php';
 array_shift($argv);
 
 $pg = new \Gazelle\DB\Pg(PG_RW_DSN);
+$truncate = false;
 
 foreach ($argv as $type) {
+    /* If --truncate appears, toggle the setting to truncate the table
+     * before importing bookmarks. If it appears a second time, then
+     * truncating is skipped. There probably is no valid use-case to
+     * do so, it is just that setting $truncate = true seems like an
+     * irrersible state to get into.
+     */
+    if ($type === '--truncate') {
+        $truncate = !$truncate;
+        continue;
+    }
+
     $mysqlTable = match($type) {
         'artist'  => 'bookmarks_artists',
         'collage' => 'bookmarks_collages',
         'request' => 'bookmarks_requests',
         'tgroup'  => 'bookmarks_torrents',
-        default   => error("bad type: '$type'"),
+        default   => die("bad type: '$type'"),
     };
     $mysqlColumn = match($type) {
         'artist'  => 'ArtistID',
         'collage' => 'CollageID',
         'request' => 'RequestID',
         'tgroup'  => 'GroupID',
-        default   => error("bad type: '$type'"),
+        default   => die("bad type: '$type'"),
     };
 
-    $created = $pg->prepared_query(
-        <<<END_SQL
-        with b_add(id_type, id_user, created) as (
-            select bmy."{$mysqlColumn}",
-                bmy."UserID",
-                bmy."Time"
-            from relay.{$mysqlTable}   bmy
-            left join bookmark_{$type} bpg on (
-                bpg.id_{$type} = bmy."{$mysqlColumn}"
-                and bpg.id_user = bmy."UserID"
-            )
-            where bpg.id_{$type} is null
-                and bpg.id_user is null
-        )
-        insert into bookmark_{$type} (id_{$type}, id_user, created)
-        select id_type, id_user, created
-        from b_add
-END_SQL
-    );
+    if ($truncate) {
+        $pg->prepared_query("
+            truncate table bookmark_{$type}
+        ");
+    }
 
+    if ($type === 'tgroup') {
+        $created = $pg->prepared_query(
+            <<<END_SQL
+            with b_add(id_type, id_user, created, seq) as (
+                select bmy."{$mysqlColumn}",
+                    bmy."UserID",
+                    bmy."Time",
+                    bmy."Sort"
+                from relay.{$mysqlTable}   bmy
+                left join bookmark_{$type} bpg on (
+                    bpg.id_{$type} = bmy."{$mysqlColumn}"
+                    and bpg.id_user = bmy."UserID"
+                )
+                where bpg.id_{$type} is null
+                    and bpg.id_user is null
+            )
+            insert into bookmark_{$type} (id_{$type}, id_user, created, seq)
+            select id_type, id_user, created, seq
+            from b_add
+END_SQL
+        );
+    } else {
+        $created = $pg->prepared_query(
+            <<<END_SQL
+            with b_add(id_type, id_user, created) as (
+                select bmy."{$mysqlColumn}",
+                    bmy."UserID",
+                    bmy."Time"
+                from relay.{$mysqlTable}   bmy
+                left join bookmark_{$type} bpg on (
+                    bpg.id_{$type} = bmy."{$mysqlColumn}"
+                    and bpg.id_user = bmy."UserID"
+                )
+                where bpg.id_{$type} is null
+                    and bpg.id_user is null
+            )
+            insert into bookmark_{$type} (id_{$type}, id_user, created)
+            select id_type, id_user, created
+            from b_add
+END_SQL
+        );
+    }
     $removed = $pg->prepared_query(
         <<<END_SQL
         with b_rem(id_type, id_user) as (
