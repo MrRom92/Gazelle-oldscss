@@ -233,7 +233,7 @@ if (empty($_GET)) {
     if (!empty($_GET['comment'])) {
         $distinct = true;
         $join['audit'] = 'inner join user_audit_trail uat on (uat.id_user = um1."ID")';
-        $where[] = "note_ts @@ websearch_to_tsquery('simple', ?)";
+        $where[] = "note_ts @@ plainto_tsquery('simple', ?)";
         $args[] = $_GET['comment'];
     }
 
