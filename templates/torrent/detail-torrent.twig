@@ -20,7 +20,7 @@
 {%- else -%}
                     "{{ torrent.location }}">
 {%- endif -%}
-                    ▶ {{ torrent.label(viewer)|raw }}</a>
+                    ▶ {{ (torrent.group.categoryName == 'Music') ? torrent.label(viewer)|raw : torrent.name }}</a>
                 </td>
 {% include 'torrent/stats.twig' with {
     'prev_primary' : prev_primary,
