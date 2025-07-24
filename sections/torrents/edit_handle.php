@@ -244,17 +244,17 @@ if ($Viewer->permitted('users_mod')) {
             $change[] = "HasCue cleared";
         }
     }
+}
 
-    foreach (TorrentFlag::cases() as $flag) {
-        if ($flag->permission() && !$Viewer->permitted($flag->permission())) {
-            continue;
-        }
-        $exists = $torrent->hasFlag($flag);
-        if (!$exists && $Properties[$flag->value]) {
-            $torrent->addFlag($flag, $Viewer);
-        } elseif ($exists && !$Properties[$flag->value]) {
-            $torrent->removeFlag($flag, $Viewer);
-        }
+foreach (TorrentFlag::cases() as $flag) {
+    if ($flag->permission() && !$Viewer->permitted($flag->permission())) {
+        continue;
+    }
+    $exists = $torrent->hasFlag($flag);
+    if (!$exists && $Properties[$flag->value]) {
+        $torrent->addFlag($flag, $Viewer);
+    } elseif ($exists && !$Properties[$flag->value]) {
+        $torrent->removeFlag($flag, $Viewer);
     }
 }
 
