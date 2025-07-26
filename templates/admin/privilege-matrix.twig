@@ -6,7 +6,7 @@
         <a href="tools.php?action=userclass" class="brackets">Userclass list</a>
         <a href="tools.php?action=staff_groups" class="brackets">Staff Groups</a>
         <br />
-        <a href="tools.php?action=permissions&amp;id=new" class="brackets">Create a new userclass</a>
+        <a href="tools.php?action=userclass&amp;id=new" class="brackets">Create a new userclass</a>
     </div>
 </div>
 <h2>Privileges Matrix</h2>
@@ -15,7 +15,7 @@
         <td rowspan="2" style="vertical-align: bottom">Primary Class ★<br /><br />Privilege</td>
 {% for c in class_list %}
         <td style="padding: 0;"><div class="rot90-container"><div class="rot90">
-            <a href="tools.php?action=permissions&amp;id={{ c.ID }}">{{ c.Name }}</a>
+            <a href="tools.php?action=privilege-edit&amp;id={{ c.ID }}">{{ c.Name }}</a>
         </div></div></td>
 {% endfor %}
     </tr>
@@ -29,7 +29,7 @@
         <td{{ p.orphan ? ' title="This is an orphaned privilege" style="color: orangered; font-weight: bold;"' : '' }} title="{{ p.description }}">{{ p.name }}</td>
 {% for c in class_list %}
         <td style="text-align: center;" title="{{ c.Name }} {{ c.ID in p.can ? 'can' : 'cannot' }} {{ p.description }}">
-            <a href="tools.php?action=permissions&amp;id={{ c.ID }}">{% if c.ID in p.can %}✅{% else %}·{% endif %}</a></td>
+            <a href="tools.php?action=privilege-edit&amp;id={{ c.ID }}">{% if c.ID in p.can %}✅{% else %}·{% endif %}</a></td>
 {% endfor %}
     </tr>
 {% endfor %}

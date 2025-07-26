@@ -40,7 +40,7 @@ if (isset($_REQUEST['submit'])) {
     if ($edit) {
         $privilege = $privMan->findById((int)$_REQUEST['id']);
         if (is_null($privilege)) {
-            header("Location: tools.php?action=permissions");
+            header("Location: tools.php?action=userclass");
             exit;
         }
         if (empty($_REQUEST['secondary']) == $privilege->isSecondary() && $privilege->userTotal() > 0) {
@@ -80,7 +80,7 @@ if (isset($_REQUEST['submit'])) {
             $badge,
             $displayStaff
         );
-        header("Location: tools.php?action=permissions");
+        header("Location: tools.php?action=userclass");
         exit;
     }
     $privilege->setField('Badge', $badge)
