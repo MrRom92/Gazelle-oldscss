@@ -1,0 +1,77 @@
+#! /usr/bin/env php
+<?php
+
+/* Detach (drop) foreign tables that no longer reference Mysql tables.
+ *
+ * This task cannot be handled easily by phinx. A foreign table can only be
+ * safely dropped when the upstream table has itself already been dropped,
+ * at which point the foreign table becomes an orphan. The absence of the
+ * upstream table means that the rollback operation of dropping the foreign
+ * table (thus, recreating it) is a non-trivial task: the simplest approach
+ * requires rolling back the corresponding migration of the upstream table
+ * drop to recreate it, so that in turn the rollback of the foreign table
+ * migration can follow suit. The other alternative consists of having the
+ * rollback operation of the foreign table drop also recreate the upstream
+ * table itself.
+ *
+ * Both approaches are cumbersome and error prone.
+ *
+ * A more interesting proposition is to write a script that can be run on an
+ * ad hoc basis to look for foreign tables that no longer point to upstream
+ * tables and drop them. This action can be performed when appropriate, and
+ * there is no urgent need to do it all. The worst that can happen is that a
+ * query will attempt to fetch rows from the orphaned table, and error out.
+ * This indicates that the code needs to be updated (as it should no longer
+ * be referencing this inexistant table) and then run this script to drop
+ * the orphaned foreign table.
+ */
+
+declare(strict_types=1);
+
+namespace Gazelle;
+
+require_once __DIR__ . '/../lib/bootstrap.php';
+
+$pg     = new \Gazelle\DB\Pg(PG_RO_DSN);
+$pgrw   = new \Gazelle\DB\Pg(PG_RW_DSN);
+$dryRun = true;
+
+if (isset($argv[1]) && $argv[1] === '--execute') {
+    $dryRun = false;
+}
+
+$tableList = $pg->column("
+    select n.nspname || '.' || c.relname
+    from pg_catalog.pg_class c
+    inner join pg_catalog.pg_namespace n on (n.oid = c.relnamespace)
+    where c.relkind = 'f'
+        and n.nspname = 'relay'
+");
+
+$orphaned = 0;
+foreach ($tableList as $t) {
+    try {
+        $pg->scalar("select 1 from $t limit 1");
+    } catch (\PDOException $e) {
+        $msg = $e->getMessage();
+        if (str_starts_with($msg, 'SQLSTATE[HV00L]')) {
+            ++$orphaned;
+            if ($dryRun) {
+                echo "orphaned $t\n";
+            } else {
+                $pgrw->prepared_query("drop foreign table $t");
+                echo "dropped $t\n";
+            }
+        } else {
+            echo "orphaned $t unexpected error: {$e->getMessage()}\n";
+        }
+    }
+}
+
+if ($orphaned > 0) {
+    if ($dryRun) {
+        echo "Orphaned foreign tables found: $orphaned, use --execute to drop them\n";
+    } else {
+        echo "Foreign tables dropped: $orphaned\n";
+    }
+}
