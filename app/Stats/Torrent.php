@@ -156,41 +156,46 @@ class Torrent extends \Gazelle\Base {
     public function flow(): array {
         $flow = self::$cache->get_value(self::TORRENT_FLOW);
         if ($flow === false) {
-            self::$db->prepared_query("
-                WITH RECURSIVE dates AS (
-                    SELECT last_day(now() - INTERVAL 24 MONTH) AS eom
-                    UNION ALL
-                    SELECT last_day(eom + INTERVAL 1 MONTH)
-                    FROM dates
-                    WHERE last_day(eom + INTERVAL 1 MONTH) < last_day(now())
+            $flow = $this->pg()->all(<<<END_SQL
+                with dates(m) as (
+                    select date_trunc('month', t)
+                    from generate_series(
+                        now() - interval '24 month',
+                        now() - interval '1 month',
+                        interval '1 month'
+                    ) t
                 ),
-                delta AS (
-                    SELECT last_day(Time)                                         AS eom,
-                        sum(if(Message LIKE 'Torrent % was uploaded by %', 1, 0)) AS t_add,
-                        sum(if(Message LIKE 'Torrent % was deleted by %', -1, 0)) AS t_del
-                    FROM log
-                    WHERE Time
-                        BETWEEN last_day(now() - INTERVAL 24 MONTH)
-                        AND last_day(now() - INTERVAL 1 MONTH)
-                    GROUP BY eom
+                delta(m, t_add, t_del) as (
+                    select date_trunc('month', created) as created_month,
+                        sum(case when note ~ '^Torrent \d+.* was uploaded by ' then 1 else 0 end),
+                        sum(case when note ~ '^Torrent \d+.* was deleted by ' then -1 else 0 end)
+                    from site_log
+                    where created between
+                        now() - interval '24 month'
+                        and now() - interval '1 month'
+                    group by created_month
                 )
-                SELECT date_format(dates.eom, '%Y-%m') AS Month,
-                    count(DISTINCT t.ID)               AS t_net,
-                    coalesce(delta.t_add, 0)           AS t_add,
-                    coalesce(delta.t_del, 0)           AS t_del
-                FROM dates
-                LEFT JOIN torrents t ON (last_day(t.created) = dates.eom)
-                LEFT JOIN delta USING (eom)
-                GROUP BY eom
-                ORDER BY eom
-            ");
-            $flow = self::$db->to_array('Month', MYSQLI_ASSOC);
+                select to_char(dates.m, 'YYYY-MM') AS Month,
+                    count(distinct t."ID")          AS t_net,
+                    coalesce(delta.t_add, 0)        AS t_add,
+                    coalesce(delta.t_del, 0)        AS t_del
+                from dates
+                left join relay.torrents t on (date_trunc('month', t.created) = dates.m)
+                left join delta using (m)
+                group by Month, delta.t_add, delta.t_del
+                order by Month
+END_SQL
+            );
             foreach ($flow as &$f) {
                 $f['t_add'] = (int)$f['t_add'];
                 $f['t_del'] = (int)$f['t_del'];
             }
             unset($f);
-            self::$cache->cache_value(self::TORRENT_FLOW, $flow, mktime(0, 0, 0, date('n') + 1, 2)); //Tested: fine for dec -> jan
+            self::$cache->cache_value(
+                self::TORRENT_FLOW,
+                $flow,
+                mktime(0, 0, 0, date('n') + 1, 2)
+            );
         }
         return $flow;
     }

@@ -13,11 +13,12 @@ class LogTest extends TestCase {
     protected User   $user;
 
     public function tearDown(): void {
-        $db = DB::DB();
-        $db->prepared_query("
-            DELETE FROM log WHERE Message REGEXP ?
+        $pg = new DB\Pg(PG_RW_DSN);
+        $pg->prepared_query("
+            delete from site_log where note ~ ?
             ", '^' . self::PREFIX
         );
+        $db = DB::DB();
         $db->prepared_query("
             DELETE FROM group_log WHERE Info REGEXP ?
             ", '^' . self::PREFIX
