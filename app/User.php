@@ -1744,7 +1744,7 @@ class User extends BaseAttrObject {
             'Time' => [
                 'current' => $this->created(),
                 'target'  => "$week week" . plural($week),
-                'percent' => ratio_percent((time() - strtotime($this->created())) / ($criteria['Weeks'] * 7 * 86_400)),
+                'percent' => ratio_percent((time() - (int)strtotime($this->created())) / ($criteria['Weeks'] * 7 * 86_400)),
             ],
         ];
 

@@ -70,6 +70,9 @@ class Request extends \Gazelle\Base {
         return $this;
     }
 
+    /**
+     * @param array<int> $categoryList
+     */
     public function setCategory(array $categoryList): static {
         if (in_array(count($categoryList), [0, count(CATEGORY)])) {
             return $this;

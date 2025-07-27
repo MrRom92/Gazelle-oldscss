@@ -20,7 +20,7 @@ class DisableStuckTasks extends \Gazelle\Task {
 
         foreach ($tasks as $task) {
             [$id, $historyId, $launchTime, $name] = array_values($task);
-            $duration = Time::diff(time() - strtotime($launchTime) + time(), 2, false);
+            $duration = Time::diff(time() - (int)strtotime($launchTime) + time(), 2, false);
 
             Irc::sendMessage(IRC_CHAN_DEV, "Marking stuck task $name ($duration) as insane");
             $this->processed++;

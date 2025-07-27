@@ -16,7 +16,7 @@ $top10     = new Top10\Torrent(FORMAT, $Viewer);
 $urlStem   = new User\Stylesheet($Viewer)->imagePath();
 $snatcher  = $Viewer->snatch();
 
-if (!empty($_GET['advanced']) && $Viewer->permitted('site_advanced_top10')) {
+if (isset($_GET['advanced']) && $Viewer->permitted('site_advanced_top10')) {
     $details = 'all';
     $limit   = 10;
 } else {
@@ -32,24 +32,24 @@ $excludedArtists = $_GET['excluded_artists'] ?? '';
 $format          = $_GET['format'] ?? '';
 $tags            = $_GET['tags'] ?? '';
 
-$hideFreeleechTorrentTop10 = (int)$Viewer->option('DisableFreeTorrentTop10');
+$hideFreeleech = (int)$Viewer->option('DisableFreeTorrentTop10');
 if (isset($_GET['freeleech'])) {
     $newPreference = (int)($_GET['freeleech'] == 'hide');
-    if ($newPreference != $hideFreeleechTorrentTop10) {
-        $hideFreeleechTorrentTop10 = $newPreference;
-        $Viewer->modifyOption('DisableFreeTorrentTop10', $hideFreeleechTorrentTop10);
+    if ($newPreference != $hideFreeleech) {
+        $hideFreeleech = $newPreference;
+        $Viewer->modifyOption('DisableFreeTorrentTop10', $hideFreeleech);
     }
 }
 
 $freeleechToggleQuery = get_url(['freeleech', 'groups']);
-if (!empty($freeleechToggleQuery)) {
+if ($freeleechToggleQuery !== '') {
     $freeleechToggleQuery .= '&amp;';
 }
-$freeleechToggleName = $top10->showFreeleechTorrents($hideFreeleechTorrentTop10) ? 'show' : 'hide';
+$freeleechToggleName = $hideFreeleech ? 'show' : 'hide';
 $freeleechToggleQuery .= 'freeleech=' . $freeleechToggleName;
 
 $groupByToggleQuery = get_url(['freeleech', 'groups']);
-if (!empty($groupByToggleQuery)) {
+if ($groupByToggleQuery !== '') {
   $groupByToggleQuery .= '&amp;';
 }
 $groupByToggleName = ($_GET['groups'] ?? '') == 'show' ? 'hide' : 'show';
@@ -164,14 +164,13 @@ foreach ($context as $c) {
     $details = $c['list'];
 ?>
         <h3>Top <?= $limit ?> <?= $c['caption'] ?>
-<?php if (empty($_GET['advanced'])) { ?>
+<?php if (!isset($_GET['advanced'])) { ?>
         <small class="top10_quantity_links">
 <?php   if ($limit == 100) { ?>
                 - <a href="top10.php?details=<?=$tag?>" class="brackets">Top 10</a>
                 - <span class="brackets">Top 100</span>
                 - <a href="top10.php?type=torrents&amp;limit=250&amp;details=<?=$tag?>" class="brackets">Top 250</a>
 <?php   } elseif ($limit == 250) { ?>
-            case 250: ?>
                 - <a href="top10.php?details=<?=$tag?>" class="brackets">Top 10</a>
                 - <a href="top10.php?type=torrents&amp;limit=100&amp;details=<?=$tag?>" class="brackets">Top 100</a>
                 - <span class="brackets">Top 250</span>

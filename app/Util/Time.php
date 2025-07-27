@@ -32,8 +32,7 @@ class Time {
         bool            $hideAgo   = false,
     ): string {
         $starttime = ($starttime === false) ? time() : strtotime($starttime);
-
-        if ($timestamp === 0 || $timestamp === '' || is_null($timestamp)) {
+        if ($starttime === false || $timestamp === 0 || $timestamp === '' || is_null($timestamp)) {
             return 'Never';
         }
         if (is_numeric($timestamp)) {

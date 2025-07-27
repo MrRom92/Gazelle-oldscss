@@ -393,7 +393,7 @@ class Donor extends \Gazelle\BaseUser {
         if (!$expirationDate) {
             return '';
         }
-        return (strtotime($expirationDate) - time() < 60)
+        return ((int)strtotime($expirationDate) - time() < 60)
             ? 'Soon'
             : ('in ' . time_diff($expirationDate));
     }

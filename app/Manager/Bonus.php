@@ -24,7 +24,7 @@ class Bonus extends \Gazelle\Base {
                 $discount = $this->discount();
                 self::$db->prepared_query("
                     SELECT ID,
-                     Price * (greatest(0, least(100, 100 - ?)) / 100) as Price,
+                        Price * (greatest(0, least(100, 100 - ?)) / 100) as Price,
                         Amount, MinClass, FreeClass, Label, Title, sequence,
                         IF (Label REGEXP '^other-', 'NoOp', 'ConfirmPurchase') AS JS_on_click,
                         IF (Label REGEXP '^title-bb-[yn]', 'NoOp', 'ConfirmPurchase') AS JS_on_click
@@ -32,7 +32,11 @@ class Bonus extends \Gazelle\Base {
                     ORDER BY sequence
                     ", $discount
                 );
-                $items = self::$db->to_array('Label', MYSQLI_ASSOC);
+                $items = [];
+                foreach (self::$db->to_array(false, MYSQLI_ASSOC) as $row) {
+                    $row['Price'] = (int)$row['Price'];
+                    $items[$row['Label']] = $row;
+                }
                 self::$cache->cache_value(self::CACHE_ITEM, $items, 0);
             }
             $this->items = $items;

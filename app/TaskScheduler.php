@@ -193,7 +193,7 @@ class TaskScheduler extends Base {
             $result[] = [
                 'name' => $name,
                 'data' => array_map(
-                    fn ($v) => [$time ? strtotime($v[$key]) * 1000 : $v[$key], (int)$v[$taskId]],
+                    fn ($v) => [$time ? (int)strtotime($v[$key]) * 1000 : $v[$key], (int)$v[$taskId]],
                     $data
                 )
             ];

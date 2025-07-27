@@ -86,7 +86,7 @@ class BonusTest extends TestCase {
         $this->assertTrue($giver->user()->hasAttr('feature-seedbox'), 'giver-has-file-count');
 
         $this->assertEquals(
-            $giver->item('token-1')['Price']
+            $giver->item('token-1')['Price'] /** @phpstan-ignore-line it is an int, get over it */
                 + $giver->item('other-3')['Price']
                 + $giver->item('seedbox')['Price']
                 + $giver->item('file-count')['Price'],
@@ -114,7 +114,7 @@ class BonusTest extends TestCase {
         $this->assertEquals(
             [
                 'nr' => 7,
-                'total' => $giver->item('token-1')['Price']
+                'total' => $giver->item('token-1')['Price'] /** @phpstan-ignore-line */
                     + $giver->item('other-3')['Price']
                     + $giver->item('seedbox')['Price']
                     + $giver->item('file-count')['Price']

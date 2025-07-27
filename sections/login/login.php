@@ -71,7 +71,7 @@ if (!empty($_POST['username']) && !empty($_POST['password'])) {
 }
 
 echo $Twig->render('login/login.twig', [
-    'delta'    => $watch->bannedEpoch() - time(),
+    'delta'    => (int)$watch->bannedEpoch() - time(),
     'error'    => $login->error(),
     'ip_addr'  => $login->requestContext()->remoteAddr(),
     'tor_node' => new Manager\Tor()->isExitNode(

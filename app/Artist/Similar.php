@@ -363,8 +363,8 @@ class Similar extends \Gazelle\Base {
                     if ($placed[$r] === false) {
                         continue;
                     }
-                    $nextAngleDistance = fmod($nextAngle + $placed[$r], 2 * M_PI);
-                    $prevAngleDistance = fmod($prevAngle + $placed[$r], 2 * M_PI);
+                    $nextAngleDistance = fmod($nextAngle + $placed[$r], 2 * M_PI); /** @phpstan-ignore-line */
+                    $prevAngleDistance = fmod($prevAngle + $placed[$r], 2 * M_PI); /** @phpstan-ignore-line */
                     if ($nextAngleDistance <= $prevAngleDistance) {
                         $bestNextAngle = min($bestNextAngle, $nextAngleDistance);
                     } else {

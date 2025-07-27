@@ -302,8 +302,12 @@ class Tracker extends Base {
             } else {
                 break;
             }
-            $DataStart = strpos($response, "\r\n\r\n") + 4;
+            $DataStart = strpos($response, "\r\n\r\n");
             $DataEnd = strrpos($response, "\n");
+            if ($DataEnd === false || $DataStart === false) {
+                return false;
+            }
+            $DataStart += 4;
             if ($DataEnd > $DataStart) {
                 $Data = substr($response, $DataStart, $DataEnd - $DataStart);
             } else {

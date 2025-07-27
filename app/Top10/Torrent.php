@@ -23,11 +23,15 @@ class Torrent extends \Gazelle\Base {
         protected readonly \Gazelle\User $viewer,
     ) {}
 
-    public function getTopTorrents($getParameters, $details = 'all', $limit = 10): array {
+    public function getTopTorrents(
+        array  $getParameters,
+        string $details = 'all',
+        int    $limit   = 10,
+    ): array {
+        // Should this cache shape change, ensure Top10Test.php follow suit.
         $cacheKey = "T10_{$details}_{$limit}_"
-            . trim(signature(implode('', $getParameters), TOP10_SALT), '=');
+            . trim(signature(implode('|', $getParameters), TOP10_SALT), '=');
         $topTorrents = self::$cache->get_value($cacheKey);
-
         if ($topTorrents !== false) {
             return $topTorrents;
         }
@@ -37,30 +41,35 @@ class Torrent extends \Gazelle\Base {
         self::$cache->cache_value("{$cacheKey}_lock", true, 3600);
 
         $where = [];
-        $anyTags = isset($getParameters['anyall']) && $getParameters['anyall'] == 'any';
         if (isset($getParameters['format'])) {
             $where[] = $this->formatWhere($getParameters['format']);
         }
         if (isset($getParameters['tags'])) {
-            $where[] = $this->tagWhere($getParameters['tags'], $anyTags);
+            $where[] = $this->tagWhere(
+                trim($getParameters['tags']),
+                ($getParameters['anyall'] ?? '') == 'any',
+            );
         }
 
         $where[] = $this->freeleechWhere($getParameters);
         $where[] = $this->detailsWhere($details);
-
         $where[] = ["parameters" => null, "where" => "tls.Seeders > 0"];
 
-        $whereFilter = fn($value) => $value["where"] ?? null;
-
-        $parameterFilter = fn($value) => $value["parameters"] ?? null;
-
-        $filteredWhere = array_filter(array_map($whereFilter, $where));
-        $parameters = $this->flatten(array_filter(array_map($parameterFilter, $where)));
+        $filteredWhere = array_filter(
+            array_map(fn ($value) => $value["where"] ?? null, $where),
+            fn ($v) => !is_null($v),
+        );
+        $parameters = $this->flatten(
+            array_filter(
+                array_map(fn ($value) => $value["parameters"] ?? null, $where),
+                fn ($v) => !is_null($v),
+            )
+        );
 
         $innerQuery = '';
         $joinParameters = [];
 
-        if (!empty($getParameters['excluded_artists'])) {
+        if (isset($getParameters['excluded_artists'])) {
             [$clause, $artists] = $this->excludedArtistClause($getParameters['excluded_artists']);
             $innerQuery .= $clause;
             $joinParameters[] = $artists;
@@ -72,13 +81,13 @@ class Torrent extends \Gazelle\Base {
             $parameters = array_merge($joinParameters, $parameters);
         }
 
-        $innerQuery .= " WHERE " . implode(" AND ", $filteredWhere);
-        $innerQuery = $innerQuery . (isset($getParameters['groups']) && $getParameters['groups'] == 'show' ? ' GROUP BY g.ID ' : '');
+        $innerQuery .= " WHERE " . implode(" AND ", $filteredWhere)
+            . (($getParameters['groups'] ?? '') == 'show' ? ' GROUP BY g.ID ' : '');
 
         $query = sprintf($this->baseQuery,
             $innerQuery,
             ($getParameters['groups'] ?? 'hide') == 'show' ? 'g.ID' : 't.ID, g.ID',
-            $this->orderBy($details) . ' DESC',
+            $this->orderBy($details),
             $limit
         );
 
@@ -94,23 +103,16 @@ class Torrent extends \Gazelle\Base {
         return $topTorrents;
     }
 
-    public function showFreeleechTorrents($freeleechParameters): bool {
-        if (isset($freeleechParameters)) {
-            return $freeleechParameters == 'hide';
-        }
-        return (bool)$this->viewer->option('DisableFreeTorrentTop10');
-    }
-
-    private function orderBy($details): string {
+    protected function orderBy(string $details): string {
         return match ($details) {
-            'snatched' => 'tls.Snatched',
-            'seeded'   => 'tls.Seeders',
-            'data'     => 'score',
-            default    => '(tls.Seeders + tls.Leechers)',
+            'snatched' => 'tls.Snatched DESC',
+            'seeded'   => 'tls.Seeders DESC',
+            'data'     => 'score DESC',
+            default    => '(tls.Seeders + tls.Leechers) DESC',
         };
     }
 
-    private function detailsWhere(string $detailsParameters): array {
+    protected function detailsWhere(string $detailsParameters): array {
         return match ($detailsParameters) {
             'day'   => ["parameters" => null, "where" => "t.created > now() - INTERVAL 1 DAY"],
             'week'  => ["parameters" => null, "where" => "t.created > now() - INTERVAL 1 WEEK"],
@@ -120,8 +122,8 @@ class Torrent extends \Gazelle\Base {
         };
     }
 
-    private function excludedArtistClause(string $artistParameter): array {
-        $artists = preg_split('/\r\n|\r|\n/', trim($artistParameter));
+    protected function excludedArtistClause(string $artistParameter): array {
+        $artists = preg_split('/\r\n?|\n/', trim($artistParameter));
         if ($artists) {
             return [
                 " LEFT JOIN (
@@ -138,46 +140,48 @@ class Torrent extends \Gazelle\Base {
         return ['', []];
     }
 
-    private function formatWhere(string $formatParameters): array {
+    protected function formatWhere(string $formatParameters): array {
         if (in_array($formatParameters, $this->formats)) {
             return ["parameters" => $formatParameters, "where" => "t.Format = ?"];
         }
         return [];
     }
 
-    private function freeleechWhere(array $getParameters): array {
-        return ($getParameters['freeleech'] ?? '') == 'hide' || (bool)$this->viewer->option('DisableFreeTorrentTop10')
+    protected function freeleechWhere(array $getParameters): array {
+        return ($getParameters['freeleech'] ?? '') === 'hide' || (bool)$this->viewer->option('DisableFreeTorrentTop10')
             ? ["parameters" => null, "where" => "t.FreeTorrent = '0'"]
             : [];
     }
 
-    private function tagWhere(string $getParameters, bool $any = false): array {
-        if (!empty($getParameters)) {
-            $tags = explode(',', trim($getParameters));
-            $replace = fn($tag) => preg_replace('/[^a-z0-9.]/', '', $tag);
-            $tags = array_map($replace, $tags);
-            $tags = array_filter($tags);
-
-            // This is to make the prepared query work.
-
-            $where = implode(' OR ', array_fill(0,  count($tags), "t.Name = ?"));
-            $clause = "
-        g.ID IN (
-            SELECT tt.GroupID
-            FROM torrents_tags tt
-            INNER JOIN tags t ON (t.ID = tt.TagID)
-            WHERE $where
-            GROUP BY tt.GroupID
-            HAVING count(*) >= ?
-        )";
-            $tags[] = $any ? 1 : count($tags);
-            return ['parameters' => $tags, 'where' => $clause];
+    protected function tagWhere(string $getParameters, bool $any = false): array {
+        if ($getParameters === '') {
+            return [];
         }
+        $tags = array_filter(
+            array_map(
+                fn ($t) => preg_replace('/[^a-z0-9.]/', '', $t),
+                explode(',', $getParameters),
+            ),
+            fn ($t) => strlen($t) > 0,
+        );
 
-        return [];
+        // This is to make the prepared query work.
+
+        $where = implode(' OR ', array_fill(0,  count($tags), "t.Name = ?"));
+        $clause = "
+            g.ID IN (
+                SELECT tt.GroupID
+                FROM torrents_tags tt
+                INNER JOIN tags t ON (t.ID = tt.TagID)
+                WHERE $where
+                GROUP BY tt.GroupID
+                HAVING count(*) >= ?
+            )";
+        $tags[] = $any ? 1 : count($tags);
+        return ['parameters' => $tags, 'where' => $clause];
     }
 
-    private function flatten(array $array): array {
+    protected function flatten(array $array): array {
         $return = [];
         array_walk_recursive(
             $array,

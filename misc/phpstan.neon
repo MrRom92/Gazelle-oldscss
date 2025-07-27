@@ -37,10 +37,10 @@ parameters:
         illegalConstructorMethodCall: true
         matchingInheritedMethodNames: true
         noVariableVariables: false
-        numericOperandsInArithmeticOperators: false
+        numericOperandsInArithmeticOperators: true
         overwriteVariablesWithLoop: false
         requireParentConstructorCall: false
-        strictArrayFilter: false
+        strictArrayFilter: true
         strictFunctionCalls: false
         switchConditionsMatchingType: true
         uselessCast: true

@@ -29,7 +29,7 @@ if (!$contest) {
     $leaderboard = $contest->leaderboard(CONTEST_ENTRIES_PER_PAGE, 0);
     if ($leaderboard) {
         /* Stop showing the contest results after two weeks */
-        if ((time() - strtotime($contest->dateEnd())) / 86400 > 15) {
+        if ((time() - (int)strtotime($contest->dateEnd())) / 86400 > 15) {
             $leaderboard = [];
         } else {
             $leaderboard = array_slice($leaderboard, 0, 3);
