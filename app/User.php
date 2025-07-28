@@ -105,7 +105,7 @@ class User extends BaseAttrObject {
     /**
      * Log out the current session
      */
-    public function logout($sessionId = false): void {
+    public function logout(): void {
         setcookie('session', '', [
             'expires'  => time() - 60 * 60 * 24 * 90,
             'path'     => '/',
@@ -113,8 +113,8 @@ class User extends BaseAttrObject {
             'httponly' => true,
             'samesite' => 'Strict',
         ]);
-        if ($sessionId) {
-            new User\Session($this)->drop($sessionId);
+        if ($this->requestContext()->hasSessionId()) {
+            new User\Session($this)->drop($this->requestContext()->sessionId());
         }
         $this->flush();
     }

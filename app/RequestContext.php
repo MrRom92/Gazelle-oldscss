@@ -8,6 +8,7 @@ class RequestContext {
     protected array  $ua;
     protected Log    $logger;
     protected User   $viewer;
+    protected string $sessionId;
 
     public function __construct(
         protected readonly string $scriptName,
@@ -74,6 +75,14 @@ class RequestContext {
         return isset($this->viewer);
     }
 
+    public function sessionId(): string {
+        return $this->sessionId;
+    }
+
+    public function hasSessionId(): bool {
+        return isset($this->sessionId);
+    }
+
     /**
      * Because we <3 our staff
      */
@@ -101,6 +110,11 @@ class RequestContext {
 
     public function setViewer(User $viewer): static {
         $this->viewer = $viewer;
+        return $this;
+    }
+
+    public function setSessionId(string $sessionId): static {
+        $this->sessionId = $sessionId;
         return $this;
     }
 }
