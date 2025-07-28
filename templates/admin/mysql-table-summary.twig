@@ -66,6 +66,7 @@ Highcharts.chart('statistics', {
     <td style="text-align:right" class="nobr">{{ header|column('data_free') }}</td>
     <td style="text-align:right" class="nobr">{{ header|column('free_ratio') }}</td>
     <td style="text-align:right" class="nobr">{{ header|column('total_length') }}</td>
+    <td style="text-align:right" class="nobr">{{ header|column('iops') }}</td>
 </tr>
 
 {% set total_rows       = 0 %}
@@ -73,12 +74,14 @@ Highcharts.chart('statistics', {
 {% set total_data_size  = 0 %}
 {% set total_index_size = 0 %}
 {% set total_free_size  = 0 %}
+{% set total_iops       = 0 %}
 {% for t in list -%}
     {%- set total_rows       = total_rows       + t.table_rows -%}
     {%- set total_rows_read  = total_rows_read  + t.rows_read -%}
     {%- set total_data_size  = total_data_size  + t.data_length -%}
     {%- set total_index_size = total_index_size + t.index_length -%}
     {%- set total_free_size  = total_free_size  + t.data_free -%}
+    {%- set total_iops       = total_iops       + t.iops -%}
 <tr class="row{{ cycle(['a', 'b'], loop.index0) }}">
     <td><a href="tools.php?action=db-mysql&amp;table={{ t.table_name }}" title="engine: {{ t.engine }}">
             {%- if t.engine != 'InnoDB' %}<span style="color: tomato;">{% endif -%}
@@ -94,6 +97,7 @@ Highcharts.chart('statistics', {
     <td class="number_column">{{ t.data_free|octet_size }}</td>
     <td class="number_column">{{ t.free_ratio|number_format(2) }}</td>
     <td class="number_column">{{ t.total_length|octet_size }}</td>
+    <td class="number_column">{{ t.iops|number_format(2) }}</td>
 </tr>
 {% endfor %}
 <tr>
@@ -105,6 +109,7 @@ Highcharts.chart('statistics', {
     <td class="number_column"><b>{{ total_free_size|octet_size }}</b></td>
     <td class="number_column"><b>{% if total_data_size %}{{ (total_free_size / total_data_size * 100)|number_format(2) }}{% else %}0{% endif %}</b></td>
     <td class="number_column"><b>{{ (total_data_size + total_index_size)|octet_size }}</b></td>
+    <td class="number_column"><b>{{ total_iops|number_format(2) }}</b></td>
 </tr>
 </table>
 {{ footer() }}

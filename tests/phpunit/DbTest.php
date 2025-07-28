@@ -345,6 +345,7 @@ class DbTest extends TestCase {
             [
                 "TABLE_ROWS", "AVG_ROW_LENGTH", "DATA_LENGTH", "INDEX_LENGTH",
                 "DATA_FREE", "ROWS_READ", "ROWS_CHANGED", "ROWS_CHANGED_X_INDEXES",
+                "iops",
             ],
             array_keys($table->stats()),
             'mysql-table-stats',

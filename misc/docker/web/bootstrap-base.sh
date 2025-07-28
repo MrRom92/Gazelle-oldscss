@@ -59,10 +59,12 @@ if [ -z "${MYSQL_INIT_DB-}" ]; then
         cat <<EOF
 CREATE USER IF NOT EXISTS 'ro_$MYSQL_USER'@'%' IDENTIFIED BY 'ro_$MYSQL_PASSWORD';
 GRANT SELECT ON performance_schema.table_io_waits_summary_by_index_usage TO '$MYSQL_USER'@'%';
+GRANT SELECT ON performance_schema.table_io_waits_summary_by_table TO '$MYSQL_USER'@'%';
 GRANT SELECT ON sys.schema_redundant_indexes TO '$MYSQL_USER'@'%';
 GRANT SELECT ON sys.schema_unused_indexes TO '$MYSQL_USER'@'%';
 GRANT SELECT ON sys.x\$schema_flattened_keys TO '$MYSQL_USER'@'%';
 GRANT SELECT ON performance_schema.table_io_waits_summary_by_index_usage TO 'ro_$MYSQL_USER'@'%';
+GRANT SELECT ON performance_schema.table_io_waits_summary_by_table TO 'ro_$MYSQL_USER'@'%';
 GRANT SELECT ON sys.schema_redundant_indexes TO 'ro_$MYSQL_USER'@'%';
 GRANT SELECT ON sys.schema_unused_indexes TO 'ro_$MYSQL_USER'@'%';
 GRANT SELECT ON sys.x\$schema_flattened_keys TO 'ro_$MYSQL_USER'@'%';

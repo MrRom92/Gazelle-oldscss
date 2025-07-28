@@ -13,4 +13,5 @@ enum MysqlInfoOrderBy: string {
     case dataFree     = 'data_free';
     case freeRatio    = 'free_ratio';
     case avgRowLength = 'avg_row_length';
+    case iops         = 'iops';
 }

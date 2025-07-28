@@ -34,7 +34,7 @@ class MysqlInfo extends \Gazelle\Base {
         }
 
         self::$db->prepared_query("
-            SELECT $tableColumn AS table_name,
+            SELECT t.$tableColumn AS table_name,
                 t.ENGINE AS engine,
                 t.ROW_FORMAT AS row_format,
                 sum(t.TABLE_ROWS) AS table_rows,
@@ -44,10 +44,21 @@ class MysqlInfo extends \Gazelle\Base {
                 sum(t.INDEX_LENGTH) AS index_length,
                 sum(t.INDEX_LENGTH + t.DATA_LENGTH) AS total_length,
                 sum(t.DATA_FREE) AS data_free,
-                CASE WHEN sum(t.DATA_LENGTH) = 0 THEN 0 ELSE sum(t.DATA_FREE) / sum(t.DATA_LENGTH) END as free_ratio
+                CASE WHEN sum(t.DATA_LENGTH) = 0 THEN 0 ELSE sum(t.DATA_FREE) / sum(t.DATA_LENGTH) END as free_ratio,
+                CASE WHEN wsbt.COUNT_READ + wsbt.COUNT_WRITE + wsbt.COUNT_FETCH
+                    + wsbt.COUNT_INSERT + wsbt.COUNT_UPDATE + wsbt.COUNT_DELETE = 0
+                    THEN 0
+                    ELSE
+                        (wsbt.COUNT_READ + wsbt.COUNT_WRITE + wsbt.COUNT_FETCH
+                            + wsbt.COUNT_INSERT + wsbt.COUNT_UPDATE + wsbt.COUNT_DELETE)
+                        / (SELECT VARIABLE_VALUE FROM performance_schema.global_status WHERE VARIABLE_NAME = 'Uptime')
+                    END AS iops
             FROM information_schema.tables t
-            LEFT JOIN information_schema.table_statistics ts USING (table_schema, table_name)
-            WHERE table_schema = ? $where
+            INNER JOIN performance_schema.table_io_waits_summary_by_table wsbt
+                ON (wsbt.OBJECT_SCHEMA = t.TABLE_SCHEMA AND wsbt.OBJECT_NAME = t.TABLE_NAME)
+            LEFT JOIN information_schema.table_statistics ts
+                ON (ts.TABLE_SCHEMA = t.TABLE_SCHEMA AND ts.TABLE_NAME = t.TABLE_NAME)
+            WHERE t.table_schema = ? $where
             GROUP BY $tableColumn, engine, row_format
             ORDER BY {$this->orderBy->value} {$this->direction->value}
             ", MYSQL_DB
@@ -75,6 +86,8 @@ class MysqlInfo extends \Gazelle\Base {
                 => ['dbColumn' => MysqlInfoOrderBy::freeRatio->value,    'defaultSort' => 'desc', 'text' => 'Bloat %',    'alt' => 'table bloat'],
             MysqlInfoOrderBy::avgRowLength->value
                 => ['dbColumn' => MysqlInfoOrderBy::avgRowLength->value, 'defaultSort' => 'desc', 'text' => 'Row Size',   'alt' => 'mean row length'],
+            MysqlInfoOrderBy::iops->value
+                => ['dbColumn' => MysqlInfoOrderBy::iops->value,         'defaultSort' => 'desc', 'text' => 'IOPS',   'alt' => 'innodb ops sec'],
         ];
     }
 
@@ -93,6 +106,7 @@ class MysqlInfo extends \Gazelle\Base {
             MysqlInfoOrderBy::dataFree->value     => MysqlInfoOrderBy::dataFree,
             MysqlInfoOrderBy::freeRatio->value    => MysqlInfoOrderBy::freeRatio,
             MysqlInfoOrderBy::avgRowLength->value => MysqlInfoOrderBy::avgRowLength,
+            MysqlInfoOrderBy::iops->value         => MysqlInfoOrderBy::iops,
         };
     }
 

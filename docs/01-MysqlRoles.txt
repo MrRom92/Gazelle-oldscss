@@ -63,5 +63,6 @@ GRANT EXECUTE ON FUNCTION `gazelle`.`binomial_ci` TO 'www'@'localhost';
 GRANT EXECUTE ON FUNCTION `gazelle`.`bonus_accrual` TO 'www'@'localhost';
 GRANT SELECT ON `sys`.`schema_unused_indexes` TO 'www'@'localhost';
 GRANT SELECT ON `performance_schema`.`table_io_waits_summary_by_index_usage` TO 'www'@'localhost';
+GRANT SELECT ON `performance_schema`.`table_io_waits_summary_by_table` TO 'www'@'localhost';
 GRANT SELECT ON `sys`.`schema_redundant_indexes` TO 'www'@'localhost';
 GRANT SELECT ON `sys`.`x$schema_flattened_keys` TO 'www'@'localhost';

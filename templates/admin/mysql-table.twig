@@ -25,6 +25,7 @@
             <th>Rows read</th>
             <th>Rows changed</th>
             <th>Rows changed per index</th>
+            <th>IOPS</th>
         </tr>
         <tr>
             <td>{{ table.stats.TABLE_ROWS|number_format }}</td>
@@ -35,6 +36,7 @@
             <td>{{ table.stats.ROWS_READ|number_format }}</td>
             <td>{{ table.stats.ROWS_CHANGED|number_format }}</td>
             <td>{{ table.stats.ROWS_CHANGED_X_INDEXES|number_format }}</td>
+            <td>{{ table.stats.iops|number_format(2) }}</td>
         </tr>
     </table>
 </div></div>

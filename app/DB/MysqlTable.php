@@ -105,12 +105,21 @@ class MysqlTable extends AbstractTable {
                 t.DATA_LENGTH,
                 t.INDEX_LENGTH,
                 t.DATA_FREE,
-                ts.ROWS_READ,
-                ts.ROWS_CHANGED,
-                ts.ROWS_CHANGED_X_INDEXES
+                coalesce(ts.ROWS_READ, 0) AS ROWS_READ,
+                coalesce(ts.ROWS_CHANGED, 0) AS ROWS_CHANGED,
+                coalesce(ts.ROWS_CHANGED_X_INDEXES, 0) AS ROWS_CHANGED_X_INDEXES,
+                CASE WHEN wsbt.COUNT_READ + wsbt.COUNT_WRITE + wsbt.COUNT_FETCH
+                    + wsbt.COUNT_INSERT + wsbt.COUNT_UPDATE + wsbt.COUNT_DELETE = 0
+                    THEN 0
+                    ELSE (wsbt.COUNT_READ + wsbt.COUNT_WRITE + wsbt.COUNT_FETCH
+                            + wsbt.COUNT_INSERT + wsbt.COUNT_UPDATE + wsbt.COUNT_DELETE)
+                        / (SELECT VARIABLE_VALUE FROM performance_schema.global_status WHERE VARIABLE_NAME = 'Uptime')
+                    END AS iops
             FROM information_schema.tables t
-            INNER JOIN information_schema.table_statistics ts
-                USING (TABLE_SCHEMA, TABLE_NAME)
+            INNER JOIN performance_schema.table_io_waits_summary_by_table wsbt
+                ON (wsbt.OBJECT_SCHEMA = t.TABLE_SCHEMA AND wsbt.OBJECT_NAME = t.TABLE_NAME)
+            LEFT JOIN information_schema.table_statistics ts
+                ON (ts.TABLE_SCHEMA = t.TABLE_SCHEMA AND ts.TABLE_NAME = t.TABLE_NAME)
             WHERE t.TABLE_SCHEMA = ?
                 AND t.TABLE_NAME = ?
             ", MYSQL_DB, $this->name
