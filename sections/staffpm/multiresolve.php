@@ -9,7 +9,7 @@ $manager = new Manager\StaffPM();
 
 $list = [];
 foreach ($_POST['id'] as $id) {
-    $spm = $manager->findById($id);
+    $spm = $manager->findById((int)$id);
     if ($spm) {
         $list[] = $spm;
     }
