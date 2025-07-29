@@ -139,7 +139,7 @@ class Session extends \Gazelle\BaseUser {
         return self::$db->affected_rows();
     }
 
-    public function lastActive(string $sessionKey): ?array {
+    public function lastActive(?string $sessionKey): ?array {
         $info = $this->info();
         if (count($info) > 1) {
             foreach ($info as $id => $session) {
