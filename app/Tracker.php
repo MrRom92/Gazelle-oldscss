@@ -7,7 +7,7 @@
 namespace Gazelle;
 
 use Gazelle\Enum\LeechType;
-use Gazelle\Enum\LeechReason;
+use Gazelle\Util\Curl;
 use Gazelle\Util\Irc;
 
 class Tracker extends Base {
@@ -255,7 +255,8 @@ class Tracker extends Base {
         if ($response === false || $response === "") {
             return [];
         }
-        return json_decode($response, true);
+        // on error the response will be bencoded data
+        return json_decode($response, true) ?? [];
     }
 
     /**
@@ -263,72 +264,52 @@ class Tracker extends Base {
      *
      * @return false|string tracker response message or false if the request failed
      */
-    protected function request(string $secret, string $url, int $MaxAttempts): false|string {
+    protected function request(string $secret, string $path, int $maxAttempts): false|string {
         if (DISABLE_TRACKER) {
             return false;
         }
-        $Header = "GET /$secret$url HTTP/1.1\r\nHost: " . TRACKER_NAME . "\r\nConnection: Close\r\n\r\n";
-        $Attempts = 0;
-        $Success = false;
-        $StartTime = microtime(true);
-        $Data = "";
-        $response = "";
-        $code = 0;
+        $uri = "http://" . TRACKER_HOST . ":" . TRACKER_PORT . "/{$secret}{$path}";
+        $attempts = 0;
+        $success = false;
+        $startTime = microtime(true);
+        $data = null;
+        $responseCode = 0;
         $sleep = 1200000; // 1200ms
-        while (!$Success && $Attempts++ < $MaxAttempts) {
-            // Send request
-            $socket = fsockopen(TRACKER_HOST, TRACKER_PORT, $ErrorNum, $ErrorString);
-            if ($socket) {
-                if (fwrite($socket, $Header) === false) {
-                    $this->error = "Failed to fwrite()";
-                    usleep((int)$sleep);
-                    $sleep *= 1.5; // exponential backoff
-                    continue;
+        $curl = new Curl()->setUseProxy(false)->addHeader('Host: ' . TRACKER_NAME);
+
+        while ($attempts++ < $maxAttempts) {
+            $result = $curl->fetch($uri);
+            $responseCode = $curl->responseCode();
+            if (!$result) {
+                if ($responseCode === 0) {
+                    $this->error = "Failed to connect to ocelot.";
+                } else {
+                    $this->error = "Ocelot responded with unexpected status code {$responseCode}";
                 }
-            } else {
-                $this->error = "Failed to fsockopen(" . TRACKER_HOST . ":" . TRACKER_PORT . ") - $ErrorNum - $ErrorString";
                 usleep((int)$sleep);
                 $sleep *= 1.5; // exponential backoff
                 continue;
             }
 
-            // Check for response.
-            $response = '';
-            while (!feof($socket)) {
-                $response .= fread($socket, 1024);
-            }
-            if (preg_match('/HTTP\/1.1 (\d+)/', $response, $match)) {
-                $code = $match[1];
-            } else {
+            $data = $curl->result();
+            if ($responseCode === 200 || $data === "success") {
+                $success = true;
                 break;
-            }
-            $DataStart = strpos($response, "\r\n\r\n");
-            $DataEnd = strrpos($response, "\n");
-            if ($DataEnd === false || $DataStart === false) {
-                return false;
-            }
-            $DataStart += 4;
-            if ($DataEnd > $DataStart) {
-                $Data = substr($response, $DataStart, $DataEnd - $DataStart);
             } else {
-                $Data = "";
-            }
-            $Status = substr($response, $DataEnd + 1);
-            if ($code == 200 || $Status == "success") {
-                $Success = true;
+                usleep((int)$sleep);
+                $sleep *= 1.5; // exponential backoff
             }
         }
-        $path_array = explode("/", $url, 2);
-        $Request = [
-            'path'     => array_pop($path_array), // strip authkey from path
-            'response' => ($Success ? $Data : $response),
-            'code'     => $code,
-            'status'   => ($Success ? 'ok' : 'failed'),
-            'time'     => 1000 * (microtime(true) - $StartTime),
+
+        self::$Requests[] = [
+            'path'     => $path,
+            'response' => $data,
+            'code'     => $responseCode,
+            'status'   => ($success ? 'ok' : 'failed'),
+            'time'     => 1000 * (microtime(true) - $startTime),
         ];
-        self::$Requests[] = $Request;
-        if ($Success) {
-            return $Data;
+        if ($success) {
+            return $data;
         }
         return false;
     }

@@ -73,7 +73,7 @@ if (!empty($_SERVER['HTTP_AUTHORIZATION']) && $module === 'ajax') {
 } elseif ($module === 'torrents' && ($_REQUEST['action'] ?? '') == 'download' && isset($_REQUEST['torrent_pass'])) {
     $Viewer = $userMan->findByAnnounceKey($_REQUEST['torrent_pass']);
     if (is_null($Viewer) || $Viewer->isDisabled() || $Viewer->isLocked()) {
-        header('HTTP/1.1 403 Forbidden');
+        http_response_code(403);
         exit;
     }
 } elseif (!in_array($module, ['chat', 'enable', 'index', 'login', 'recovery', 'register'])) {

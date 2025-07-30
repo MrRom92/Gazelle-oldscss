@@ -11,6 +11,7 @@ class Curl {
     protected array $option;
     protected array|string $postData;
     protected CurlMethod $method = CurlMethod::GET;
+    protected array $headers = [];
 
     public function __construct() {
         $this->curl = curl_init();  /** @phpstan-ignore-line if this is false there are bigger problems */
@@ -27,6 +28,11 @@ class Curl {
 
     public function setOption(int $option, $value): static {
         $this->option[$option] = $value;
+        return $this;
+    }
+
+    public function addHeader(string $header): static {
+        $this->headers[] = $header;
         return $this;
     }
 
@@ -50,6 +56,7 @@ class Curl {
     public function fetch(string $url): bool {
         curl_setopt_array($this->curl, [
             CURLOPT_HEADER         => false,
+            CURLOPT_HTTPHEADER     => $this->headers,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT        => 5,
