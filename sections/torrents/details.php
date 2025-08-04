@@ -200,10 +200,9 @@ if (!$torrentList) {
             'tor_man'         => $torMan,
             'viewer'          => $Viewer,
         ]);
-?>
+} ?>
         </table>
 <?php
-}
 
 if (!$Viewer->disableRequests()) {
     echo $Twig->render('request/torrent.twig', [

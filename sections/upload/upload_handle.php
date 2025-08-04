@@ -450,9 +450,8 @@ if (count($TooLongPaths) > 0) {
 }
 $Debug->mark('upload: torrent decoded');
 
-$tgMan      = new Manager\TGroup();
-$tgroup     = null;
-$NoRevision = false;
+$tgMan  = new Manager\TGroup();
+$tgroup = null;
 
 if ($isMusicUpload) {
     // Does it belong in a group?
@@ -464,20 +463,6 @@ if ($isMusicUpload) {
             $tgroup = $tgMan->findByArtistReleaseYear($Artist['name'], $Properties['Title'], $Properties['ReleaseType'], $Properties['Year']);
             if ($tgroup) {
                 break;
-            }
-        }
-    }
-    if ($tgroup) {
-        $Properties['ReleaseType'] = $tgroup->releaseType();
-        $Properties['Year']        = $tgroup->year();
-        $Properties['TagList']     = $tgroup->tagNameList();
-        if (!$Properties['Image'] && $tgroup->image()) {
-            $Properties['Image'] = $tgroup->image();
-        }
-        if ($Properties['GroupDescription'] != $tgroup->description()) {
-            $Properties['GroupDescription'] = $tgroup->description();
-            if (!$Properties['Image'] || $Properties['Image'] == $tgroup->image()) {
-                $NoRevision = true;
             }
         }
     }
@@ -527,15 +512,6 @@ if ($tgroup) {
 }
 $GroupID = $tgroup->id;
 $logName = $tgroup->text();
-
-// Description
-if ($NoRevision) {
-    $tgroup->createRevision(
-        $Properties['GroupDescription'],
-        $Properties['Image'],
-        'Uploaded new torrent'
-    );
-}
 
 // Torrent
 $torrent = $torMan->create(

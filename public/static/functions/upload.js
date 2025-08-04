@@ -944,73 +944,75 @@ function audiobookFormInit() {
     });
 }
 
-function uploadFormInit() {
+function uploadFormInit(firstInit = false) {
     if (document.getElementById('form-music-upload')) {
         musicFormInit();
     } else if (document.getElementById('form-audiobook-upload')) {
         audiobookFormInit();
     }
 
-    // create a handler to submit upload form data to ajax.php?action=upload
-    // will display errors or redirect to the uploaded torrent, or filled request, on success
-    document.getElementById('upload_table').addEventListener('submit', (ev) => {
-        if (!checkFields()) {
-            ev.preventDefault();
-            return;
-        }
-        const target = ev.target;
-        const submit_btn = document.getElementById('post');
-        submit_btn.disabled = true;
-        if (target.classList.contains('edit_form')) {
-            // edit form, not upload
-            return;
-        }
-        ev.preventDefault();
-
-        const uploadForm = new FormData(target);
-        const request = new XMLHttpRequest();
-
-        request.addEventListener('loadend', (ev) => {
-            const response = ev.target.response;
-            if (!response || response['status'] !== "success") {  // error
-                const errorElem = document.getElementById('check');
-                const li = document.createElement("li");
-                if (response && response['error']) {
-                    li.innerHTML = response['error'];
-                } else {
-                    console.log("server response", ev.target);
-                    li.innerText = "There was an error uploading your torrent. Please try again.";
-                }
-                errorElem.replaceChildren(li);
-                errorElem.style.display = 'inherit';
-                submit_btn.disabled = false;
-            } else {  // success
-                const resp = response['response'];
-                let url;
-                if (resp['fillRequest']) {
-                    url = 'requests.php?action=view&id=' + resp['fillRequest']['requestId'];
-                } else {
-                    const gid = resp['groupId'];
-                    const tid = resp['torrentId'];
-                    url = `torrents.php?id=${gid}&torrentid=${tid}#torrent${tid}`;
-                }
-                if (resp['warnings']?.length) {  // show warning popup
-                    const callback = () => {
-                        window.location.href = url;
-                    };
-                    showWarningMessage(createUploadWarningElement(resp['warnings']), callback);
-                } else {  // no problems, redirect to newly uploaded torrent or filled request
-                    window.location.href = url;
-                }
+    if (firstInit) {
+        // create a handler to submit upload form data to ajax.php?action=upload
+        // will display errors or redirect to the uploaded torrent, or filled request, on success
+        document.getElementById('upload_table').addEventListener('submit', (ev) => {
+            if (!checkFields()) {
+                ev.preventDefault();
+                return;
             }
-        });
+            const target = ev.target;
+            const submit_btn = document.getElementById('post');
+            submit_btn.disabled = true;
+            if (target.classList.contains('edit_form')) {
+                // edit form, not upload
+                return;
+            }
+            ev.preventDefault();
 
-        request.open('POST', 'ajax.php?action=upload');
-        request.responseType = 'json';
-        request.send(uploadForm);
-    });
+            const uploadForm = new FormData(target);
+            const request = new XMLHttpRequest();
+
+            request.addEventListener('loadend', (ev) => {
+                const response = ev.target.response;
+                if (!response || response['status'] !== "success") {  // error
+                    const errorElem = document.getElementById('check');
+                    const li = document.createElement("li");
+                    if (response && response['error']) {
+                        li.innerHTML = response['error'];
+                    } else {
+                        console.log("server response", ev.target);
+                        li.innerText = "There was an error uploading your torrent. Please try again.";
+                    }
+                    errorElem.replaceChildren(li);
+                    errorElem.style.display = 'inherit';
+                    submit_btn.disabled = false;
+                } else {  // success
+                    const resp = response['response'];
+                    let url;
+                    if (resp['fillRequest']) {
+                        url = 'requests.php?action=view&id=' + resp['fillRequest']['requestId'];
+                    } else {
+                        const gid = resp['groupId'];
+                        const tid = resp['torrentId'];
+                        url = `torrents.php?id=${gid}&torrentid=${tid}#torrent${tid}`;
+                    }
+                    if (resp['warnings']?.length) {  // show warning popup
+                        const callback = () => {
+                            window.location.href = url;
+                        };
+                        showWarningMessage(createUploadWarningElement(resp['warnings']), callback);
+                    } else {  // no problems, redirect to newly uploaded torrent or filled request
+                        window.location.href = url;
+                    }
+                }
+            });
+
+            request.open('POST', 'ajax.php?action=upload');
+            request.responseType = 'json';
+            request.send(uploadForm);
+        });
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    uploadFormInit();
+    uploadFormInit(true);
 });
