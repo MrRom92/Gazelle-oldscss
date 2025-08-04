@@ -21,7 +21,7 @@ if ($Viewer->id() != $uploader->id() && !$Viewer->permitted('torrents_delete')) 
 if ($Viewer->torrentRecentRemoveCount(USER_TORRENT_DELETE_HOURS) >= USER_TORRENT_DELETE_MAX && !$Viewer->permitted('torrents_delete_fast')) {
     Error400::error(
         'You have recently deleted ' . USER_TORRENT_DELETE_MAX
-        . ' torrents. Please contact a staff member if you need to delete more.'
+        . ' torrents. Please report the torrent with [RP] if you need to delete more.'
     );
 }
 if ($torrent->hasUploadLock()) {
