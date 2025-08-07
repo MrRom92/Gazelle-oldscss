@@ -19,15 +19,11 @@ if (!defined('AJAX')) {
     authorize();
 }
 
-function reportError(string $message): never {
-    json_error($message);
-}
-
 if (!$Viewer->permitted('site_upload')) {
-    reportError("Your userclass does not allow you to upload.");
+    json_error("Your userclass does not allow you to upload.");
 }
 if ($Viewer->disableUpload()) {
-    reportError('Your upload privileges have been revoked.');
+    json_error('Your upload privileges have been revoked.');
 }
 
 //******************************************************************************//
@@ -203,7 +199,7 @@ switch ($categoryName) {
 if ($isMusicUpload && !$Properties['GroupID']) {
     $artistMan = new Manager\Artist();
     if (count($Artists) !== count($artistRole)) {
-        reportError("There is an error with how artists are specified.");
+        json_error("There is an error with how artists are specified.");
     }
     // Multiple artists
     $ArtistForm = [
@@ -245,12 +241,12 @@ if ($isMusicUpload && !$Properties['GroupID']) {
     }
     $Properties['Artists'] = $ArtistForm;
     if (empty($ArtistNameByRole[ARTIST_MAIN])) {
-        reportError('Please enter at least one main artist');
+        json_error('Please enter at least one main artist');
     }
 }
 
 if (!$Validate->validate($_POST)) {
-    reportError($Validate->errorMessage());
+    json_error($Validate->errorMessage());
 }
 
 if ($Properties['Image']) {
@@ -259,22 +255,22 @@ if ($Properties['Image']) {
         $Properties['Image'] = $match[1] . '.jpg';
     }
     if (!preg_match(IMAGE_REGEXP, $Properties['Image'])) {
-        reportError(display_str($Properties['Image']) . " does not look like a valid image url");
+        json_error(display_str($Properties['Image']) . " does not look like a valid image url");
     }
     $banned = new Util\ImageProxy($Viewer)->badHost($Properties['Image']);
     if ($banned) {
-        reportError("Please rehost images from $banned elsewhere.");
+        json_error("Please rehost images from $banned elsewhere.");
     }
 }
 
 $File = $_FILES['file_input']; // This is our torrent file
 if (substr(strtolower($File['name']), strlen($File['name']) - strlen('.torrent')) !== '.torrent') {
-    reportError("You seem to have put something other than a torrent file into the upload field. ({$File['name']}).");
+    json_error("You seem to have put something other than a torrent file into the upload field. ({$File['name']}).");
 }
 
 $TorrentName = $File['tmp_name'];
 if (!is_uploaded_file($TorrentName) || !filesize($TorrentName)) {
-    reportError('No torrent file uploaded, or file is empty.');
+    json_error('No torrent file uploaded, or file is empty.');
 }
 
 $torMan   = new Manager\Torrent();
@@ -283,7 +279,7 @@ try {
     $bencoder->decodeFile($TorrentName);
 } catch (\RuntimeException $e) {
     if ($e->getMessage() == "Could not fully decode bencode string") {
-        reportError("The torrent file '{$File['name']}' is corrupted, please recreate it");
+        json_error("The torrent file '{$File['name']}' is corrupted, please recreate it");
     }
 }
 $PublicTorrent    = $bencoder->makePrivate(); // The torrent is now private.
@@ -291,17 +287,20 @@ $UnsourcedTorrent = $torMan->setSourceFlag($bencoder);
 $infohash         = $bencoder->getHexInfoHash();
 $TorData          = $bencoder->getData();
 if (isset($TorData['encrypted_files'])) {
-    reportError('This torrent contains an encrypted file list which is not supported here.');
+    json_error('This torrent contains an encrypted file list which is not supported here.');
 }
 if (isset($TorData['info']['meta version'])) {
-    reportError('This torrent is not a V1 torrent. V2 and Hybrid torrents are not supported here.');
+    json_error('This torrent is not a V1 torrent. V2 and Hybrid torrents are not supported here.');
 }
 
-$checker     = new Util\FileChecker();
-$DirName     = (isset($TorData['info']['files']) ? make_utf8($bencoder->getName()) : '');
-$checkName   = $checker->checkName($DirName); // check the folder name against the blacklist
+$checker    = new Util\FileChecker();
+$folderName = (isset($TorData['info']['files']) ? make_utf8($bencoder->getName()) : '');
+if ($folderName === '') {
+    json_error("Music uploads must be in a folder ({$File['name']})");
+}
+$checkName = $checker->checkName($folderName); // check the folder name against the blacklist
 if ($checkName) {
-    reportError($checkName);
+    json_error($checkName);
 }
 
 $upload = [
@@ -313,11 +312,11 @@ $torrent = $torMan->findByInfohash(bin2hex($bencoder->getHexInfoHash()));
 if ($torrent) {
     $torrentFile = new File\Torrent($torrent->id);
     if ($torrentFile->exists()) {
-        reportError("The exact same torrent file already exists on the site! {$torrent->link()}");
+        json_error("The exact same torrent file already exists on the site! {$torrent->link()}");
     } else {
         // A lost torrent
         $torrentFile->put($bencoder->getEncode());
-        reportError("Thank you for fixing this torrent {$torrent->link()}");
+        json_error("Thank you for fixing this torrent {$torrent->link()}");
     }
 }
 
@@ -332,21 +331,21 @@ if ($isMusicUpload) {
             $filename    = $_FILES["extra_file_$i"];
             $fileTmpName = (string)$filename['tmp_name'];
             if (!is_uploaded_file($fileTmpName) || !filesize($fileTmpName)) {
-                reportError('No extra torrent file uploaded, or file is empty.');
+                json_error('No extra torrent file uploaded, or file is empty.');
             } elseif (substr(strtolower($filename['name']), strlen($filename['name']) - strlen('.torrent')) !== '.torrent') {
-                reportError("You seem to have put something other than an extra torrent file into the upload field. ({$filename['name']}).");
+                json_error("You seem to have put something other than an extra torrent file into the upload field. ({$filename['name']}).");
             } elseif (isset($DupeName[$filename['name']])) {
-                reportError('One or more torrents has been entered into the form twice.');
+                json_error('One or more torrents has been entered into the form twice.');
             }
             $dupeName[$filename['name']] = true;
 
             $format = trim($_POST['extra_format'][$i - 1]);
             if (empty($format)) {
-                reportError('Missing format for extra torrent.');
+                json_error('Missing format for extra torrent.');
             }
             $encoding = trim($_POST['extra_bitrate'][$i - 1]);
             if (empty($encoding)) {
-                reportError('Missing encoding/bitrate for extra torrent.');
+                json_error('Missing encoding/bitrate for extra torrent.');
             }
 
             $xbencoder = new \OrpheusNET\BencodeTorrent\BencodeTorrent();
@@ -354,23 +353,23 @@ if ($isMusicUpload) {
                 $xbencoder->decodeFile($fileTmpName);
             } catch (\RuntimeException $e) {
                 if ($e->getMessage() == "Could not fully decode bencode string") {
-                    reportError("The torrent file '{$filename}' is corrupted, please recreate it");
+                    json_error("The torrent file '{$filename}' is corrupted, please recreate it");
                 }
             }
             $ExtraTorData = $xbencoder->getData();
             if (isset($ExtraTorData['encrypted_files'])) {
-                reportError('At least one of the torrents contain an encrypted file list which is not supported here');
+                json_error('At least one of the torrents contain an encrypted file list which is not supported here');
             }
 
             $torrent = $torMan->findByInfohash(bin2hex($xbencoder->getHexInfoHash()));
             if ($torrent) {
                 $torrentFile = new File\Torrent($torrent->id);
                 if ($torrentFile->exists()) {
-                    reportError("The exact same torrent file already exists on the site! {$torrent->link()}");
+                    json_error("The exact same torrent file already exists on the site! {$torrent->link()}");
                 } else {
                     // A lost torrent
                     $torrentFile->put($bencoder->getEncode());
-                    reportError("Thank you for fixing this torrent {$torrent->link()}");
+                    json_error("Thank you for fixing this torrent {$torrent->link()}");
                 }
             }
             if (!$xbencoder->isPrivate()) {
@@ -383,16 +382,19 @@ if ($isMusicUpload) {
 
             // File list and size
             $filePath = isset($ExtraTorData['info']['files']) ? make_utf8($xbencoder->getName()) : '';
+            if ($filePath === '') {
+                json_error("Music uploads must be in a folder ($filename)");
+            }
             $fileList = [];
             ['total_size' => $totalSize, 'files' => $ExtraFileList] = $xbencoder->getFileList();
             foreach ($ExtraFileList as ['path' => $name, 'size' => $size]) {
                 $checkFile = $checker->checkFile($categoryName, $name);
                 if ($checkFile) {
-                    reportError($checkFile);
+                    json_error($checkFile);
                 }
                 if (mb_strlen($name, 'UTF-8') + mb_strlen($filePath, 'UTF-8') + 1 > MAX_FILENAME_LENGTH) {
                     $fullpath = "$filePath/$name";
-                    reportError("The torrent contained one or more files with too long a name: " . html_escape($fullpath));
+                    json_error("The torrent contained one or more files with too long a name: " . html_escape($fullpath));
                 }
                 $fileList[] = $torMan->metaFilename($name, $size);
             }
@@ -435,15 +437,15 @@ foreach ($FileList as ['path' => $filename, 'size' => $size]) {
     }
     $checkName = $checker->checkFile($categoryName, $filename);
     if ($checkName) {
-        reportError($checkName);
+        json_error($checkName);
     }
-    if (mb_strlen($filename, 'UTF-8') + mb_strlen($DirName, 'UTF-8') + 1 > MAX_FILENAME_LENGTH) {
-        $TooLongPaths[] = "$DirName/$filename";
+    if (mb_strlen($filename, 'UTF-8') + mb_strlen($folderName, 'UTF-8') + 1 > MAX_FILENAME_LENGTH) {
+        $TooLongPaths[] = "$folderName/$filename";
     }
     $TmpFileList[] = $torMan->metaFilename($filename, $size);
 }
 if (count($TooLongPaths) > 0) {
-    reportError('The torrent contained one or more files with too long a name: <ul>'
+    json_error('The torrent contained one or more files with too long a name: <ul>'
             . implode('', array_map(fn($p) => "<li>" . html_escape($p) . "</li>", $TooLongPaths))
             . '</ul><br>'
     );
@@ -523,7 +525,7 @@ $torrent = $torMan->create(
     encoding:                $Properties['Encoding'],
     logScore:                $logfileSummary?->overallScore() ?? 0,
     infohash:                $infohash,
-    filePath:                $DirName,
+    filePath:                $folderName,
     fileList:                $TmpFileList,
     size:                    $TotalSize,
     isScene:                 $Properties['Scene'],
@@ -586,7 +588,7 @@ $torrent->logger()->torrent($torrent, $Viewer, "uploaded ($size MiB)")
     ->general("Torrent $TorrentID ($logName) ($size MiB) was uploaded by " . $Viewer->username());
 
 if (!new File\Torrent($TorrentID)->put($bencoder->getEncode())) {
-    reportError("Internal error saving torrent file. Please report this in the bugs forum.");
+    json_error("Internal error saving torrent file. Please report this in the bugs forum.");
 }
 $db->commit(); // We have a usable upload, any subsequent failures can be repaired ex post facto
 $Debug->mark('upload: database committed');
