@@ -260,12 +260,6 @@ class Forum extends BaseObject {
         );
     }
 
-    #[\Deprecated]
-    public function threadCount(): int {
-        $toc = $this->tableOfContentsForum();
-        return $toc ? current($toc)['threadCount'] : 0;
-    }
-
     /**
      * The table of contents of a forum. Only the first page is cached,
      * the subsequent pages are regenerated on each pageview.
@@ -279,8 +273,7 @@ class Forum extends BaseObject {
      *    - int 'LastPostID' Post id of most recent post
      *    - timestamp 'LastPostTime' Date of most recent post
      *    - int 'LastPostAuthorID' User id of author of most recent post
-     *    - int 'stickyCount' Number of sticky posts
-     *    - int 'threadCount' Total number of threads in forum
+     *    - has_poll Whether the thread has a poll '0'/'1'
      */
     #[\Deprecated]
     public function tableOfContentsForum(int $page = 1): array {
@@ -290,15 +283,13 @@ class Forum extends BaseObject {
             self::$db->prepared_query("
                 SELECT ft.ID, ft.Title, ft.AuthorID, ft.IsLocked, ft.IsSticky,
                     ft.NumPosts, ft.LastPostID, ft.LastPostTime, ft.LastPostAuthorID,
-                    (SELECT count(*) from forums_topics WHERE IsSticky = '1' AND ForumID = ?) AS stickyCount,
-                    (SELECT count(*) from forums_topics WHERE ForumID = ?) AS threadCount,
                     (fp.TopicID IS NOT NULL AND fp.Closed = '0')  AS has_poll
                 FROM forums_topics ft
                 LEFT JOIN forums_polls fp ON (fp.TopicID = ft.ID)
                 WHERE ft.ForumID = ?
                 ORDER BY ft.Ranking DESC, ft.IsSticky DESC, ft.LastPostTime DESC
                 LIMIT ?, ?
-                ", $this->id, $this->id, $this->id, ($page - 1) * TOPICS_PER_PAGE, TOPICS_PER_PAGE
+                ", $this->id, ($page - 1) * TOPICS_PER_PAGE, TOPICS_PER_PAGE
             );
             $forumToc = self::$db->to_array('ID', MYSQLI_ASSOC);
             if ($page == 1) {

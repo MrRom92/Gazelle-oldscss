@@ -25,7 +25,7 @@ if (!$Viewer->readAccess($forum)) {
 }
 
 $paginator = new Util\Paginator(TOPICS_PER_PAGE, (int)($_GET['page'] ?? 1));
-$paginator->setTotal($forum->threadCount());
+$paginator->setTotal($forum->numThreads());
 
 $userLastRead = $forum->userLastRead($Viewer);
 $forumToc     = $forum->tableOfContentsForum($paginator->page());
