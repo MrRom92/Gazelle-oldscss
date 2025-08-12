@@ -7,7 +7,8 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$poll = new Manager\ForumPoll()->findById((int)($_POST['threadid'] ?? 0));
+$threadId = (int)($_POST['threadid'] ?? 0);
+$poll = new Manager\ForumPoll()->findById($threadId);
 if (is_null($poll)) {
     Error404::error();
 }
@@ -15,6 +16,7 @@ if ($poll->isClosed()) {
     Error403::error();
 }
 
+$answerList = $poll->answerList();
 $vote = $poll->vote();
 if (!isset($_POST['vote']) || !is_number($_POST['vote'])) {
 ?>
@@ -23,9 +25,9 @@ if (!isset($_POST['vote']) || !is_number($_POST['vote'])) {
     <input type="hidden" name="action" value="poll" />
     <input type="hidden" name="auth" value="<?= $Viewer->auth() ?>" />
     <input type="hidden" name="threadid" value="<?= $poll->id() ?>" />
-<?php foreach ($vote as $i => $choice) { ?>
+<?php foreach ($answerList as $i => $answer) { ?>
     <input type="radio" name="vote" id="answer_<?=$i?>" value="<?=$i?>" />
-    <label for="answer_<?=$i?>"><?=display_str($choice['answer'])?></label><br />
+    <label for="answer_<?=$i?>"><?=display_str($answer)?></label><br />
 <?php } ?>
     <br /><input type="radio" name="vote" id="answer_0" value="0" /> <label for="answer_0">Blank&#8202;&mdash;&#8202;Show the results!</label><br /><br />
     <input type="button" onclick="ajax.post('index.php', 'poll', function(response) { $('#poll_container').raw().innerHTML = response });" value="Vote" />
@@ -38,17 +40,18 @@ if (!isset($_POST['vote']) || !is_number($_POST['vote'])) {
         Error400::error('Cannot add your vote to the poll');
     }
     $vote = $poll->vote(); // need to refresh the results to take the vote into account
-
-    if ($response !== 0) {
-        $vote[$response]['answer'] = '&raquo; ' . $vote[$response]['answer'];
-    }
 ?>
-        <ul class="poll nobullet">
+        <ul class="poll nobullet" id="poll_options">
 <?php
         if ($poll->hasRevealVotes()) {
+            $totalStaff = 0;
+            $totalVoted = 0;
             $staffVote = $poll->staffVote(new Manager\User());
-            foreach ($staffVote as $response => $info) {
+            $staffVoteReordered = array_slice($staffVote, 1, null, true) + [0 => $staffVote[0]];
+            foreach ($staffVoteReordered as $response => $info) {
                 if ($response !== 'missing') {
+                    $totalStaff += count($info['who']);
+                    $totalVoted += count($info['who']);
 ?>
                 <li><a href="forums.php?action=change_vote&amp;threadid=<?= $poll->id() ?>&amp;auth=<?= $Viewer->auth() ?>&amp;vote=<?= $response ?>"><?=empty($info['answer']) ? 'Abstain' : display_str($info['answer'])?></a> <?=
                     count ($info['who']) ? (" \xE2\x80\x93 " . implode(', ', array_map(fn($u) => $u->link(), $info['who']))) : "<i>none</i>"
@@ -57,14 +60,23 @@ if (!isset($_POST['vote']) || !is_number($_POST['vote'])) {
                 }
             }
             if (count($staffVote['missing']['who'])) {
+                $totalStaff += count($staffVote['missing']['who']);
 ?>
-                <li>Missing: <?= implode(', ', array_map(fn($u) => $u->link(), $staffVote['missing']['who'])) ?></li>
+                <br /><li>Missing: <?= implode(', ', array_map(fn($u) => $u->link(), $staffVote['missing']['who'])) ?></li>
 <?php
             }
-        } else {
-            foreach ($vote as $choice) {
 ?>
-                    <li><?=display_str($choice['answer'])?> (<?=number_format($choice['percent'], 2)?>%)</li>
+        </ul>
+        <br />
+        <strong>Voted:</strong> <?= number_format($totalVoted) ?> of <?= number_format($totalStaff) ?> total. (You may click on a choice to change your vote).
+        <br />
+        <a href="#" onclick="AddPollOption(<?= $threadId ?>); return false;" class="brackets">+</a>
+<?php
+        } else {
+            foreach ($answerList as $i => $answer) {
+                $choice = $vote[$i];
+?>
+                    <li><?=$response === $i ? '&raquo; ' : ''?><?=display_str($answer)?> (<?=number_format($choice['percent'], 2)?>%)</li>
                     <li class="graph">
                         <span class="left_poll"></span>
                         <span class="center_poll" style="width: <?=number_format($choice['ratio'], 2)?>%;"></span>
@@ -72,9 +84,17 @@ if (!isset($_POST['vote']) || !is_number($_POST['vote'])) {
                     </li>
 <?php
             }
-        }
+            if ($response === 0) {
+?>
+            <br /><li>&raquo; (Abstain)</li>
+<?php
+            }
 ?>
         </ul>
         <br /><strong>Votes:</strong> <?= number_format($poll->total()) ?>
+<?php
+        }
+?>
+
 <?php
 }

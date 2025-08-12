@@ -3,7 +3,8 @@
 {% set forum = thread.forum %}
 {% set reveal_voters = forum.hasRevealVotes %}
 {% set response = poll.response(viewer) %}
-{% set answer_list = poll.vote %}
+{% set answer_list = poll.answerList %}
+{% set vote = poll.vote %}
 <div class="box thin clear">
 <div class="head colhead_dark">
     <strong>Poll{% if poll.isClosed %} [Closed]{% endif %}{% if poll.isFeatured %} [Featured]{% endif %}</strong>
@@ -31,57 +32,57 @@
 {% endif %}
 <div class="pad{% if thread.isLocked %} hidden{% endif %}" id="threadpoll">
     <strong>{{ poll.question }}</strong>
-{% if response or poll.isClosed or thread.isLocked %}
+{% if response is not null or poll.isClosed or thread.isLocked %}
     <ul class="poll nobullet">
     {% if not reveal_voters %}
-        {% for choice in answer_list %}
+        {% for key, answer in answer_list %}
+            {% set choice = vote[key] %}
             <li>{% if response == loop.index %}&raquo; {% endif %}
-            {{ choice.answer }} ({{ choice.percent|number_format(2) }}%)</li>
+            {{ answer }} ({{ choice.percent|number_format(2) }}%)</li>
             <li class="graph">
                 <span class="left_poll"></span>
                 <span class="center_poll" style="width: {{ choice.ratio|number_format(2) }}%;"></span>
                 <span class="right_poll"></span>
             </li>
         {% endfor %}
-        {% if answer_list[0].total > 0 %}
-        <li>{% if response == '0' %}&raquo; {% endif %}(Blank) ({{ answer_list[0].total|number_format(2) }}%)</li>
-        <li class="graph">
-            <span class="left_poll"></span>
-            <span class="center_poll" style="width: {{ choice.ratio|number_format(2) }}%;"></span>
-            <span class="right_poll"></span>
-        </li>
+        {% if response == 0 %}
+        <br />
+        <li>&raquo; (Abstain)</li>
         {% endif %}
+
     </ul>
     <br />
     <strong>Votes:</strong> {{ poll.total|number_format }}<br />
-{% else %}
+    {% else %}
     <ul class="nobullet" id="poll_options">
     {# Staff forum, output voters, not percentages #}
-    {% set total_staff = 0 %}
-    {% set total_voted = 0 %}
-    {% for response, info in poll.staffVote(user_man) %}
-        {% if response != 'missing' %}
-            {% set total_staff = total_staff + info.who|length %}
-            {% set total_voted = total_voted + info.who|length %}
-?>
-        <li><a href="forums.php?action=change_vote&amp;threadid={{ thread.id }}&amp;auth={{ viewer.auth
-            }}&amp;vote={{ response }}">{% if info.answer %}{{ info.answer }}{% else %}Abstain{% endif %}</a>
-            {% if info.who|length %} \xE2\x80\x93 {{ info.who|join(', ') }}{% else %}<i>none</i>{% endif %}
+        {% set total_staff = 0 %}
+        {% set total_voted = 0 %}
+        {% set staff_vote = poll.staffVote(user_man) %}
+        {% set staff_vote_reordered = staff_vote|slice(1, null, true) + {0: staff_vote[0]} %}
+        {% for response, info in staff_vote_reordered %}
+            {% if response != 'missing' %}
+                {% set total_staff = total_staff + info.who|length %}
+                {% set total_voted = total_voted + info.who|length %}
+        <li>
+                <a href="forums.php?action=change_vote&amp;threadid={{ thread.id }}&amp;auth={{ viewer.auth
+                }}&amp;vote={{ response }}">{{ info.answer }}</a>
+                {% if info.who|length %} &ndash; {{ info.who|map(who => who.username)|join(', ') }}{% else %}<i>none</i>{% endif %}
+            {% endif %}
+        </li>
+        {% endfor %}
+        {% if staff_vote.missing.who|length %}
+        <br />
+            {% set total_staff = total_staff + staff_vote.missing.who|length %}
+        <li>Missing: {{ staff_vote.missing.who|map(who => who.username)|join(', ') }}</li>
         {% endif %}
-    {% endfor %}
-    {% if vote.missing.who|length %}
-        {% set total_staff = total.staff + vote.missing.who %}
-        <li>Missing: {{ info.who|join(', ') }}</li>
-    {% endif %}
     </ul>
-    {% if forum.id in constant('FORUM_REVEAL_VOTE') %}
     <br />
     <strong>Voted:</strong> {{ total_voted|number_format }} of {{ total_staff|number_format }} total. (You may click on a choice to change your vote).
     <br />
-    {% endif %}
     <a href="#" onclick="AddPollOption({{ thread.id }}); return false;" class="brackets">+</a>
 
-{% endif %}
+    {% endif %}
 {% else %}
 {# user has not voted #}
         <div id="poll_container">
@@ -90,10 +91,10 @@
                 <input type="hidden" name="auth" value="{{ viewer.auth }}" />
                 <input type="hidden" name="threadid" value="{{ thread.id }}" />
                 <ul class="nobullet" id="poll_options">
-    {% for response, choice in answer_list %}
+    {% for key, answer in answer_list %}
                     <li>
-                        <input type="radio" name="vote" id="answer_{{ response }}" value="{{ response }}" />
-                        <label for="answer_{{ response }}">{{ choice.answer }}</label>
+                        <input type="radio" name="vote" id="answer_{{ key }}" value="{{ key }}" />
+                        <label for="answer_{{ key }}">{{ answer }}</label>
                     </li>
     {% endfor %}
                     <li>

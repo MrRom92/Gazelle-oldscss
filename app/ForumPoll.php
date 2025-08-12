@@ -57,16 +57,24 @@ class ForumPoll extends BaseObject {
             SELECT fpv.Vote,
                 count(*) AS total
             FROM forums_polls_votes fpv
-            WHERE fpv.Vote != '0'
-                AND fpv.TopicID = ?
+            WHERE fpv.TopicID = ?
             GROUP BY fpv.Vote
             ", $this->id
         );
         $vote = self::$db->to_pair('Vote', 'total');
 
+        $abstainedVotes = $vote[0] ?? 0;
+        unset($vote[0]);
         $total = array_sum($vote);
         $max   = count($vote) ? max($vote) : 0;
-        $tally = [];
+        $tally = [
+            0 => [
+                'answer'  => '(Abstain)',
+                'score'   => $abstainedVotes,
+                'ratio'   => 0,
+                'percent' => 0,
+            ],
+        ];
         foreach ($answerList as $key => $answer) {
             if (isset($vote[$key])) {
                 $tally[$key] = [
@@ -88,6 +96,7 @@ class ForumPoll extends BaseObject {
         $info = [
             'is_closed'   => $poll['Closed'] != '0',
             'is_featured' => (bool)$poll['Featured'],
+            'answer_list' => $answerList,
             'max'         => $max,
             'question'    => $poll['Question'],
             'total'       => $total,
@@ -104,6 +113,10 @@ class ForumPoll extends BaseObject {
 
     public function isFeatured(): bool {
         return $this->info()['is_featured'];
+    }
+
+    public function answerList(): array {
+        return $this->info()['answer_list'];
     }
 
     public function max(): int {
@@ -134,10 +147,6 @@ class ForumPoll extends BaseObject {
 
     public function hasRevealVotes(): bool {
         return $this->thread()->forum()->hasRevealVotes();
-    }
-
-    public function answerList(): array {
-        return array_map(fn ($v) => $v['answer'], $this->info()['vote']);
     }
 
     protected function saveAnswerList(array $answerList): int {
@@ -182,8 +191,8 @@ class ForumPoll extends BaseObject {
     }
 
     public function addVote(User $user, int $vote): int {
-        $answer = $this->vote();
-        if (!isset($answer[$vote]) && $vote != 0) {
+        $answerList = $this->answerList();
+        if (!isset($answerList[$vote]) && $vote != 0) {
             return 0;
         }
         self::$db->prepared_query("
@@ -218,7 +227,7 @@ class ForumPoll extends BaseObject {
                 AND TopicID = ?
             ", $user->id, $this->id
         );
-        return $vote ? (int)$vote : null;
+        return $vote !== null ? (int)$vote : null;
     }
 
     /**
