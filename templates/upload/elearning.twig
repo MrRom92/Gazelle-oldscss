@@ -1,5 +1,6 @@
 {% from 'macro/form.twig' import autocomplete %}
 <table id="form-elearning-upload" cellpadding="3" cellspacing="1" border="0" class="layout border slice" width="100%">
+{% include 'upload/alert.twig' %}
     <tr id="name">
 {% if not is_uploaded %}
         <td class="label">Author - Title:</td>
