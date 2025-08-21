@@ -596,22 +596,21 @@ $Debug->mark('upload: database committed');
 //******************************************************************************//
 //--------------- Finalize -----------------------------------------------------//
 
-$bonusTotal  = 0;
-$bonus       = new User\Bonus($Viewer);
-$tracker     = new Tracker();
-$folderCheck = [];
+$tracker      = new Tracker();
+$uploadReward = new BonusUploadReward();
+$bonusTotal   = 0;
+$folderCheck  = [];
 foreach ($upload['new'] as $t) {
     $t->flush()->unlockUpload();
-    $bonusTotal += $bonus->torrentValue($t);
     $tracker->addTorrent($t);
+    $bonusTotal += $uploadReward->reward($t);
     $folderCheck[] = $t->path();
 }
-new Manager\NotificationTicket()->create($torrent);
-
 if (!$Viewer->disableBonusPoints()) {
-    $bonus->addPoints($bonusTotal);
+    new User\Bonus($Viewer)->addPoints($bonusTotal);
 }
 
+new Manager\NotificationTicket()->create($torrent);
 $tgroup->refresh();
 
 if ($Viewer->option('AutoSubscribe')) {

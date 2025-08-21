@@ -345,7 +345,7 @@ class Reaper extends \Gazelle\Base {
 
                 // grab the fields we want to use in the report before we blow the torrent away
                 $note = [
-                    'id'       => $torrent->id(),
+                    'id'       => $torrent->id,
                     'infohash' => $torrent->infohash(),
                     'name'     => $torrent->name(),
                     'tgroup'   => $torrent->group(),
@@ -508,19 +508,20 @@ class Reaper extends \Gazelle\Base {
      * Send a PM to the snatchers to thank them for reseeding an upload.
      * Clear out all the other claims.
      */
-    public function notifyWinner(\Gazelle\Torrent $torrent, \Gazelle\User\Bonus  $bonus): float {
+    public function notifyWinner(\Gazelle\Torrent $torrent, \Gazelle\User\Bonus $bonus): float {
         self::$db->prepared_query("
             UPDATE torrent_unseeded_claim SET
                 claim_date = now()
             WHERE claim_date   IS NULL
                 AND torrent_id = ?
                 AND user_id    = ?
-            ", $torrent->id(), $bonus->user()->id()
+            ", $torrent->id, $bonus->user()->id
         );
 
-        $points = REAPER_RESEED_REWARD_FACTOR * $bonus->torrentValue($torrent);
+        $points = REAPER_RESEED_REWARD_FACTOR
+            * new \Gazelle\BonusUploadReward()->reward($torrent);
         $bonus->addPoints($points);
-        $bonus->user()->addStaffNote("Awarded {$points} BP for reseeding [pl]{$torrent->id()}[/pl]")->modify();
+        $bonus->user()->addStaffNote("Awarded {$points} BP for reseeding [pl]{$torrent->id}[/pl]")->modify();
         $bonus->user()->inbox()->createSystem(
             "Thank you for reseeding {$torrent->group()->name()}!",
             self::$twig->render('notification/reseed.bbcode.twig', [

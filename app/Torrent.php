@@ -482,8 +482,11 @@ class Torrent extends TorrentAbstract {
         $qid = self::$db->get_query_id();
         self::$db->begin_transaction();
         $this->info();
-        if ($this->id > MAX_PREV_TORRENT_ID && $removePoints) {
-            new User\Bonus($this->uploader())->removePointsForUpload($this);
+        if ($removePoints) {
+            $points = new BonusUploadReward()->reward($this);
+            if ($points !== 0) {
+                new User\Bonus($this->uploader())->removePoints($points);
+            }
         }
 
         // copy the metadata that will be needed after the row has been removed

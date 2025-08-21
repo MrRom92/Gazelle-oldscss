@@ -727,12 +727,6 @@ defined('SOURCE_FLAG_NONE_EPOCH') or define('SOURCE_FLAG_NONE_EPOCH', 0);
 // ------------------------------------------------------------------------
 // Bonus point settings
 
-// Points awarded for uploads.
-defined('BONUS_AWARD_FLAC_PERFECT') or define('BONUS_AWARD_FLAC_PERFECT', 400);
-defined('BONUS_AWARD_FLAC')         or define('BONUS_AWARD_FLAC', 30);
-defined('BONUS_AWARD_MP3')          or define('BONUS_AWARD_MP3', 30);
-defined('BONUS_AWARD_OTHER')        or define('BONUS_AWARD_OTHER', 10);
-
 // Tax when donating to bonus pools.
 defined('BONUS_POOL_TAX_STD')   or define('BONUS_POOL_TAX_STD', 0.9);
 defined('BONUS_POOL_TAX_ELITE') or define('BONUS_POOL_TAX_ELITE', 0.8);
@@ -795,9 +789,6 @@ defined('RECOVERY_SALT') or define('RECOVERY_SALT', 'changeme');
 
 // Where are uploads for recovery proof stored?
 defined('RECOVERY_PATH') or define('RECOVERY_PATH', '');
-
-// Highest torrent id from a previous incarnation
-defined('MAX_PREV_TORRENT_ID') or define('MAX_PREV_TORRENT_ID', 0);
 
 // In which database schema are the users of the previous site stored?
 defined('RECOVERY_DB') or define('RECOVERY_DB', '');

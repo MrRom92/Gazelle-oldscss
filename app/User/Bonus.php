@@ -65,19 +65,6 @@ class Bonus extends \Gazelle\BaseUser {
         return $items[$label] ?? null;
     }
 
-    public function torrentValue(\Gazelle\Torrent $torrent): int {
-        if ($torrent->format() == 'FLAC') {
-            if ($torrent->isPerfectFlac()) {
-                return BONUS_AWARD_FLAC_PERFECT;
-            } else {
-                return BONUS_AWARD_FLAC;
-            }
-        } elseif ($torrent->format() == 'MP3' && in_array($torrent->encoding(), ['V0 (VBR)', '320'])) {
-            return BONUS_AWARD_MP3;
-        }
-        return BONUS_AWARD_OTHER;
-    }
-
     public function effectivePrice(string $label): int {
         $item = $this->items()[$label];
         if (preg_match('/^collage-\d$/', $label)) {
@@ -482,10 +469,6 @@ class Bonus extends \Gazelle\BaseUser {
         $affected = self::$db->affected_rows();
         $this->flush();
         return $affected;
-    }
-
-    public function removePointsForUpload(\Gazelle\Torrent $torrent): bool {
-        return $this->removePoints($this->torrentValue($torrent), true);
     }
 
     public function removePoints(float $points, bool $force = false): bool {

@@ -8,8 +8,14 @@ use Gazelle\Enum\UserStatus;
 
 class BonusTest extends TestCase {
     protected array $userList;
+    protected array $tgroupList;
 
     public function tearDown(): void {
+        if (isset($this->tgroupList)) {
+            foreach ($this->tgroupList as $tgroup) {
+                Helper::removeTGroup($tgroup, current($this->userList));
+            }
+        }
         foreach ($this->userList as $user) {
             $user->remove();
         }
@@ -126,6 +132,76 @@ class BonusTest extends TestCase {
             'bonus-summary-initial'
         );
         $this->assertTrue($giver->removePoints(1.125), 'bonus-taketh-away');
+    }
+
+    public function testUploadReward(): void {
+        $this->userList[] = Helper::makeUser('bonusup.' . randomString(6), 'bonus');
+        $this->userList[0]->requestContext()->setViewer($this->userList[0]);
+        $this->tgroupList[] =  Helper::makeTGroupMusic(
+            name:       'bonus ' . randomString(10),
+            artistName: [[ARTIST_MAIN], ['phpunit bonus ' . randomString(12)]],
+            tagName:    ['bop'],
+            user:       $this->userList[0],
+        );
+        $reward = new BonusUploadReward();
+
+        $torrent = Helper::makeTorrentMusic(
+            tgroup: $this->tgroupList[0],
+            user:  $this->userList[0],
+            title: 'phpunit bonus ' . randomString(10),
+            media: 'Vinyl',
+            format: 'FLAC',
+            encoding: '24bit Lossless',
+        );
+        $this->assertEquals(400, $reward->reward($torrent), 'bonus-reward-perfect-flac');
+
+        $torrent = Helper::makeTorrentMusic(
+            tgroup: $this->tgroupList[0],
+            user:  $this->userList[0],
+            title: 'phpunit bonus ' . randomString(10),
+            media: 'CD',
+            format: 'FLAC',
+            encoding: 'Lossless',
+        );
+        $this->assertEquals(30, $reward->reward($torrent), 'bonus-reward-flac');
+
+        $torrent = Helper::makeTorrentMusic(
+            tgroup: $this->tgroupList[0],
+            user:  $this->userList[0],
+            title: 'phpunit bonus ' . randomString(10),
+            media: 'Vinyl',
+            format: 'MP3',
+            encoding: '320',
+        );
+        $this->assertEquals(30, $reward->reward($torrent), 'bonus-reward-mp3');
+
+        $this->tgroupList[] =  Helper::makeTGroupEBook('phpunit ebook title');
+        $torrent = Helper::makeTorrentEBook(
+            tgroup: $this->tgroupList[1],
+            user:  $this->userList[0],
+            description: 'phpunit bonus ebook ' . randomString(10),
+        );
+        // If the following test fails, look in bonus_upload_reward with:
+        // select * from bonus_upload_reward where id_category = 3 order by lower(valid);
+        // You may have to close out the current valid range with something like
+        // update bonus_upload_reward set valid = tstzrange(lower(valid), now()) where now() <@ valid and id_category = 3;
+        // insert into bonus_upload_reward (id_category, high, standard, low, valid) values (3, 10, 10, 10, tstzrange(now(), 'infinity'));
+        $this->assertEquals(10, $reward->reward($torrent), 'bonus-reward-other');
+
+        $this->assertGreaterThan(
+            0,
+            $reward->modifyCategory(
+                CATEGORY_EBOOK,
+                ['high' => 330, 'standard' => 220, 'low' => 110],
+            ),
+            'bonus-reward-modify'
+        );
+        $torrent->setField('created', date('Y-m-d H:i:s', time() + 1))->modify();
+        $this->assertEquals(220, $reward->reward($torrent->flush()), 'bonus-reward-new-other');
+        $reward->modifyCategory(
+            CATEGORY_EBOOK,
+            ['high' => 10, 'standard' => 10, 'low' => 10],
+        );
     }
 
     public function testStats(): void {

@@ -30,7 +30,7 @@ class TGroupTest extends TestCase {
         $this->catalogueNumber = randomString(3) . '-' . random_int(1000, 2000);
         $this->manager         = new Manager\TGroup();
         $this->tgroup      = $this->manager->create(
-            categoryId:      1,
+            categoryId:      CATEGORY_MUSIC,
             name:            $this->name,
             year:            $this->year,
             recordLabel:     $this->recordLabel,

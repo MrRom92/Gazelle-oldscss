@@ -7,11 +7,13 @@
  * Usage: remove-upload <admin-id> <torrent-id> [<torrent-id> ...]
  */
 
+namespace Gazelle;
+
 require_once(__DIR__ . '/../lib/bootstrap.php');
 
-$Cache = new Gazelle\Cache;
-$torMan = new Gazelle\Manager\Torrent;
-$userMan = new Gazelle\Manager\User;
+$torMan  = new Manager\Torrent();
+$userMan = new Manager\User();
+$reward  = new BonusUploadReward();
 
 array_shift($argv);
 $janitorId = array_shift($argv);
@@ -29,8 +31,7 @@ foreach ($argv as $torrentId) {
     $name = $torrent->group()->text()
         . ' [' . implode('/', [$torrent->media(), $torrent->format(), $torrent->encoding()]) . ']';
     $uploader = $torrent->uploader();
-    $bonus = new Gazelle\User\Bonus($uploader);
-    $points = 2 * $bonus->torrentValue($torrent);
+    $points = 2 * $reward->reward($torrent);
 
     [$success, $message] = $torrent->removeTorrent($janitor, "Broken upload - backend");
     if (!$success) {
@@ -38,7 +39,7 @@ foreach ($argv as $torrentId) {
         continue;
     }
 
-    $bonus->addPoints($points);
+    new User\Bonus($uploader)->addPoints($points);
     $uploader->inbox()->createSystem(
         "Your upload $name has been removed",
         "Due to a transient bug, your upload $name was not completed by the backend. Since it did not break any rules (we hope), please feel free to re-upload it. Since this is on us, you have been gifted $points points."
