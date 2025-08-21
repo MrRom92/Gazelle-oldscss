@@ -143,13 +143,17 @@ END;
 
         $this->assertEquals(
             '2',
-            self::twig('{{ value|token_count }}')->render(['value' => BYTES_PER_FREELEECH_TOKEN * 2 - 1]),
+            self::twig('{{ value|token_count }}')->render([
+                'value' => new Manager\SiteOption()->freeTokenSize() * 2 - 1
+            ]),
             'twig-token-count-2'
         );
 
         $this->assertEquals(
             '3',
-            self::twig('{{ value|token_count }}')->render(['value' => BYTES_PER_FREELEECH_TOKEN * 2 + 1]),
+            self::twig('{{ value|token_count }}')->render([
+                'value' => new Manager\SiteOption()->freeTokenSize() * 2 + 1
+            ]),
             'twig-token-count-3'
         );
 

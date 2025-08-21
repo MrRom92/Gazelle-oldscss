@@ -515,9 +515,6 @@ defined('STARTING_UPLOAD') or define('STARTING_UPLOAD', 3 * 1024 * 1024 * 1024);
 // Can freeleech (FL) tokens be stacked?
 defined('STACKABLE_FREELEECH_TOKENS') or define('STACKABLE_FREELEECH_TOKENS', true);
 
-// What size does a token represent? (512 MiB)
-defined('BYTES_PER_FREELEECH_TOKEN') or define('BYTES_PER_FREELEECH_TOKEN', 512 * 1024 * 1024);
-
 // How long does an activated token last before it is purged?
 defined('FREELEECH_TOKEN_EXPIRY_DAYS') or define('FREELEECH_TOKEN_EXPIRY_DAYS', 30);
 

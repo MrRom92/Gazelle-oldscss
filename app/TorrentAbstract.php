@@ -616,7 +616,9 @@ abstract class TorrentAbstract extends BaseAttrObject {
      * How many tokens are required to download for free?
      */
     public function tokenCount(): int {
-        return (int)ceil($this->size() / BYTES_PER_FREELEECH_TOKEN);
+        return (int)ceil(
+            $this->size() / new Manager\SiteOption()->freeTokenSize()
+        );
     }
 
     public function unseeded(): bool {

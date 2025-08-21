@@ -36,10 +36,14 @@ class SiteOption extends \Gazelle\Base {
                 $name
             );
             if (!is_null($value)) {
-                self::$cache->cache_value($key, $value, 86400 * 30);
+                self::$cache->cache_value($key, $value, 0);
             }
         }
         return $value;
+    }
+
+    public function freeTokenSize(): int {
+        return 1024 * 1014 * (int)$this->findValueByName('fl-token-size');
     }
 
     /**
@@ -70,7 +74,7 @@ class SiteOption extends \Gazelle\Base {
             ', $value, $name
         );
         $affected = self::$db->affected_rows();
-        self::$cache->cache_value(sprintf(self::CACHE_KEY, $name), $value);
+        self::$cache->cache_value(sprintf(self::CACHE_KEY, $name), $value, 0);
         return $affected;
     }
 

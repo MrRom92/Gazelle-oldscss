@@ -3,6 +3,7 @@
 namespace Gazelle\Util;
 
 use Gazelle\Enum\CacheBucket;
+use Gazelle\Manager\SiteOption;
 use Gazelle\View;
 
 class Twig {
@@ -155,7 +156,9 @@ class Twig {
 
         $twig->addFilter(new \Twig\TwigFilter(
             'token_count',
-            fn ($size) => (int)ceil((int)$size / BYTES_PER_FREELEECH_TOKEN)
+            fn ($size) => (int)ceil(
+                (int)$size / new SiteOption()->freeTokenSize()
+            )
         ));
 
         $twig->addFilter(new \Twig\TwigFilter(

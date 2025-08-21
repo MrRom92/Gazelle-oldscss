@@ -209,7 +209,8 @@ abstract class Collector extends Base  {
 
         $this->totalAdded++;
         $this->totalSize += (int)$info['Size'];
-        $this->totalTokens += (int)ceil($info['Size'] / BYTES_PER_FREELEECH_TOKEN);
+        $this->totalTokens += (int)ceil($info['Size']
+            / new Manager\SiteOption()->freeTokenSize());
     }
 
     /**

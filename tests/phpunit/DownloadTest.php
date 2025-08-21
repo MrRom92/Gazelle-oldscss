@@ -24,7 +24,7 @@ class DownloadTest extends TestCase {
                 user:       $this->userList['up'],
             ),
             user: $this->userList['up'],
-            size: (int)(BYTES_PER_FREELEECH_TOKEN * 2.5), // need three tokens to play
+            size: (int)(new Manager\SiteOption()->freeTokenSize() * 2.5), // need three tokens to play
         );
     }
 
