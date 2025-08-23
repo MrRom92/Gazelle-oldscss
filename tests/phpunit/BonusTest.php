@@ -16,8 +16,10 @@ class BonusTest extends TestCase {
                 Helper::removeTGroup($tgroup, current($this->userList));
             }
         }
-        foreach ($this->userList as $user) {
-            $user->remove();
+        if (isset($this->userList)) {
+            foreach ($this->userList as $user) {
+                $user->remove();
+            }
         }
     }
 
@@ -50,7 +52,10 @@ class BonusTest extends TestCase {
         $giver->setPoints($startingPoints);
         $this->assertEquals($startingPoints, $giver->user()->bonusPointsTotal(), 'bonus-set-points');
 
-        $itemList = new Manager\Bonus()->itemList();
+        $manager = new Manager\Bonus();
+        $manager->flushPriceCache();
+
+        $itemList = $manager->itemList();
         $this->assertArrayHasKey('token-1', $itemList, 'item-token-1');
         $token = $giver->item('token-1');
         $this->assertArrayHasKey('Price', $token, 'item-price-1');
@@ -134,9 +139,100 @@ class BonusTest extends TestCase {
         $this->assertTrue($giver->removePoints(1.125), 'bonus-taketh-away');
     }
 
+    public function testBonusPool(): void {
+        global $Cache;
+        $Cache->delete_value("bonus_pool");
+        $manager = new Manager\Bonus();
+        $this->assertEquals(
+            [],
+            $manager->openPoolList(),
+            'bonus-open-pool',
+        );
+    }
+
+    public function testAddPoints(): void {
+        $this->userList = [
+            Helper::makeUser('bonusadd.' . randomString(6), 'bonus', enable: false),
+            Helper::makeUser('bonusadd.' . randomString(6), 'bonus', enable: true),
+        ];
+        // back to the future
+        DB::DB()->prepared_query("
+            INSERT INTO user_last_access (user_id, last_access) values (?, ?)
+            ", $this->userList[1]->id, date('Y-m-d H:i:s', time() + 10)
+        );
+
+        $manager = new Manager\Bonus();
+        $this->assertEquals(
+            1,
+            // but not too far
+            $manager->addActivePoints(23456, date('Y-m-d H:i:s', time() + 5)),
+            'bonus-add-active',
+        );
+        $this->assertEquals(
+            0,
+            $manager->addMultiPoints(789, []),
+            'bonus-add-no-multi-points',
+        );
+        $this->assertEquals(
+            2,
+            $manager->addMultiPoints(
+                12345,
+                array_map(fn ($u) => $u->id, $this->userList),
+            ),
+            'bonus-add-multi-points',
+        );
+        $this->assertEquals(
+            0,
+            $manager->addUploadPoints(369,  date('Y-m-d H:i:s', time() + 1)),
+            'bonus-add-upload-points',
+        );
+        $this->assertEquals(
+            12345,
+            $this->userList[0]->flush()->bonusPointsTotal(),
+            'bonus-added-user-0',
+        );
+
+        $this->tgroupList[] =  Helper::makeTGroupMusic(
+            name:       'bonus add ' . randomString(10),
+            artistName: [[ARTIST_MAIN], ['phpunit bonus add ' . randomString(12)]],
+            tagName:    ['hard.bop'],
+            user:       $this->userList[1],
+        );
+        $torrent = Helper::makeTorrentMusic(
+            tgroup: $this->tgroupList[0],
+            user:  $this->userList[1],
+            title: 'phpunit bonus add ' . randomString(10),
+        );
+        Helper::generateTorrentSeed($torrent, $this->userList[1]);
+        $this->assertGreaterThan(
+            0,
+            $manager->addSeedPoints(24680),
+            'bonus-add-seed-points',
+        );
+        $this->assertEquals(
+            12345 + 23456 + 24680,
+            $this->userList[1]->flush()->bonusPointsTotal(),
+            'bonus-added-user-1',
+        );
+
+        $this->userList[1]->toggleAttr('no-fl-gifts', true);
+        $this->assertGreaterThan(
+            0,
+            $manager->addGlobalPoints(7531),
+            'bonus-add-global-points',
+        );
+        $this->assertEquals(
+            12345 + 23456 + 24680,
+            $this->userList[1]->flush()->bonusPointsTotal(),
+            'bonus-added-no-global',
+        );
+        foreach ($this->userList as $u) {
+            new User\Bonus($u)->setPoints(0.0);
+        }
+    }
+
     public function testUploadReward(): void {
         $this->userList[] = Helper::makeUser('bonusup.' . randomString(6), 'bonus');
-        $this->userList[0]->requestContext()->setViewer($this->userList[0]);
         $this->tgroupList[] =  Helper::makeTGroupMusic(
             name:       'bonus ' . randomString(10),
             artistName: [[ARTIST_MAIN], ['phpunit bonus ' . randomString(12)]],

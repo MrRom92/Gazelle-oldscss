@@ -2,6 +2,8 @@
 
 namespace Gazelle\Manager;
 
+use Gazelle\Enum\UserStatus;
+
 class Bonus extends \Gazelle\Base {
     final public const CACHE_OPEN_POOL = 'bonus_pool'; // also defined in \Gazelle\Bonus
     final protected const CACHE_ITEM   = 'bonus_item';
@@ -45,11 +47,11 @@ class Bonus extends \Gazelle\Base {
     }
 
     public function flushPriceCache(): void {
-        $this->items = [];
+        unset($this->items);
         self::$cache->delete_value(self::CACHE_ITEM);
     }
 
-    public function getOpenPool(): array {
+    public function openPoolList(): array {
         $key = self::CACHE_OPEN_POOL;
         $pool = self::$cache->get_value($key);
         if ($pool === false) {
@@ -84,13 +86,14 @@ class Bonus extends \Gazelle\Base {
         self::$db->prepared_query("
             SELECT um.ID
             FROM users_main um
-                AND um.Enabled = '1'
-                AND NOT EXISTS (
+            WHERE NOT EXISTS (
                     SELECT 1 FROM user_has_attr uha
                     INNER JOIN user_attr ua ON (ua.ID = uha.UserAttrID AND ua.Name IN ('disable-bonus-points', 'no-fl-gifts'))
                     WHERE uha.UserID = um.ID
                 )
-        ");
+                AND um.Enabled = ?
+            ", UserStatus::enabled->value
+        );
         return $this->addMultiPoints($points, self::$db->collect('ID'));
     }
 
@@ -99,14 +102,14 @@ class Bonus extends \Gazelle\Base {
             SELECT um.ID
             FROM users_main um
             INNER JOIN user_last_access ula ON (ula.user_id = um.ID)
-                AND um.Enabled = '1'
-                AND NOT EXISTS (
+            WHERE NOT EXISTS (
                     SELECT 1 FROM user_has_attr uha
                     INNER JOIN user_attr ua ON (ua.ID = uha.UserAttrID AND ua.Name IN ('disable-bonus-points', 'no-fl-gifts'))
                     WHERE uha.UserID = um.ID
                 )
+                AND um.Enabled      = ?
                 AND ula.last_access >= ?
-            ", $since
+            ", UserStatus::enabled->value, $since
         );
         return $this->addMultiPoints($points, self::$db->collect('ID'));
     }
@@ -116,14 +119,14 @@ class Bonus extends \Gazelle\Base {
             SELECT DISTINCT um.ID
             FROM users_main um
             INNER JOIN torrents t ON (t.UserID = um.ID)
-                AND um.Enabled = '1'
-                AND NOT EXISTS (
+            WHERE NOT EXISTS (
                     SELECT 1 FROM user_has_attr uha
                     INNER JOIN user_attr ua ON (ua.ID = uha.UserAttrID AND ua.Name IN ('disable-bonus-points', 'no-fl-gifts'))
                     WHERE uha.UserID = um.ID
                 )
+                AND um.Enabled = ?
                 AND t.created >= ?
-            ", $since
+            ", UserStatus::enabled->value, $since
         );
         return $this->addMultiPoints($points, self::$db->collect('ID'));
     }
@@ -133,24 +136,26 @@ class Bonus extends \Gazelle\Base {
             SELECT DISTINCT um.ID
             FROM users_main um
             INNER JOIN xbt_files_users xfu ON (xfu.uid = um.ID)
-                AND um.Enabled = '1'
-                AND NOT EXISTS (
+            WHERE NOT EXISTS (
                     SELECT 1 FROM user_has_attr uha
                     INNER JOIN user_attr ua ON (ua.ID = uha.UserAttrID AND ua.Name IN ('disable-bonus-points', 'no-fl-gifts'))
                     WHERE uha.UserID = um.ID
                 )
-                AND xfu.active = 1 and xfu.remaining = 0 and xfu.connectable = 1 and timespent > 0
-        ");
+                AND xfu.remaining = 0
+                AND xfu.active    = 1
+                AND um.Enabled    = ?
+            ", UserStatus::enabled->value
+        );
         return $this->addMultiPoints($points, self::$db->collect('ID'));
     }
 
     public function givePoints(\Gazelle\Task|null $task = null): int {
         //------------------------ Update Bonus Points -------------------------//
         // calculation:
-        // Size * (0.0754 + (0.1207 * ln(1 + seedtime)/ (seeders ^ 0.55)))
-        // Size (convert from bytes to GB) is in torrents
-        // Seedtime (convert from hours to days) is in xbt_files_history
-        // Seeders is in torrents_leech_stats
+        // size (convert from bytes to GB) is in torrents
+        // seedtime (convert from hours to days) is in xbt_files_history
+        // seeders is in torrents_leech_stats
+        // bonus_scale how the torrent size is adjusted according to category
 
         self::$db->dropTemporaryTable("bonus_update");
         self::$db->prepared_query("
@@ -165,23 +170,29 @@ class Bonus extends \Gazelle\Base {
         self::$db->prepared_query("
             INSERT INTO bonus_update (user_id, delta)
             SELECT xfu.uid,
-                sum(bonus_accrual(t.Size, xfh.seedtime, tls.Seeders))
-            FROM xbt_files_users            AS xfu
-            INNER JOIN xbt_files_history    AS xfh USING (uid, fid)
-            INNER JOIN users_main           AS um ON (um.ID = xfu.uid)
-            INNER JOIN torrents             AS t  ON (t.ID = xfu.fid)
-            INNER JOIN torrents_leech_stats AS tls ON (tls.TorrentID = t.ID)
-            WHERE xfu.active         = 1
-                AND xfu.remaining    = 0
-                AND xfu.mtime        > unix_timestamp(now() - INTERVAL 1 HOUR)
-                AND um.Enabled       = '1'
-                AND NOT EXISTS (
+                sum(category_bonus_accrual(t.Size, xfh.seedtime, tls.Seeders, c.bonus_scale))
+            FROM (
+                SELECT DISTINCT uid, fid
+                FROM xbt_files_users
+                WHERE remaining = 0
+                    AND active  = 1
+                    AND mtime   > unix_timestamp(now() - INTERVAL 1 HOUR)
+            )                               xfu
+            INNER JOIN xbt_files_history    xfh USING (uid, fid)
+            INNER JOIN users_main           um  ON (um.ID = xfu.uid)
+            INNER JOIN torrents             t   ON (t.ID = xfu.fid)
+            INNER JOIN torrents_leech_stats tls ON (tls.TorrentID = t.ID)
+            INNER JOIN torrents_group       tg  ON (tg.ID = t.GroupID)
+            INNER JOIN category             c   ON (c.category_id = tg.CategoryID)
+            WHERE NOT EXISTS (
                     SELECT 1 FROM user_has_attr uha
                     INNER JOIN user_attr ua ON (ua.ID = uha.UserAttrID AND ua.Name IN ('disable-bonus-points'))
                     WHERE uha.UserID = um.ID
                 )
+                AND um.Enabled    = ?
             GROUP BY xfu.uid
-        ");
+            ", UserStatus::enabled->value
+        );
         self::$db->prepared_query("
             SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ
         ");
@@ -189,7 +200,7 @@ class Bonus extends \Gazelle\Base {
 
         self::$db->prepared_query("
             INSERT INTO user_bonus
-                     (user_id, points)
+                (user_id, points)
             SELECT bu.user_id, bu.delta
             FROM bonus_update bu
             ON DUPLICATE KEY UPDATE points = points + bu.delta

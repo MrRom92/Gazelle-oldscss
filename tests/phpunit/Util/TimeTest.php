@@ -78,4 +78,34 @@ class TimeTest extends TestCase {
             'time-convert-span'
         );
     }
+
+    public static function providerSeconds(): array {
+        $hour = 3600;
+        $day  = $hour * 24;
+        $week = $day  *  7;
+        $year = $week * 52;
+        return [
+            [               -1, '0s'],
+            [                0, '0s'],
+            [                1, '1s'],
+            [                1, '1s'],
+            [               60, '1m'],
+            [              119, '1m59s'],
+            [             3599, '59m59s'],
+            [       $hour * 19, '19h'],
+            [       $hour + 62, '1h1m'],
+            [         $day * 4, '4d'],
+            [       $week + 61, '1w1m'],
+            [$year + $hour * 3, '1y3h'],
+        ];
+    }
+
+    #[DataProvider('providerSeconds')]
+    public function testConvertSeconds(int $seconds, string $expected): void {
+        $this->assertEquals(
+            $expected,
+            Time::convertSeconds($seconds),
+            "time-seconds-$seconds"
+        );
+    }
 }

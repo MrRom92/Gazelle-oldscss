@@ -132,6 +132,7 @@ class Helper {
         array $tagName,
         int $releaseType = 1
     ): \Gazelle\TGroup {
+        $user->requestContext()->setViewer($user);
         $tgroup = new \Gazelle\Manager\TGroup()->create(
             categoryId:      (int)new Category()->findIdByName('Music'),
             releaseType:     $releaseType,

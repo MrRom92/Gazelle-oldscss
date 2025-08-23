@@ -38,7 +38,7 @@ echo $Twig->render('bonus/store.twig', [
     'bonus'    => $bonus,
     'discount' => $bonusMan->discount(),
     'donate'   => $donate,
-    'pool'     => $bonusMan->getOpenPool(),
+    'pool'     => $bonusMan->openPoolList(),
     'purchase' => $purchase,
     'viewer'   => $Viewer,
 ]);

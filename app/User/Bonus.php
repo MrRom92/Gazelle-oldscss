@@ -3,6 +3,7 @@
 namespace Gazelle\User;
 
 use Gazelle\BonusPool;
+use Gazelle\Util\SortableTableHeader;
 
 /**
  * Note: there is no userHasItem() method to check if a user has bought a
@@ -117,6 +118,21 @@ class Bonus extends \Gazelle\BaseUser {
             self::$cache->cache_value($key, $summary, 86400 * 7);
         }
         return $summary;
+    }
+
+    public function heading(): SortableTableHeader {
+        return new SortableTableHeader('hourlypoints', [
+            'title'         => ['dbColumn' => 'title',          'defaultSort' => 'asc',  'text' => 'Title'],
+            'size'          => ['dbColumn' => 'size',           'defaultSort' => 'desc', 'text' => 'Size'],
+            'seeders'       => ['dbColumn' => 'seeders',        'defaultSort' => 'desc', 'text' => 'Seeders'],
+            'seedtime'      => ['dbColumn' => 'seed_time',      'defaultSort' => 'desc', 'text' => 'Duration'],
+            'hourlypoints'  => ['dbColumn' => 'hourly_points',  'defaultSort' => 'desc', 'text' => 'BP/hour'],
+            'dailypoints'   => ['dbColumn' => 'daily_points',   'defaultSort' => 'desc', 'text' => 'BP/day'],
+            'weeklypoints'  => ['dbColumn' => 'weekly_points',  'defaultSort' => 'desc', 'text' => 'BP/week'],
+            'monthlypoints' => ['dbColumn' => 'monthly_points', 'defaultSort' => 'desc', 'text' => 'BP/month'],
+            'yearlypoints'  => ['dbColumn' => 'yearly_points',  'defaultSort' => 'desc', 'text' => 'BP/year'],
+            'pointspergb'   => ['dbColumn' => 'points_per_gb',  'defaultSort' => 'desc', 'text' => 'BP/GB/year'],
+        ]);
     }
 
     public function history(int $limit, int $offset): array {
@@ -494,15 +510,17 @@ class Bonus extends \Gazelle\BaseUser {
 
     public function hourlyRate(): float {
         return (float)self::$db->scalar("
-            SELECT sum(bonus_accrual(t.Size, xfh.seedtime, tls.Seeders))
+            SELECT sum(category_bonus_accrual(t.Size, xfh.seedtime, tls.Seeders, c.bonus_scale))
             FROM (
-                SELECT DISTINCT uid,fid
+                SELECT DISTINCT uid, fid
                 FROM xbt_files_users
                 WHERE active = 1 AND remaining = 0 AND mtime > unix_timestamp(NOW() - INTERVAL 1 HOUR) AND uid = ?
             ) AS xfu
-            INNER JOIN xbt_files_history AS xfh USING (uid, fid)
-            INNER JOIN torrents AS t ON (t.ID = xfu.fid)
+            INNER JOIN xbt_files_history    xfh USING (uid, fid)
+            INNER JOIN torrents             t   ON (t.ID = xfu.fid)
             INNER JOIN torrents_leech_stats tls ON (tls.TorrentID = t.ID)
+            INNER JOIN torrents_group       tg  ON (tg.ID = t.GroupID)
+            INNER JOIN category             c   ON (c.category_id = tg.CategoryID)
             WHERE xfu.uid = ?
             ", $this->user->id, $this->user->id
         );
@@ -510,29 +528,31 @@ class Bonus extends \Gazelle\BaseUser {
 
     public function userTotals(): array {
         $stats = self::$db->rowAssoc("
-            SELECT count(*) AS total_torrents,
-                coalesce(sum(t.Size), 0)   AS total_size,
-                coalesce(sum(bonus_accrual(t.Size, xfh.seedtime,                           tls.Seeders)), 0)                           AS hourly_points,
-                coalesce(sum(bonus_accrual(t.Size, xfh.seedtime + (24 * 1),                tls.Seeders)), 0) * (24 * 1)                AS daily_points,
-                coalesce(sum(bonus_accrual(t.Size, xfh.seedtime + (24 * 7),                tls.Seeders)), 0) * (24 * 7)                AS weekly_points,
-                coalesce(sum(bonus_accrual(t.Size, xfh.seedtime + (24 * 365.256363004/12), tls.Seeders)), 0) * (24 * 365.256363004/12) AS monthly_points,
-                coalesce(sum(bonus_accrual(t.Size, xfh.seedtime + (24 * 365.256363004),    tls.Seeders)), 0) * (24 * 365.256363004)    AS yearly_points,
+            SELECT count(*)                                                                                              AS total_torrents,
+                coalesce(sum(t.Size), 0)                                                                                 AS total_size,
+                coalesce(sum(category_bonus_accrual(t.Size, xfh.seedtime, tls.Seeders, c.bonus_scale)), 0)               AS hourly_points,
+                coalesce(sum(future_bonus_accrual(t.Size, xfh.seedtime, tls.Seeders, c.bonus_scale, 1)), 0)              AS daily_points,
+                coalesce(sum(future_bonus_accrual(t.Size, xfh.seedtime, tls.Seeders, c.bonus_scale, 7)), 0)              AS weekly_points,
+                coalesce(sum(future_bonus_accrual(t.Size, xfh.seedtime, tls.Seeders, c.bonus_scale, 365.25636 / 12)), 0) AS monthly_points,
+                coalesce(sum(future_bonus_accrual(t.Size, xfh.seedtime, tls.Seeders, c.bonus_scale, 365.25636)), 0)      AS yearly_points,
                 if (coalesce(sum(t.Size), 0) = 0,
                     0,
-                    sum(bonus_accrual(t.Size, xfh.seedtime + (24 * 365.256363004),    tls.Seeders)) * (24 * 365.256363004)
-                    / (sum(t.Size) / (1024*1024*1024))
+                    sum(future_bonus_accrual(t.Size, xfh.seedtime, tls.Seeders, c.bonus_scale, 365.25636))
+                        / (sum(t.Size) / (1024*1024*1024))
                 ) AS points_per_gb
             FROM (
                 SELECT DISTINCT uid, fid
                 FROM xbt_files_users
-                WHERE active = 1
+                WHERE active      = 1
                     AND remaining = 0
-                    AND mtime > unix_timestamp(NOW() - INTERVAL 1 HOUR)
-                    AND uid = ?
+                    AND mtime     > unix_timestamp(NOW() - INTERVAL 1 HOUR)
+                    AND uid       = ?
             ) AS xfu
-            INNER JOIN xbt_files_history AS xfh USING (uid, fid)
-            INNER JOIN torrents AS t ON (t.ID = xfu.fid)
+            INNER JOIN xbt_files_history    xfh USING (uid, fid)
+            INNER JOIN torrents             t   ON (t.ID = xfu.fid)
             INNER JOIN torrents_leech_stats tls ON (tls.TorrentID = t.ID)
+            INNER JOIN torrents_group       tg  ON (tg.ID = t.GroupID)
+            INNER JOIN category             c   ON (c.category_id = tg.CategoryID)
             WHERE xfu.uid = ?
             ", $this->user->id, $this->user->id
         );
@@ -540,37 +560,52 @@ class Bonus extends \Gazelle\BaseUser {
         return $stats;
     }
 
-    public function seedList(string $orderBy, string $orderWay, int $limit, int $offset): array {
+    public function seedList(
+        int $limit,
+        int $offset,
+        \Gazelle\Manager\Torrent $torMan = new \Gazelle\Manager\Torrent(),
+    ): array {
+        $heading = $this->heading();
         self::$db->prepared_query("
             SELECT
                 t.ID,
+                tg.Name                  AS title,
                 t.Size                   AS size,
                 GREATEST(tls.Seeders, 1) AS seeders,
                 xfh.seedtime             AS seed_time,
-                bonus_accrual(t.Size, xfh.seedtime,                           tls.Seeders)                           AS hourly_points,
-                bonus_accrual(t.Size, xfh.seedtime + (24 * 1),                tls.Seeders) * (24 * 1)                AS daily_points,
-                bonus_accrual(t.Size, xfh.seedtime + (24 * 7),                tls.Seeders) * (24 * 7)                AS weekly_points,
-                bonus_accrual(t.Size, xfh.seedtime + (24 * 365.256363004/12), tls.Seeders) * (24 * 365.256363004/12) AS monthly_points,
-                bonus_accrual(t.Size, xfh.seedtime + (24 * 365.256363004),    tls.Seeders) * (24 * 365.256363004)    AS yearly_points,
-                bonus_accrual(t.Size, xfh.seedtime + (24 * 365.256363004),    tls.Seeders) * (24 * 365.256363004)
+                category_bonus_accrual(t.Size, xfh.seedtime, tls.Seeders, c.bonus_scale)               AS hourly_points,
+                future_bonus_accrual(t.Size, xfh.seedtime, tls.Seeders, c.bonus_scale, 1)              AS daily_points,
+                future_bonus_accrual(t.Size, xfh.seedtime, tls.Seeders, c.bonus_scale, 7)              AS weekly_points,
+                future_bonus_accrual(t.Size, xfh.seedtime, tls.Seeders, c.bonus_scale, 365.25636 / 12) AS monthly_points,
+                future_bonus_accrual(t.Size, xfh.seedtime, tls.Seeders, c.bonus_scale, 365.25636)      AS yearly_points,
+                future_bonus_accrual(t.Size, xfh.seedtime, tls.Seeders, c.bonus_scale, 365.25636)
                     / (t.Size / (1024*1024*1024)) AS points_per_gb
             FROM (
-                SELECT DISTINCT uid,fid FROM xbt_files_users WHERE active=1 AND remaining=0 AND mtime > unix_timestamp(NOW() - INTERVAL 1 HOUR) AND uid = ?
+                SELECT DISTINCT uid, fid
+                FROM xbt_files_users
+                WHERE active      = 1
+                    AND remaining = 0
+                    AND mtime     > unix_timestamp(NOW() - INTERVAL 1 HOUR)
+                    AND uid       = ?
             ) AS xfu
-            INNER JOIN xbt_files_history AS xfh USING (uid, fid)
-            INNER JOIN torrents AS t ON (t.ID = xfu.fid)
-            INNER JOIN torrents_leech_stats AS tls ON (tls.TorrentID = t.ID)
+            INNER JOIN xbt_files_history    xfh USING (uid, fid)
+            INNER JOIN torrents             t   ON (t.ID = xfu.fid)
+            INNER JOIN torrents_leech_stats tls ON (tls.TorrentID = t.ID)
+            INNER JOIN torrents_group       tg  ON (tg.ID = t.GroupID)
+            INNER JOIN category             c   ON (c.category_id = tg.CategoryID)
             WHERE
                 xfu.uid = ?
-            ORDER BY $orderBy $orderWay
+            ORDER BY {$heading->orderBy()} {$heading->dir()}
             LIMIT ?
             OFFSET ?
             ", $this->user->id, $this->user->id, $limit, $offset
         );
         $list = [];
         foreach (self::$db->to_array('ID', MYSQLI_ASSOC) as $r) {
-            $r['torrent'] = new \Gazelle\Torrent($r['ID']);
-            $list[] = $r;
+            if ($r['ID']) {
+                $r['torrent'] = $torMan->findById((int)$r['ID']);
+                $list[] = $r;
+            }
         }
         return $list;
     }

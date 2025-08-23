@@ -218,7 +218,11 @@ class Time {
             return '0s';
         }
 
-        $interval = [($seconds % 60) .  's'];
+        $interval = [];
+        $remainder = $seconds % 60;
+        if ($remainder) {
+            $interval[] = "{$remainder}s";
+        }
         $minutes = (int)floor($seconds / 60);
 
         if ($minutes >= 60) {
@@ -254,7 +258,16 @@ class Time {
             $interval[] = "{$day}d";
         }
         if ($week) {
-            $interval[] = "{$week}w";
+            if ($week < 52) {
+                $interval[] = "{$week}w";
+            } else {
+                $year = (int)floor($week / 52);
+                $week = $week % 52;
+                if ($week) {
+                    $interval[] = "{$week}w";
+                }
+                $interval[] = "{$year}y";
+            }
         }
         return implode('', array_slice(array_reverse($interval), 0, 2));
     }

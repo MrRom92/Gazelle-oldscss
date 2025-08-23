@@ -6,35 +6,16 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$page   = max(1, (int)($_GET['page'] ?? 1));
-$limit  = TORRENTS_PER_PAGE;
-$offset = TORRENTS_PER_PAGE * ($page - 1);
-
-$heading = new Util\SortableTableHeader('hourlypoints', [
-    'size'          => ['dbColumn' => 'size',           'defaultSort' => 'desc', 'text' => 'Size'],
-    'seeders'       => ['dbColumn' => 'seeders',        'defaultSort' => 'desc', 'text' => 'Seeders'],
-    'seedtime'      => ['dbColumn' => 'seed_time',      'defaultSort' => 'desc', 'text' => 'Duration'],
-    'hourlypoints'  => ['dbColumn' => 'hourly_points',  'defaultSort' => 'desc', 'text' => 'BP/hour'],
-    'dailypoints'   => ['dbColumn' => 'daily_points',   'defaultSort' => 'desc', 'text' => 'BP/day'],
-    'weeklypoints'  => ['dbColumn' => 'weekly_points',  'defaultSort' => 'desc', 'text' => 'BP/week'],
-    'monthlypoints' => ['dbColumn' => 'monthly_points', 'defaultSort' => 'desc', 'text' => 'BP/month'],
-    'yearlypoints'  => ['dbColumn' => 'yearly_points',  'defaultSort' => 'desc', 'text' => 'BP/year'],
-    'pointspergb'   => ['dbColumn' => 'points_per_gb',  'defaultSort' => 'desc', 'text' => 'BP/GB/year'],
-]);
-
-$userMan = new Manager\User();
 if (empty($_GET['userid'])) {
     $user = $Viewer;
-    $ownProfile = true;
 } else {
     if (!$Viewer->permitted('admin_bp_history')) {
         Error403::error();
     }
-    $user = $userMan->findById((int)($_GET['userid'] ?? 0));
+    $user = new Manager\User()->findById((int)($_GET['userid'] ?? 0));
     if (is_null($user)) {
         Error404::error();
     }
-    $ownProfile = false;
 }
 
 $bonus = new User\Bonus($user);
@@ -43,10 +24,9 @@ $paginator = new Util\Paginator(TORRENTS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($total['total_torrents']);
 
 echo $Twig->render('user/bonus.twig', [
-    'heading'   => $heading,
-    'list'      => $bonus->seedList($heading->orderBy(), $heading->dir(), $paginator->limit(), $paginator->offset()),
+    'heading'   => $bonus->heading(),
+    'list'      => $bonus->seedList($paginator->limit(), $paginator->offset()),
     'paginator' => $paginator,
-    'title'     => $ownProfile ? 'Your Bonus Points Rate' : ($user->username() . "'s Bonus Point Rate"),
     'total'     => $total,
     'user'      => $user,
     'viewer'    => $Viewer,
