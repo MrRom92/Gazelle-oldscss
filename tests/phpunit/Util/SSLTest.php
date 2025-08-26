@@ -15,11 +15,11 @@ class SSLTest extends TestCase {
             $this->assertTrue(strtotime($result[0]) < date('U'), 'ssl-not-before');
             $this->assertTrue(strtotime($result[1]) > date('U'), 'ssl-not-after');
 
+            $initial = count($manager->list());
             $id = $manager->add($host, 443);
             $this->assertGreaterThan(0, $id, 'ssl-add');
-            $this->assertCount(1, $manager->list(), 'ssl-list');
-            $this->assertTrue($manager->expirySoon('1 YEAR'), 'ssl-expiry-future');
-            $this->assertFalse($manager->expirySoon('-1 YEAR'), 'ssl-expiry-past');
+            $this->assertCount($initial + 1, $manager->list(), 'ssl-list');
+            $this->assertGreaterThan(0, $manager->expiryDays(), 'ssl-expiry-future');
             $this->assertEquals(1, $manager->removeList([$id]), 'ssl-remove');
         }
     }

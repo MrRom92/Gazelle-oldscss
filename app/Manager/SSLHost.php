@@ -78,13 +78,17 @@ class SSLHost extends \Gazelle\Base {
         ");
     }
 
-    public function expirySoon(string $interval): bool {
-        return (bool)$this->pg()->scalar("
-            select 1 where exists (
-                select 1 from ssl_host where not_after < now() + ?::interval
-            )
-            ", $interval
-        );
+    /**
+     * Return the number of days before the next SSL certificate expiry.
+     * 0 means there are no upcoming expiries (or no domains tracked)
+     * 1 means "within the next 24 hours"
+     + A positive value means as many days.
+     */
+    public function expiryDays(): int {
+        return (int)$this->pg()->scalar("
+            select min(ceil(extract(epoch from not_after - now())/86400))
+            from ssl_host
+        ");
     }
 
     public function schedule(): int {
