@@ -90,7 +90,7 @@ class DebugTest extends TestCase {
         $Debug->mark($message);
         $list = array_filter($Debug->markList(), fn ($m) => $m[0] === $message);
         $this->assertCount(1, $list, 'debug-marklist'); /** @phpstan-ignore-line */
-        $event = current($list); /** @phpstan-ignore-line */
+        $event = current($list);
         $this->assertCount(4, $event, 'debug-mark-total');
         $this->assertEquals($message, $event[0], 'debug-mark-event');
     }

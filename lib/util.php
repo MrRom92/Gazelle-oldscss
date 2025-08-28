@@ -621,9 +621,11 @@ function make_utf8(?string $str): string {
         return $str;
     }
     $encoding = mb_detect_encoding($str, 'UTF-8, ISO-8859-1', true);
-    return $encoding === 'ISO-8859-1'
-        ? (string)mb_convert_encoding($str, 'UTF-8', $encoding)
-        : $str;
+    if ($encoding === 'ISO-8859-1') {
+        $encoded = mb_convert_encoding($str, 'UTF-8', $encoding);
+        return $encoded ? $encoded : $str;
+    }
+    return $str;
 }
 
 /**
