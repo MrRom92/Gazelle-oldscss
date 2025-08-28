@@ -44,6 +44,10 @@ if (!isset($viewMap[$view])) {
     Error400::error('Unknown staff inbox view parameter');
 }
 
+if (!in_array($view, ['open', 'resolved'])) {
+    $staffpmMan->setOrderByAssigned(true);
+}
+
 if (isset($_GET['id'])) {
     $staffpmMan->setSearchId($Viewer, (int)$_GET['id']);
 } else {

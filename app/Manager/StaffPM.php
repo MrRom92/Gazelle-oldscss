@@ -7,6 +7,7 @@ class StaffPM extends \Gazelle\BaseManager {
 
     protected array $args;
     protected array $cond;
+    protected bool  $orderByAssigned = false;
 
     public function create(\Gazelle\User $user, int $level, string $subject, string $message): \Gazelle\StaffPM {
         self::$db->begin_transaction();
@@ -240,6 +241,11 @@ class StaffPM extends \Gazelle\BaseManager {
         return $this;
     }
 
+    public function setOrderByAssigned(bool $orderByAssigned): static {
+        $this->orderByAssigned = $orderByAssigned;
+        return $this;
+    }
+
     public function searchTotalSql(): string {
         $where = implode(' AND ', $this->cond);
         return "SELECT count(*) FROM staff_pm_conversations AS spc WHERE $where";
@@ -251,6 +257,9 @@ class StaffPM extends \Gazelle\BaseManager {
 
     public function pageSql(): string {
         $where = implode(' AND ', $this->cond);
+        $orderBy = $this->orderByAssigned
+            ? 'IF(AssignedToUser = ?, 0, 1) ASC, spc.Date DESC'
+            : 'spc.Date DESC';
         return "
             SELECT spc.ID          AS id,
                 spc.Subject        AS subject,
@@ -281,15 +290,21 @@ class StaffPM extends \Gazelle\BaseManager {
             LEFT JOIN staff_pm_messages spm ON (spm.ConvID = spc.ID)
             WHERE $where
             GROUP BY spc.ID
-            ORDER BY IF(AssignedToUser = ?, 0, 1) ASC, spc.Date DESC
+            ORDER BY $orderBy
             LIMIT ? OFFSET ?
             ";
     }
 
     public function page(\Gazelle\User $user, int $limit, int $offset): array {
+        $args = [...$this->args];
+        if ($this->orderByAssigned) {
+            $args[] = $user->id;
+        }
+        $args[] = $limit;
+        $args[] = $offset;
         self::$db->prepared_query(
             $this->pageSql(),
-            ...[...$this->args, $user->id, $limit, $offset]
+            ...$args
         );
         return self::$db->to_array(false, MYSQLI_ASSOC);
     }
