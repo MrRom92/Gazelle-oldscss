@@ -215,36 +215,34 @@
         </tr>
     </table>
 
-{% if not viewer.hasAttr('hide-tags') %}
-{%  set n = 7 %}
-{%  set width = 100 / n %}
+{% set n = 7 %}
+{% set width = 100 / n %}
     <div>
-    <span style="float: right">
-        {{- dom.click('#tag-toggle', "$('#taglist').gtoggle(); this.innerHTML = (this.innerHTML == 'Show tags' ? 'Hide tags' : 'Show tags'); return false;") -}}
-        <a class="brackets" id="tag-toggle" href="#">{% if viewer.hasAttr('hide-tags') %}Show{% else %}Hide{% endif %} tags</a>
-    </span>
+        <span style="float: right">
+            {{- dom.click('#tag-toggle', "$('#taglist').gtoggle(); this.innerHTML = (this.innerHTML == 'Show tags' ? 'Hide tags' : 'Show tags'); return false;") -}}
+            <a class="brackets" id="tag-toggle" href="#">{% if viewer.hasAttr('hide-tags') %}Show{% else %}Hide{% endif %} tags</a>
+        </span>
 
-    <table class="layout cat_list" id="taglist">
-        <tr class="label">
-            <td colspan="{{ n }}">
-            Click on a tag name to add it the form filter
-            </td>
-        </tr>
-        <tr>
-{%  for tag in tag_default %}
-{%      if loop.index0 and (not (loop.index0 % n)) %}
-        </tr>
-        <tr>
-{%      endif %}
-            <td style="width:{{ width }}%"><a href="#" onclick="add_tag('{{ tag }}'); return false;">{{ tag }}</a></td>
-{%  endfor %}
-{%  if tag_default|length % n %}
-            <td colspan="{{ n - (tag_default|length % n) }}">&nbsp;</td>
-{%  endif %}
-        </tr>
-    </table>
-    </div>
+        <table class="layout cat_list {{ hidden(viewer.hasAttr('hide-tags')) }}" id="taglist">
+            <tr class="label">
+                <td colspan="{{ n }}">
+                Click on a tag name to add it the form filter
+                </td>
+            </tr>
+            <tr>
+{% for tag in tag_default %}
+{%  if loop.index0 and (not (loop.index0 % n)) %}
+            </tr>
+            <tr>
 {% endif %}
+                <td style="width:{{ width }}%"><a href="#" onclick="add_tag('{{ tag }}'); return false;">{{ tag }}</a></td>
+{% endfor %}
+{%  if tag_default|length % n %}
+                <td colspan="{{ n - (tag_default|length % n) }}">&nbsp;</td>
+{%  endif %}
+            </tr>
+        </table>
+    </div>
 
     <table class="layout cat_list" width="100%">
         <tr>
