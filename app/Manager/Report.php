@@ -62,7 +62,7 @@ class Report extends \Gazelle\BaseManager {
         $list = [];
         foreach ($idList as $id) {
             $report = $this->findById($id);
-            switch ($report-> subjectType()) {
+            switch ($report->subjectType()) {
                 case 'collage':
                     $context = [
                         'label'   => 'collage',

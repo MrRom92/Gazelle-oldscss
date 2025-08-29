@@ -56,6 +56,9 @@ switch ($_GET['action'] ?? '') {
     case 'quote_notifications':
         include_once 'quote_notifications.php';
         break;
+    case 'reports':
+        include_once 'report_history.php';
+        break;
     default:
         header('Location: index.php');
 }

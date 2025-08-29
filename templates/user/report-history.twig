@@ -1,0 +1,54 @@
+{{ header('Reports submitted by ' ~ user.username, {'js': 'bbcode'}) }}
+<div class="thin">
+    <div class="header">
+        <h2>Reports submitted by {{ user.id|user_url }}</h2>
+        <div class="linkbox">
+            <a href="userhistory.php?action=reports&amp;userid={{ user.id }}&amp;filter=resolved">Resolved</a> |
+            <a href="userhistory.php?action=reports&amp;userid={{ user.id }}&amp;filter=open">Open</a> |
+            <a href="userhistory.php?action=reports&amp;userid={{ user.id }}">All</a>
+        </div>
+        {{ paginator.linkbox|raw }}
+    </div>
+
+{% for item in list %}
+{%  if loop.first %}
+    <table class="report_table">
+        <tr class="colhead">
+            <td width="50%">Torrent</td>
+            <td width="25%">Reason</td>
+            <td width="7%">Status</td>
+            <td width="18%">Report Time</td>
+        </tr>
+{%  endif %}
+        <tr>
+            <td>Torrent <a href="torrents.php?torrentid={{ item.torrent.id }}">{{ item.torrent.id }}</a>: {% if not item.torrent.isDeleted or item.torrent.hasTGroup %}{{ item.torrent.name }}{{ item.torrent.isDeleted ? ' (Deleted)' : '' }}{% else %}Deleted Torrent Group{% endif %}</td>
+            {{ dom.click('#report_details_toggle_' ~ item.id, "$('#report_details_" ~ item.id ~ "').gtoggle();") }}
+            <td>{{ item.reportType.name }} <a id="report_details_toggle_{{ item.id }}" class="brackets" style="cursor: pointer;">Toggle</a></td>
+            <td>{{ item.status == 'Resolved' ? 'Resolved' : 'Pending' }}</td>
+            <td>{{ item.created|time_diff }}</td>
+        </tr>
+        <tr id="report_details_{{ item.id }}" class="hidden">
+            <td colspan="4">
+                <blockquote>{{ item.reason }}</blockquote>
+                {% if item.message %}
+                    <blockquote>{{ item.message }}</blockquote>
+                {% endif %}
+            </td>
+        </tr>
+{%  if loop.last %}
+    </table>
+    {{ paginator.linkbox|raw }}
+{%  endif %}
+{% else %}
+    <div class="box pad thin">
+        <h4 style="text-align: center">
+            {% if viewer.id == user.id %}
+                You have no {{ filter ? filter ~ ' ' : ''}}reports
+            {% else %}
+                {{ user.username }} has no {{filter ? filter ~ ' ' : ''}}reports
+            {% endif %}
+        </h4>
+    </div>
+{% endfor %}
+</div>
+{{ footer() }}

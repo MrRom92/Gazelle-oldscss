@@ -42,6 +42,9 @@
 {% if own_profile or viewer.permitted('users_view_friends') %}
         <a href="friends.php" class="brackets">Friends</a>
 {% endif %}
+{% if own_profile %}
+        <a href="userhistory.php?action=reports&amp;userid={{ user_id }}" class="brackets">My Reports</a>
+{% endif %}
 {% if viewer.permitted('admin_reports') %}
         <a href="reportsv2.php?view=reporter&amp;id={{ user_id }}" class="brackets">Reports</a>
 {% endif %}

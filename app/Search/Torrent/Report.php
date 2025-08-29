@@ -43,6 +43,12 @@ class Report extends \Gazelle\Base {
                     $this->cond[] = "r.Type = ?";
                     $this->args[] = $reportType->type();
                     break;
+                case 'open':
+                    $this->title   = "Open reports";
+                    $this->cond[]  = "r.Status != ?";
+                    $this->args[]  = "Resolved";
+                    $this->orderBy = "ORDER BY r.LastChangeTime DESC";
+                    break;
                 default:
                     break;
             }
@@ -87,6 +93,16 @@ class Report extends \Gazelle\Base {
             }
             $this->args[] = $this->id;
         }
+    }
+
+    public function setReporterId(int $reporterId): void {
+        $this->configure();
+        $this->cond[] = "r.ReporterID = ?";
+        $this->args[] = $reporterId;
+    }
+
+    public function setOrderBy(string $orderBy): void {
+        $this->orderBy = "ORDER BY $orderBy";
     }
 
     public function canUnclaim(\Gazelle\User $user): bool {
