@@ -24,7 +24,7 @@
             <td>Torrent <a href="torrents.php?torrentid={{ item.torrent.id }}">{{ item.torrent.id }}</a>: {% if not item.torrent.isDeleted or item.torrent.hasTGroup %}{{ item.torrent.name }}{{ item.torrent.isDeleted ? ' (Deleted)' : '' }}{% else %}Deleted Torrent Group{% endif %}</td>
             {{ dom.click('#report_details_toggle_' ~ item.id, "$('#report_details_" ~ item.id ~ "').gtoggle();") }}
             <td>{{ item.reportType.name }} <a id="report_details_toggle_{{ item.id }}" class="brackets" style="cursor: pointer;">Toggle</a></td>
-            <td>{{ item.status == 'Resolved' ? 'Resolved' : 'Pending' }}</td>
+            <td>{{ item.status == 'Resolved' ? 'Resolved' : 'Open' }}</td>
             <td>{{ item.created|time_diff }}</td>
         </tr>
         <tr id="report_details_{{ item.id }}" class="hidden">
