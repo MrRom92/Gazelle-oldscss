@@ -11,5 +11,6 @@ if (!$Viewer->permitted('site_view_flow')) {
 }
 
 echo $Twig->render('admin/economy.twig', [
-    'info' => new Stats\Economic(),
+    'eco'     => new Stats\Economic(),
+    'torrent' => new Stats\Torrent(),
 ]);

@@ -16,6 +16,9 @@ class Torrent extends \Gazelle\Base {
             self::PEER_KEY,
             self::TORRENT_FLOW,
             self::CATEGORY_TOTAL,
+            'stats_album_count',
+            'stats_artist_count',
+            'stats_perfect_total',
         ]);
         unset($this->info);
         return $this;
@@ -71,6 +74,20 @@ class Torrent extends \Gazelle\Base {
                     WHERE created > now() - INTERVAL 120 DAY
                 ');
 
+                $info['single-seeded'] = (int)self::$db->scalar("
+                    SELECT count(*)
+                    FROM (
+                        SELECT fid
+                        FROM xbt_files_users
+                        GROUP BY fid
+                        HAVING count(*) = 1
+                    ) single_seed
+                ");
+
+                $info['total-seeded'] = (int)self::$db->scalar("
+                    SELECT count(DISTINCT fid) FROM xbt_files_users
+                ");
+
                 self::$db->prepared_query("
                     SELECT Format, Encoding, count(*) as n
                     FROM torrents
@@ -114,12 +131,20 @@ class Torrent extends \Gazelle\Base {
         return $this->info()['torrent-total'];
     }
 
+    public function torrentSeededTotal(): int {
+        return $this->info()['total-seeded'];
+    }
+
     public function totalFiles(): int {
         return $this->info()['total-files'];
     }
 
     public function totalSize(): int {
         return $this->info()['total-size'];
+    }
+
+    public function singleSeedTotal(): int {
+        return $this->info()['single-seeded'];
     }
 
     public function amount(string $interval): int {

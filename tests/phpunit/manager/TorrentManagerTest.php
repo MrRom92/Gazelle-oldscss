@@ -101,14 +101,14 @@ class TorrentManagerTest extends TestCase {
         $list = $manager->topTenHistoryList($date, isByDay: true);
         $this->assertCount(2, $list, 'tor-top10-history-by-day');
         $this->assertEquals(2, $list[1]['sequence'], 'tor-top10-day-1-sequence');
-        $this->assertEquals($this->torrentList[1]->id(), $list[0]['torrent_id'], 'tor-top10-day-1-id');
+        $this->assertEquals($this->torrentList[1]->id, $list[0]['torrent_id'], 'tor-top10-day-1-id');
 
         $this->assertEquals(1, $list[0]['sequence'], 'tor-top10-day-2-sequence');
-        $this->assertEquals($this->torrentList[0]->id(), $list[1]['torrent_id'], 'tor-top10-day-2-id');
+        $this->assertEquals($this->torrentList[0]->id, $list[1]['torrent_id'], 'tor-top10-day-2-id');
 
         $this->assertCount(2, $list, 'tor-top10-history-by-week');
         $this->assertEquals(
-            [$this->torrentList[1]->id(), $this->torrentList[0]->id()],
+            [$this->torrentList[1]->id, $this->torrentList[0]->id],
             array_map(fn($t) => $t['torrent_id'], $list),
             'tor-top10-history-week-list'
         );
@@ -129,14 +129,14 @@ class TorrentManagerTest extends TestCase {
         // Torrent created RESEED_NEVER_ACTIVE_TORRENT days ago has been active recently
         $db->prepared_query("
             UPDATE torrents_leech_stats SET last_action = now() WHERE TorrentID = ?
-        ", $this->torrentList[1]->id());
+        ", $this->torrentList[1]->id);
         $this->torrentList[1]->flush();
         $this->assertFalse($this->torrentList[1]->isReseedRequestAllowed());
 
         // Torrent created RESEED_NEVER_ACTIVE_TORRENT days ago reseed request
         $db->prepared_query("
             UPDATE torrents_leech_stats SET last_action = NULL WHERE TorrentID = ?
-        ", $this->torrentList[1]->id());
+        ", $this->torrentList[1]->id);
         $this->torrentList[1]->flush();
         $this->torrentList[1]->setField('LastReseedRequest', date('Y-m-d H:i:s'))->modify();
         $this->assertFalse($this->torrentList[1]->isReseedRequestAllowed());
@@ -147,7 +147,7 @@ class TorrentManagerTest extends TestCase {
             ->sub(new \DateInterval("P15D"))->format('Y-m-d H:i:s');
         $db->prepared_query("
             UPDATE torrents_leech_stats SET last_action = ? WHERE TorrentID = ?
-        ", $lastActive, $this->torrentList[1]->id());
+        ", $lastActive, $this->torrentList[1]->id);
         $this->torrentList[1]->setField('created', $created)->modify();
         $this->assertTrue($this->torrentList[1]->isReseedRequestAllowed());
 
@@ -192,15 +192,18 @@ class TorrentManagerTest extends TestCase {
          */
         $stats = new Stats\Torrent();
         $this->assertInstanceOf(Stats\Torrent::class, $stats->flush(), 'torrents-stats-flush');
+        $this->assertGreaterThanOrEqual(0, $stats->albumTotal(), 'torrent-stats-album-total');
+        $this->assertGreaterThanOrEqual(0, $stats->amount('day'), 'torrent-stats-interval-amount');
+        $this->assertGreaterThanOrEqual(0, $stats->artistTotal(), 'torrent-stats-artist-total');
+        $this->assertGreaterThanOrEqual(0, $stats->files('day'), 'torrent-stats-interval-files');
+        $this->assertGreaterThanOrEqual(0, $stats->perfectFlacTotal(), 'torrent-stats-perfect-flac-total');
+        $this->assertGreaterThanOrEqual(0, $stats->singleSeedTotal(), 'torrent-stats-torrent-single-seed-total');
+        $this->assertGreaterThanOrEqual(0, $stats->size('day'), 'torrent-stats-interval-size');
+        $this->assertGreaterThanOrEqual(0, $stats->torrentSeededTotal(), 'torrent-stats-torrent-seeded-total');
         $this->assertGreaterThanOrEqual(0, $stats->torrentTotal(), 'torrent-stats-torrent-total');
         $this->assertGreaterThanOrEqual(0, $stats->totalFiles(), 'torrent-stats-file-total');
         $this->assertGreaterThanOrEqual(0, $stats->totalSize(), 'torrent-stats-size-total');
-        $this->assertGreaterThanOrEqual(0, $stats->amount('day'), 'torrent-stats-interval-amount');
-        $this->assertGreaterThanOrEqual(0, $stats->files('day'), 'torrent-stats-interval-files');
-        $this->assertGreaterThanOrEqual(0, $stats->size('day'), 'torrent-stats-interval-size');
-        $this->assertGreaterThanOrEqual(0, $stats->albumTotal(), 'torrent-stats-album-total');
-        $this->assertGreaterThanOrEqual(0, $stats->artistTotal(), 'torrent-stats-artist-total');
-        $this->assertGreaterThanOrEqual(0, $stats->perfectFlacTotal(), 'torrent-stats-perfect-flac-total');
+
         $this->assertGreaterThanOrEqual(0, count($stats->category()), 'torrent-stats-category');
         $this->assertGreaterThanOrEqual(0, count($stats->format()), 'torrent-stats-format');
         $this->assertGreaterThanOrEqual(0, count($stats->formatMonth()), 'torrent-stats-format-month');

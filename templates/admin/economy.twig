@@ -26,16 +26,18 @@ Tools necessary for economic management
     b. project effects with intelligent mathematical analysis of a 24, 48 or 72 hour freeleech
 #}
 
-{% set download = info.downloadTotal %}
-{% set upload   = info.uploadTotal %}
-{% set enabled  = info.userTotal %}
-{% set leechers = info.leecherTotal %}
-{% set peers    = info.userPeerTotal %}
-{% set seeders  = info.seederTotal %}
-{% set torrents = info.torrentTotal %}
+{% set download = eco.downloadTotal %}
+{% set upload   = eco.uploadTotal %}
+{% set userbase = eco.userTotal %}
+{% set enabled  = eco.userTotal - eco.userDisabledTotal %}
+{% set leechers = eco.leecherTotal %}
+{% set peers    = eco.userPeerTotal %}
+{% set seeders  = eco.seederTotal %}
+{% set torrents = eco.torrentTotal %}
 
-{% set snatches         = info.snatchTotal %}
-{% set snatches_overall = info.snatchGrandTotal %}
+{% set snatches         = eco.snatchTotal %}
+{% set snatches_overall = eco.snatchGrandTotal %}
+{% set seeded_total     = torrent.torrentSeededTotal %}
 
 {{ header('Economy') }}
 
@@ -52,25 +54,41 @@ Tools necessary for economic management
                 <li><strong>Total buffer: </strong>{{ (upload - download)|octet_size }}</li>
                 <br />
                 <li><strong>Mean ratio: </strong>{{ ratio(upload, download) }}</li>
-                <li><strong>Mean upload: </strong>{{ (upload / enabled)|octet_size }}</li>
-                <li><strong>Mean download: </strong>{{ (download / enabled)|octet_size }}</li>
-                <li><strong>Mean buffer: </strong>{{ ((upload - download) / enabled)|octet_size }}</li>
+                <li><strong>Mean upload: </strong>{{ (upload / userbase)|octet_size }} ({{
+                    (upload / userbase)|octet_size }} enabled)</li>
+                <li><strong>Mean download: </strong>{{ (download / enabled)|octet_size }} ({{
+                    (upload / enabled)|octet_size }} enabled)</li>
+                <li><strong>Mean buffer: </strong>{{ ((upload - download) / userbase)|octet_size }} ({{
+                    ((upload / enabled) / enabled)|octet_size }} enabled)</li>
+                </li>
                 <br />
-                <li><strong>Total request bounty: </strong>{{ info.bountyTotal|octet_size }}</li>
-                <li><strong>Available request bounty: </strong>{{ info.bountyAvailable|octet_size }}</li>
+                <li><strong>Total request bounty: </strong>{{ eco.bountyTotal|octet_size }}</li>
+                <li><strong>Available request bounty: </strong>{{ eco.bountyAvailable|octet_size }}</li>
             </ul>
             </td>
             <td style="vertical-align:top; width:50%">
             <ul class="stats nobullet">
-                <li><strong>Users: </strong>{{ info.userTotal|number_format }}</li>
-                <li><strong>Users with MFA: </strong>{{ info.userMfaTotal|number_format }}</li>
-                <li><strong>Disabled users: </strong>{{ info.userDisabledTotal|number_format }}</li>
+                <li>
+                    <strong>Total Users: </strong>{{ eco.userTotal|number_format }}
+                    <ul class="stats nobullet">
+                        <li><strong>Disabled: </strong>{{ eco.userDisabledTotal|number_format }}</li>
+                        <li><strong>Enabled: </strong>{{ (eco.userTotal - eco.userDisabledTotal)|number_format }}</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Users with MFA: </strong>{{ eco.userMfaTotal|number_format }}
+{% if eco.userTotal == 0 -%}
+(0%)
+{%- else -%}
+({{ ((eco.userMfaTotal / eco.userTotal) * 100)|number_format(1) }}%)
+{%- endif -%}
+                </li>
                 <br />
-                <li><strong>BP in circulation: </strong>{{ info.bonusTotal|number_format }}</li>
-                <li><strong>BP stranded: </strong>{{ info.bonusStrandedTotal|number_format }}</li>
+                <li><strong>BP in circulation: </strong>{{ eco.bonusTotal|number_format }}</li>
+                <li><strong>BP stranded: </strong>{{ eco.bonusStrandedTotal|number_format }}</li>
                 <br />
-                <li><strong>Tokens in circulation: </strong>{{ info.tokenTotal|number_format }}</li>
-                <li><strong>Tokens stranded: </strong>{{ info.tokenStrandedTotal|number_format }}</li>
+                <li><strong>Tokens in circulation: </strong>{{ eco.tokenTotal|number_format }}</li>
+                <li><strong>Tokens stranded: </strong>{{ eco.tokenStrandedTotal|number_format }}</li>
             </ul>
             <br />
             <div>("Stranded" refers to disabled users)</div>
@@ -88,29 +106,78 @@ Tools necessary for economic management
             <tr>
             <td style="vertical-align:top; width:50%">
             <ul class="stats nobullet">
+                <li><strong>Total torrents: </strong>{{ torrent.torrentTotal|number_format }}</li>
+                <li>
+                    <strong>Total seeded torrents: </strong>{{ seeded_total|number_format }}
+{% if torrent.torrentTotal == 0 -%}
+(0%)
+{%- else -%}
+({{ ((seeded_total / torrent.torrentTotal) * 100)|number_format(1) }}%)
+{%- endif -%}
+                </li>
+                <li><strong>Total single-seeded torrents: </strong>{{ torrent.singleSeedTotal|number_format }}
+{% if torrent.torrentTotal == 0 -%}
+(0%)
+{%- else -%}
+({{ ((torrent.singleSeedTotal / torrent.torrentTotal) * 100)|number_format(1) }}%)
+{%- endif -%}
+                </li>
+                <li>
+                    <strong>Total uploaders: </strong>{{ eco.uploaderTotal|number_format }}
+{% if eco.userTotal == 0 -%}
+(0%)
+{%- else -%}
+({{ ((eco.uploaderTotal / userbase) * 100)|number_format(1) }}% — {{
+    ((eco.uploaderTotal / enabled) * 100)|number_format(1) }}% of enabled)
+{%- endif -%}
+                </li>
+                <li>
+                    <strong>Total users seeding: </strong>{{ eco.userPeerTotal|number_format }}
+{% if eco.userPeerTotal == 0 -%}
+(0%)
+{%- else -%}
+({{ ((eco.userPeerTotal / userbase) * 100)|number_format(1) }}% — {{
+    ((eco.userPeerTotal / enabled) * 100)|number_format(1) }}% of enabled)
+{%- endif -%}
+                </li>
                 <li><strong>Total seeders: </strong>{{ seeders|number_format }}</li>
                 <li><strong>Total leechers: </strong>{{ leechers|number_format }}</li>
                 <li><strong>Total peers: </strong>{{ (seeders + leechers)|number_format }}</li>
                 <li><strong>Total snatches: </strong>{{ snatches_overall|number_format }}</li>
-                <li><strong>Seeder/leecher ratio: </strong>{{ ratio(seeders, leechers) }}</li>
-                <li><strong>Seeder/snatch ratio: </strong>{{ ratio(seeders, snatches_overall) }}</li>
+                <li><strong>Seeder/Leecher ratio: </strong>{{ ratio(seeders, leechers) }}</li>
+                <li><strong>Seeder/Snatch ratio: </strong>{{ ratio(seeders, snatches_overall) }}</li>
+                <li><strong>Seeder/Torrent ratio: </strong>{{ ratio(seeders, torrent.torrentTotal) }}</li>
                 <br />
-                <li><strong>Total users in at least 1 swarm: </strong>{{ peers|number_format }}</li>
-                <li><strong>Mean seeding per user in at least 1 swarm: </strong>{{ (peers ? seeders / peers : 0)|number_format(2) }}</li>
-                <li><strong>Mean leeching per user in at least 1 swarm: </strong>{{ (peers ? leechers / peers : 0)|number_format(2) }}</li>
-                <li><strong>Mean snatches per user in at least 1 swarm: </strong>{{ (peers ? snatches / peers : 0)|number_format(2) }}</li>
+                <li><strong>Total users in at least one swarm: </strong>{{ peers|number_format }}</li>
+                <li><strong>Mean leeching per user in at least one swarm: </strong>{{ (peers ? leechers / peers : 0)|number_format(2) }}</li>
+                <li><strong>Mean snatches per user in at least one swarm: </strong>{{ (peers ? snatches / peers : 0)|number_format(2) }}</li>
             </ul>
             </td>
             <td style="vertical-align:top; width:50%">
             <ul class="stats nobullet">
                 <li><strong>Mean seeders per torrent: </strong>{{ (torrents ? seeders / torrents : 0)|number_format(2) }}</li>
-                <li><strong>Mean leechers per torrent: </strong>{{ (torrents ? leechers / torrents : 0)|number_format(2) }}</li>
+                <li><strong>Mean leechers per torrent: </strong>{{ (torrents ? leechers / torrents : 0)|number_format(4) }}</li>
                 <li><strong>Mean snatches per torrent: </strong>{{ (torrents ? snatches / torrents : 0)|number_format(2) }}</li>
                 <br />
                 <li><strong>Mean seeding per user: </strong>{{ (seeders / enabled)|number_format(2) }}</li>
                 <li><strong>Mean leeching per user: </strong>{{ (leechers / enabled)|number_format(2) }}</li>
                 <li><strong>Mean snatches per user: </strong>{{ (snatches_overall / enabled)|number_format(2) }}</li>
             </ul>
+            <br />
+{% for user in eco.biggestSeederList %}
+{%  if loop.first %}
+            Users contributing the most seeds
+            <ol>
+{%  endif %}
+                <li>{{ user.user_id|user_url }}: {{ user.total|number_format }}
+                ({{ ((user.total / seeders) * 100)|number_format(2) }}%)
+                </li>
+{%  if loop.last %}
+            </ol>
+{%  endif %}
+{% else %}
+            No seeders to show in biggest seeder list
+{% endfor %}
             </td>
             </tr>
             </table>

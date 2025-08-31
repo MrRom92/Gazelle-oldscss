@@ -3,13 +3,13 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
-use GazelleUnitTest\Helper;
 use PHPUnit\Framework\Attributes\DataProvider;
+use GazelleUnitTest\Helper;
 
 define('FAKE_LEVEL', 666);
 
 /**
- * This test can be a little flakey locally if it fails halfway through. To fix up:
+ * This test can be a little flaky locally if it fails halfway through. To fix up:
  * DELETE ul FROM users_levels ul LEFT JOIN users_info ui USING (userid) WHERE ui.userid IS NULL; DELETE FROM permissions WHERE level = ?; -- FAKE_LEVEL
  */
 
