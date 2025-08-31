@@ -11,14 +11,19 @@ if (!$Viewer->permitted('admin_periodic_task_view')) {
 }
 
 $scheduler = new TaskScheduler();
-$taskId    = (int)($_REQUEST['id'] ?? 0);
-
-if ($taskId && $_REQUEST['mode'] === 'run_now') {
-    if (!$Viewer->permitted('admin_schedule')) {
-        Error403::error();
+$task      = $scheduler->findById((int)($_REQUEST['id'] ?? 0));
+if ($task) {
+    if ($_REQUEST['mode'] === 'run_now') {
+        if (!$Viewer->permitted('admin_schedule')) {
+            Error403::error();
+        }
+        authorize();
+        $scheduler->runNow($task['periodic_task_id']);
+    } elseif ($_REQUEST['mode'] === 'enqueue') {
+        $scheduler->enqueue($task['periodic_task_id']);
+        header("Location: tools.php?action=periodic&mode=view");
+        exit;
     }
-    authorize();
-    $scheduler->runNow($taskId);
 }
 
 echo $Twig->render('admin/scheduler/view.twig', [

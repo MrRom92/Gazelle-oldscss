@@ -29,16 +29,24 @@ class TaskScheduler extends Base {
     public function heading(): Util\SortableTableHeader {
         return $this->heading ??= new Util\SortableTableHeader(
             'next', [
-                'name'        => ['dbColumn' => 'name',       'defaultSort' => 'asc',   'text' => 'Name'],
-                'period'      => ['dbColumn' => 'period',     'defaultSort' => 'asc',   'text' => 'Interval'],
-                'runs'        => ['dbColumn' => 'runs',       'defaultSort' => 'desc',  'text' => 'Runs'],
-                'duration'    => ['dbColumn' => 'duration',   'defaultSort' => 'desc',  'text' => 'Duration'],
-                'processed'   => ['dbColumn' => 'processed',  'defaultSort' => 'desc',  'text' => 'Processed'],
-                'status'      => ['dbColumn' => 'status',     'defaultSort' => 'desc',  'text' => 'Status'],
-                'errors'      => ['dbColumn' => 'errors',     'defaultSort' => 'desc',  'text' => 'Errors'],
-                'events'      => ['dbColumn' => 'events',     'defaultSort' => 'desc',  'text' => 'Events'],
-                'last'        => ['dbColumn' => "last_run IS NULL ASC, is_enabled DESC, last_run", 'defaultSort' => 'desc', 'text' => 'Last Run'],
-                'next'        => ['dbColumn' => 'next_run IS NULL ASC, is_enabled DESC, next_run', 'defaultSort' => 'desc', 'text' => 'Next Run'],
+                'name'        => ['dbColumn' => 'name',      'defaultSort' => 'asc',  'text' => 'Name'],
+                'period'      => ['dbColumn' => 'period',    'defaultSort' => 'asc',  'text' => 'Interval'],
+                'runs'        => ['dbColumn' => 'runs',      'defaultSort' => 'desc', 'text' => 'Runs'],
+                'duration'    => ['dbColumn' => 'duration',  'defaultSort' => 'desc', 'text' => 'Duration'],
+                'processed'   => ['dbColumn' => 'processed', 'defaultSort' => 'desc', 'text' => 'Processed'],
+                'status'      => ['dbColumn' => 'status',    'defaultSort' => 'desc', 'text' => 'Status'],
+                'errors'      => ['dbColumn' => 'errors',    'defaultSort' => 'desc', 'text' => 'Errors'],
+                'events'      => ['dbColumn' => 'events',    'defaultSort' => 'desc', 'text' => 'Events'],
+                'last'        => [
+                    'dbColumn'    => 'last_run IS NULL ASC, is_enabled DESC, last_run',
+                    'defaultSort' => 'desc',
+                    'text'        => 'Last Run'
+                ],
+                'next'        => [
+                    'dbColumn'    => 'next_run IS NULL ASC, is_enabled DESC, run_now DESC, next_run',
+                    'defaultSort' => 'asc',
+                    'text'        => 'Next Run'
+                ],
             ]
         );
     }
@@ -95,6 +103,26 @@ class TaskScheduler extends Base {
 
     public static function isClassValid(string $class): bool {
         return class_exists('Gazelle\\Task\\' . $class);
+    }
+
+    public function enqueue(int $taskId): int {
+        self::$db->prepared_query("
+            UPDATE periodic_task SET
+                run_now = true
+            WHERE periodic_task_id = ?
+            ", $taskId
+        );
+        return self::$db->affected_rows();
+    }
+
+    public function clear(int $taskId): int {
+        self::$db->prepared_query('
+            UPDATE periodic_task SET
+                run_now = false
+            WHERE periodic_task_id = ?
+            ', $taskId
+        );
+        return self::$db->affected_rows();
     }
 
     public function updateTask(
@@ -404,12 +432,7 @@ class TaskScheduler extends Base {
         }
 
         if ($task['run_now']) {
-            self::$db->prepared_query('
-                UPDATE periodic_task SET
-                    run_now = FALSE
-                WHERE periodic_task_id = ?
-                ', $taskId
-            );
+            $this->clear($taskId);
         }
         return $processed;
     }

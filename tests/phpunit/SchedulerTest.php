@@ -187,6 +187,24 @@ class SchedulerTest extends TestCase {
         $this->assertEquals(0, $item->nrItems, 'task-nr-item');
     }
 
+    public function testTaskEnqueue(): void {
+        $scheduler = new TaskScheduler();
+        $task      = $scheduler->findByName('Test');
+        $taskId    = $task['periodic_task_id'];
+        $this->assertEquals(
+            1,
+            $scheduler->enqueue($taskId),
+            'task-enqueue',
+        );
+        $task = $scheduler->findByName('Test');
+        $this->assertEquals(1, $task['run_now'], 'task-is-enqueued');
+        $this->assertEquals(
+            1,
+            $scheduler->clear($taskId),
+            'task-clear',
+        );
+    }
+
     public function testTaskStats(): void {
         $scheduler = new TaskScheduler();
         $task      = $scheduler->findByName('Test');
