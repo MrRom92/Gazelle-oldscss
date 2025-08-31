@@ -77,6 +77,7 @@ class User extends \Gazelle\BaseObject {
             // to fallback on an array with values of 0
             $info = self::$db->rowAssoc("
                 SELECT artist_added_total,
+                    bp_hourly_accrual,
                     collage_total,
                     collage_contrib,
                     download_total,
@@ -105,6 +106,7 @@ class User extends \Gazelle\BaseObject {
                 ", $this->id
             ) ?? [
                 'artist_added_total'    => 0,
+                'bp_hourly_accrual'     => 0.0,
                 'collage_total'         => 0,
                 'collage_contrib'       => 0,
                 'download_total'        => 0,
@@ -159,6 +161,10 @@ class User extends \Gazelle\BaseObject {
 
     public function collageTotal(): int {
         return $this->info()['collage_total'];
+    }
+
+    public function bpHourlyAccrual(): float {
+        return $this->info()['bp_hourly_accrual'];
     }
 
     public function collageContrib(): int {

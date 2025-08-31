@@ -112,9 +112,31 @@ class TGroupTest extends TestCase {
         $this->assertTrue($this->userList['user']->canSpendFLToken($torrent), 'tgroup-user-fltoken');
 
         new Stats\Users()->refresh();
-        $this->assertEquals(2, $this->userList['user']->stats()->uploadTotal(), 'tgroup-user-stats-upload');
-        $this->assertEquals(1, $this->userList['user']->stats()->uniqueGroupTotal(), 'tgroup-user-stats-unique');
+        $userStats = $this->userList['user']->stats();
+        $this->assertEquals(2, $userStats->uploadTotal(), 'tgroup-user-stats-upload');
+        $this->assertEquals(1, $userStats->uniqueGroupTotal(), 'tgroup-user-stats-unique');
+        $this->assertEquals(0, $userStats->perfecterFlacTotal(), 'tgroup-user-stats-perfecter');
         $this->assertEquals(1, $this->userList['admin']->stats()->uploadTotal(), 'tgroup-user-admin-upload');
+        $this->assertEquals(0.0, $userStats->bpHourlyAccrual(), 'tgroup-user-stats-bp-accrual');
+
+        $timeline = $userStats->timeline();
+        $this->assertCount(3, $timeline, 'tgroup-user-timeline-count');
+        $this->assertEquals(
+            [
+                "name",
+                "interval",
+                "count",
+                "data_up",
+                "data_down",
+                "buffer",
+                "bp",
+                "uploads",
+                "perfect",
+                "start",
+            ],
+            array_keys($timeline[0]),
+            'tgroupe-user-timeline-section'
+        );
 
         $bookmarker = new User\Bookmark($this->userList['user']);
         $bookmarker->create($this->tgroup);

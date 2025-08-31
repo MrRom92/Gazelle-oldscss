@@ -98,6 +98,13 @@ class DownloadTest extends TestCase {
             $this->torrent->flush()->isFreeleechPersonal(),
             'download-torrent-is-free-personal'
         );
+
+        new Stats\Users()->refresh();
+        $this->assertEquals(
+            1,
+            $this->userList['down']->flush()->stats()->flTokenTotal(),
+            'download-user-fl-tokens-used',
+        );
     }
 
     public function testRedownload(): void {

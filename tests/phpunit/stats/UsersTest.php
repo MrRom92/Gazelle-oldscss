@@ -99,6 +99,32 @@ class UsersTest extends TestCase {
         $this->assertTrue($stats->newUsersAllowed($this->userList[0]), 'user-stats-new-users');
     }
 
+    public function testMiscUserStats(): void {
+        $this->userList[] = Helper::makeUser('stats.' . randomString(6), 'user', enable: true);
+        $userStats = $this->userList[0]->stats();
+        $id = $this->userList[0]->id;
+        $this->assertEquals(
+            "user.php?action=stats&userid={$id}",
+            $userStats->location(),
+            'user-stats-location',
+        );
+        $this->assertEquals(
+            "<a href=\"user.php?action=stats&amp;userid={$id}\">Stats</a>",
+            $userStats->link(),
+            'user-stats-link'
+        );
+        $this->assertEquals(
+            0,
+            $userStats->unresolvedReportsTotal(),
+            'user-stats-unresolved-reports',
+        );
+        $this->assertEquals(
+            0,
+            $userStats->remove(),
+            'user-stats-remove',
+        );
+    }
+
     public function testTop(): void {
         $stats = new Stats\Users();
         $this->assertInstanceOf(Stats\Users::class, $stats->flush(), 'users-stats-flush');

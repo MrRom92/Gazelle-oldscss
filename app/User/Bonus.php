@@ -510,19 +510,8 @@ class Bonus extends \Gazelle\BaseUser {
 
     public function hourlyRate(): float {
         return (float)self::$db->scalar("
-            SELECT sum(category_bonus_accrual(t.Size, xfh.seedtime, tls.Seeders, c.bonus_scale))
-            FROM (
-                SELECT DISTINCT uid, fid
-                FROM xbt_files_users
-                WHERE active = 1 AND remaining = 0 AND mtime > unix_timestamp(NOW() - INTERVAL 1 HOUR) AND uid = ?
-            ) AS xfu
-            INNER JOIN xbt_files_history    xfh USING (uid, fid)
-            INNER JOIN torrents             t   ON (t.ID = xfu.fid)
-            INNER JOIN torrents_leech_stats tls ON (tls.TorrentID = t.ID)
-            INNER JOIN torrents_group       tg  ON (tg.ID = t.GroupID)
-            INNER JOIN category             c   ON (c.category_id = tg.CategoryID)
-            WHERE xfu.uid = ?
-            ", $this->user->id, $this->user->id
+            SELECT bp_hourly_accrual FROM user_summary WHERE user_id = ?
+            ", $this->user->id
         );
     }
 

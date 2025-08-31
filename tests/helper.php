@@ -236,13 +236,14 @@ class Helper {
         \Gazelle\Torrent $torrent,
         \Gazelle\User    $user,
         string           $ipAddr = '127.0.0.1',
+        int              $interval = 5,
     ): int {
         $db = \Gazelle\DB::DB();
         $db->prepared_query("
             INSERT INTO xbt_files_users
                    (fid, uid, useragent, peer_id, ip, active, remaining, timespent, mtime)
-            VALUES (?,   ?,   ?,         ?,       ?,  1, 0, 1, unix_timestamp(now() - interval 5 second))
-            ",  $torrent->id, $user->id, 'ua-' . randomString(12), randomString(20), $ipAddr,
+            VALUES (?,   ?,   ?,         ?,       ?,  1, 0, 1, unix_timestamp(now() - interval ? second))
+            ",  $torrent->id, $user->id, 'ua-' . randomString(12), randomString(20), $ipAddr, $interval
         );
         return $db->affected_rows();
     }

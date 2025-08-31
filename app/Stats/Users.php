@@ -614,6 +614,30 @@ class Users extends \Gazelle\Base {
         );
 
         self::$db->prepared_query("
+            INSERT INTO user_summary_new (user_id, bp_hourly_accrual)
+                SELECT xfu.uid,
+                    sum(category_bonus_accrual(t.Size, xfh.seedtime, tls.Seeders, c.bonus_scale))
+                FROM (
+                    SELECT DISTINCT uid, fid
+                    FROM xbt_files_users
+                    WHERE active = 1
+                        AND remaining = 0
+                        AND mtime > unix_timestamp(NOW() - INTERVAL 1 HOUR)
+                ) AS xfu
+                INNER JOIN xbt_files_history xfh USING (uid, fid)
+                INNER JOIN torrents t ON (t.ID = xfu.fid)
+                INNER JOIN torrents_leech_stats tls ON (tls.TorrentID = t.ID)
+                INNER JOIN torrents_group tg ON (tg.ID = t.GroupID)
+                INNER JOIN category c ON (c.category_id = tg.CategoryID)
+                INNER JOIN users_main um ON (um.ID = xfu.uid)
+                WHERE um.Enabled = ?
+                GROUP BY xfu.uid
+            ON DUPLICATE KEY UPDATE
+                bp_hourly_accrual = VALUES(bp_hourly_accrual)
+            ", UserStatus::enabled->value
+        );
+
+        self::$db->prepared_query("
             INSERT INTO user_summary_new (user_id, snatch_total, snatch_unique)
                 SELECT xs.uid,
                    count(*) AS total,
