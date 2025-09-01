@@ -70,17 +70,17 @@ $flTokens = (int)($_POST['FLTokens'] ?? 0);
 
 $userReason           = trim($_POST['UserReason']);
 $disableAvatar        = isset($_POST['DisableAvatar']);
-$disableInvites       = isset($_POST['DisableInvites']);
-$disablePosting       = isset($_POST['DisablePosting']);
-$disablePoints        = isset($_POST['DisablePoints']);
 $disableForums        = isset($_POST['DisableForums']);
+$disableInvites       = isset($_POST['DisableInvites']);
+$disableIRC           = isset($_POST['DisableIRC']);
+$disableLeech         = isset($_POST['DisableLeech']) ? 0 : 1;
+$disablePM            = isset($_POST['DisablePM']);
+$disablePoints        = isset($_POST['DisablePoints']);
+$disablePosting       = isset($_POST['DisablePosting']);
+$disableRequests      = isset($_POST['DisableRequests']);
 $disableTagging       = isset($_POST['DisableTagging']);
 $disableUpload        = isset($_POST['DisableUpload']);
 $disableWiki          = isset($_POST['DisableWiki']);
-$disablePM            = isset($_POST['DisablePM']);
-$disableIRC           = isset($_POST['DisableIRC']);
-$disableRequests      = isset($_POST['DisableRequests']);
-$disableLeech         = isset($_POST['DisableLeech']) ? 0 : 1;
 $editWikiEditReadable = isset($_POST['wiki-edit-readable']);
 $resetRatioWatch      = $_POST['ResetRatioWatch'] ?? 0 ? 1 : 0;
 $resetIPHistory       = $_POST['ResetIPHistory'] ?? 0;
@@ -607,7 +607,7 @@ if ($addedClasses) {
 
 if ($changePassword && $Viewer->permitted('users_edit_password')) {
     $user->history()->modifyPassword($_POST['ChangePassword'], false);
-    new \Gazelle\User\Session($user)->dropAll();
+    new User\Session($user)->dropAll();
 }
 
 if ($newBonusPoints !== false) {
