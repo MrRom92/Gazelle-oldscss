@@ -2,9 +2,14 @@
 
 namespace Gazelle\Task;
 
+use Gazelle\Stats\Users   as UsersStats;
+use Gazelle\Stats\TGroups as TGroupsStats;
+
 class CommunityStats extends \Gazelle\Task {
     public function run(): void {
-        $this->processed = new \Gazelle\Stats\Users()->refresh()
-            + new \Gazelle\Stats\TGroups()->refresh();
+        $usersStats = new UsersStats();
+        $this->processed = new TGroupsStats()->refresh()
+            + $usersStats->refresh()
+            + $usersStats->refreshUseragentTracker();
     }
 }

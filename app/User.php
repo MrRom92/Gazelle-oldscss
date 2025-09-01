@@ -1389,14 +1389,6 @@ class User extends BaseAttrObject {
         return $new;
     }
 
-    public function clients(): array {
-        self::$db->prepared_query('
-            SELECT DISTINCT useragent FROM xbt_files_users WHERE uid = ?
-            ', $this->id
-        );
-        return self::$db->collect(0) ?: ['None'];
-    }
-
     protected function getSingleValue($cacheKey, $query): string {
         $cacheKey .= '_' . $this->id;
         if ($this->forceCacheFlush || ($value = self::$cache->get_value($cacheKey)) === false) {

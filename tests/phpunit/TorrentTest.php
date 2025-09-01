@@ -162,7 +162,24 @@ class TorrentTest extends TestCase {
 
         // a seeder
         $this->userList['seeder'] = Helper::makeUser('torrent.' . randomString(10), 'rent', clearInbox: true);
-        Helper::generateTorrentSeed($torrent, $this->userList['seeder']);
+        $useragent = 'uahist-' . randomString(10);
+        Helper::generateTorrentSeed(
+            $torrent,
+            $this->userList['seeder'],
+            ipAddr: '127.1.1.1',
+            useragent: $useragent
+        );
+
+        // This is as good a place as any to test this
+        new Stats\Users()->refreshUseragentTracker();
+        $this->assertEquals(
+            [[
+                "useragent" => $useragent,
+                "total"     => 1,
+            ]],
+            $this->userList['seeder']->stats()->historyUseragentTracker(),
+            'user-status-history-useragent-tracker',
+        );
 
         $name = $torrent->fullName();
         $path = $torrent->path();

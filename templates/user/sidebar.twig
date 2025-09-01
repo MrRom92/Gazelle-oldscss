@@ -76,7 +76,15 @@
 {% endif %}
 
 {%- if own_profile or viewer.permitted('users_mod') or viewer.isFLS %}
-    <li{% if not own_profile %} class="paranoia_override"{% endif %} id="torrent-client">Torrent clients: {{ user.clients|join('; ') }}</li>
+    <li{% if not own_profile %} class="paranoia_override"{% endif %} id="torrent-client">Torrent clients:
+{%      for u in user.stats.historyUseragentTracker %}
+{{          u.useragent -}}
+{%          if viewer.permitted('users_mod') or (own_profile and user.hasAttr('seedbox-viewer')) %} ({{ u.total|number_format }}){% endif %}
+{%          if not loop.last %}; {% endif %}
+{%      else %}
+None
+{%      endfor -%}
+    </li>
     <li{% if not own_profile %} class="paranoia_override"{% endif %}>Password age: {{ user.history.passwordAge|time_interval }}</li>
 {% endif %}
 

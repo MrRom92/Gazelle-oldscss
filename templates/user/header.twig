@@ -123,7 +123,14 @@ Last seen: {{ user.lastAccessRealtime }}
 Up: {{ user.uploadedSize|octet_size(3) }}
 Down: {{ user.downloadedSize|octet_size(3) }}
 Ratio: {{ ratio(user.uploadedSize, user.downloadedSize) }} (required {{ user.requiredRatio|number_format(2) }})
-Torrent clients: {{ user.clients|join('; ') }}</div>
+Torrent clients:
+{%  for u in user.stats.historyUseragentTracker %}
+{{  u.useragent }} ({{ u.total }})
+{%  else %}
+None
+{%  endfor %}
+</div>
+
 {% endif %}
 <div class="box box_info box_userinfo_stats">
     <div class="head colhead_dark">Statistics</div>

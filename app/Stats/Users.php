@@ -678,6 +678,30 @@ class Users extends \Gazelle\Base {
         return $processed;
     }
 
+    public function refreshUseragentTracker(): int {
+        // NB: useragents may be null if the initial announce from ocelot
+        // was lost, e.g. because of a deadlock or queue overflow.
+        $result =  $this->pg()->execute("
+            merge into history_useragent_tracker hut using (
+                select xfu.uid as id_user,
+                    coalesce(xfu.useragent, '') as useragent,
+                    count(*) as total
+                from relay.xbt_files_users xfu
+                group by xfu.uid, xfu.useragent
+            ) as i on hut.id_user = i.id_user
+                and hut.useragent = i.useragent
+            when not matched and i.total > 0 then
+                insert (  id_user,   useragent,   total)
+                values (i.id_user, i.useragent, i.total)
+            when matched and i.total > 0 then
+                update set
+                    total = i.total
+            when matched then
+                delete
+        ");
+        return $result->getAffectedRows();
+    }
+
     public function registerActivity(string $tableName, int $days): int {
         if ($days > 0) {
             self::$db->prepared_query("
