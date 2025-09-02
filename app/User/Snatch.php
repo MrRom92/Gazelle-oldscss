@@ -2,6 +2,7 @@
 
 namespace Gazelle\User;
 
+use Gazelle\TorrentAbstract;
 use Gazelle\Util\CacheVector;
 
 /**
@@ -47,7 +48,7 @@ class Snatch extends \Gazelle\BaseUser {
         return $vector->init($offset * self::RANGE_BIT, self::$db->collect(0));
     }
 
-    public function isSnatched(\Gazelle\TorrentAbstract $torrent): bool {
+    public function isSnatched(TorrentAbstract $torrent): bool {
         $offset = (int)floor($torrent->id / self::RANGE_BIT);
         if (!isset($this->snatchVec[$offset])) {
             $vector = new CacheVector(sprintf(self::CACHE_KEY, $this->user->id, $offset), self::RANGE_BIT / 8, self::CACHE_EXPIRY);
@@ -60,40 +61,56 @@ class Snatch extends \Gazelle\BaseUser {
         return $this->snatchVec[$offset]->get($torrent->id - $offset * self::RANGE_BIT);
     }
 
-    public function showSnatch(\Gazelle\TorrentAbstract $torrent): bool {
+    public function showSnatch(TorrentAbstract $torrent): bool {
         return (bool)$this->user->option('ShowSnatched') && $this->isSnatched($torrent);
     }
 
     /**
-     * Default list 5 will be cached. When fetching a different amount,
-     * set $forceNoCache to true to avoid caching a list with an unexpected length.
+     * Default list 5 will be cached. When fetching a different amount, set
+     * $flush to true to bust the cache.
      * This technique should be revisited, possibly by adding the limit to the key.
      */
-    public function recentSnatchList(int $limit = 5, bool $forceNoCache = false): array {
+    public function recentSnatchList(
+        int  $limit = 5,
+        bool $flush = false,
+    ): array {
         $key = sprintf(self::USER_RECENT_SNATCH, $this->user->id);
         $recent = self::$cache->get_value($key);
-        if ($forceNoCache) {
+        if ($flush) {
             $recent = false;
         }
         if ($recent === false) {
+            /* A GROUP BY clause is added to the query, which has the effect of
+             * deduplicating sequential snatches from the same group, so that
+             * <n> distinct items are shown. For users that have a large number
+             * of snatches, the cost of the query increases considerably: at
+             * one million snatches the query takes about three seconds to
+             * complete.
+             * Therefore, once a user crosses a threshold, the GROUP BY is
+             * removed, which means that two close recent snatches of the
+             * same group will be shown on their profile. In theory this is
+             * probably quite unlikely. To counteract such a result from
+             * lingering too long, the cache interval has been reduced.
+             */
+            $groupBy = $this->user->stats()->snatchTotal() > FAST_LATEST_SNATCH_THRESHOLD
+                ? '/* no group by */'
+                : 'GROUP BY g.ID';
             self::$db->prepared_query("
                 SELECT g.ID
                 FROM xbt_snatched AS s
                 INNER JOIN torrents AS t ON (t.ID = s.fid)
                 INNER JOIN torrents_group AS g ON (t.GroupID = g.ID)
-                WHERE g.CategoryID = '1'
+                WHERE g.CategoryID = 1
                     AND g.WikiImage != ''
                     AND t.UserID != s.uid
                     AND s.uid = ?
-                GROUP BY g.ID
+                $groupBy
                 ORDER BY s.tstamp DESC
                 LIMIT ?
                 ", $this->user->id, $limit
             );
             $recent = self::$db->collect(0);
-            if (!$forceNoCache) {
-                self::$cache->cache_value($key, $recent, 86400 * 3);
-            }
+            self::$cache->cache_value($key, $recent, 3600);
         }
         return $recent;
     }

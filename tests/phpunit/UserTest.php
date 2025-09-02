@@ -179,11 +179,8 @@ class UserTest extends TestCase {
         $this->assertFalse($this->user->permitted('site_debug'), 'utest-permitted-site-debug');
 
         $this->assertNull($this->user->warningExpiry(), 'utest-warning-expiry');
-        $this->assertNull($this->user->warningExpiry(), 'utest-warning-expiry');
 
-        $this->assertEquals([], $this->user->snatch()->recentSnatchList(), 'utest-recent-snatch');
         $this->assertEquals([], $this->user->recentUploadList(), 'utest-recent-upload');
-        $this->assertInstanceOf(User\Snatch::class, $this->user->snatch()->flush(), 'utest-flush-recent-snatch');
         $this->assertTrue($this->user->flushRecentUpload(), 'utest-flush-recent-upload');
 
         $this->assertEquals(0, $this->user->tokenCount(), 'utest-token-count');

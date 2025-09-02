@@ -571,6 +571,10 @@ defined('MAX_PATH_LEN') or define('MAX_PATH_LEN', 200);
 // How far can users crawl the site logs?
 defined('MAX_LOG_DEPTH') or define('MAX_LOG_DEPTH', 10_000);
 
+// When do snatchers switch to possibly showing duplicate recent snatches on their profile?
+// See: User\Snatch\recentSnatchList()
+defined('FAST_LATEST_SNATCH_THRESHOLD') or define('FAST_LATEST_SNATCH_THRESHOLD', 10_000);
+
 // How many collages to list on a group page when it appears in many collages.
 defined('COLLAGE_SAMPLE_THRESHOLD') or define('COLLAGE_SAMPLE_THRESHOLD', 4);
 

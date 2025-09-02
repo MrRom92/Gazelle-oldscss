@@ -35,10 +35,20 @@ class UserRecent extends \Gazelle\Json {
     public function payload(): array {
         return [
             'snatches' => $this->user->propertyVisible($this->viewer, 'snatched')
-                ? $this->detail($this->user->snatch()->recentSnatchList($this->limit, true))
+                ? $this->detail(
+                    $this->user->snatch()->recentSnatchList(
+                        limit: $this->limit,
+                        flush: $this->user->id === $this->viewer->id,
+                    )
+                )
                 : 'hidden',
             'uploads' => $this->user->propertyVisible($this->viewer, 'uploads')
-                ? $this->detail($this->user->recentUploadList($this->limit, true))
+                ? $this->detail(
+                    $this->user->recentUploadList(
+                        limit: $this->limit,
+                        flush: $this->user->id === $this->viewer->id,
+                    )
+                )
                 : 'hidden',
         ];
     }

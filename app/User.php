@@ -1486,12 +1486,15 @@ class User extends BaseAttrObject {
 
     /**
      * Default list 5 will be cached. When fetching a different amount,
-     * set $forceNoCache to true to avoid caching a list with an unexpected length
+     * set $flush to true to avoid caching a list with an unexpected length
      */
-    public function recentUploadList(int $limit = 5, bool $forceNoCache = false): array {
+    public function recentUploadList(
+        int  $limit = 5,
+        bool $flush = false,
+    ): array {
         $key = sprintf(self::USER_RECENT_UPLOAD, $this->id);
         $recent = self::$cache->get_value($key);
-        if ($forceNoCache) {
+        if ($flush) {
             $recent = false;
         }
         if ($recent === false) {
@@ -1500,7 +1503,7 @@ class User extends BaseAttrObject {
                 FROM torrents_group AS g
                 INNER JOIN torrents AS t ON (t.GroupID = g.ID)
                 WHERE g.WikiImage != ''
-                    AND g.CategoryID = '1'
+                    AND g.CategoryID = 1
                     AND t.UserID = ?
                 GROUP BY g.ID
                 ORDER BY t.created DESC
@@ -1508,9 +1511,7 @@ class User extends BaseAttrObject {
                 ", $this->id, $limit
             );
             $recent = self::$db->collect(0);
-            if (!$forceNoCache) {
-                self::$cache->cache_value($key, $recent, 86400 * 3);
-            }
+            self::$cache->cache_value($key, $recent, 86400 * 3);
         }
         return $recent;
     }
