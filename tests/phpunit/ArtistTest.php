@@ -45,11 +45,11 @@ class ArtistTest extends TestCase {
         $artist = $manager->create('phpunit.' . randomString(12));
         $this->artistIdList[] = $artist->id;
 
-        (DB::DB())->prepared_query("
+        DB::DB()->prepared_query("
             INSERT INTO artist_usage
-                   (artist_id, role, uses)
-            VALUES (?,         ?,    ?)
-            ", $artist->id, '1', RANDOM_ARTIST_MIN_ENTRIES
+                   (artist_id, artist_role_id, uses)
+            VALUES (?,         ?,              ?)
+            ", $artist->id,    1,              RANDOM_ARTIST_MIN_ENTRIES
         );
         // If the following test fails locally:
         // before test run: TRUNCATE TABLE artist_usage;
