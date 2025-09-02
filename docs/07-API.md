@@ -46,6 +46,7 @@ exists for the sake of interoperability and may go away in the future.
     * [Upload](#upload)
     * [Download](#download)
     * [Add Log](#add-log)
+    * [User Torrents](#user-torrents)
 * [Better](#better)
 * [Logchecker](#logchecker)
 * [Requests](#requests)
@@ -1537,6 +1538,63 @@ __Note__: Must be the uploader of the torrent or moderator to add logs
   }
 }
 ```
+
+### User Torrents
+
+**URL:**
+`ajax.php?action=user_torrents&userid=<User ID>&type=<Type>`
+
+__Note__: Must be the uploader of the torrent or moderator to add logs
+
+**GET Arguments:**
+
+`userid` - The user id to get torrents for (can also use `id`)
+`type` - Type of torrents to display (options are `downloaded`, `leeching`, `seeding`, `snatched`, `snatched-unseeded`, `uploaded`, `uploaded-unseeded`)
+`limit` - (Optional) Number of results to display (default: 500)
+`offset` - (Optional) Number of results to offset by (default: 0)
+`page` - (Optional) Page of results to show (default: 1)
+
+__NOTE__: You can only provide one of `offset` or `page`. Offset is a number of
+rows to skip before starting to collect the result set, while page is the page
+number of results to retrieve, where `(page - 1) * limit == offset`.
+
+**Response format:**
+
+```json
+{
+  "status": "success",
+  "response": {
+    "uploaded": [
+        {
+            "groupId": 1,
+            "torrentId": 1,
+            "name": "Foo",
+            "torrentSize": 12345,
+            "artistId": 1,
+            "artistName": "Bar",
+            "artists": {
+                "artists": [
+                    {
+                        "id": 1,
+                        "aliasid": 1,
+                        "name": "Bar",
+                    }
+                ]
+            },
+        },
+    ],
+    "total": 1
+  },
+  "info": {
+    "source": "Gazelle Dev",
+    "version": 1
+  }
+}
+```
+
+__NOTE__: For a torrent that has many main artists, `artistName` will be
+"Various ..." and the `artistId` will be the ID of the first main artist. It is
+recommended to use the `artists` field to get artist information.
 
 ## Better
 

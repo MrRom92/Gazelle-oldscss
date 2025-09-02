@@ -257,6 +257,9 @@ switch ($Action) {
     case 'add_log':
         include_once __DIR__ . '/add_log.php';
         break;
+    case 'user_torrents':
+        include_once __DIR__ . '/user_torrents.php';
+        break;
     default:
         // If they're screwing around with the query string
         json_error("failure");

@@ -3,7 +3,11 @@
 namespace Gazelle\Enum;
 
 enum UserTorrentSearch: string {
-    case seeding  = 'seeding';
-    case snatched = 'snatched';
-    case uploaded = 'uploaded';
+    case downloaded       = 'downloaded';
+    case leeching         = 'leeching';
+    case seeding          = 'seeding';
+    case snatched         = 'snatched';
+    case snatchedUnseeded = 'snatched-unseeded';
+    case uploaded         = 'uploaded';
+    case uploadedUnseeded = 'uploaded-unseeded';
 }

@@ -80,6 +80,32 @@ abstract class ArtistRole extends Base {
         ];
     }
 
+    /**
+     * Returns the id of the first artist that would be shown in the renderRole
+     * display. If it would be shown as "various ...", then it's the first
+     * artist of that role type.
+     *
+     * @return int|null
+     */
+    public function primaryId(): int|null {
+        $roleList       = $this->roleList();
+        $composerCount  = count($roleList['composer'] ?? []);
+        $conductorCount = count($roleList['conductor'] ?? []);
+        $djCount        = count($roleList['dj'] ?? []);
+        $mainCount      = count($roleList['main'] ?? []);
+
+        if ($djCount) {
+            return $roleList['dj'][0]['id'];
+        } elseif ($composerCount) {
+            return $roleList['composer'][0]['id'];
+        } elseif ($mainCount) {
+            return $roleList['main'][0]['id'];
+        } elseif ($conductorCount) {
+            return $roleList['conductor'][0]['id'];
+        }
+        return null;
+    }
+
     protected function renderRole(int $mode): string {
         $roleList       = $this->roleList();
         $arrangerCount  = count($roleList['arranger'] ?? []);
