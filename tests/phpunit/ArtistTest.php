@@ -45,16 +45,17 @@ class ArtistTest extends TestCase {
         $artist = $manager->create('phpunit.' . randomString(12));
         $this->artistIdList[] = $artist->id;
 
+        // fake it
         DB::DB()->prepared_query("
             INSERT INTO artist_usage
                    (artist_id, artist_role_id, uses)
             VALUES (?,         ?,              ?)
             ", $artist->id,    1,              RANDOM_ARTIST_MIN_ENTRIES
         );
-        // If the following test fails locally:
-        // before test run: TRUNCATE TABLE artist_usage;
-        // after test run: (new Stats\Artists)->updateUsage();
-        $this->assertEquals($artist->id, $manager->findRandom()?->id, 'artist-find-random');
+
+        // before test run: TRUNCATE TABLE artst_usage;
+        // and then: new Stats\Artists()->updateUsage();
+        $this->assertEquals($artist->id, $manager->findRandom()->id, 'artist-find-random');
         $this->assertNull($manager->findByIdAndRevision($artist->id, -666), 'artist-find-revision-fail');
 
         $this->assertGreaterThan(0, $artist->id, 'artist-create-artist-id');
@@ -265,10 +266,6 @@ class ArtistTest extends TestCase {
                 $old,
                 false,
                 $this->user,
-                new Manager\Collage(),
-                new Manager\Comment(),
-                new Manager\Request(),
-                new Manager\TGroup(),
             ),
             'artist-merge-n',
         );
@@ -336,7 +333,7 @@ class ArtistTest extends TestCase {
         $rename = $artist->name() . '-rename';
         $this->assertEquals(
             $artist->aliasId() + 1,
-            $artist->renameAlias($artist->aliasId(), $rename, $this->user, new Manager\Request(), new Manager\TGroup()),
+            $artist->renameAlias($artist->aliasId(), $rename, $this->user),
             'alias-rename'
         );
         $this->assertContains($rename, $artist->aliasNameList(), 'alias-is-renamed');
@@ -383,13 +380,7 @@ class ArtistTest extends TestCase {
         ];
 
         $name = $artist->name() . '-rename2';
-        $artist->renameAlias(
-            $artist->primaryAliasId(),
-            $name,
-            $this->user,
-            $requestMan,
-            new Manager\TGroup(),
-        );
+        $artist->renameAlias($artist->primaryAliasId(), $name, $this->user);
         $this->assertEquals($name, $artist->name(), 'artist-is-smart-renamed');
 
         $commentPage = new Comment\Artist($artist->id, 1, 0);
@@ -408,7 +399,7 @@ class ArtistTest extends TestCase {
         $this->assertEquals($artist->id, $idList[ARTIST_MAIN][0]['id'], 'artist-renamed-request');
         $request->remove();
 
-        $this->tgroupList[0]->flush();
+        $this->tgroupList[0]->artistRole()->flush();
         $idList = $this->tgroupList[0]->artistRole()->idList();
         $this->assertEquals($artist->id, $idList[ARTIST_MAIN][0]['id'], 'artist-renamed-tgroup');
     }
@@ -426,9 +417,21 @@ class ArtistTest extends TestCase {
         $aliasUpper = strtoupper($aliasName);
         $aliasId = $artist->getAlias($aliasName);
         $this->assertNotNull($aliasId, 'artist-rename-capchange-create');
-        $this->assertEquals($aliasId, $artist->renameAlias($aliasId, $aliasUpper, $this->user, $reqMan, $tgMan), 'artist-rename-capchange-1');
-        $this->assertEquals($aliasId, $artist->getAlias($aliasName), 'artist-rename-capchange-2');
-        $this->assertEquals($mainAliasId, $artist->primaryAliasId(), 'artist-rename-capchange-sanity');
+        $this->assertEquals(
+            $aliasId,
+            $artist->renameAlias($aliasId, $aliasUpper, $this->user),
+            'artist-rename-capchange-1',
+        );
+        $this->assertEquals(
+            $aliasId,
+            $artist->getAlias($aliasName),
+            'artist-rename-capchange-2',
+        );
+        $this->assertEquals(
+            $mainAliasId,
+            $artist->primaryAliasId(),
+            'artist-rename-capchange-sanity',
+        );
     }
 
     public function testRenameAliasNraMerge(): void {
@@ -451,7 +454,11 @@ class ArtistTest extends TestCase {
         $a2Name = 'phpunit.' . randomString(12) . '-alias';
         $a2Id = $artist->addAlias($a2Name, null, $this->user);
 
-        $this->assertEquals($a2Id, $artist->renameAlias($a1Id, $a2Name, $this->user, $reqMan, $tgMan), 'artist-rename-nramerge-1');
+        $this->assertEquals(
+            $a2Id,
+            $artist->renameAlias($a1Id, $a2Name, $this->user),
+            'artist-rename-nramerge-1',
+        );
 
         $a1 = $artist->aliasList()[$a1Id];
         $a2 = $artist->aliasList()[$a2Id];
@@ -465,7 +472,7 @@ class ArtistTest extends TestCase {
 
         // rename a2 and test redirects
         $a2NewName = 'phpunit.' . randomString(12) . '-new';
-        $a3Id = $artist->renameAlias($a2Id, $a2NewName, $this->user, $reqMan, $tgMan);
+        $a3Id = $artist->renameAlias($a2Id, $a2NewName, $this->user);
         $this->assertNotEquals($a2Id, $a3Id, 'artist-rename-nramerge-6');
 
         $a1 = $artist->aliasList()[$a1Id];

@@ -27,23 +27,15 @@ if (is_null($new)) {
     }
 }
 
-if ($artist->id() == $new->id()) {
+if ($artist->id == $new->id) {
     Error400::error('You cannot merge an artist with itself.');
 }
 
 $redirect = (bool)$_POST['redirect'];
 
 if (isset($_POST['confirm'])) {
-    $new->merge(
-        $artist,
-        $redirect,
-        $Viewer,
-        new \Gazelle\Manager\Collage(),
-        new \Gazelle\Manager\Comment(),
-        new \Gazelle\Manager\Request(),
-        new \Gazelle\Manager\TGroup(),
-    );
-    header("Location: artist.php?action=edit&artistid={$new->id()}");
+    $new->merge($artist, $redirect, $Viewer);
+    header("Location: artist.php?action=edit&artistid={$new->id}");
     exit;
 }
 

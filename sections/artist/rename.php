@@ -31,22 +31,15 @@ if (empty($newName)) {
 $oldName = $artist->aliasList()[$aliasId]['name'];
 
 $otherArtist = $artistMan->findByName($newName);
-if (!is_null($otherArtist) && $otherArtist->id() !== $artist->id()) {
+if (!is_null($otherArtist) && $otherArtist->id !== $artist->id) {
     Error400::error(
-        "An artist with this alias already exists: {$otherArtist->name()} ({$otherArtist->id()})"
+        "An artist with this alias already exists: {$otherArtist->name()} ({$otherArtist->id})"
     );
 }
 
-$result = $artist->renameAlias(
-    $aliasId,
-    $newName,
-    $Viewer,
-    new Manager\Request(),
-    new Manager\TGroup(),
-);
-
+$result = $artist->renameAlias($aliasId, $newName, $Viewer);
 if (is_null($result)) {
     Error400::error("The specified name is already in use.");
 }
 
-header("Location: artist.php?artistid={$artist->id()}&action=edit");
+header("Location: artist.php?artistid={$artist->id}&action=edit");

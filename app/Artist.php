@@ -588,10 +588,10 @@ class Artist extends BaseAttrObject implements Bookmarked, CollageEntry {
         Artist          $old,
         bool            $redirect,
         User            $user,
-        Manager\Collage $collMan,
-        Manager\Comment $commMan,
-        Manager\Request $reqMan,
-        Manager\TGroup  $tgMan,
+        Manager\Collage $collMan = new Manager\Collage(),
+        Manager\Comment $commMan = new Manager\Comment(),
+        Manager\Request $reqMan = new Manager\Request(),
+        Manager\TGroup  $tgMan = new Manager\TGroup(),
     ): int {
         self::$db->begin_transaction();
 
@@ -727,10 +727,17 @@ class Artist extends BaseAttrObject implements Bookmarked, CollageEntry {
             $collMan->findById($collageId)?->flush();
         }
         foreach ($groupList as $tgroupId) {
-            $tgMan->findById($tgroupId)?->refresh();
+            $tgroup = $tgMan->findById($tgroupId);
+            if ($tgroup) {
+                $tgroup->refresh()->artistRole()->flush();
+            }
         }
         foreach ($requestList as $requestId) {
-            $reqMan->findById($requestId)?->reindex();
+            $request = $reqMan->findById($requestId);
+            if ($request) {
+                $request->reindex();
+                $request->artistRole()->flush();
+            }
         }
 
         // Delete the old artist
@@ -754,7 +761,13 @@ class Artist extends BaseAttrObject implements Bookmarked, CollageEntry {
     /**
      * rename an alias
      */
-    public function renameAlias(int $aliasId, string $newName, User $user, Manager\Request $reqMan, Manager\TGroup $tgMan): ?int {
+    public function renameAlias(
+        int             $aliasId,
+        string          $newName,
+        User            $user,
+        Manager\Request $reqMan = new Manager\Request(),
+        Manager\TGroup  $tgMan  = new Manager\TGroup(),
+    ): ?int {
         $alias = $this->aliasList()[$aliasId];
 
         if ($alias['redirect_id']) {
@@ -838,13 +851,17 @@ class Artist extends BaseAttrObject implements Bookmarked, CollageEntry {
             SELECT GroupID FROM torrents_artists WHERE AliasID = ?
             ", $aliasId
         );
-        $groups = self::$db->collect('GroupID');
+        $tgroupList = self::$db->collect(0);
         self::$db->prepared_query("
             UPDATE IGNORE torrents_artists SET AliasID = ?  WHERE AliasID = ?
             ", $newId, $aliasId
         );
-        foreach ($groups as $groupId) {
-            $tgMan->findById($groupId)?->refresh();
+        foreach ($tgroupList as $tgroupId) {
+            $tgroup = $tgMan->findById($tgroupId);
+            if ($tgroup) {
+                $tgroup->refresh();
+                $tgroup->artistRole()->flush();
+            }
         }
 
         // process artists in requests
@@ -852,7 +869,7 @@ class Artist extends BaseAttrObject implements Bookmarked, CollageEntry {
             SELECT RequestID FROM requests_artists WHERE AliasID = ?
             ", $aliasId
         );
-        $requests = self::$db->collect('RequestID');
+        $requestList = self::$db->collect(0);
         self::$db->prepared_query("
             UPDATE IGNORE requests_artists SET AliasID = ? WHERE AliasID = ?
             ", $newId, $aliasId
@@ -872,8 +889,12 @@ class Artist extends BaseAttrObject implements Bookmarked, CollageEntry {
 
         self::$db->commit();
 
-        foreach ($requests as $requestId) {
-            $reqMan->findById($requestId)->reindex();
+        foreach ($requestList as $requestId) {
+            $request = $reqMan->findById($requestId);
+            if ($request) {
+                $request->reindex();
+                $request->artistRole()->flush();
+            }
         }
         $this->flush();
         return $newId;

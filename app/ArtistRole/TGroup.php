@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Gazelle\ArtistRole;
 
-use Gazelle\Intf\CategoryHasArtist;
-
 class TGroup extends \Gazelle\ArtistRole {
+    protected function cacheKey(): string {
+        return sprintf('ar_tgroup_%d', $this->object->id());
+    }
+
     protected const MAP = [
         1 => 'main',
         2 => 'guest',
@@ -18,34 +20,36 @@ class TGroup extends \Gazelle\ArtistRole {
         8 => 'arranger',
     ];
 
-    protected function artistListQuery(): \mysqli_result|bool {
-        return self::$db->prepared_query("
+    protected function artistListRaw(): array {
+        self::$db->prepared_query("
             SELECT ta.artist_role_id,
-                aa.ArtistID,
-                aa.Name,
-                ta.AliasID
-            FROM torrents_artists AS ta
-            INNER JOIN artists_alias AS aa USING (AliasID)
+                aa.ArtistID AS artist_id,
+                aa.Name     AS name,
+                ta.AliasID  AS alias_id
+            FROM torrents_artists    ta
+            INNER JOIN artists_alias aa USING (AliasID)
             WHERE ta.GroupID = ?
             ORDER BY ta.GroupID, ta.artist_role_id ASC, aa.Name ASC
             ", $this->object->id()
         );
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     protected function init(): void {
         $this->artistList = $this->artistList();
         $this->roleList = array_fill_keys(array_values(self::MAP), []);
         $this->idList = [];
-        while ([$role, $artistId, $artistName, $aliasId] = self::$db->next_record(MYSQLI_NUM)) {
-            $this->idList[$role][] = [
-                'id'      => $artistId,
-                'aliasid' => $aliasId,
-                'name'    => $artistName,
+        foreach ($this->artistList as $artist) {
+            $roleId = $artist['artist_role_id'];
+            $this->idList[$roleId][] = [
+                'id'      => $artist['artist_id'],
+                'aliasid' => $artist['alias_id'],
+                'name'    => $artist['name'],
             ];
-            $this->roleList[self::MAP[$role]][] = [
-                'id'      => $artistId,
-                'aliasid' => $aliasId,
-                'name'    => $artistName,
+            $this->roleList[self::MAP[$roleId]][] = [
+                'id'      => $artist['artist_id'],
+                'aliasid' => $artist['alias_id'],
+                'name'    => $artist['name'],
             ];
         }
     }
@@ -174,6 +178,7 @@ class TGroup extends \Gazelle\ArtistRole {
                 );
             ++$affected;
         }
+        $this->flush();
         return $affected;
     }
 
@@ -207,6 +212,7 @@ class TGroup extends \Gazelle\ArtistRole {
                 $artist->remove();
             }
         }
+        $this->flush();
         return count($changed);
     }
 }

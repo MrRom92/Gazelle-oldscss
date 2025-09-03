@@ -648,7 +648,8 @@ class TGroup extends BaseAttrObject implements Bookmarked, CategoryHasArtist, Co
                 $add[] = "{$artist->label()} as " . ARTIST_TYPE[$role];
             }
         }
-        if (empty($add)) {
+        $this->artistRole()->flush();
+        if ($add === []) {
             return 0;
         }
         self::$db->prepared_query("
@@ -688,6 +689,7 @@ class TGroup extends BaseAttrObject implements Bookmarked, CategoryHasArtist, Co
         if ($artist->usageTotal() === 0) {
             $artist->remove();
         }
+        $this->artistRole()?->flush();
         $this->flush();
         return true;
     }

@@ -9,10 +9,12 @@ abstract class ArtistRole extends Base {
     protected const RENDER_HTML = 2;
 
     protected array $artistList;
-    protected array $roleList;
     protected array $idList;
+    protected array $roleList;
 
-    abstract protected function artistListQuery(): \mysqli_result|bool;
+    abstract protected function cacheKey(): string;
+
+    abstract protected function artistListRaw(): array;
 
     abstract public function idList(): array;
 
@@ -23,14 +25,23 @@ abstract class ArtistRole extends Base {
         protected readonly Manager\Artist $manager,
     ) {}
 
+    public function flush(): static {
+        unset($this->artistList, $this->idList, $this->roleList);
+        self::$cache->delete_value($this->cacheKey());
+        return $this;
+    }
+
     protected function artistList(): array {
-        if (!isset($this->artistList)) {
-            if ($this->artistListQuery()) {
-                $this->artistList = self::$db->to_array(false, MYSQLI_ASSOC);
-            } else {
-                $this->artistList = [];
-            }
+        if (isset($this->artistList)) {
+            return $this->artistList;
         }
+        $key = $this->cacheKey();
+        $artistList = self::$cache->get_value($key);
+        if ($artistList === false) {
+            $artistList = $this->artistListRaw();
+            self::$cache->cache_value($key, $artistList, 86400 * 7);
+        }
+        $this->artistList = $artistList;
         return $this->artistList;
     }
 
@@ -114,7 +125,7 @@ abstract class ArtistRole extends Base {
         $djCount        = count($roleList['dj'] ?? []);
         $mainCount      = count($roleList['main'] ?? []);
 
-        if ($composerCount + $mainCount + $conductorCount + $djCount == 0) {
+        if ($composerCount + $mainCount + $conductorCount + $djCount === 0) {
             return '';
         }
 
@@ -127,54 +138,53 @@ abstract class ArtistRole extends Base {
         if ($djCount > 0) {
             $chunk[] = match ($djCount) {
                 1 => $this->artistLink($mode, $roleList['dj'][0]),
-                2 => $this->artistLink($mode, $roleList['dj'][0]) . $and . $this->artistLink($mode, $roleList['dj'][1]),
+                2 => $this->artistLink($mode, $roleList['dj'][0])
+                    . $and . $this->artistLink($mode, $roleList['dj'][1]),
                 default => $this->various('DJs', $roleList['dj'], $mode),
             };
         } else {
             if ($composerCount > 0) {
                 $chunk[] = match ($composerCount) {
                     1 => $this->artistLink($mode, $roleList['composer'][0]),
-                    2 => $this->artistLink($mode, $roleList['composer'][0]) . $and . $this->artistLink($mode, $roleList['composer'][1]),
+                    2 => $this->artistLink($mode, $roleList['composer'][0])
+                        . $and . $this->artistLink($mode, $roleList['composer'][1]),
                     default => $this->various('Composers', $roleList['composer'], $mode),
                 };
                 if ($arrangerCount > 0) {
                     $chunk[] = 'arranged by';
                     $chunk[] = match ($arrangerCount) {
                         1 => $this->artistLink($mode, $roleList['arranger'][0]),
-                        2 => $this->artistLink($mode, $roleList['arranger'][0]) . $and . $this->artistLink($mode, $roleList['arranger'][1]),
+                        2 => $this->artistLink($mode, $roleList['arranger'][0])
+                            . $and . $this->artistLink($mode, $roleList['arranger'][1]),
                         default => $this->various('Arrangers', $roleList['arranger'], $mode),
                     };
                 }
-                if ($mainCount + $conductorCount > 0) {
+                if ($mainCount == 0 and $conductorCount > 0) {
+                    $chunk[] = 'conducted by';
+                } elseif ($mainCount > 0) {
                     $chunk[] = 'performed by';
                 }
             }
 
-            if (
-                $composerCount > 0
-                && $mainCount > 1
-                && $conductorCount > 1
-            ) {
-                $chunk[] = 'Various Artists';
-            } else {
-                if ($mainCount > 0) {
-                    $chunk[] = match ($mainCount) {
-                        1 => $this->artistLink($mode, $roleList['main'][0]),
-                        2 => $this->artistLink($mode, $roleList['main'][0]) . $and . $this->artistLink($mode, $roleList['main'][1]),
-                        default => $this->various('Artists', $roleList['main'], $mode),
-                    };
-                }
+            if ($mainCount > 0) {
+                $chunk[] = match ($mainCount) {
+                    1 => $this->artistLink($mode, $roleList['main'][0]),
+                    2 => $this->artistLink($mode, $roleList['main'][0])
+                        . $and . $this->artistLink($mode, $roleList['main'][1]),
+                    default => $this->various('Artists', $roleList['main'], $mode),
+                };
+            }
 
-                if ($conductorCount > 0) {
-                    if ($mainCount + $composerCount > 0 && ($composerCount < 3 || $mainCount > 0)) {
-                        $chunk[] = 'under';
-                    }
-                    $chunk[] = match ($conductorCount) {
-                        1 => $this->artistLink($mode, $roleList['conductor'][0]),
-                        2 => $this->artistLink($mode, $roleList['conductor'][0]) . $and . $this->artistLink($mode, $roleList['conductor'][1]),
-                        default => $this->various('Conductors', $roleList['conductor'], $mode),
-                    };
+            if ($conductorCount > 0) {
+                if ($mainCount > 0) {
+                    $chunk[] = 'under';
                 }
+                $chunk[] = match ($conductorCount) {
+                    1 => $this->artistLink($mode, $roleList['conductor'][0]),
+                    2 => $this->artistLink($mode, $roleList['conductor'][0])
+                        . $and . $this->artistLink($mode, $roleList['conductor'][1]),
+                    default => $this->various('Conductors', $roleList['conductor'], $mode),
+                };
             }
         }
         return implode(' ', $chunk);
@@ -182,8 +192,10 @@ abstract class ArtistRole extends Base {
 
     protected function various(string $role, array $artistList, int $mode): string {
         return match ($mode) {
-            self::RENDER_HTML => '<span class="tooltip" style="float: none"  title="' . implode(' ⁝ ', array_map(fn ($a) => $a['name'], $artistList)) . "\">Various $role</span>",
-            default           => "Various $role",
+            self::RENDER_HTML => '<span class="tooltip" style="float: none"  title="'
+                . implode(' ⁝ ', array_map(fn ($a) => $a['name'], $artistList))
+                . "\">Various $role</span>",
+            default => "Various $role",
         };
     }
 
@@ -192,8 +204,9 @@ abstract class ArtistRole extends Base {
      */
     protected function artistLink(int $mode, array $info): string {
         return match ($mode) {
-            self::RENDER_HTML => '<a href="artist.php?id=' . $info['id'] . '" dir="ltr">' . html_escape($info['name']) . '</a>',
-            default           => $info['name'],
+            self::RENDER_HTML => '<a href="artist.php?id=' . $info['id']
+                . '" dir="ltr">' . html_escape($info['name']) . '</a>',
+            default => $info['name'],
         };
     }
 }

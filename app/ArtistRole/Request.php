@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace Gazelle\ArtistRole;
 
 class Request extends \Gazelle\ArtistRole {
+    protected function cacheKey(): string {
+        return sprintf('ar_request_%d', $this->object->id());
+    }
+
     /**
      * Create or modify the set of artists associated with a request
      */
@@ -85,11 +89,12 @@ class Request extends \Gazelle\ArtistRole {
         );
         $this->pg()->pdo()->commit();
         self::$db->commit();
+        $this->flush();
         return $affected;
     }
 
-    protected function artistListQuery(): \mysqli_result|bool {
-        return self::$db->prepared_query("
+    protected function artistListRaw(): array {
+        self::$db->prepared_query("
             SELECT r.artist_role_id,
                 r.slug      AS slug,
                 aa.ArtistID AS artist_id,
@@ -102,6 +107,7 @@ class Request extends \Gazelle\ArtistRole {
             ORDER BY r.artist_role_id ASC, aa.Name ASC
             ", $this->object->id()
         );
+        return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
     /**

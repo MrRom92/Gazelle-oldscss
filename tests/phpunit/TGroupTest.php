@@ -72,6 +72,13 @@ class TGroupTest extends TestCase {
         }
     }
 
+    /* Random artist names may not be in alphabetical order, but
+     * will be rendered in order, so arrange as appropriate.
+     */
+    protected function namePair(string $one, string $two): array {
+        return $two < $one ? [$two, $one] : [$one, $two];
+    }
+
     public function testTGroupCreate(): void {
         $this->assertGreaterThan(1, $this->tgroup->id, 'tgroup-create-id');
 
@@ -185,13 +192,11 @@ class TGroupTest extends TestCase {
         $this->assertNotNull($this->tgroup->primaryArtist(), 'tgroup-artist-primary');
 
         $artistRole = $this->tgroup->artistRole();
-        $this->assertNotNull($artistRole, 'tgroup-artist-artist-role');
-
         $idList = $artistRole->idList();
-        $this->assertCount(1, $idList, 'tgroup-artist-role-idlist');
+        $this->assertCount(1, $idList, 'tgroup-artistrole-idlist');
 
         $main = $idList[ARTIST_MAIN];
-        $this->assertCount(1, $main, 'tgroup-artist-role-main');
+        $this->assertCount(1, $main, 'tgroup-artistrole-main');
         $artist = $artMan->findByName($artistName);
         $this->assertEquals(
             [
@@ -209,7 +214,7 @@ class TGroupTest extends TestCase {
                 "arranger"  => [],
             ],
             $artistRole->roleListByType(),
-            'tgroup-artist-role-by-type',
+            'tgroup-artistrole-by-type',
         );
         $this->assertEquals(
             [
@@ -227,13 +232,18 @@ class TGroupTest extends TestCase {
                 "8" => null,
             ],
             $artistRole->legacyList(),
-            'tgroup-artist-role-legacy',
+            'tgroup-artistrole-legacy',
+        );
+        $this->assertEquals(
+            ["1" => [$artist->name()]],
+            $artistRole->nameList(),
+            'tgroup-artistrole-namelist',
         );
         $first = current($main);
         $this->assertEquals($artistName, $first['name'], 'tgroup-artist-first-name');
 
         $foundByArtist = $this->manager->findByArtistReleaseYear(
-            (string)$this->tgroup->artistRole()?->text(),
+            $this->tgroup->artistRole()->text(),
             $this->tgroup->name(),
             (int)$this->tgroup->releaseType(),
             (int)$this->tgroup->year(),
@@ -268,30 +278,29 @@ class TGroupTest extends TestCase {
         );
 
         /* turn the two Main and Guest into DJs */
-        $roleList = $this->tgroup->artistRole()?->roleList();
-        $this->assertIsArray($roleList, 'tgroup-dj-role');
+        $roleList = $this->tgroup->artistRole()->roleList();
         $roleAliasList = [
             ...array_map(fn ($artist) => [ARTIST_MAIN, $artist['aliasid']], $roleList['main']),
             ...array_map(fn ($artist) => [ARTIST_GUEST, $artist['aliasid']], $roleList['guest']),
         ];
         $this->assertEquals(
             3,
-            $this->tgroup->artistRole()?->modifyList($roleAliasList, ARTIST_DJ, $user),
+            $this->tgroup->artistRole()->modifyList($roleAliasList, ARTIST_DJ, $user),
             'tgroup-a-dj-saved-my-life'
         );
         $this->assertEquals(
             'Various DJs',
-            $this->tgroup->flush()->artistRole()?->text(),
+            $this->tgroup->flush()->artistRole()->text(),
             'tgroup-2manydjs'
         );
         $this->assertEquals(
             1,
-            $this->tgroup->artistRole()?->removeList([[ARTIST_DJ, $roleAliasList[0][1]]], $user),
+            $this->tgroup->artistRole()->removeList([[ARTIST_DJ, $roleAliasList[0][1]]], $user),
             'tgroup-hang-the-dj'
         );
         $this->assertEquals(
             "$addName and $artistName-guest",
-            $this->tgroup->flush()->artistRole()?->text(),
+            $this->tgroup->flush()->artistRole()->text(),
             'tgroup-dj-final'
         );
         $this->assertEquals(
@@ -622,5 +631,188 @@ class TGroupTest extends TestCase {
             $bookmarker->isBookmarked($this->tgroup),
             'tgroup-bookmark-unsnatched',
         );
+    }
+
+    public function testTGroupNameDJRender(): void {
+        $artistName = [
+            'phpunit-name-' . randomString(10),
+            'phpunit-name-' . randomString(10),
+            'phpunit-name-' . randomString(10),
+            'phpunit-name-' . randomString(10),
+        ];
+        $artMan = new Manager\Artist();
+
+        $this->tgroup->addArtists([ARTIST_DJ], [$artistName[0]]);
+        $this->assertEquals(
+            $artistName[0],
+            $this->tgroup->artistRole()->text(),
+            'tgroup-dj-1-text',
+        );
+        $artist = $artMan->findByName($artistName[0]);
+        $this->assertEquals(
+            "<a href=\"artist.php?id={$artist->id}\" dir=\"ltr\">{$artist->name()}</a>",
+            $this->tgroup->artistRole()->link(),
+            'tgroup-dj-1-html',
+        );
+        $this->tgroup->addArtists([ARTIST_DJ], [$artistName[1]]);
+        $this->assertEquals(
+            implode(' and ', $this->namePair($artistName[0], $artistName[1])),
+            $this->tgroup->artistRole()->text(),
+            'tgroup-dj-2-text',
+        );
+        // Getting two artist objects in alphabetical order is another matter entirely
+        $artMan = new Manager\Artist();
+        $artistMap = [
+            $artistName[0] => $artMan->findByName($artistName[0]),
+            $artistName[1] => $artMan->findByName($artistName[1]),
+        ];
+        $order = $this->namePair($artistName[0], $artistName[1]);
+        $this->assertEquals(
+            implode(
+                ' &amp; ',
+                array_map(
+                    fn ($a) => "<a href=\"artist.php?id={$a->id}\" dir=\"ltr\">{$a->name()}</a>",
+                    [
+                        $artistMap[$order[0]],
+                        $artistMap[$order[1]],
+                    ],
+                )
+            ),
+            $this->tgroup->artistRole()->link(),
+            'tgroup-dj-2-link',
+        );
+        $this->tgroup->addArtists([ARTIST_DJ], [$artistName[2]]);
+        $this->assertEquals(
+            "Various DJs",
+            $this->tgroup->artistRole()->text(),
+            'tgroup-dj-3-text',
+        );
+        $sortedArtistList = [
+            $artistName[0],
+            $artistName[1],
+            $artistName[2],
+        ];
+        sort($sortedArtistList);
+        $this->assertEquals(
+            '<span class="tooltip" style="float: none"  title="'
+                . implode(' ⁝ ', $sortedArtistList)
+                . '">Various DJs</span>',
+            $this->tgroup->artistRole()->link(),
+            'tgroup-dj-3-link',
+        );
+        $this->tgroup->addArtists([ARTIST_MAIN], [$artistName[3]]);
+        $this->assertEquals(
+            "Various DJs",
+            $this->tgroup->artistRole()->text(),
+            'tgroup-dj-4-text',
+        );
+    }
+
+    public function testTGroupNameClassicalEraRender(): void {
+        $artistName = [
+            'phpunit-name-' . randomString(10),
+            'phpunit-name-' . randomString(10),
+            'phpunit-name-' . randomString(10),
+            'phpunit-name-' . randomString(10),
+            'phpunit-name-' . randomString(10),
+            'phpunit-name-' . randomString(10),
+            'phpunit-name-' . randomString(10),
+            'phpunit-name-' . randomString(10),
+            'phpunit-name-' . randomString(10),
+            'phpunit-name-' . randomString(10),
+            'phpunit-name-' . randomString(10),
+            'phpunit-name-' . randomString(10),
+        ];
+
+        $this->tgroup->addArtists([ARTIST_COMPOSER], [$artistName[0]]);
+        $this->assertEquals(
+            $artistName[0],
+            $this->tgroup->artistRole()->text(),
+            'tgroup-composer-1-text',
+        );
+        $this->tgroup->addArtists([ARTIST_CONDUCTOR], [$artistName[1]]);
+        $this->assertEquals(
+            "{$artistName[0]} conducted by {$artistName[1]}",
+            $this->tgroup->artistRole()->text(),
+            'tgroup-composer-1-conductor-1-text',
+        );
+        $this->tgroup->addArtists([ARTIST_CONDUCTOR], [$artistName[2]]);
+        $this->assertEquals(
+            "{$artistName[0]} conducted by "
+                . implode(' and ', $this->namePair($artistName[1], $artistName[2])),
+            $this->tgroup->artistRole()->text(),
+            'tgroup-composer-1-conductor-2-text',
+        );
+        $this->tgroup->addArtists([ARTIST_COMPOSER], [$artistName[3]]);
+        $this->assertEquals(
+            implode(' and ', $this->namePair($artistName[0], $artistName[3]))
+                . ' conducted by '
+                . implode(' and ', $this->namePair($artistName[1], $artistName[2])),
+            $this->tgroup->artistRole()->text(),
+            'tgroup-composer-2-conductor-2-text',
+        );
+        $this->tgroup->addArtists([ARTIST_ARRANGER], [$artistName[4]]);
+        $this->assertEquals(
+            implode(' and ', $this->namePair($artistName[0], $artistName[3]))
+                . " arranged by {$artistName[4]} conducted by "
+                . implode(' and ', $this->namePair($artistName[1], $artistName[2])),
+            $this->tgroup->artistRole()->text(),
+            'tgroup-composer-2-arranger-1-conductor-2-text',
+        );
+        $this->tgroup->addArtists([ARTIST_MAIN], [$artistName[5]]);
+        $this->assertEquals(
+            implode(' and ', $this->namePair($artistName[0], $artistName[3]))
+                . " arranged by {$artistName[4]} performed by {$artistName[5]} under "
+                . implode(' and ', $this->namePair($artistName[1], $artistName[2])),
+            $this->tgroup->artistRole()->text(),
+            'tgroup-main-1-composer-2-arranger-1-conductor-2-text',
+        );
+        $this->tgroup->addArtists([ARTIST_MAIN], [$artistName[6]]);
+        $this->assertEquals(
+            implode(' and ', $this->namePair($artistName[0], $artistName[3]))
+                . " arranged by {$artistName[4]} performed by "
+                . implode(' and ', $this->namePair($artistName[5], $artistName[6]))
+                . ' under '
+                . implode(' and ', $this->namePair($artistName[1], $artistName[2])),
+            $this->tgroup->artistRole()->text(),
+            'tgroup-main-2-composer-2-arranger-1-conductor-2-text',
+        );
+        $this->tgroup->addArtists([ARTIST_ARRANGER], [$artistName[7]]);
+        $this->assertEquals(
+            implode(' and ', $this->namePair($artistName[0], $artistName[3]))
+                . ' arranged by '
+                . implode(' and ', $this->namePair($artistName[4], $artistName[7]))
+                . ' performed by '
+                . implode(' and ', $this->namePair($artistName[5], $artistName[6]))
+                . ' under '
+                . implode(' and ', $this->namePair($artistName[1], $artistName[2])),
+            $this->tgroup->artistRole()->text(),
+            'tgroup-main-2-composer-2-arranger-2-conductor-2-text',
+        );
+        $this->tgroup->addArtists(
+            [ARTIST_COMPOSER, ARTIST_CONDUCTOR, ARTIST_MAIN, ARTIST_ARRANGER],
+            [$artistName[8], $artistName[9], $artistName[10], $artistName[11], ]
+        );
+        $this->assertEquals(
+            "Various Composers arranged by Various Arrangers performed by Various Artists under Various Conductors",
+            $this->tgroup->artistRole()->text(),
+            'tgroup-main-3-composer-3-arranger-3-conductor-3-text',
+        );
+    }
+
+    public function testTGroupArtistRole(): void {
+        $artistName = 'phpunit-name-' . randomString(10);
+
+        $this->tgroup->addArtists(
+            [ARTIST_COMPOSER, ARTIST_CONDUCTOR, ARTIST_MAIN, ARTIST_PRODUCER],
+            [$artistName,     $artistName,      $artistName, $artistName]
+        );
+        $artistRole = new Manager\Artist()->findByName($artistName)->artistRole();
+        $this->assertCount(8, $artistRole, 'tgroup-artistrole-count');
+        $this->assertEquals(0, $artistRole[ARTIST_GUEST], 'tgroup-artistrole-guest');
+        $this->assertEquals(1, $artistRole[ARTIST_COMPOSER], 'tgroup-artistrole-composer');
+        $this->assertEquals(1, $artistRole[ARTIST_CONDUCTOR], 'tgroup-artistrole-conductor');
+        $this->assertEquals(1, $artistRole[ARTIST_MAIN], 'tgroup-artistrole-main');
+        $this->assertEquals(1, $artistRole[ARTIST_PRODUCER], 'tgroup-artistrole-producer');
     }
 }
