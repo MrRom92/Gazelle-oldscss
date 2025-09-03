@@ -26,7 +26,7 @@
     {% if error %}
     <div class="thin box pad">
         <h3 style="display:inline">Query error</h3>
-        <div>Mysql error: <code>{{ error }}</code></div>
+        <div>{{ source == 'pg' ? 'PostgreSQL' : 'MySQL' }} error: <code>{{ error }}</code></div>
     </div>
     {% else %}
 <div class="thin" style="overflow-x: scroll">
