@@ -23,28 +23,34 @@ if ($torrent->hasUploadLock()) {
     );
 }
 
-if ($Viewer->id() != $torrent->uploaderId() && !$Viewer->permitted('torrents_delete')) {
+if ($Viewer->id != $torrent->uploaderId() && !$Viewer->permitted('torrents_delete')) {
     Error403::error();
 }
 
-if ($Viewer->torrentRecentRemoveCount(USER_TORRENT_DELETE_HOURS) >= USER_TORRENT_DELETE_MAX && !$Viewer->permitted('torrents_delete_fast')) {
+if (
+    $Viewer->torrentRecentRemoveCount(USER_TORRENT_DELETE_HOURS) >= USER_TORRENT_DELETE_MAX
+    && !$Viewer->permitted('torrents_delete_fast')
+) {
     Error400::error(
         'You have recently deleted ' . USER_TORRENT_DELETE_MAX
-        . ' torrents. Please contact a staff member if you need to delete more.'
+        . ' torrents. If you think there is a problem with this torrent, please report it with [RP] instead.'
     );
 }
 
-if (Time::timeAgo($torrent->created()) > 3600 * 24 * 7 && !$Viewer->permitted('torrents_delete')) {
+if (
+    Time::timeAgo($torrent->created()) > 86400 * 7
+    && !$Viewer->permitted('torrents_delete')
+) {
     // Should this be torrents_delete or torrents_delete_fast?
     Error400::error(
-        'You can no longer delete this torrent as it has been uploaded for over a week. If you now think there is a problem, please report the torrent instead.'
+        'You can no longer delete this torrent as it has been uploaded for over a week. If you now think there is a problem, please report the torrent with [RP] instead.'
     );
 }
 
 if ($torrent->snatchTotal() >= 5 && !$Viewer->permitted('torrents_delete')) {
     // Should this be torrents_delete or torrents_delete_fast?
     Error400::error(
-        'You can no longer delete this torrent as it has been snatched by 5 or more users. If you believe there is a problem with this torrent, please report it instead.'
+        'You can no longer delete this torrent as it has been snatched by 5 or more users. If you now think there is a problem, please report the torrent with [RP] instead.'
     );
 }
 

@@ -12,16 +12,19 @@ $torrent = new Manager\Torrent()->findById((int)$_POST['torrentid']);
 if (is_null($torrent)) {
     Error404::error();
 }
-$torrentId = $torrent->id();
+$torrentId = $torrent->id;
 $uploader  = $torrent->uploader();
 
-if ($Viewer->id() != $uploader->id() && !$Viewer->permitted('torrents_delete')) {
+if ($Viewer->id != $uploader->id && !$Viewer->permitted('torrents_delete')) {
     Error403::error();
 }
-if ($Viewer->torrentRecentRemoveCount(USER_TORRENT_DELETE_HOURS) >= USER_TORRENT_DELETE_MAX && !$Viewer->permitted('torrents_delete_fast')) {
+if (
+    $Viewer->torrentRecentRemoveCount(USER_TORRENT_DELETE_HOURS) >= USER_TORRENT_DELETE_MAX
+    && !$Viewer->permitted('torrents_delete_fast')
+) {
     Error400::error(
         'You have recently deleted ' . USER_TORRENT_DELETE_MAX
-        . ' torrents. Please report the torrent with [RP] if you need to delete more.'
+        . ' torrents. If you think there is a problem with this torrent, please report it with [RP] instead.'
     );
 }
 if ($torrent->hasUploadLock()) {
@@ -46,7 +49,7 @@ new Manager\User()->sendRemovalPm(
     "Torrent $torrentId $fullName (" . number_format($size / (1024 * 1024), 2) . ' MiB '
         . strtoupper($infohash) . ") was deleted by " . $Viewer->username() . ": $reason",
     0,
-    $Viewer->id() != $uploader->id()
+    $Viewer->id != $uploader->id
 );
 
 echo $Twig->render('torrent/deleted.twig', [
