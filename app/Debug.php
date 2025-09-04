@@ -240,14 +240,12 @@ class Debug {
             }
         }
 
-        if (DEBUG_WARNINGS) {
-            self::$Errors[] = [
-                str_replace(SERVER_ROOT . '/', '', $Error),
-                str_replace(SERVER_ROOT . '/', '', $File) . ":$Line",
-                $Call,
-                $Args
-            ];
-        }
+        self::$Errors[] = [
+            str_replace(SERVER_ROOT . '/', '', $Error),
+            str_replace(SERVER_ROOT . '/', '', $File) . ":$Line",
+            $Call,
+            $Args
+        ];
         return true;
     }
 

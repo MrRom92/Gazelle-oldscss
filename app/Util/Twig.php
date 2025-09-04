@@ -24,7 +24,7 @@ class Twig {
         self::$userMan = $userMan;
         $twig = new \Twig\Environment(
             new \Twig\Loader\FilesystemLoader(__DIR__ . '/../../' . TEMPLATE_PATH), [
-                'debug' => DEBUG_MODE,
+                'debug' => DEBUG_TWIG,
                 'cache' => __DIR__ . '/../../cache/twig'
             ]);
 

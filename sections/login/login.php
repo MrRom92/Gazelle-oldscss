@@ -29,7 +29,7 @@ if (!empty($_POST['username']) && !empty($_POST['password'])) {
                 setcookie('username', urlencode($user->username()), [
                     'expires'  => time() + 60 * 60,
                     'path'     => '/',
-                    'secure'   => !DEBUG_MODE,
+                    'secure'   => SECURE_COOKIE,
                     'httponly' => true,
                     'samesite' => 'Strict',
                 ]);

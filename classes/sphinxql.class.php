@@ -92,7 +92,7 @@ class Sphinxql extends mysqli {
             86_400,
         );
         if ($halt === true) {
-            if (DEBUG_MODE || $Viewer->permitted('site_debug')) {
+            if ($Viewer->permitted('site_debug')) {
                 echo '<pre>' . display_str($error) . '</pre>';
                 die();
             } else {

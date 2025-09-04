@@ -9,11 +9,11 @@ define('DISABLE_TRACKER', true);
 define('DISABLE_IRC', true);
 
 define('DEBUG_EMAIL', true);
-define('DEBUG_MODE', true);
-define('DEBUG_WARNINGS', true);
+define('DEBUG_TWIG', true);
 define('DEBUG_UPLOAD_NOTIFICATION', true);
 
 define('OPEN_REGISTRATION', true);
+define('SECURE_COOKIE', false);
 
 define('MEMCACHE_HOST_LIST', [['host' => 'memcached', 'port' => 11211, 'buckets' => 1]]);
 

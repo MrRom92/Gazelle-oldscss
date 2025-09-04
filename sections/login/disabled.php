@@ -14,7 +14,7 @@ if (isset($_POST['username'])) {
             setcookie('username', '', [
                 'expires'  => time() + 60 * 60,
                 'path'     => '/',
-                'secure'   => !DEBUG_MODE,
+                'secure'   => SECURE_COOKIE,
                 'httponly' => true,
                 'samesite' => 'Strict',
             ]);

@@ -10,8 +10,7 @@ use Rector\Php83\Rector\ClassConst\AddTypeToConstRector;
 use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
 
 // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
-define('DEBUG_MODE', true);
-define('DEBUG_WARNINGS', true);
+define('DEBUG_TWIG', true);
 define('DISABLE_IRC', false);
 define('FEATURE_EMAIL_REENABLE', true);
 define('GEOIP_SERVER', true);
@@ -24,6 +23,7 @@ define('REAPER_TASK_NOTIFY', true);
 define('REAPER_TASK_REMOVE_UNSEEDED', true);
 define('REAPER_TASK_REMOVE_NEVER_SEEDED', true);
 define('RECOVERY_AUTOVALIDATE', true);
+define('SECURE_COOKIE', false);
 
 return RectorConfig::configure()
     ->withPaths([

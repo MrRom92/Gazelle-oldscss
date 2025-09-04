@@ -1,6 +1,6 @@
 </div>
 <div id="footer">
-{% if constant('DEBUG_MODE') or viewer.permitted('site_debug') %}
+{% if viewer.permitted('site_debug') %}
     <div id="site_debug">
 {%  include 'debug/performance.twig' with {'list': debug.perfInfo} only %}
 {%  include 'debug/flag.twig' with {'list': debug.markList} only %}

@@ -76,10 +76,9 @@ parameters:
         - DEBUG
         - DEBUG_CONTEST_PAYOUT
         - DEBUG_EMAIL
-        - DEBUG_MODE
         - DEBUG_TRACKER_TOKEN_EXPIRE
+        - DEBUG_TWIG
         - DEBUG_UPLOAD_NOTIFICATION
-        - DEBUG_WARNINGS
         - FEATURE_EMAIL_REENABLE
         - GEOIP_SERVER
         - HTTP_PROXY
@@ -103,6 +102,7 @@ parameters:
         - RECOVERY_DB
         - REFERRAL_SEND_EMAIL
         - REQUEST_TAX
+        - SECURE_COOKIE
         - SHOW_PUBLIC_INDEX
         - STACKABLE_FREELEECH_TOKENS
         - USER_LIMIT

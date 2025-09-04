@@ -121,7 +121,7 @@ if ($Viewer) {
 }
 
 $Debug->mark('load page');
-if (DEBUG_MODE || $Viewer?->permitted('site_debug')) {
+if (DEBUG_TWIG) {
     $Twig->addExtension(new \Twig\Extension\DebugExtension());
 }
 
@@ -169,7 +169,7 @@ try {
     }
     $errorLog = $Debug->saveError($e);
     Error500::error(
-        DEBUG_MODE || $Viewer?->permitted('site_debug')
+        $Viewer?->permitted('site_debug')
             ? ($e->getMessage() . " ({$errorLog->link()})")
             : "That is not supposed to happen. Check to see whether someone has created a thread in the the Bugs forum, or create a new thread to explain what you were doing and reference the Error ID {$errorLog->id}."
     );

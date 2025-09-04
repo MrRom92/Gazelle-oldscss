@@ -479,11 +479,8 @@ defined('HTTP_PROXY') or define('HTTP_PROXY', false);
 // Block Opera Mini proxy?
 defined('BLOCK_OPERA_MINI') or define('BLOCK_OPERA_MINI', true);
 
-// Should PHP errors be shown in the output?
-defined('DEBUG_MODE') or define('DEBUG_MODE', false);
-
-// Can developer+ see PHP warnings in the site footer?
-defined('DEBUG_WARNINGS') or define('DEBUG_WARNINGS', true);
+// Is the debug() function available in Twig?
+defined('DEBUG_TWIG') or define('DEBUG_TWIG', false);
 
 // Do upload notifications need to be traced? (Results written to TMPDIR)
 defined('DEBUG_UPLOAD_NOTIFICATION') or define('DEBUG_UPLOAD_NOTIFICATION', false);
@@ -508,12 +505,6 @@ defined('LASTFM_API_KEY') or define('LASTFM_API_KEY', false);
 
 // Fake useragent (to override default cURL useragent string).
 defined('FAKE_USERAGENT') or define('FAKE_USERAGENT', 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.1 Safari/537.11');
-
-// How much upload buffer to members start out with? (3 GiB)
-defined('STARTING_UPLOAD') or define('STARTING_UPLOAD', 3 * 1024 * 1024 * 1024);
-
-// Can freeleech (FL) tokens be stacked?
-defined('STACKABLE_FREELEECH_TOKENS') or define('STACKABLE_FREELEECH_TOKENS', true);
 
 // How long does an activated token last before it is purged?
 defined('FREELEECH_TOKEN_EXPIRY_DAYS') or define('FREELEECH_TOKEN_EXPIRY_DAYS', 30);
@@ -541,6 +532,15 @@ defined('DELETE_USER_STATS_DAILY_DAY') or define('DELETE_USER_STATS_DAILY_DAY', 
 
 // Retain this many months of daily snapshots.
 defined('DELETE_USER_STATS_MONTHLY_DAY') or define('DELETE_USER_STATS_MONTHLY_DAY', 120);
+
+// Is the secure attribute set on cookies?
+defined('SECURE_COOKIE') or define('SECURE_COOKIE', true);
+
+// Can freeleech (FL) tokens be stacked?
+defined('STACKABLE_FREELEECH_TOKENS') or define('STACKABLE_FREELEECH_TOKENS', true);
+
+// How much upload buffer to members start out with? (3 GiB)
+defined('STARTING_UPLOAD') or define('STARTING_UPLOAD', 3 * 1024 * 1024 * 1024);
 
 // How many invites do new users receive?
 defined('STARTING_INVITES') or define('STARTING_INVITES', 0);

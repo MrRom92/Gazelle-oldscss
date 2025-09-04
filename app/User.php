@@ -109,7 +109,7 @@ class User extends BaseAttrObject {
         setcookie('session', '', [
             'expires'  => time() - 60 * 60 * 24 * 90,
             'path'     => '/',
-            'secure'   => !DEBUG_MODE,
+            'secure'   => SECURE_COOKIE,
             'httponly' => true,
             'samesite' => 'Strict',
         ]);

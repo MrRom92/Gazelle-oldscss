@@ -69,7 +69,7 @@ class SessionCookie {
             [
                 'expires'  => $expiryEpoch,
                 'path'     => '/',
-                'secure'   => !DEBUG_MODE,
+                'secure'   => SECURE_COOKIE,
                 'httponly' => true,
                 'samesite' => 'Lax',
             ]
@@ -83,7 +83,7 @@ class SessionCookie {
             [
                 'expires'  => time() - 86_400 * 90,
                 'path'     => '/',
-                'secure'   => !DEBUG_MODE,
+                'secure'   => SECURE_COOKIE,
                 'httponly' => true,
                 'samesite' => 'Lax',
             ]
