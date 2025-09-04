@@ -275,7 +275,6 @@ class Forum extends BaseObject {
      *    - int 'LastPostAuthorID' User id of author of most recent post
      *    - has_poll Whether the thread has a poll '0'/'1'
      */
-    #[\Deprecated]
     public function tableOfContentsForum(int $page = 1): array {
         $key = sprintf(self::CACHE_TOC_FORUM, $this->id);
         $forumToc = null;
