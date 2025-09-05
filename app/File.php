@@ -45,4 +45,15 @@ abstract class File extends BaseObject {
     public function remove(): int {
         return (int)unlink($this->path());
     }
+
+    /**
+     * Get the hash of the file
+     */
+    public function hash(): string {
+        $hash = hash_file(DIGEST_ALGO, $this->path());
+        if (!$hash) {
+            throw new \Exception("Failed to compute hash for file: {$this->path()}");
+        }
+        return $hash;
+    }
 }

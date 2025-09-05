@@ -22,16 +22,16 @@ if ($torrent->uploaderId() != $Viewer->id && !$Viewer->permitted('admin_add_log'
 }
 
 $action = in_array($_POST['from_action'], ['upload', 'update']) ? $_POST['from_action'] : 'upload';
-$logfileSummary = new LogfileSummary($_FILES['logfiles']);
+$logfileSummary = new LogfileSummary($_FILES['logfiles'], $torrent->logfileHashList());
 
 if (!$logfileSummary->total()) {
-    Error400::error("No logfiles uploaded.");
+    Error400::error("No (new) logfiles uploaded.");
 } else {
     $torrent->removeLogDb();
     new File\RipLog($torrent->id, '*')->remove();
     new File\RipLogHTML($torrent->id, '*')->remove();
-    $torrentLogManager = new Manager\TorrentLog();
 
+    $torrentLogManager = new Manager\TorrentLog();
     $checkerVersion = Logchecker::getLogcheckerVersion();
     foreach ($logfileSummary->all() as $logfile) {
         $torrentLogManager->create($torrent, $logfile, $checkerVersion);

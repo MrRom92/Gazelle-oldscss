@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Gazelle\Manager;
 
 use Gazelle\Logfile         as Logfile;
@@ -21,7 +23,7 @@ class TorrentLog extends \Gazelle\Base {
         $logId = self::$db->inserted_id();
         new RipLog($torrent->id, $logId)->put($logfile->filepath());
         new RipLogHTML($torrent->id, $logId)->put($logfile->text());
-        return $this->findById($torrent, $logId);
+        return new \Gazelle\TorrentLog($torrent, $logId);
     }
 
     public function findById(Torrent $torrent, int $id): ?\Gazelle\TorrentLog {

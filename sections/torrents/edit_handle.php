@@ -207,7 +207,7 @@ $db = DB::DB();
 $db->begin_transaction(); // It's all or nothing
 
 if (isset($_FILES['logfiles'])) {
-    $logfileSummary = new LogfileSummary($_FILES['logfiles']);
+    $logfileSummary = new LogfileSummary($_FILES['logfiles'], $torrent->logfileHashList());
     if ($logfileSummary->total()) {
         $torrentLogManager = new Manager\TorrentLog();
         $checkerVersion = Logchecker::getLogcheckerVersion();

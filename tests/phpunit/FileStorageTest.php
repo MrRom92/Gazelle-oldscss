@@ -144,4 +144,10 @@ class FileStorageTest extends TestCase {
         $this->assertEquals('', $file->link(),     'file-t-link');
         $this->assertEquals('', $file->location(), 'file-t-location');
     }
+
+    public function testFileHashFailure(): void {
+        $file = new File\Torrent(906623);
+        $this->expectException(\Exception::class);
+        $file->hash();
+    }
 }

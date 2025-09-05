@@ -7,6 +7,7 @@ use GazelleUnitTest\Helper;
 use Gazelle\Enum\DownloadStatus;
 use Gazelle\Enum\TorrentFlag;
 use Gazelle\Enum\UserTorrentSearch;
+use OrpheusNET\Logchecker\Logchecker;
 
 class TorrentTest extends TestCase {
     protected Torrent $torrent;
@@ -364,5 +365,27 @@ class TorrentTest extends TestCase {
             $collector->summary(),
             "collector-tlist-summary",
         );
+    }
+
+    public function testLogfileHashList(): void {
+        try {
+            $logfileSummary = new LogfileSummary([
+                'error'    => [UPLOAD_ERR_OK],
+                'name'     => ['valid_log_eac.log'],
+                'tmp_name' => [__DIR__ . '/../fixture/valid_log_eac.log'],
+            ]);
+            $torrentLogManager = new Manager\TorrentLog();
+            $checkerVersion = Logchecker::getLogcheckerVersion();
+            foreach ($logfileSummary->all() as $logfile) {
+                $torrentLog = $torrentLogManager->create($this->torrent, $logfile, $checkerVersion);
+                // Because RipLog::put relies on move_uploaded_file, the create method above fails to put the log file
+                // into place, so we do this copy afterwards.
+                $ripLog = new File\RipLog($torrentLog->torrentId(), $torrentLog->id());
+                copy(__DIR__ . '/../fixture/valid_log_eac.log', $ripLog->path());
+            }
+            $this->assertEquals([hash_file('sha256', __DIR__ . '/../fixture/valid_log_eac.log')], $this->torrent->logfileHashList());
+        } finally {
+            new File\RipLog($this->torrent->id, '*')->remove();
+        }
     }
 }

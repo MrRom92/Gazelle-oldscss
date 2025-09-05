@@ -818,4 +818,20 @@ abstract class TorrentAbstract extends BaseAttrObject {
         }
         return '';
     }
+
+    /**
+     * Get array of the hashes of all logfiles for a torrent
+     * @return array<string>
+     */
+    public function logfileHashList(): array {
+        self::$db->prepared_query("
+            SELECT LogID FROM torrents_logs WHERE TorrentID = ?
+            ", $this->id
+        );
+        $hashes = [];
+        foreach (self::$db->collect(0) as $logId) {
+            $hashes[] = new RipLog($this->id, $logId)->hash();
+        }
+        return $hashes;
+    }
 }
