@@ -66,11 +66,11 @@ switch ($_REQUEST['action'] ?? '') {
         include_once 'permissions.php';
         break;
     case 'search':// User search
-        if ($Viewer->permitted('admin_advanced_user_search') && $Viewer->permitted('users_view_ips') && $Viewer->permitted('users_view_email')) {
-            include_once 'advancedsearch.php';
-        } else {
-            include_once 'search.php';
-        }
+        include_once $Viewer->permitted('admin_advanced_user_search')
+                && $Viewer->permitted('users_view_ips')
+                && $Viewer->permitted('users_view_email')
+            ? 'advancedsearch.php'
+            : 'search.php';
         break;
     case 'seedbox':
         include_once 'seedbox_edit.php';

@@ -20,6 +20,12 @@ if (!empty($_GET['search'])) {
         $_GET['ip'] = $_GET['search'];
     } elseif (preg_match(EMAIL_REGEXP, $_GET['search'])) {
         $_GET['email'] = $_GET['search'];
+    } elseif (str_starts_with($_GET['search'], '#')) {
+        $found = $userMan->findById((int)substr($_GET['search'], 1));
+        if ($found) {
+            header('Location: ' . $found->location());
+            exit;
+        }
     } elseif (preg_match(USERNAME_REGEXP, $_GET['search'], $match)) {
         $username = $match['username'];
         $found = $userMan->findByUsername($username);
