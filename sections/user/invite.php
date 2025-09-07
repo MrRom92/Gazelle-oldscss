@@ -20,9 +20,11 @@ if (!$Viewer->permitted('users_view_invites') && !$ownProfile) {
     Error403::error();
 }
 
-$inviteSourceMan = $Viewer->permitted('users_view_invites') || $Viewer->isRecruiter()
-    ? new Manager\InviteSource()
-    : null;
+$inviteSourceMan = $Viewer->permitted('users_view_invites')
+    || $user->isInterviewer()
+    || $user->isRecruiter()
+        ? new Manager\InviteSource()
+        : null;
 
 if ($inviteSourceMan && isset($_GET['edit'])) {
     /**
@@ -83,7 +85,7 @@ echo $Twig->render('user/invited.twig', [
     'edit_source' => $inviteSourceMan && ($_GET['edit'] ?? '') === 'source',
     'heading'     => $heading,
     'invited'     => array_map(
-        fn($id) => $userMan->findById($id),
+        fn ($id) => $userMan->findById($id),
         $user->invite()->page(
             $heading->orderBy(), $heading->dir(), $paginator->limit(), $paginator->offset()
         )
@@ -94,6 +96,7 @@ echo $Twig->render('user/invited.twig', [
     'own_profile'       => $ownProfile,
     'paginator'         => $paginator,
     'user'              => $user,
+    'viewer'            => $Viewer,
     'wiki_user_classes' => 4,
     'wiki_ratio_watch'  => 503,
 ]);
