@@ -665,7 +665,7 @@ class Artist extends BaseAttrObject implements Bookmarked, CollageEntry {
                         where ba_new.id_user = ba_initial.id_user
                             and ba_new.id_artist = $2
                     )
-            )
+            ) and id_artist = $1
             ', $old->id, $newId
         );
         $this->pg()->prepared_query("

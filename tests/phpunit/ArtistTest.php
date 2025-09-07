@@ -221,8 +221,13 @@ class ArtistTest extends TestCase {
         $new = $manager->create($newName);
         $this->artistIdList[] = $new->id;
 
+        $otherArtist = 'phpunit.artist.' . randomString(12);
+        $other = $manager->create($otherArtist);
+        $this->artistIdList[] = $other->id;
+
         $userBk = new User\Bookmark($this->user);
         $userBk->create($old);
+        $userBk->create($other);
 
         $commentMan = new Manager\Comment();
         $postList = [
@@ -271,6 +276,7 @@ class ArtistTest extends TestCase {
         );
         $this->assertNull($manager->findById($old->id), 'art-merge-no-old');
         $this->assertTrue($userBk->isBookmarked($new), 'art-merge-user-bookmarked-new');
+        $this->assertTrue($userBk->isBookmarked($other), 'art-merge-user-bookmarked-other');
         $this->assertTrue($extraBk->isBookmarked($new), 'art-merge-extra-bookmarked-new');
         $this->assertCount(1, $extraBk->artistList(), 'art-merge-extra-bookmarked-list');
 
