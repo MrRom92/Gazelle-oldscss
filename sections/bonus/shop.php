@@ -9,7 +9,7 @@ namespace Gazelle;
 $bonus    = new User\Bonus($Viewer);
 $bonusMan = new Manager\Bonus();
 
-$purchase = isset($_GET['complete']) ? $bonus->item($_GET['complete'])['Title'] : false;
+$purchase = $bonusMan->findBonusItemByLabel($_GET['complete'] ?? '');
 if (($_GET['action'] ?? '') !== 'donate') {
     $donate = false;
 } else {
@@ -34,10 +34,11 @@ if (($_GET['action'] ?? '') !== 'donate') {
     }
 }
 
-echo $Twig->render('bonus/store.twig', [
+echo $Twig->render('bonus/shop.twig', [
     'bonus'    => $bonus,
     'discount' => $bonusMan->discount(),
     'donate'   => $donate,
+    'list'     => $bonusMan->itemList(),
     'pool'     => $bonusMan->openPoolList(),
     'purchase' => $purchase,
     'viewer'   => $Viewer,

@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
+use Gazelle\Enum\BonusItemPurchaseStatus;
 use Gazelle\Enum\UserTokenType;
 use Gazelle\User\Vote;
 
@@ -28,34 +29,44 @@ $userBonus   = new User\Bonus($user);
 $viewerBonus = new User\Bonus($Viewer);
 $history     = new User\History($user);
 $limiter     = new User\UserclassRateLimit($user);
+$bonusMan    = new Manager\Bonus();
 $donorMan    = new Manager\Donation();
 $ipv4        = new Manager\IPv4();
 $tgMan       = new Manager\TGroup();
+
 $resetToken  = $Viewer->permitted('users_mod')
     ? new Manager\UserToken()->findByUser($user, UserTokenType::password)
     : null;
-if (!empty($_POST)) {
+
+if (isset($_POST['flsubmit'], $_POST['fltype']) && ($_POST['action'] ?? '') === 'fltoken') {
     authorize();
-    foreach (['action', 'flsubmit', 'fltype'] as $arg) {
-        if (!isset($_POST[$arg])) {
-            Error403::error();
-        }
+    if (str_starts_with($_POST['fltype'], 'fl-')) {
+        // backwards compatibility
+        $_POST['fltype'] = substr($_POST['fltype'], 3);
     }
-    if ($_POST['action'] !== 'fltoken' || $_POST['flsubmit'] !== 'Send') {
-        Error403::error();
-    }
-    if (!preg_match('/^fl-(other-[1-4])$/', $_POST['fltype'], $match)) {
-        Error403::error();
-    }
-    $FL_OTHER_tokens = $viewerBonus->purchaseTokenOther($user, $match[1], $_POST['message'] ?? '');
-    if (!$FL_OTHER_tokens) {
+    $status = $bonusMan->purchaseTokenOther(
+        $Viewer, $user, $_POST['fltype'], $_POST['message'] ?? ''
+    );
+    if ($status === BonusItemPurchaseStatus::success) {
+        header("Location: {$user->location()}");
+        exit;
+    } else {
         Error400::error(
-            'Purchase of tokens not concluded. Either you lacked funds or they have chosen to decline FL tokens.'
+            match ($status) { /* @phpstan-ignore match.unhandled (alreadyPurchased) */
+                BonusItemPurchaseStatus::declined
+                    => "{$user->username()} does not wish to receive tokens",
+                BonusItemPurchaseStatus::insufficientFunds
+                    => "You do not have enough bonus points to buy that",
+                BonusItemPurchaseStatus::forbidden
+                    => "{$user->username()} cannot receive tokens from you",
+                BonusItemPurchaseStatus::incomplete
+                    => "Something was wrong with the parameters provided",
+            }
         );
     }
 }
 
-if ($userId == $Viewer->id()) {
+if ($userId == $Viewer->id) {
     $Preview = (bool)($_GET['preview'] ?? false);
     $OwnProfile = !$Preview;
     $user->forceCacheFlush(true);
@@ -90,8 +101,7 @@ echo $Twig->render('user/header.twig', [
     'bonus'      => $userBonus,
     'donor'      => $donor,
     'freeleech'  => [
-        'item'   => $OwnProfile ? [] : $viewerBonus->otherList(),
-        'other'  => $FL_OTHER_tokens ?? null,
+        'offer'  => $OwnProfile ? [] : $bonusMan->offerTokenOther($Viewer),
         'latest' => $viewerBonus->otherLatest($user),
     ],
     'friend'       => new User\Friend($Viewer),

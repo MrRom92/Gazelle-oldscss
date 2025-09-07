@@ -83,37 +83,30 @@
 </div>
 {% endif %}
 
-{% if user.isEnabled and (not user.hasAttr('no-fl-gifts')) and (freeleech.item or freeleech.other) %}
+{% if user.isEnabled and (not user.hasAttr('no-fl-gifts')) and freeleech.offer %}
 <div class="box box_info box_userinfo_give_FL">
-{%  if freeleech.other %}
-    <div class="head colhead_dark">Freeleech Tokens Given</div>
-    <ul class="stats nobullet">
-{%      if freeleech.other > 0 %}
-    <li>You gave {{ freeleech.other }} token{{ freeleech.other|plural }} to {{ user.username }}. Your generosity is most appreciated!</li>
-{%      else %}
-    <li>You attempted to give some tokens to {{ user.username }} but something didn't work out.
-    No points were spent.</li>
-{%      endif %}
-            </ul>
-{%  else %}
     <div class="head colhead_dark">Give Freeleech Tokens</div>
     <form class="fl_form" name="user" id="fl_form" action="user.php?id={{ user_id }}" method="post">
         <ul class="stats nobullet">
-{%      for f in freeleech.item %}
-                <li><input type="radio" name="fltype" id="fl-{{ f.Label }}" value="fl-{{ f.Label }}" />
-                <label title="This costs {{ f.Price|number_format }} BP, which will leave you with {{ f.After|number_format
-                    }} afterwards" for="fl-{{ f.Label }}"> {{ f.Name }}</label></li>
+{%      for item in freeleech.offer %}
+            <li><input type="radio" name="fltype" id="{{ item.label }}" value="{{ item.label }}" />
+            <label title="This costs {{ item.price|number_format }} BP, which will leave you with {{
+                (viewer.bonusPointsTotal - item.price)|number_format}} afterwards" for="{{
+                item.label }}"> {{ item.title }}</label></li>
 {%      endfor %}
             <li><input type="text" id="message" name="message" placeholder="Message"/> <br /></li>
             <li><input type="submit" name="flsubmit" value="Send" /></li>
 {%      if freeleech.latest %}
-            <li>(You gave them {{ freeleech.latest.title|trim(' to Other') }} {{ freeleech.latest.purchase_date|time_diff }})</li>
+{%          set when = freeleech.latest.purchase_date|time_diff %}
+            <li>
+                You gave them {{ freeleech.latest.title|trim(' to Other') }} {{ when|raw }}
+{%-         if 'Just now' in when %}. Your generosity is most appreciated!{% endif -%}
+            </li>
 {%      endif %}
         </ul>
         <input type="hidden" name="action" value="fltoken" />
         <input type="hidden" name="auth" value="{{ viewer.auth }}" />
     </form>
-{%  endif %}
 </div>
 {% endif %}
 

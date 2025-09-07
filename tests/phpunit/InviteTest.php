@@ -35,36 +35,45 @@ class InviteTest extends TestCase {
         $this->assertEquals(0, $this->user->invite()->pendingTotal(), 'invite-pending-0-initial');
 
         // USER cannot invite, but MEMBER can
-        $this->assertFalse($this->user->canInvite(),  'invite-cannot-invite');
-        $this->assertFalse($this->user->canPurchaseInvite(),  'invite-cannot-purchase');
+        $this->assertFalse($this->user->canInvite(),  'inviter-cannot-invite');
+        $this->assertFalse($this->user->canPurchaseInvite(),  'inviter-cannot-purchase');
         $this->user->setField('PermissionID', MEMBER)->modify();
-        $this->assertTrue($this->user->canInvite(),  'invite-can-invite');
-        $this->assertTrue($this->user->canPurchaseInvite(),  'invite-can-now-purchase');
+        $this->assertTrue($this->user->canInvite(),  'inviter-can-invite');
+        $this->assertTrue($this->user->canPurchaseInvite(),  'inviter-can-now-purchase');
 
         // add some BP to play with
         $bonus = new User\Bonus($this->user);
-        $this->assertEquals(1, $bonus->addPoints(1_000_000), 'invite-add-bp');
-        $this->assertTrue($bonus->purchaseInvite(),  'invite-purchase-invite');
-        $this->assertEquals(1, $this->user->unusedInviteTotal(), 'invite-unused-1');
+        $this->assertEquals(1, $bonus->addPoints(1_000_000), 'inviter-add-bp');
+        $invite = new Manager\Bonus()->findBonusItemByLabel('invite');
+        $this->assertEquals(
+            Enum\BonusItemPurchaseStatus::success,
+            $invite->purchase($this->user, $invite->price()),
+            'inviter-purchase-invite'
+        );
+        $this->assertEquals(1, $this->user->unusedInviteTotal(), 'inviter-unused-1');
 
-        $this->assertTrue($this->user->invite()->issueInvite(), 'invite-issue-true');
-        $this->assertFalse($this->user->invite()->issueInvite(), 'invite-decrement-none-left');
+        $this->assertTrue($this->user->invite()->issueInvite(), 'inviter-issue-true');
+        $this->assertFalse($this->user->invite()->issueInvite(), 'inviter-decrement-none-left');
         $this->user->setField('Invites', 1)->modify();
 
         // invite someone
-        $this->assertTrue(new Stats\Users()->newUsersAllowed($this->user), 'invite-new-users-allowed');
+        $this->assertTrue(new Stats\Users()->newUsersAllowed($this->user), 'inviter-new-users-allowed');
         $manager = new Manager\Invite();
         $email = randomString(10) . "@invitee.example.com";
         $this->assertFalse($manager->emailExists($this->user, $email), 'invitee-email-not-pending');
-        $invite = $manager->create($this->user, $email, 'unittest notes', 'unittest reason', '');
-        $this->assertInstanceOf(Invite::class, $invite, 'invite-invitee-created');
-        $this->assertEquals(1, $this->user->invite()->pendingTotal(), 'invite-pending-1');
-        $this->assertEquals(0, $this->user->unusedInviteTotal(), 'invite-unused-0-again');
-        $this->assertEquals($invite->email(), $this->user->invite()->pendingList()[$invite->key()]['email'], 'invite-invitee-email');
+        $invitation = $manager->create($this->user, $email, 'unittest notes', 'unittest reason', '');
+        $this->assertInstanceOf(Invite::class, $invitation, 'inviter-invitee-created');
+        $this->assertEquals(1, $this->user->invite()->pendingTotal(), 'inviter-pending-1');
+        $this->assertEquals(0, $this->user->unusedInviteTotal(), 'inviter-unused-0-again');
+        $this->assertEquals(
+            $invitation->email(),
+            $this->user->invite()->pendingList()[$invitation->key()]['email'],
+            'inviter-invitee-email',
+        );
 
         // respond to invite
-        $this->assertTrue($manager->inviteExists($invite->key()), 'invite-key-found');
-        $this->invitee = Helper::makeUserByInvite('invitee.' . randomString(6), $invite->key());
+        $this->assertTrue($manager->inviteExists($invitation->key()), 'invite-key-found');
+        $this->invitee = Helper::makeUserByInvite('invitee.' . randomString(6), $invitation->key());
         $this->assertInstanceOf(User::class, $this->invitee, 'invitee-class');
         $this->assertEquals($this->user->id, $this->invitee->inviter()?->id, 'invitee-invited-by');
         $this->assertEquals($this->user->id, $this->invitee->inviterId(), 'invitee-invited-id');

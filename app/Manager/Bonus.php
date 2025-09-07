@@ -1,14 +1,36 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Gazelle\Manager;
 
+use Gazelle\BonusItem;
+use Gazelle\Enum\BonusItemPurchaseStatus;
 use Gazelle\Enum\UserStatus;
+use Gazelle\User;
 
 class Bonus extends \Gazelle\Base {
     final public const CACHE_OPEN_POOL = 'bonus_pool'; // also defined in \Gazelle\Bonus
-    final protected const CACHE_ITEM   = 'bonus_item';
+    final protected const CACHE_KEY = 'bonus_item_list';
 
     protected array $items;
+
+    public function flush(): static {
+        foreach ($this->itemList() as $item) {
+            $item->flush();
+        }
+        unset($this->items);
+        self::$cache->delete_value(self::CACHE_KEY);
+        return $this;
+    }
+
+    public function findBonusItemByLabel(string $label): ?BonusItem {
+        $idBonusItem = $this->pg()->scalar('
+            select id_bonus_item from bonus_item where label = ?
+            ', $label
+        );
+        return is_null($idBonusItem) ? null : new BonusItem($idBonusItem);
+    }
 
     /**
      * Return the global discount rate for the shop
@@ -21,34 +43,21 @@ class Bonus extends \Gazelle\Base {
 
     public function itemList(): array {
         if (!isset($this->items)) {
-            $items = self::$cache->get_value(self::CACHE_ITEM);
-            if ($items === false) {
-                $discount = $this->discount();
-                self::$db->prepared_query("
-                    SELECT ID,
-                        Price * (greatest(0, least(100, 100 - ?)) / 100) as Price,
-                        Amount, MinClass, FreeClass, Label, Title, sequence,
-                        IF (Label REGEXP '^other-', 'NoOp', 'ConfirmPurchase') AS JS_on_click,
-                        IF (Label REGEXP '^title-bb-[yn]', 'NoOp', 'ConfirmPurchase') AS JS_on_click
-                    FROM bonus_item
-                    ORDER BY sequence
-                    ", $discount
-                );
-                $items = [];
-                foreach (self::$db->to_array(false, MYSQLI_ASSOC) as $row) {
-                    $row['Price'] = (int)$row['Price'];
-                    $items[$row['Label']] = $row;
-                }
-                self::$cache->cache_value(self::CACHE_ITEM, $items, 0);
+            $idList = self::$cache->get_value(self::CACHE_KEY);
+            if ($idList === false) {
+                $idList = $this->pg()->column("
+                    select id_bonus_item from bonus_item order by sequence
+                ");
+                self::$cache->cache_value(self::CACHE_KEY, $idList, 0);
             }
-            $this->items = $items;
+            $list = [];
+            foreach ($idList as $idBonusItem) {
+                $item = new BonusItem($idBonusItem);
+                $list[$item->label()] = $item;
+            }
+            $this->items = $list;
         }
         return $this->items;
-    }
-
-    public function flushPriceCache(): void {
-        unset($this->items);
-        self::$cache->delete_value(self::CACHE_ITEM);
     }
 
     public function openPoolList(): array {
@@ -218,5 +227,39 @@ class Bonus extends \Gazelle\Base {
         self::$db->dropTemporaryTable("bonus_update");
 
         return $processed;
+    }
+
+    /**
+     * return array<BonusItem>
+     */
+    public function offerTokenOther(User $user): array {
+        $balance = $user->bonusPointsTotal();
+        $offer   = [];
+        foreach ($this->itemList() as $item) {
+            if (str_starts_with($item->label(), 'other-') && $balance >= $item->price()) {
+                $offer[] = $item;
+            }
+        }
+        return $offer;
+    }
+
+    public function purchaseTokenOther(
+        User   $giver,
+        User   $receiver,
+        string $label,
+        string $message,
+    ): BonusItemPurchaseStatus {
+        $item = $this->findBonusItemByLabel($label);
+        if (is_null($item)) {
+            return BonusItemPurchaseStatus::incomplete;
+        }
+        return $item->purchase(
+            $giver,
+            $item->price(),
+            [
+                'message'  => $message,
+                'receiver' => $receiver,
+            ],
+        );
     }
 }

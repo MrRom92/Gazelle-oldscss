@@ -1,37 +1,39 @@
 {{ header("Bonus Points - Gift Tokens ", {'js': 'bonus'}) }}
 <div class="thin">
     <div class="header">
-        <h2>Gift Tokens - {{price | number_format}} Points</a></h2>
+        <h2><a href="bonus.php">Shop</a> › Gift Tokens - {{ item.price | number_format }} Points</a></h2>
     </div>
-    <form action="bonus.php?action=purchase&amp;label={{label}}" method="post">
+    <form name="bonus-other" action="bonus.php" method="post">
         <div class="pad">
             <table cellpadding="6" cellspacing="1" border="0" class="layout border" width="100%">
                 <tbody>
-                    <input type="hidden" name="auth" value="{{auth}}" />
-                    <input type="hidden" name="confirm" value="true" />
+                    <input type="hidden" name="action" value="purchase" />
+                    <input type="hidden" name="auth" value="{{ viewer.auth }}" />
+                    <input type="hidden" name="label" value="{{ item.label }}" />
+                    <input type="hidden" name="user" value="" />
                     <tr>
                         <td class="label">Username:</td>
                         <td>
-                            <input type="text" id="user" name="user" style="width:90%" /> <br />
+                            <input type="text" id="bonus-user-other" name="bonus-user-other" length="20" />
+                            <span id="bonus-other-status"></span>
                         </td>
                     </tr>
                     <tr>
                         <td class="label">Message:</td>
                         <td>
                             <div style="width:90%">
-                                {{ textarea.preview|raw }}
-                                {{ textarea.field|raw }}
+                                {{ message.preview|raw }}
+                                {{ message.field|raw }}
                             </div>
                         </td>
                     </tr>
                 </tbody>
             </table>
             <div id="buttons" class="center">
-                {{ textarea.button|raw }}
-                <input type="submit" onclick="ConfirmPurchase(event,'{{item}}')" value="Submit" />
+                {{ message.button|raw }}
+                <input type="submit" id="bonus-other-purchase" disabled="disabled" value="Purchase" />
             </div>
         </div>
- 
     </form>
 </div>
 {{ footer() }}

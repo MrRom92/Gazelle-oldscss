@@ -115,7 +115,12 @@ class TGroupTest extends TestCase {
 
         $bonus = (new User\Bonus($this->userList['user']));
         $this->assertEquals(1, $bonus->addPoints(10000), 'tgroup-user-add-bp');
-        $this->assertEquals(1, $bonus->purchaseToken('token-1'), 'tgroup-user-buy-token');
+        $token = new Manager\Bonus()->findBonusItemByLabel('token-1');
+        $this->assertEquals(
+            Enum\BonusItemPurchaseStatus::success,
+            $token->purchase($this->userList['user'], $token->price()),
+            'tgroup-user-buy-fltoken'
+        );
         $this->assertTrue($this->userList['user']->canSpendFLToken($torrent), 'tgroup-user-fltoken');
 
         new Stats\Users()->refresh();

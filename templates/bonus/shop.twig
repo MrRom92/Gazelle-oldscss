@@ -11,10 +11,10 @@
 {% endif %}
 </div>
 {% if purchase %}
-<div class="alertbar blend">{{ purchase }} purchased!</div>
+<div class="save_message">✅ {{ purchase.title }} purchased!</div>
 {% endif %}
 {% if donate %}
-<div class="alertbar blend">{{ donate }}</div>
+<div class="save_message">{{ donate }}</div>
 {% endif %}
 {% if pool %}
 {%  include 'bonus/bonus-pool.twig' with {
@@ -23,48 +23,58 @@
     } only
 %}
 {% endif %}
-{% for item in bonus.itemList %}
+{% for item in list %}
 {%  if loop.first %}
 <div class="thin">
 {%      if discount %}
     <h3 style="text-align: center; color: lime;">All prices currently {{ min(100, max(0, discount))
-        }}% off &mdash; Hurry, sale ends soon &mdash; While stocks last!</h3>
+        }}% off — Hurry, sale ends soon — While stocks last!</h3>
 {%      endif %}
 {%      if viewer.permitted('admin_bp_history') %}
     <div class="pad box">
         <div class="thin">NB: Bonus Shop discounts are set in the <a href="/tools.php?action=site_options">Site Options</a>.</div>
     </div>
 {%      endif %}
+    <form action="" method="post">
+    <input type="hidden" name="auth" value="{{ viewer.auth }}" />
+    <input type="hidden" name="action" value="purchase" />
     <table>
         <thead>
             <tr class="colhead">
                 <td>Description</td>
-                <td style="width:60px">Points</td>
-                <td style="width:120px">Checkout</td>
+                <td class="number_column">Points</td>
+                <td style="text-align:center">Checkout</td>
             </tr>
         </thead>
         <tbody>
 {%  endif %}
-{%  if item.MinClass <= viewer.classLevel %}
             <tr class="row{{ cycle(['a', 'b'], loop.index0) }}">
-                <td>{{ item.Title }}</pre></td>
-                <td style="text-align:right">{{ item.Price|number_format }}</td>
-                <td>
-{%      if viewer.bonusPointsTotal >= item.Price %}
-                    <a id="bonusconfirm" href="bonus.php?action=purchase&amp;label={{ item.Label
-                        }}&amp;auth={{ viewer.auth }}" onclick="{{ item.JS_on_clic
-                        }}(event, '{{ item.Title }}', {{ item.JS_next_function|default('null')
-                        }}, this);">Purchase</a>
-{%      else %}
-                    <span style="font-style: italic">Too Expensive</span>
-
-{%      endif %}
+                <td>{{ item.title }}</td>
+                <td style="text-align:right">{{ item.priceForUser(viewer)|number_format }}</td>
+                <td style="text-align:center">
+{%  if not item.permitted(viewer) %}
+                    <i>Forbidden</i>
+{%  elseif item.userclassMin > viewer.classLevel %}
+                    <i>Locked</i>
+{%  elseif
+        (item.label == 'seedbox' and viewer.hasAttr('feature-seedbox'))
+        or
+        (item.label == 'file-count' and viewer.hasAttr('feature-file-count'))
+%}
+                    <i>You own this</i>
+{%  elseif item.priceForUser(viewer) > viewer.bonusPointsTotal %}
+                    <i>Too Expensive</i>
+{%  elseif item.needsPreparation %}
+                    <a href="bonus.php?action=prepare&amp;item={{ item.label }}">Prepare</a>
+{%  else %}
+                    <input style="font-size:10px;margin:0px;" type="submit" name="{{ item.label }}" value="Purchase!" />
 {%  endif %}
                 </td>
-    </tr>
+            </tr>
 {%  if loop.last %}
         </tbody>
     </table>
+    </form>
     <br />
 </div>
 {%  endif %}

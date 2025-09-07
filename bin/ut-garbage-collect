@@ -183,7 +183,7 @@ $tgMan = new Manager\TGroup();
 foreach ($groupList as $tgroupId) {
     $tgroup = $tgMan->findById($tgroupId);
     if ($tgroup instanceof TGroup) {
-        echo "tgroup $torrentId ({$tgroup->name()})\n";
+        echo "tgroup $torrentId ({$tgroup?->name()})\n";
         $db->prepared_query("
             DELETE FROM bookmarks_torrents bt WHERE GroupID = ?
             ", $tgroupId

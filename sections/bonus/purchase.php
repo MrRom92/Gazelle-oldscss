@@ -7,24 +7,54 @@ namespace Gazelle;
 
 authorize();
 
-$label = $_REQUEST['label'];
-$bonus = new User\Bonus($Viewer);
+$label = $_POST['label'] // from a prepare page
+    ?? current(
+        array_keys(
+            array_filter(
+                $_POST,
+                fn ($i) => $i === 'Purchase!' // from the shop page
+            )
+        )
+    );
+if (!is_string($label)) {
+    Error400::error("Not sure what you were planning to purchase");
+}
+$item = new Manager\Bonus()->findBonusItemByLabel($label);
+if (is_null($item)) {
+    Error404::error("We don't stock that item");
+}
 
-if ($label === 'collage-1') {
-    if (!$bonus->purchaseCollage($label)) {
-        Error400::error('Could not purchase a personal collage slot due to lack of funds.');
+$extra = [];
+if (str_starts_with($item->label(), 'title-bb-')) {
+    $extra['title']  = $_POST['title'] ?? '';
+} elseif (str_starts_with($item->label(), 'other-')) {
+    $user = new Manager\User()->findByUsername($_POST['user'] ?? '');
+    if (is_null($user)) {
+        Error404::error(
+            'Nobody with that name found. Try a user search and give them tokens from their profile page.'
+        );
+    } elseif ($user->id == $Viewer->id) {
+        Error400::error('You cannot gift yourself tokens, they are cheaper to buy directly.');
     }
-    header("Location: bonus.php?complete=$label");
-} elseif ($label === 'seedbox') {
-    if (!$bonus->unlockSeedbox()) {
-        Error400::error('Could not unlock the seedbox viewer. Either you have already unlocked it, or you lack the required bonus points.');
-    }
-    header("Location: bonus.php?complete=$label");
-} elseif ($label === 'file-count') {
-    if (!$bonus->purchaseFeatureFilecount()) {
-        Error400::error('Could not purchase the file count feature. Either you have already own it, or you lack the required bonus points.');
-    }
-    header("Location: bonus.php?complete=$label");
-} else {
-    Error403::error();
+    $extra['receiver'] = $user;
+    $extra['message']  = $_POST['message'] ?? '';
+}
+
+// phpcs:disable PSR2.ControlStructures.SwitchDeclaration.TerminatingComment
+switch ($item->purchase($Viewer, $item->price(), $extra)) {
+    case Enum\BonusItemPurchaseStatus::success:
+        header("Location: bonus.php?complete={$item->label()}");
+        exit;
+
+    case Enum\BonusItemPurchaseStatus::insufficientFunds:
+        Error400::error("Could not purchase {$item->title()} due to lack of funds.");
+
+    case Enum\BonusItemPurchaseStatus::forbidden:
+        Error400::error("You are not allowed to purchase {$item->title()}.");
+
+    case Enum\BonusItemPurchaseStatus::alreadyPurchased:
+        Error400::error("You already own {$item->title()}.");
+
+    case Enum\BonusItemPurchaseStatus::incomplete:
+        Error400::error("Information lacking to complete purchase of {$item->title()}.");
 }
