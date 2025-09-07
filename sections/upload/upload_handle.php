@@ -295,7 +295,7 @@ if (isset($TorData['info']['meta version'])) {
 
 $checker    = new Util\FileChecker();
 $folderName = (isset($TorData['info']['files']) ? make_utf8($bencoder->getName()) : '');
-if ($folderName === '') {
+if ($isMusicUpload && $folderName === '') {
     json_error("Music uploads must be in a folder ({$File['name']})");
 }
 $checkName = $checker->checkName($folderName); // check the folder name against the blacklist
