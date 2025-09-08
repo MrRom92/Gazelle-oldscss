@@ -18,13 +18,10 @@ $torrent = $torMan->findById((int)($_POST['torrentid'] ?? 0));
 if (is_null($torrent)) {
     Error404::error();
 }
-$Remastered   = $torrent->isRemastered();
-$RemasterYear = $torrent->remasterYear();
-$TorrentID    = $torrent->id;
-$UserID       = $torrent->uploaderId();
+$uploaderId = $torrent->uploaderId();
 
-if ($Viewer->id != $UserID && !$Viewer->permitted('torrents_edit')) {
-    Error403::error();
+if ($Viewer->id != $uploaderId && !$Viewer->permitted('torrents_edit')) {
+    Error403::error("You are not allowed to edit this torrent");
 }
 
 //******************************************************************************//
@@ -34,15 +31,15 @@ if ($Viewer->id != $UserID && !$Viewer->permitted('torrents_edit')) {
 //******************************************************************************//
 
 $Properties = [
-    'Name'                => trim($_POST['title'] ?? ''),
-    'Format'              => $_POST['format'] ?? null,
-    'Media'               => $_POST['media'] ?? '',
-    'Encoding'            => $_POST['bitrate'] ?? null,
-    'Description'         => trim($_POST['release_desc'] ?? ''),
-    'Scene'               => isset($_POST['scene']),
-    'HasLog'              => isset($_POST['flac_log']),
-    'HasCue'              => isset($_POST['flac_cue']),
-    'Remastered'          => isset($_POST['remaster']),
+    'Description' => trim($_POST['release_desc'] ?? ''),
+    'Name'        => trim($_POST['title'] ?? ''),
+    'Encoding'    => $_POST['bitrate'] ?? null,
+    'Format'      => $_POST['format'] ?? null,
+    'Media'       => $_POST['media'] ?? '',
+    'HasLog'      => isset($_POST['flac_log']),
+    'HasCue'      => isset($_POST['flac_cue']),
+    'Remastered'  => isset($_POST['remaster']),
+    'Scene'       => isset($_POST['scene']),
 ];
 if (isset($_POST['album_desc'])) {
     $Properties['GroupDescription'] = trim($_POST['album_desc']);
@@ -68,15 +65,17 @@ foreach (TorrentFlag::cases() as $flag) {
 //--------------- Validate data in edit form -----------------------------------//
 
 if (!$Viewer->permitted('edit_unknowns')) {
-    if ($Remastered && !$RemasterYear) {
+    $remastered   = $torrent->isRemastered();
+    $remasterYear = $torrent->remasterYear();
+    if ($remastered && !$remasterYear) {
         Error400::error("You must supply a remaster year for a remastered release");
     }
-    if ($Properties['UnknownRelease'] && !($Remastered && !$RemasterYear)) { /** @phpstan-ignore-line *//* wtf is this logic */
-        if ($Viewer->id != $UserID) {
+    if ($Properties['UnknownRelease'] && !($remastered && !$remasterYear)) { /** @phpstan-ignore-line *//* wtf is this logic */
+        if ($Viewer->id != $uploaderId) {
             Error400::error("You cannot set a release to be Unknown");
         }
     }
-    if ($Viewer->id !== $UserID && $Properties['Remastered'] && !$Properties['RemasterYear']) {
+    if ($Viewer->id !== $uploaderId && $Properties['Remastered'] && !$Properties['RemasterYear']) {
         $Err = "You may not set someone else's upload to unknown release.";
     }
 }
@@ -208,6 +207,75 @@ foreach ($propertyMap as $field => $method) {
     }
 }
 
+$hasCue = false;
+$hasLog = false;
+foreach ($torrent->fileList() as $file) {
+    if ($file['ext'] === '.cue') {
+        $hasCue = true;
+        if ($hasLog) {
+            break; // no further changes possible
+        }
+    } elseif (
+        $file['ext'] === '.log'
+        && !in_array($file['ext'], IGNORE_AUDIO_LOGFILE)
+    ) {
+        $hasLog = true;
+        if ($hasCue) {
+            break;
+        }
+    }
+}
+if (
+    $Properties['Encoding'] === 'Lossless'
+    && $torrent->encoding() !== 'Lossless'
+    && $hasCue
+    && !$torrent->hasCue()
+) {
+    $torrent->setField('HasCue', '1');
+    $change[] = "HasCue false → true";
+} elseif (
+    $Properties['Encoding'] !== 'Lossless'
+    && $torrent->hasCue()
+) {
+    $torrent->setField('HasCue', '0');
+    $change[] = "HasCue true → false";
+} elseif (
+    $Viewer->permitted('users_mod')
+    && $torrent->hasCue() != $Properties['HasCue']
+) {
+    $torrent->setField('HasCue', $Properties['HasCue'] ? '1' : '0');
+    $change[] = sprintf("HasCue %s → %s",
+        $torrent->hasCue() ? 'true' : 'false',
+        $Properties['HasCue'] ? 'true' : 'false'
+    );
+}
+if (
+    (
+        ($Properties['Encoding'] === 'Lossless' && $torrent->encoding() !== 'Lossless')
+        || ($Properties['Media'] === 'CD' && $torrent->media() !== 'CD')
+    )
+    && $hasLog
+    && !$torrent->hasLog()
+) {
+    $torrent->setField('HasLog', '1');
+    $change[] = "HasLog false → true";
+} elseif (
+    ($Properties['Encoding'] !== 'Lossless' || $Properties['Media'] !== 'CD')
+    && $torrent->hasLog()
+) {
+    $torrent->setField('HasLog', '0');
+    $change[] = "HasLog true → false";
+} elseif (
+    $Viewer->permitted('users_mod')
+    && $torrent->hasLog() != $Properties['HasLog']
+) {
+    $torrent->setField('HasLog', $Properties['HasLog'] ? '1' : '0');
+    $change[] = sprintf("HasLog %s → %s",
+        $torrent->hasLog() ? 'true' : 'false',
+        $Properties['HasLog'] ? 'true' : 'false'
+    );
+}
+
 //******************************************************************************//
 //--------------- Start database stuff -----------------------------------------//
 
@@ -223,34 +291,6 @@ if (isset($_FILES['logfiles'])) {
             $torrentLogManager->create($torrent, $logfile, $checkerVersion);
         }
         $torrent->modifyLogscore();
-    }
-}
-
-if ($Viewer->permitted('users_mod')) {
-    if ($Properties['Format'] == 'FLAC' && $Properties['Media'] == 'CD') {
-        if ($torrent->hasLog() != $Properties['HasLog']) {
-            $torrent->setField('HasLog', $Properties['HasLog'] ? '1' : '0');
-            $change[] = sprintf("HasLog %s → %s",
-                $torrent->hasLog() ? 'true' : 'false',
-                $Properties['HasLog'] ? 'true' : 'false'
-            );
-        }
-        if ($torrent->hasCue() != $Properties['HasCue']) {
-            $torrent->setField('HasCue', $Properties['HasCue'] ? '1' : '0');
-            $change[] = sprintf("HasCue %s → %s",
-                $torrent->hasCue() ? 'true' : 'false',
-                $Properties['HasCue'] ? 'true' : 'false'
-            );
-        }
-    } else {
-        if ($torrent->hasLog()) {
-            $torrent->setField('HasLog', '0');
-            $change[] = "HasLog cleared";
-        }
-        if ($torrent->hasCue()) {
-            $torrent->setField('HasCue', '0');
-            $change[] = "HasCue cleared";
-        }
     }
 }
 
@@ -282,14 +322,13 @@ if ($Viewer->permitted('torrents_freeleech')) {
 
 $torrent->modify();
 $torrent->group()->refresh();
-$torrent->flush();
 
 $db->commit();
 
 $changeLog = shortenString(implode(', ', $change), 300);
 $torrent->logger()->torrent($torrent, $Viewer, $changeLog)
     ->general(
-        "Torrent $TorrentID ({$torrent->group()->name()}) in group {$torrent->groupId()} was edited by {$Viewer->username()} ($changeLog)"
+        "Torrent {$torrent->id} ({$torrent->group()->name()}) in group {$torrent->groupId()} was edited by {$Viewer->username()} ($changeLog)"
     );
 
 header("Location: " . $torrent->location());
