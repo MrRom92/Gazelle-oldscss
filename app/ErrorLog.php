@@ -16,7 +16,7 @@ class ErrorLog extends BasePgObject {
     }
 
     public function location(): string {
-        return "tools.php?action=analysis&amp;case={$this->id}";
+        return "tools.php?action=analysis&case={$this->id}";
     }
 
     public function info(): array {
