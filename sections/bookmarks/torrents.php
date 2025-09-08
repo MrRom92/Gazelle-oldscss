@@ -34,12 +34,12 @@ $reportMan = new Manager\Report($userMan);
 $tgMan     = new Manager\TGroup();
 $torMan    = new Manager\Torrent();
 $collMan   = new Manager\Collage()->setImageProxy(new Util\ImageProxy($Viewer));
+$NumGroups = $bookmark->tgroupTotal();
 
 $paginator = new Util\Paginator(200, (int)($_GET['page'] ?? 1));
-$paginator->setTotal($bookmark->torrentTotal());
+$paginator->setTotal($NumGroups);
 
 $bookmarkList      = $bookmark->tgroupList($paginator->limit(), $paginator->offset());
-$NumGroups         = count($bookmarkList);
 $artistLeaderboard = $bookmark->tgroupArtistLeaderboard();
 $tagLeaderboard    = $bookmark->tgroupTagLeaderboard();
 $CollageCovers     = (int)($Viewer->option('CollageCovers') ?? 25);

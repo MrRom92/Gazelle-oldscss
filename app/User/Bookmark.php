@@ -247,6 +247,16 @@ class Bookmark extends \Gazelle\BaseUser {
         );
     }
 
+    public function tgroupTotal(): int {
+        return (int)self::$db->scalar("
+            SELECT count(*)
+            FROM bookmarks_torrents
+            WHERE UserID = ?
+            ", $this->id
+        );
+    }
+
+
     public function artistList(): array {
         self::$db->prepared_query("
             SELECT ag.ArtistID AS artist_id,
