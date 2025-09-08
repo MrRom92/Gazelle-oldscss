@@ -212,7 +212,6 @@
 /* ## 0.1 Housekeeping */
 
 @charset "UTF-8";
-
 @namespace url("http://www.w3.org/1999/xhtml");
 @namespace svg url("http://www.w3.org/2000/svg");
 
@@ -1558,6 +1557,7 @@ blockquote {
 
 /* wrap overflow word-wrap handling */
 .wrap_overflow {
+  /* stylelint-disable-next-line declaration-property-value-keyword-no-deprecated */
   word-break: break-word !important;
 }
 
@@ -2163,7 +2163,7 @@ body#collage .cats_music {
     ) !important;
   color: variables.$color-text-notification-words !important;
   font-weight: 700;
-  padding: 0.6rem !important; //overriding site html
+  padding: 0.6rem !important; // overriding site html
 }
 
 /* first row words */
@@ -2641,13 +2641,13 @@ ul#check::after {
 .autocomplete-suggestions {
   margin-top: 5px;
   background: variables.$color-background-autocompletes !important;
-  color: #888;  //does nothing
+  color: #888;  // does nothing
   width: auto !important;
   text-align: left;
   cursor: default;
-  border: 1px solid variables.$midtone-300; //midtone-300
-  border-top: 1px dashed variables.$midtone-300; //midtone-300
-  box-shadow: 3px 3px 9px rgba(0, 0, 0, 0.8) !important;
+  border: 1px solid variables.$midtone-300; // midtone-300
+  border-top: 1px dashed variables.$midtone-300; // midtone-300
+  box-shadow: 3px 3px 9px rgb(0 0 0 / 80%) !important;
 
   /* core styles should not be changed */
   position: absolute;
@@ -2668,7 +2668,7 @@ ul#check::after {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: variables.$color-text-input !important; //$color-text-input
+  color: variables.$color-text-input !important; // $color-text-input
 }
 
 /* Portion that matches */
@@ -3144,7 +3144,7 @@ Documentation of mobile classes:
     margin-left: 1rem;
 
     &::before {
-      content: "📁 "; //\1F4C1
+      content: "📁 "; // \1F4C1
     }
   }
 

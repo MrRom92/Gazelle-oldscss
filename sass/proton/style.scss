@@ -530,12 +530,12 @@ ul#userinfo_username {
   width: 100% !important;
 }
 
-body:not(#requests):not(#friends) .box table:not(#vanityhouse) {
+body:not(#requests, #friends) .box table:not(#vanityhouse) {
   margin: 0;
   background-color: white;
 }
 
-body:not(#requests):not(#friends) .box h2 {
+body:not(#requests, #friends) .box h2 {
   background: none;
   margin: 0;
   padding: 0;
@@ -699,7 +699,7 @@ table {
 
 .torrentdetails blockquote {
   background-image: none;
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: rgb(255 255 255 / 60%);
 }
 
 .forum_post blockquote.spoiler,
@@ -730,7 +730,7 @@ table {
   border-bottom-left-radius: 10px;
   border: 1px solid #d9d9d9;
   border-top-style: none !important;
-  box-shadow: -4px 1px 8px rgba(187, 215, 235, 0.8);
+  box-shadow: -4px 1px 8px rgb(187 215 235 / 80%);
   background-color: #F5F5F5;
   word-wrap: break-word;
 }
@@ -1146,7 +1146,7 @@ tr.torrent .bookmark > a::after {
 
 div#flip_view_1 div#similar-artist .name {
   border: 1px solid #dcdcdc;
-  background: rgba(240, 240, 240, 0.5);
+  background: rgb(240 240 240 / 50%);
   padding: 2px 4px;
 }
 
@@ -2026,7 +2026,7 @@ tr.torrent .bookmark > a::after {
   width: 600px;
 }
 
-div[class~=tooltipster-base] {
+div[class~="tooltipster-base"] {
   background-color: #F5F5F5;
   color: #575757;
 }

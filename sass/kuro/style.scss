@@ -108,7 +108,7 @@ a.similar_artist:hover {
 
 div#flip_view_1 div#similar-artist .name {
   border: 1px solid #999999;
-  background: rgba(68, 68, 68, 0.5);
+  background: rgb(68 68 68 / 50%);
   padding: 2px 4px;
 }
 
@@ -445,6 +445,7 @@ ul.thin li {
 
 #cat-selector ul li {
   display: inline;
+
   // width: 12em;
   // height: 1em;
   // float: left;

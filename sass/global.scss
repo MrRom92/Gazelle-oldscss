@@ -532,11 +532,13 @@ tr.torrent .bookmark > a::after {
 .reportinfo_table,
 .torrentdetails blockquote {
   word-break: normal;
+  /* stylelint-disable-next-line declaration-property-value-keyword-no-deprecated */
   word-wrap: break-word;
   hyphens: auto;
 }
 /* Non-web-standard for webkit */
 .torrentdetails blockquote {
+  /* stylelint-disable-next-line declaration-property-value-keyword-no-deprecated */
   word-break: break-word;
 }
 /* Fix long filename tables overflowing (Chrome only). */
@@ -988,7 +990,7 @@ td.forum-post-head a.username {
   background-repeat: no-repeat;
   background-position: 8px 1rem;
   background-size: 32px;
-  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.55), 0 7px 7px rgba(0, 0, 0, 0.52), 0 -5px 9px rgba(0, 0, 0, 0.32);
+  box-shadow: 0 10px 18px rgb(0 0 0 / 55%), 0 7px 7px rgb(0 0 0 / 52%), 0 -5px 9px rgb(0 0 0 / 32%);
   font-weight: 700;
   font-size: medium;
   color: #000;

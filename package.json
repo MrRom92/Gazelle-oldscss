@@ -20,9 +20,7 @@
     "globals": "^15.12",
     "stylelint": "^16.18",
     "stylelint-checkstyle-formatter": "^0.1.2",
-    "stylelint-config-recommended": "^14.0.1",
-    "stylelint-config-standard": "^36.0.1",
-    "stylelint-scss": "^6.11.1",
+    "stylelint-config-standard-scss": "^15.0.1",
     "update-browserslist-db": "1.1"
   },
   "dependencies": {

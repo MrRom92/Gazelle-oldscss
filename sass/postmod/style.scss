@@ -466,7 +466,7 @@ ul.thin li {
   background: url('images/content_light.png') transparent;
   color: #FFF;
   border-radius: 4px;
-  box-shadow: 0 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px rgb(0 0 0 / 50%);
 }
 
 #autocomplete {
@@ -525,7 +525,7 @@ ul.thin li {
 
 #alerts {
   background: transparent url('images/content.png');
-  box-shadow: 1px 3px rgba(0, 0, 0, 0.5);
+  box-shadow: 1px 3px rgb(0 0 0 / 50%);
   color: #FFF;
   margin: -151px 0 0 327px;
   padding: 4px 9px;
@@ -592,7 +592,7 @@ table.no_grouping > tbody > tr.colhead > td:first-child + td {
 
 div#flip_view_1 div#similar-artist .name {
   border: 1px solid #0a84af;
-  background: rgba(239, 239, 239, 0.5);
+  background: rgb(239 239 239 / 50%);
   padding: 2px 4px;
 }
 
@@ -709,7 +709,7 @@ table {
   width: 100%;
   border-collapse: collapse;
   border: none;
-  box-shadow: 1px 3px rgba(0, 0, 0, 0.6);
+  box-shadow: 1px 3px rgb(0 0 0 / 60%);
 }
 
 tr {
@@ -1151,11 +1151,11 @@ input[type="submit"] {
   color: #fff;
   text-decoration: none;
   border-radius: 2px;
-  box-shadow: 1px 3px rgba(0, 0, 0, 0.5);
+  box-shadow: 1px 3px rgb(0 0 0 / 50%);
   border-left: 0;
   border-top: 0;
   border-right: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid rgb(0 0 0 / 25%);
   cursor: pointer;
 }
 
@@ -1179,11 +1179,11 @@ input[type="submit"]:focus {
   color: #fff;
   text-decoration: none;
   border-radius: 2px;
-  box-shadow: 1px 3px rgba(0, 0, 0, 0.5);
+  box-shadow: 1px 3px rgb(0 0 0 / 50%);
   border-left: 0;
   border-top: 0;
   border-right: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid rgb(0 0 0 / 25%);
   cursor: pointer;
 }
 
@@ -1232,14 +1232,14 @@ input[disabled="disabled"]:active {
   color: #DFDFDF;
 }
 
-select[disabled=disabled] {
+select[disabled="disabled"] {
   background: #4F4F4F;
   color: #DFDFDF;
 }
 
-select[disabled=disabled]:hover,
-select[disabled=disabled]:focus,
-select[disabled=disabled]:active {
+select[disabled="disabled"]:hover,
+select[disabled="disabled"]:focus,
+select[disabled="disabled"]:active {
   background-color: #4F4F4F;
   color: #DFDFDF;
 }
@@ -1332,12 +1332,12 @@ tr.torrent .bookmark > a::after {
   background: #444;
 }
 
-div[class~=tooltipster-base] {
+div[class~="tooltipster-base"] {
   background-color: #ECECEC;
   color: #444;
 }
 
-div[class~=tooltipster-content] > a {
+div[class~="tooltipster-content"] > a {
   color: #0A84AF;
 }
 

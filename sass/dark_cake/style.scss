@@ -585,7 +585,7 @@ table.slice {
 
 div#flip_view_1 div#similar-artist .name {
   border: 1px solid #5294e2;
-  background: rgba(75, 81, 98, 0.5);
+  background: rgb(75 81 98 / 50%);
   padding: 2px 4px;
 }
 
@@ -1006,7 +1006,7 @@ tr.torrent .bookmark > a::after {
   font-weight: normal;
 }
 
-div[class~=tooltipster-content] > a {
+div[class~="tooltipster-content"] > a {
   color: #aaa;
 }
 

@@ -481,10 +481,7 @@ ul.thin li {
   width: 114px;
   position: absolute;
   background: #eaeaea;
-  padding-left: 40px;
-  padding-right: 33px;
-  padding-top: 18px;
-  padding-bottom: 65px;
+  padding: 18px 33px 65px 40px;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
@@ -596,7 +593,7 @@ ul.thin li {
   border-width: 1px;
 }
 
-input[type=search] {
+input[type="search"] {
   -webkit-appearance: none;
   border-style: solid;
   border-width: 1px;
@@ -868,10 +865,7 @@ th {
 .colhead,
 .colhead_dark,
 .head {
-  padding-left: 4px;
-  padding-right: 4px;
-  padding-top: 4px;
-  padding-bottom: 20px;
+  padding: 4px 4px 20px 4px;
   font-size: 14px;
 }
 
@@ -1287,8 +1281,8 @@ ul .invitetree {
   z-index: -1;
 }
 
-input[type=button],
-input[type=submit] {
+input[type="button"],
+input[type="submit"] {
   background: #FFFFFF;
   display: inline-block;
   padding: 3px 6px 4px;
@@ -1305,7 +1299,7 @@ input[type=submit] {
   border-radius: 4px;
 }
 
-input[type=text],
+input[type="text"],
 input[type="password"] {
   background: #FFFFFF;
   display: inline-block;
@@ -1317,46 +1311,46 @@ input[type="password"] {
   border-width: 1px;
 }
 
-#quickpost input[type=text],
-.box_search input[type=text],
-#AddArtists input[type=text],
-.add_torrent_container input[type=text],
-.add_torrent_container input[type=text],
-.box_addtag input[type=text],
-.pad .search_form input[type=text],
-.edit_form input[type=text],
-.rename_form input[type=text],
-.merge_form input[type=text],
-#compose input[type=text],
-.add_form input[type=text] {
+#quickpost input[type="text"],
+.box_search input[type="text"],
+#AddArtists input[type="text"],
+.add_torrent_container input[type="text"],
+.add_torrent_container input[type="text"],
+.box_addtag input[type="text"],
+.pad .search_form input[type="text"],
+.edit_form input[type="text"],
+.rename_form input[type="text"],
+.merge_form input[type="text"],
+#compose input[type="text"],
+.add_form input[type="text"] {
   background: #fff;
   border: 1px solid #bbbbbb;
   color: #000000;
 }
 
-input[type=text]:active,
+input[type="text"]:active,
 input[type="search"]:active,
 input[type="password"]:active {
   top: 1px;
 }
 
-input[disabled=disabled] {
+input[disabled="disabled"] {
   background: #eaeaea;
 }
 
-input[disabled=disabled]:hover,
-input[disabled=disabled]:focus,
-input[disabled=disabled]:active {
+input[disabled="disabled"]:hover,
+input[disabled="disabled"]:focus,
+input[disabled="disabled"]:active {
   background-color: #eaeaea;
 }
 
-select[disabled=disabled] {
+select[disabled="disabled"] {
   background: #eaeaea;
 }
 
-select[disabled=disabled]:hover,
-select[disabled=disabled]:focus,
-select[disabled=disabled]:active {
+select[disabled="disabled"]:hover,
+select[disabled="disabled"]:focus,
+select[disabled="disabled"]:active {
   background-color: #eaeaea;
 }
 
@@ -1445,12 +1439,12 @@ tr.torrent .bookmark > a::after {
   color: #355D6C;
 }
 
-div[class~=tooltipster-base] {
+div[class~="tooltipster-base"] {
   background-color: #ECECEC;
   color: #444;
 }
 
-div[class~=tooltipster-content] > a {
+div[class~="tooltipster-content"] > a {
   color: #0A84AF;
 }
 
@@ -1477,8 +1471,8 @@ div[class~=tooltipster-content] > a {
   color: red;
 }
 
-#collage #search_terms input[type=search],
-#torrents .layout input[type=search] {
+#collage #search_terms input[type="search"],
+#torrents .layout input[type="search"] {
   background: #FFFFFF;
   display: inline-block;
   padding: 3px;

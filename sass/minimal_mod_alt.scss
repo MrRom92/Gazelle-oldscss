@@ -4,7 +4,7 @@ body {
   background: url(/static/styles/minimal/images/minimal_mod_header.png) repeat-x, url(/static/styles/minimal/images/minimal_mod_pattern.png) fixed 50% 0 repeat;
   background-color: #262626;
   color: #F1F1F1;
-  font-family: Helvetica, Segoe UI, Arial, sans-serif;
+  font-family: Helvetica, "Segoe UI", Arial, sans-serif;
   font-size: 11px;
   margin: 0;
 }
@@ -59,13 +59,13 @@ blockquote {
   padding: 5px;
 }
 
-input[type=submit]:focus,
-input[type=button]:focus {
+input[type="submit"]:focus,
+input[type="button"]:focus {
   background: #333;
 }
 
-input[type=submit]:active,
-input[type=button]:active {
+input[type="submit"]:active,
+input[type="button"]:active {
   background: #5AF;
 }
 
@@ -925,7 +925,7 @@ div.thin form div.submit input.submit {
   padding: 0;
 }
 
-#forums #content .thin .box form .box input[type=Text] {
+#forums #content .thin .box form .box input[type="Text"] {
   font-size: 20px;
   width: 500px;
 }
@@ -1070,9 +1070,9 @@ div.thin form div.submit input.submit {
   font-weight: 400;
 }
 
-#torrents #content .center .box form div input[type=text],
-#wiki #content .center .box form div input[type=text],
-#artist #content .center .box form div input[type=text] {
+#torrents #content .center .box form div input[type="text"],
+#wiki #content .center .box form div input[type="text"],
+#artist #content .center .box form div input[type="text"] {
   margin-bottom: 10px;
   width: 500px;
 }
@@ -1455,10 +1455,10 @@ td p,
 }
 
 input#file,
-input[type=file],
+input[type="file"],
 #userinfo,
 #userinfo a,
-#logchecker input[type=file] {
+#logchecker input[type="file"] {
   color: #fff;
 }
 
@@ -1554,8 +1554,8 @@ table.recent tr,
   border-right: 1px #757575 solid;
 }
 
-#artist #content table.torrent_table tr[class~=discog],
-#collage #content table.torrent_table tr[class~=discog],
+#artist #content table.torrent_table tr[class~="discog"],
+#collage #content table.torrent_table tr[class~="discog"],
 table.border tr {
   border-left: 1px #757575 solid;
   border-right: 1px #757575 solid;

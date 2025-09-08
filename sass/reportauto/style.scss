@@ -4,11 +4,11 @@
   display: none;
 }
 
-.auto_reports input[type=checkbox].expand_checkbox:checked + .expand_block {
+.auto_reports input[type="checkbox"].expand_checkbox:checked + .expand_block {
   display: revert;
 }
 
-.auto_reports input[type=checkbox].expand_checkbox:checked + .add_comment.expand_block {
+.auto_reports input[type="checkbox"].expand_checkbox:checked + .add_comment.expand_block {
   display: grid;
 }
 
@@ -115,7 +115,7 @@ table.auto_reports_top_box ul {
   grid-area: add_comment;
   grid-template-columns: 1fr auto;
 
-  & input[type=submit] {
+  & input[type="submit"] {
     padding: 0 1em 0 1em;
     margin-left: 0.5em;
   }

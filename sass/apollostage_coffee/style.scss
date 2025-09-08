@@ -29,7 +29,7 @@ variables.$back-700: #443B3A;
 variables.$back-800: #4A3E3C;
 variables.$back-900: #51413F;
 variables.$back-1000: #574340;
-variables.$back-500-low: rgba(140.7, 125.3, 112, 0.15);
+variables.$back-500-low: rgb(140.7 125.3 112 / 15%);
 
 // Mids
 variables.$midtone-100: #3D2C29;
@@ -83,6 +83,7 @@ variables.$color-background-table: variables.$back-200; // tables/forms without 
 variables.$color-background-table-row-th: variables.$back-700;
 variables.$color-background-table-row-odd: variables.$back-500;
 variables.$color-background-table-row-even: variables.$back-300;
+
 $color-background-table-secondary: orangered; // no longer used
 variables.$color-background-table-torrenttable: variables.$back-300; // also form field in focus
 variables.$color-background-table-details: variables.$back-400; // equal to blockquote
@@ -110,7 +111,7 @@ variables.$color-menu-fx-selection: variables.$ds-fx-menutheme;
 variables.$color-mobilemenu-userinfo-1: variables.$menutheme-400; // mobile pulldown menu gradient 1
 variables.$color-mobilemenu-userinfo-2: variables.$menutheme-900; // mobile pulldown menu gradient 2
 variables.$color-mobilemenu-closed: variables.$menutheme-700; // rules, also mobile menu header
-variables.$color-mobilemenu-shadow: variables.$menutheme-500; //mobile menu
+variables.$color-mobilemenu-shadow: variables.$menutheme-500; // mobile menu
 variables.$color-mobilemenu-closed-overlays: variables.$menutheme-100; // bg for icons on the hedaer
 
 variables.$color-text-anchor-hover: variables.$midtone-1000;
@@ -119,7 +120,7 @@ variables.$color-text-base: variables.$fore-700;
 variables.$color-text-bold: variables.$fore-800;
 variables.$color-text-button: variables.$ds-gray-05;
 variables.$color-text-footer: variables.$ds-neutral-300;
-variables.$color-text-heading-anchor: variables.$fore-400; //uniqueue
+variables.$color-text-heading-anchor: variables.$fore-400; // uniqueue
 variables.$color-text-heading: variables.$fore-700;
 variables.$color-text-important-alt: variables.$ds-green;
 variables.$color-text-important: variables.$ds-red;

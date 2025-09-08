@@ -34,6 +34,7 @@ variables.$back-700: #9A9E9F;
 variables.$back-800: #8D9091;
 variables.$back-900: #808384;
 variables.$back-1000: #727576;
+
 $back-800-low: #8D909155;
 
 // Mids
@@ -106,12 +107,15 @@ variables.$ds-neutral-000: #000;
 variables.$ds-red: #a41610;
 variables.$ds-green: #11890e;
 variables.$ds-yellow: #c9a612;
+
 $ds-orange: #ff8c00;
 variables.$ds-fx-low: rgb(0 0 0 / 15%);
 variables.$ds-fx-mid: rgb(0 0 0 / 22.5%);
+
 $ds-fx-blue: hsl(215deg 90% 56% / 30%);
 variables.$ds-gray-05: hsl(178deg 100% 5.1%);
-$ds-gray-13: hsl(180deg 11% 13%); //goes nowhere does nothing;
+
+$ds-gray-13: hsl(180deg 11% 13%); // goes nowhere does nothing;
 $ds-gray-52: hsl(181deg 3.5% 52%);
 $ds-gray-72: hsl(183deg 4% 72%);
 $ds-gray-99: hsl(120deg 100% 99.6%);
@@ -147,9 +151,9 @@ variables.$color-text-anchor-hover: $blue-800;
 variables.$color-text-anchor: $blue-700;
 variables.$color-text-base: $neutral-1000;
 variables.$color-text-bold: $neutral-1100;
-variables.$color-text-button: variables.$ds-gray-05;  //xx checkme
+variables.$color-text-button: variables.$ds-gray-05;  // xx checkme
 variables.$color-text-footer: variables.$ds-neutral-300;
-variables.$color-text-heading-anchor: $blue-700; //x
+variables.$color-text-heading-anchor: $blue-700; // x
 variables.$color-text-heading: variables.$fore-700;
 variables.$color-text-important-alt: variables.$ds-green;
 variables.$color-text-important: variables.$ds-red;
@@ -157,7 +161,7 @@ variables.$color-text-input: variables.$fore-600; // for pre-populated inputs
 variables.$color-text-input-active: variables.$fore-900;
 variables.$color-text-linkbox: $blue-700; // links in linkbox
 variables.$color-text-menu: $ds-gray-99; // new
-variables.$color-text-menu-hover: $ds-gray-99; //new // during pulldown
+variables.$color-text-menu-hover: $ds-gray-99; // new // during pulldown
 variables.$color-text-mono: variables.$fore-500;
 variables.$color-text-popup-anchor-hover: $blue-800;
 variables.$color-text-popup-anchor: $blue-700;
@@ -165,8 +169,8 @@ variables.$color-text-popup: $neutral-1000;
 variables.$color-text-ratio-greenzone: variables.$ds-green;
 variables.$color-text-ratio-redzone: variables.$ds-red;
 variables.$color-text-ratio-yellowzone: variables.$ds-yellow;
-variables.$color-text-span-blue: hsl(235deg 90% 55%); //x lower
-variables.$color-text-span-green: hsl(145deg 90% 35%); //x lower
+variables.$color-text-span-blue: hsl(235deg 90% 55%); // x lower
+variables.$color-text-span-green: hsl(145deg 90% 35%); // x lower
 variables.$color-text-span-red: variables.$ds-red;
 variables.$color-text-table-discog-titles: variables.$fore-300;
 variables.$color-text-tooltipster: variables.$fore-700;
@@ -191,7 +195,7 @@ variables.$color-menu-fx-selection: variables.$ds-fx-menutheme;
 variables.$color-mobilemenu-userinfo-1: variables.$menutheme-400; // mobile pulldown menu gradient 1
 variables.$color-mobilemenu-userinfo-2: variables.$menutheme-900; // mobile pulldown menu gradient 2
 variables.$color-mobilemenu-closed: $mid-700; // rules, also mobile menu header
-variables.$color-mobilemenu-shadow: $mid-500; //mobile menu
+variables.$color-mobilemenu-shadow: $mid-500; // mobile menu
 
 variables.$color-obj-button-base-1: $ds-gray-72;
 variables.$color-obj-button-base-2: $ds-gray-52;

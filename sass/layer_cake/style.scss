@@ -370,7 +370,7 @@ ul.thin li {
 
 div#flip_view_1 div#similar-artist .name {
   border: 1px solid #666666;
-  background: rgba(226, 226, 226, 0.5);
+  background: rgb(226 226 226 / 50%);
   padding: 2px 4px;
 }
 
@@ -918,7 +918,7 @@ tr.torrent .bookmark > a::after {
   font-weight: normal;
 }
 
-div[class~=tooltipster-content] > a {
+div[class~="tooltipster-content"] > a {
   color: #AAAAAA;
 }
 

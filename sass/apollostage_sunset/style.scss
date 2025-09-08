@@ -29,7 +29,7 @@ variables.$back-700: #4A3A3F;
 variables.$back-800: #514048;
 variables.$back-900: #594653;
 variables.$back-1000: #5B4B60;
-variables.$back-500-low: rgba(230, 149, 164.3, 0.15);
+variables.$back-500-low: rgb(230 149 164.3 / 15%);
 
 variables.$fore-400: #8D869D;
 variables.$fore-500: #A595AF;
@@ -70,6 +70,7 @@ $ds-fiji: #b43477;
 $ds-bali: #9c4366;
 variables.$ds-neutral-300: #a4a4a4;
 variables.$ds-black: #000;
+
 $ds-menu-white: #fff8f8;
 
 // // Standard except where marked:
@@ -184,7 +185,7 @@ variables.$color-accent-cats_music: darkslategray;
 variables.$color-accent-forum-inline-last-read: $ds-fiji; // changed
 variables.$color-accent-forum-unread: $ds-fiji; // changed
 
-variables.$color-accent-selection-background: rgb(217 130 111 / 60%);  //changed
+variables.$color-accent-selection-background: rgb(217 130 111 / 60%);  // changed
 variables.$color-accent-selection-text: #fff; // changed
 
 // popup notifications
