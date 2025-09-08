@@ -599,6 +599,7 @@ class TGroupTest extends TestCase {
             $bookmarker->isBookmarked($this->tgroup),
             'tgroup-merge-bookmark',
         );
+        $this->assertEquals(1, $bookmarker->tgroupTotal(), 'tgroup-bookmark-tgroupTotal');
         $list = $bookmarker->tgroupBookmarkList();
         $this->assertCount(1, $list, 'tgroup-bookmark-user-total');
         $this->assertEquals(

@@ -249,9 +249,10 @@ class Bookmark extends \Gazelle\BaseUser {
 
     public function tgroupTotal(): int {
         return (int)self::$db->scalar("
-            SELECT count(*)
-            FROM bookmarks_torrents
-            WHERE UserID = ?
+            SELECT count(DISTINCT b.GroupID)
+            FROM bookmarks_torrents b
+            INNER JOIN torrents t USING (GroupID)
+            WHERE b.UserID = ?
             ", $this->id
         );
     }

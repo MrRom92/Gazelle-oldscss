@@ -34,12 +34,13 @@ $reportMan = new Manager\Report($userMan);
 $tgMan     = new Manager\TGroup();
 $torMan    = new Manager\Torrent();
 $collMan   = new Manager\Collage()->setImageProxy(new Util\ImageProxy($Viewer));
-$NumGroups = $bookmark->tgroupTotal();
+$totalGroups = $bookmark->tgroupTotal();
 
 $paginator = new Util\Paginator(200, (int)($_GET['page'] ?? 1));
-$paginator->setTotal($NumGroups);
+$paginator->setTotal($totalGroups);
 
 $bookmarkList      = $bookmark->tgroupList($paginator->limit(), $paginator->offset());
+$NumGroups         = count($bookmarkList);
 $artistLeaderboard = $bookmark->tgroupArtistLeaderboard();
 $tagLeaderboard    = $bookmark->tgroupTagLeaderboard();
 $CollageCovers     = (int)($Viewer->option('CollageCovers') ?? 25);
@@ -89,7 +90,7 @@ if (count($bookmarkList) === 0) { ?>
         <div class="box box_info box_statistics_bookmarked_torrents">
             <div class="head"><strong>Stats</strong></div>
             <ul class="stats nobullet">
-                <li>Torrent groups: <?=$NumGroups?></li>
+                <li>Torrent groups: <?= $totalGroups ?></li>
                 <li>Artists: <?= $bookmark->tgroupArtistTotal() ?></li>
             </ul>
         </div>
