@@ -40,6 +40,35 @@ class Bonus extends \Gazelle\BaseUser {
         );
     }
 
+    /**
+     * @return array<int>
+     */
+    public function tokenExchange(): array {
+        return array_map(
+            'intval',
+            self::$db->rowAssoc("
+                WITH sent(n) AS (
+                    SELECT sum(bi.Amount)
+                    FROM bonus_history bh
+                    INNER JOIN bonus_item bi ON (bi.ID = bh.ItemID)
+                    WHERE bh.OtherUserID IS NOT NULL
+                        AND bh.UserID = ?
+                ),
+                recv(n) AS (
+                    SELECT sum(bi.Amount)
+                    FROM bonus_history bh
+                    INNER JOIN bonus_item bi ON (bi.ID = bh.ItemID)
+                    WHERE OtherUserID = ?
+                )
+                SELECT coalesce(recv.n, 0) AS received,
+                    coalesce(sent.n, 0) AS sent
+                FROM sent
+                CROSS JOIN recv
+                ", $this->user->id, $this->user->id
+            )
+        );
+    }
+
     public function otherLatest(\Gazelle\User $other): array {
         return self::$db->rowAssoc("
             SELECT bi.Title     AS title,

@@ -194,6 +194,23 @@ class BonusTest extends TestCase {
             'bonus-points-spent',
         );
 
+        $this->assertEquals(
+            BonusItemPurchaseStatus::success,
+            $other1->purchase(
+                $this->userList['receiver'],
+                0,
+                ['receiver' => $user],
+            ),
+            'bonus-item-receiver-give'
+        );
+        $this->assertEquals(
+            [
+                "received" => 50,
+                "sent"     =>  1,
+            ],
+            (new User\Bonus($this->userList['receiver'])->tokenExchange()),
+            'bonus-token-exchange',
+        );
         $latest = $giver->otherLatest($this->userList['receiver']);
         $this->assertEquals('50 Freeleech Tokens to Other', $latest['title'], 'bonus-item-given');
 
@@ -287,16 +304,15 @@ class BonusTest extends TestCase {
             'bonus-item-free-title-yes-bb',
         );
 
-        $userBonus = new User\Bonus($user);
-        $history = $userBonus->purchaseHistory();
+        $history = $giver->purchaseHistory();
         $this->assertCount(8, $history, 'bonus-history-count');
         $this->assertEquals(
             ['id', 'title', 'total', 'cost'],
             array_keys(current($history)),
             'bonus-history-shape',
         );
-        $this->assertCount(0, $userBonus->seedList(5, 0), 'bonus-history-seedlist');
-        $this->assertCount(0, $userBonus->poolHistory(), 'bonus-history-pool');
+        $this->assertCount(0, $giver->seedList(5, 0), 'bonus-history-seedlist');
+        $this->assertCount(0, $giver->poolHistory(), 'bonus-history-pool');
 
         // Here is as good a place as any
         $this->assertEquals(0, $manager->discount(), 'bonus-discount');

@@ -144,7 +144,7 @@ class BonusItem extends \Gazelle\BaseObject {
                     AND ub.user_id = ?
                 ', $this->amount(), $price, $price, $user->id
             );
-            if (self::$db->affected_rows() != 2) {
+            if (self::$db->affected_rows() != 1 + ($price === 0 ? 0 : 1)) {
                 return Enum\BonusItemPurchaseStatus::insufficientFunds;
             }
         } elseif (str_starts_with($this->label(), 'other-')) {
@@ -178,13 +178,14 @@ class BonusItem extends \Gazelle\BaseObject {
                     other_uf.tokens = other_uf.tokens + ?,
                     ub.points = ub.points - ?
                 WHERE noFL.UserID IS NULL
-                    AND ub.points >= ?
-                    AND other.Enabled = '1'
+                    AND other.Enabled = ?
                     AND other.ID = ?
                     AND self.ID = ?
-                ", $this->amount(), $price, $price, $receiver->id, $user->id
+                    AND ub.points >= ?
+                ", $this->amount(), $price,
+                    Enum\UserStatus::enabled->value, $receiver->id, $user->id, $price
             );
-            if (self::$db->affected_rows() != 2) {
+            if (self::$db->affected_rows() != 1 + ($price === 0 ? 0 : 1)) {
                 return Enum\BonusItemPurchaseStatus::insufficientFunds;
             }
             $amount = $this->amount();
@@ -213,8 +214,7 @@ class BonusItem extends \Gazelle\BaseObject {
                             AND ub.user_id = ?
                         ', $price, $price, $user->id
                     );
-                    $rows = self::$db->affected_rows();
-                    if (($price > 0 && $rows !== 2) || ($price === 0 && $rows !== 1)) {
+                    if (self::$db->affected_rows() != 1 + ($price === 0 ? 0 : 1)) {
                         self::$db->rollback();
                         return Enum\BonusItemPurchaseStatus::insufficientFunds;
                     }
@@ -238,7 +238,7 @@ class BonusItem extends \Gazelle\BaseObject {
                             AND ub.user_id = ?
                         ', $price, $price, $user->id
                     );
-                    if (self::$db->affected_rows() != 1) {
+                    if ($price > 0 && self::$db->affected_rows() != 1) {
                         self::$db->rollback();
                         return Enum\BonusItemPurchaseStatus::insufficientFunds;
                     }
@@ -270,7 +270,7 @@ class BonusItem extends \Gazelle\BaseObject {
                             AND ub.user_id = ?
                         ', $price, $price, $user->id
                     );
-                    if (self::$db->affected_rows() != 2) {
+                    if (self::$db->affected_rows() != 1 + ($price === 0 ? 0 : 1)) {
                         return Enum\BonusItemPurchaseStatus::insufficientFunds;
                     }
                     break;
@@ -284,7 +284,7 @@ class BonusItem extends \Gazelle\BaseObject {
                             AND ub.user_id = ?
                         ', $price, $price, $user->id
                     );
-                    if (self::$db->affected_rows() != 1) {
+                    if ($price > 0 && self::$db->affected_rows() != 1) {
                         self::$db->rollback();
                         return Enum\BonusItemPurchaseStatus::insufficientFunds;
                     }

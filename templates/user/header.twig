@@ -89,19 +89,29 @@
     <form class="fl_form" name="user" id="fl_form" action="user.php?id={{ user_id }}" method="post">
         <ul class="stats nobullet">
 {%      for item in freeleech.offer %}
-            <li><input type="radio" name="fltype" id="{{ item.label }}" value="{{ item.label }}" />
-            <label title="This costs {{ item.price|number_format }} BP, which will leave you with {{
-                (viewer.bonusPointsTotal - item.price)|number_format}} afterwards" for="{{
-                item.label }}"> {{ item.title }}</label></li>
+            <li>
+                <label class="tooltip" title="This costs {{ item.price|number_format
+                    }} BP, which will leave you with {{
+                    (viewer.bonusPointsTotal - item.price)|number_format }} afterwards">
+                    <input type="radio" name="fltype" value="{{ item.label }}" />
+                    {{ item.title }}
+                </label>
+            </li>
 {%      endfor %}
             <li><input type="text" id="message" name="message" placeholder="Message"/> <br /></li>
             <li><input type="submit" name="flsubmit" value="Send" /></li>
 {%      if freeleech.latest %}
 {%          set when = freeleech.latest.purchase_date|time_diff %}
-            <li>
-                You gave them {{ freeleech.latest.title|trim(' to Other') }} {{ when|raw }}
-{%-         if 'Just now' in when %}. Your generosity is most appreciated!{% endif -%}
+            <li>You gave them {{ freeleech.latest.title|trim(' to Other') }} {{
+                when|raw }}{% if 'Just now' in when %}. Your generosity is most appreciated!{% endif -%}
             </li>
+{%      endif %}
+{%      set exchange = bonus.tokenExchange %}
+{%      if exchange.received > exchange.sent %}
+{%      set net = exchange.received - exchange.sent %}
+            <li title="{{ exchange.received|number_format}} received, {{
+                exchange.sent|number_format }} given">Total benefits: {{
+                net | number_format }} token{{ net|plural }}</li>
 {%      endif %}
         </ul>
         <input type="hidden" name="action" value="fltoken" />
