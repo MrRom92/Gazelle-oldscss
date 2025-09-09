@@ -39,6 +39,7 @@ json_print("success", [
         'requiredratio'      => $Viewer->requiredRatio(),
         'bonusPoints'        => $Viewer->bonusPointsTotal(),
         'bonusPointsPerHour' => round(new \Gazelle\User\Bonus($Viewer)->hourlyRate(), 2),
+        'tokens'             => $Viewer->tokenCount(),
         'class'              => $Viewer->userclassName(),
     ]
 ]);
