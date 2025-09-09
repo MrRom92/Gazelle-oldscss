@@ -81,6 +81,7 @@ class User extends \Gazelle\Json {
                     !$downloaded => 0.0,
                     default      => (float)ratio($uploaded, $downloaded, 5),
                 },
+                'bonusPoints'    => $this->valueOrNull($user->bonusPointsTotal(), 'bonuspoints'),
             ],
             'ranks' => [
                 'uploaded'       => $this->valueOrNull($rank->rank('uploaded'),       'uploaded'),
