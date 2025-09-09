@@ -895,6 +895,7 @@ class TGroup extends BaseAttrObject implements Bookmarked, CategoryHasArtist, Co
         self::$db->commit();
 
         $this->flush()->refresh();
+        $torrent->uploader()->flushRecentUpload();
         $torrent->flush();
 
         return $affected;
