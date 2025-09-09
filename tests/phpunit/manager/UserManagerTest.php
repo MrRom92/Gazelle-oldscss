@@ -237,7 +237,7 @@ class UserManagerTest extends TestCase {
         $this->assertFalse($user->onRatioWatch(), 'utest-personal-on-ratio-watch');
         $this->assertEquals(0.0, $user->requiredRatio(), 'utest-required-ratio');
         $this->assertEquals(0, $user->downloadedOnRatioWatch(), 'utest-download-ratio-watch');
-        $idList  = array_map(fn ($u) => $u->id, $this->userList);
+        $idList = array_map(fn ($u) => $u->id, $this->userList);
 
         // put users onto ratio watch
         $GiB50 = 50 * 1_105_507_304;
@@ -254,18 +254,36 @@ class UserManagerTest extends TestCase {
             VALUES " . placeholders($idList, '(?, 1, unix_timestamp(now()), 259200)') . "
             ", ...$idList
         );
-        $this->assertEquals(4, $userMan->updateRatioRequirements(), 'uman-ratiowatch-update');
-        $this->assertEquals($idList, $userMan->ratioWatchSetList(), 'uman-ratiowatch-set-list');
-        $this->assertEquals(4, $userMan->ratioWatchSet(), 'uman-ratiowatch-set-action');
+        $result = $userMan->updateRatioRequirements();
+        $this->assertCount(29, $result, 'uman-ratiowatch-update');
+        $this->assertGreaterThanOrEqual(
+            count($idList),
+            $result['07-weight'][0],
+            'uman-ratiowatch-set-action',
+        );
+        $this->assertEquals(
+            $idList,
+            $userMan->ratioWatchSetList(),
+            'uman-ratiowatch-set-list',
+        );
+        $this->assertEquals(
+            count($idList),
+            $userMan->ratioWatchSet(),
+            'uman-ratiowatch-set-action',
+        );
         foreach ($this->userList as $user) {
             $user->flush();
         }
 
         $receiver = $this->userList[0]->inbox();
         $pmMan    = new Manager\PM($receiver->user());
+        $list     = $receiver->messageList($pmMan, 2, 0);
         $this->assertEquals(1, $receiver->messageTotal(), 'uman-ratiowatch-pm-count');
-        $list = $receiver->messageList($pmMan, 2, 0);
-        $this->assertEquals('You have been put on Ratio Watch', $list[0]->subject(), 'uman-ratiowatch-pm-subject');
+        $this->assertEquals(
+            'You have been put on Ratio Watch',
+            $list[0]->subject(),
+            'uman-ratiowatch-pm-subject',
+        );
 
         // nuke the recent pms
         foreach ($this->userList as $user) {
