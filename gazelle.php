@@ -117,6 +117,7 @@ if ($Viewer) {
     }
     if ($Viewer->isLocked() && !in_array($module, ['chat', 'staffpm', 'ajax', 'locked', 'logout', 'login'])) {
         $Viewer->requestContext()->setModule('locked');
+        $module = 'locked';
     }
 }
 
