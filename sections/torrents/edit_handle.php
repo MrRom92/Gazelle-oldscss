@@ -85,6 +85,14 @@ $Validate = new Util\Validator();
 $Validate->setField('type', true, 'number', 'Not a valid category.', ['range' => [1, count(CATEGORY)]]);
 switch (CATEGORY[(int)($_POST['type'] ?? 0) - 1]) {
     case 'Music':
+        if (!is_null($Properties['RemasterYear'])) {
+            $future = (int)date('Y') + 1;
+            if ($Properties['RemasterYear'] > $future && !$Viewer->permitted('users_mod')) {
+                Error400::error(
+                    "You may not specify a remaster year that far in the future. Instead, set it to $future and report the upload afterwards to have the year set as appropriate by staff."
+                );
+            }
+        }
         if ($Properties['Remastered'] && !$Properties['UnknownRelease'] && $Properties['RemasterYear'] < 1982 && $Properties['Media'] == 'CD') {
             Error400::error(
                 'You have selected a year for an album that predates the medium you say it was created on.'

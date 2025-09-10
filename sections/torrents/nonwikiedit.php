@@ -37,6 +37,12 @@ if (isset($_POST['leech_type']) && $Viewer->permitted('torrents_freeleech')) {
 
 $year = (int)trim($_POST['year']);
 if ($tgroup->year() !== $year) {
+    $future = (int)date('Y') + 1;
+    if ($year > $future && !$Viewer->permitted('users_mod')) {
+        json_error(
+            "You may not specify a year that far in the future. Instead, set it to $future and report the upload afterwards to have the year set as appropriate by staff."
+        );
+    }
     $tgroup->setField('Year', $year);
     $log[] = "year {$tgroup->year()} => $year";
 }

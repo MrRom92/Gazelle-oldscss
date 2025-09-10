@@ -193,6 +193,15 @@ switch ($categoryName) {
                 );
             }
         }
+
+        if (!is_null($Properties['RemasterYear'])) {
+            $future = (int)date('Y') + 1;
+            if ($Properties['RemasterYear'] > $future) {
+                json_error(
+                    "You may not specify a remaster year that far in the future. Instead, set it to $future and report the upload afterwards to have the year set as appropriate by staff."
+                );
+            }
+        }
         break;
 }
 
@@ -260,6 +269,15 @@ if ($Properties['Image']) {
     $banned = new Util\ImageProxy($Viewer)->badHost($Properties['Image']);
     if ($banned) {
         json_error("Please rehost images from $banned elsewhere.");
+    }
+}
+
+if (!is_null($Properties['Year'])) {
+    $future = (int)date('Y') + 1;
+    if ($Properties['Year'] > $future) {
+        json_error(
+            "You may not specify a year that far in the future. Instead, set it to $future and report the upload afterwards to have the year set as appropriate by staff."
+        );
     }
 }
 
