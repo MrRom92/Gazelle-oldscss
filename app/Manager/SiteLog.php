@@ -47,21 +47,17 @@ class SiteLog extends \Gazelle\Base {
 
     public function page(int $limit, int $offset, string $searchTerm): array {
         $conf = $this->configure($searchTerm);
-        $st   = $this->pg()->pdo()->prepare("
-            select id_site_log,
-                note,
-                created
-            from site_log {$conf['where']}
-            order by id_site_log desc
-            limit ? offset ?
-        ");
         array_push($conf['args'], $limit, $offset);
-
-        if ($st === false || !$st->execute($conf['args'])) {
-            return [];
-        }
         return $this->decorate(
-            $st->fetchAll(\PDO::FETCH_NUM)
+            $this->pg()->all("
+                select id_site_log,
+                    note,
+                    created
+                from site_log {$conf['where']}
+                order by id_site_log desc
+                limit ? offset ?
+                ", ...$conf['args']
+            )
         );
     }
 
@@ -89,13 +85,13 @@ class SiteLog extends \Gazelle\Base {
      */
     public function decorate(array $in): array {
         $out = [];
-        foreach ($in as [$id, $message, $created]) {
-            [$class, $message] = $this->colorize($message);
+        foreach ($in as $entry) {
+            [$class, $message] = $this->colorize($entry['note']);
             $out[] = [
-                'id'      => $id,
+                'id'      => $entry['id_site_log'],
                 'class'   => $class,
                 'message' => $message,
-                'created' => $created,
+                'created' => $entry['created'],
             ];
         }
         return $out;

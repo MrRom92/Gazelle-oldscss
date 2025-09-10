@@ -29,7 +29,7 @@
             <th>{{ paginator.total|number_format }} entries{% if search %} for “{{ search }}”{% endif %}</th>
         </tr>
 {% if sitelog.error %}
-    <tr class="nobr"><td colspan="2">Search request failed ({{ siteLog.errorMessage }}).</td></tr>
+    <tr class="nobr"><td colspan="3">Search request failed ({{ siteLog.errorMessage }}).</td></tr>
 {% else %}
     {% for event in page %}
         <tr class="row{{ cycle(['a', 'b'], loop.index0) }}" id="log_{{ event.id }}">
@@ -42,7 +42,7 @@
             </td>
         </tr>
     {% else %}
-    <tr class="nobr"><td colspan="2">Nothing found!</td></tr>
+    <tr class="nobr"><td colspan="3">Nothing found!</td></tr>
     {% endfor %}
 </table>
 {{ paginator.linkbox|raw }}
