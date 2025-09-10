@@ -11,7 +11,7 @@
 <br />
 
 {% for u in user %}
-    {% if loop.first %}
+{%  if loop.first %}
 <table style="width: 100%;">
     <tr class="colhead">
         <td>Username</td>
@@ -23,7 +23,7 @@
         <td>Icon Hover</td>
         <td>Second Avatar</td>
     </tr>
-    {% endif %}
+{%  endif %}
     <tr class="row{{ cycle(['a', 'b'], loop.index0) }}">
         <td style="vertical-align: top">{{ u.user_id|user_full }}</td>
         <td style="vertical-align: top">{{ u.donor_rank }}</td>
@@ -34,10 +34,10 @@
         </td>
         <td style="vertical-align: top; word-wrap: anywhere">
             {{ u.custom_icon }}
-    {% if u.custom_icon %}
+{%  if u.custom_icon %}
             <br />
             <img src="{{ donor_icon(u.custom_icon) }}" width="15" height="13" alt="" />
-    {% endif %}
+{%  endif %}
         </td>
         <td style="vertical-align: top; word-wrap: anywhere">
            {{ u.icon_mouse }}
@@ -48,9 +48,9 @@
             <img width="150" src="{{ u.second_avatar }}" />
         </td>
     </tr>
-    {% if loop.last %}
+{%  if loop.last %}
 </table>
-    {% endif %}
+{%  endif %}
 {% endfor %}
 {{ paginator.linkbox|raw }}
 {{ footer() }}

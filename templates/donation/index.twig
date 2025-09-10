@@ -1,7 +1,9 @@
 {{ header('Donate') }}
-<div class="thin box pad">
-    <h3>Why donate?</h3>
-    <div class="pad donation_info">
+<div class="header">
+    <h2>Why donate to {{ constant('SITE_NAME') }}?</h2>
+</div>
+<div class="pad thin">
+    <div class="box pad donation_info">
         <p>{{ constant('SITE_NAME') }} has no advertisements, is not sponsored, and provides its services
         free of charge. For these reasons, {{ constant('SITE_NAME') }}'s financial obligations can only
         be met with the help of voluntary user donations. Supporting {{ constant('SITE_NAME') }} is and
@@ -22,20 +24,31 @@
         This system provides donors with perks. Some of these perks are cosmetic (e.g. a donor icon added
         to your account), some are one-time benefits (e.g. additional invites), and others modify specific
         site options (e.g. additional profile information boxes, or personal collages).</p>
+
+        <h4>Please Note!</h4>
+
+        <p>The minimum amount to receive donor privileges is 10€ (euros). Avoid calculating a donation
+        amount that converts to precisely 10€. Conversion rates are volatile and there is a chance that,
+        between the time your transaction is registered and the time it is compiled into a block on the
+        blockchain, it may be worth less. <b>No points will be awarded in this situation.</b></p>
+
+        <p>Also keep in mind that all donations received are tumbled to provide further anonymity. The
+        additional fees incurred for this means that for a donation of 10€, we receive about 8€ net. A
+        few extra cents for peace of mind helps guarantee you earn a point from your donation.</p>
     </div>
 
     <h3>Donating</h3>
 {% if monero_address %}
     <h2>Monero (XMR)</h2>
     <br />
-    <div class="pad donation_info">
+    <div class="box pad donation_info">
         You can send your monero donation to: <span class="donation_address">{{ monero_address }}</span>
         Monero donations are credited semi-automatically. If your donation is not credited within seven days please
-        {% if constant('DONATION_MANAGER_USER_ID') %}
+{%  if constant('DONATION_MANAGER_USER_ID') %}
             contact {{ constant('DONATION_MANAGER_USER_ID')|user_url }}.
-        {% else %}
+{%  else %}
             send a <a href="/staffpm.php">StaffPM</a>.
-        {% endif %}
+{%  endif %}
         <br /><br />
         A word of warning: <b>do not send</b> Monero directly from an exchange or similar service.
         You must transfer to your own wallet beforehand as the donation address can be linked to Orpheus.
@@ -45,24 +58,22 @@
 {% if bitcoin_address %}
     <h2>Bitcoin (BTC)</h2>
     <br />
-    <div class="pad donation_info">
+    <div class="box pad donation_info">
         You may send your bitcoin donation to: <span class="donation_address">{{ bitcoin_address }}</span>
         This is your own personal address and should not be shared with anyone. After you have sent funds to
         it once, for your own privacy and security you should never use it again. A fresh address will be allocated
         for you after the previous transaction clears.<br /><br />
         Bitcoin donations are credited semi-automatically. If your donation is not credited within seven days please
-        {% if constant('DONATION_MANAGER_USER_ID') %}
+{%  if constant('DONATION_MANAGER_USER_ID') %}
             contact {{ constant('DONATION_MANAGER_USER_ID')|user_url }}.
-        {% else %}
+{%  else %}
             send a <a href="/staffpm.php">StaffPM</a>.
-        {% endif %}
+{%  endif %}
     </div>
 {% endif %}
 
     <h3>What you will receive for donating</h3>
-    <div class="pad donation_info">
-        <strong>The minimum amount to receive donor privileges is 10 Euros.</strong>
-        <br /><br />
+    <div class="box pad donation_info">
         Any donation or contribution option listed above gives you the opportunity to receive Donor Points.
         After acquiring your first Donor Point, your account will unlock Donor Rank #1. This rank will last
         forever, and you'll receive the following perks upon unlocking it:<br>
@@ -95,7 +106,7 @@
     </div>
 
     <h3>What you won't receive for donating</h3>
-    <div class="pad donation_info">
+    <div class="box pad donation_info">
         <ul>
             <li>Immunity from the rules</li>
             <li>Additional upload credit</li>
