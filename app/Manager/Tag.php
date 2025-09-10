@@ -306,6 +306,8 @@ class Tag extends \Gazelle\BaseManager {
      * not exist yet. The same issues as above also apply here: an object might
      * have (alt.rock.indie.rock and alt.rock) in which case only (indie.rock)
      * needs to be applied, and the old tag removed.
+     *
+     * @param $replacement array<\Gazelle\Tag>
      */
     public function rename(
         \Gazelle\Tag  $tag,
@@ -340,6 +342,9 @@ class Tag extends \Gazelle\BaseManager {
         return $changed;
     }
 
+   /**
+     * @param $replacement array<\Gazelle\Tag>
+     */
     public function split(
         \Gazelle\Tag  $tag,
         array         $replacement,
@@ -348,8 +353,8 @@ class Tag extends \Gazelle\BaseManager {
     ): int {
         $totalChanged = 0;
         self::$db->begin_transaction();
-        foreach ($replacement as $name) {
-            $totalChanged += $this->replace($tag, $name, $user);
+        foreach ($replacement as $r) {
+            $totalChanged += $this->replace($tag, $r, $user);
         }
         self::$db->prepared_query("
             SELECT RequestID FROM  requests_tags WHERE TagID = ?

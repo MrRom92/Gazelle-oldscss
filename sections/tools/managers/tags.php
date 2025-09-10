@@ -69,7 +69,11 @@ while (isset($_GET['tag']) && isset($_GET['replace'])) {
         break;
     }
 
-    $changed = $tagMan->rename($tag, $replacement, $Viewer);
+    $changeList = [];
+    foreach ($replacement as $name) {
+        $changeList[] = $tagMan->softCreate($name, $Viewer);
+    }
+    $changed = $tagMan->rename($tag, $changeList, $Viewer);
 
     if (isset($_GET['alias'])) {
         $madeAlias = $tagMan->createAlias($tag->name(), $replacement[0]);
