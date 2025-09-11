@@ -385,16 +385,20 @@ function AddArtistField() {
         7: 6,
         8: 7,
     };
-    RoleField.selectedIndex = mapping[$("#importance_" + (ArtistCount - 1)).val()];
+    RoleField.selectedIndex = mapping[document.getElementById("importance_" + (ArtistCount - 1)).value];
 
-    let x = $('#artistfields').raw();
-    x.appendChild(document.createElement("br"));
-    x.appendChild(ArtistField);
-    x.append(' ');
-    x.appendChild(RoleField);
+    const x = document.getElementById('artistfields');
+    const div = document.createElement("div");
+    div.id = "artist_field_" + ArtistCount;
+    div.style.display = "inline";
+    div.appendChild(document.createElement("br"));
+    div.appendChild(ArtistField);
+    div.append(' ');
+    div.appendChild(RoleField);
+    x.appendChild(div);
 
-    if ($("#artist_0").data("gazelle-autocomplete")) {
-        $(ArtistField).live('focus', function() {
+    if (document.getElementById('artist_0').dataset.gazelleAutocomplete) {
+        ArtistField.addEventListener('focus', () => {
             $(ArtistField).autocomplete({
                 serviceUrl : 'artist.php?action=autocomplete'
             });
@@ -406,10 +410,7 @@ function RemoveArtistField() {
     if (ArtistCount === 0) {
         return;
     }
-    let x = $('#artistfields').raw();
-    for (let i = 0; i < 3; i++) {
-        x.removeChild(x.lastChild);
-    }
+    document.getElementById("artist_field_" + ArtistCount).remove();
     ArtistCount--;
 }
 
