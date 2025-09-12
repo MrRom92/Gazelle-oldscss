@@ -1,129 +1,120 @@
-{% from 'macro/form.twig' import checked, selected %}
+{% from 'macro/form.twig' import checked, disabled, selected %}
 {% from 'macro/torrent.twig' import freeleech %}
 {{ header('Edit torrent group "' ~ tgroup.name ~ '"') }}
+
 <div class="thin">
     <div class="header">
-        <h2>Edit <a href="torrents.php?id={{ tgroup.id }}">{{ tgroup.name }}</a></h2>
+        <h2>Edit {{ tgroup.link|raw }}</h2>
     </div>
     <div class="box pad">
-        <form class="edit_form" name="torrent_group" action="torrents.php" method="post">
-            <div>
-                <input type="hidden" name="action" value="takegroupedit" />
-                <input type="hidden" name="auth" value="{{ viewer.auth }}" />
-                <input type="hidden" name="groupid" value="{{ tgroup.id }}" />
-                <h3>Image:</h3>
-                <input type="text" name="image" size="92" value="{{ tgroup.image }}" /><br />
+
+    <form class="edit_form" name="torrent_group" action="torrents.php" method="post">
+    <div class="tbx tgroup-edit">
+        <div class="tbx-label">Name</div>
+        <div class="tbx-field">
+            <input type="text" name="name" size="50" value="{{ tgroup.name }}"{{
+                disabled(not viewer.permitted('torrents_edit')) }} />
+        </div>
+        <div class="tbx-label">Image</div>
+        <div class="tbx-field">
+            <input type="text" name="image" size="50" value="{{ tgroup.image }}" />
 {% if constant('IMAGE_HOST_BANNED') %}
-                <br /><b>Images hosted on <strong class="important_text">{{ constant('IMAGE_HOST_BANNED')|join(', ') }}
-                    are not allowed</strong>, please rehost first on one of {{ constant('IMAGE_HOST_RECOMMENDED')|join(', ') }}.</b>
+            <br /><b>Images hosted on <strong class="important_text">{{ constant('IMAGE_HOST_BANNED')|join(', ') }}
+                are not allowed</strong>, please rehost first on one of {{ constant('IMAGE_HOST_RECOMMENDED')|join(', ') }}.</b>
 {% endif %}
-                <br />Or if the release has no known official artwork (e.g. jam band live recording), check the following:<br />
-                <label><input type="checkbox" name="no_cover_art" value="1"{{ checked(tgroup.noCoverArt) }} /> No release cover art</label><br /><br />
-
-                <h3>Torrent group description:</h3>
-                {{ body.emit|raw }}
+            <br />If the release has no known official artwork (e.g. jam band live recording), check the following:<br />
+            <label><input type="checkbox" name="no_cover_art" value="1"{{ checked(tgroup.noCoverArt) }} /> No release cover art</label><br /><br />
+        </div>
+        <div class="tbx-label">Group description</div>
+        <div class="tbx-field">
+            {{ body.emit|raw }}
+        </div>
+        <div class="tbx-label">Year</div>
+        <div class="tbx-field">
 {% if tgroup.categoryName == 'Music' %}
-                <h3>Release type:
-                    <select id="releasetype" name="releasetype">
-    {% for key, value in release_type %}
-                        <option value="{{ key }}"{{ selected(key == tgroup.releaseType) }}>{{ value }}</option>
-    {% endfor %}
-                    </select>
-                </h3>
-    {% if viewer.permitted('torrents_edit_vanityhouse') %}
-                <h3>
-                    <label><input type="checkbox" name="vanity_house" value="1" {{ checked(tgroup.isShowcase) }}/> Showcase</label>
-                </h3>
-    {% endif %}
+            This relates to the <strong>Original Release</strong> only. (The year the album was first issued. Remastered versions may have a more recent year).
+{% else  %}
+            Year of release/publication
 {% endif %}
+            <br />
+            <input type="text" name="year" size="5" value="{{ tgroup.year }}" />
+        </div>
 
-                <h3>Edit summary:</h3>
-                <input type="text" name="summary" size="92" /><br />
-                <div style="text-align: center;">
-                    <input type="submit" value="Submit" />
-                </div>
-            </div>
-        </form>
-    </div>
-
-{% if tgroup.isOwner(viewer) or viewer.permitted('torrents_edit') %}
-    <h3>Non-wiki torrent group editing</h3>
-    <div class="box pad">
-        <form class="edit_form" name="torrent_group" action="torrents.php" method="post">
-            <input type="hidden" name="action" value="nonwikiedit" />
+{% if tgroup.categoryName == 'Music' %}
+        <div class="tbx-label">Release type</div>
+        <div class="tbx-field">
+            <select id="releasetype" name="releasetype">
+{%  for key, value in release_type %}
+                <option value="{{ key }}"{{ selected(key == tgroup.releaseType) }}>{{ value }}</option>
+{%  endfor %}
+            </select>
+        </div>
+{%  if tgroup.isOwner(viewer) or viewer.permitted('torrents_edit') %}
+        <div class="tbx-label">Record label</div>
+        <div class="tbx-field">
+            <input type="text" name="record_label" size="40" value="{{ tgroup.recordLabel }}" />
+        </div>
+        <div class="tbx-label">Catalogue number</div>
+        <div class="tbx-field">
+            <input type="text" name="catalogue_number" size="40" value="{{ tgroup.catalogueNumber }}" />
+        </div>
+{%  endif %}
+{%  if viewer.permitted('torrents_freeleech') %}
+        <div class="tbx-label">Download status</div>
+        <div class="tbx-field">
+            <b>Note:</b> this affects all present uploads in the group but subsequent uploads will not inherit the value.
+            <br />
+            <br />
+            {{ freeleech(size, unit, leech_type, leech_reason) }}
+        </div>
+{%  endif %}
+{%  if viewer.permitted('torrents_edit_vanityhouse') %}
+        <div class="tbx-label">Showcase</div>
+        <div class="tbx-field">
+            <label><input type="checkbox" name="vanity_house" {{ checked(tgroup.isShowcase) }}/> This group is a Showcase release</label>
+        </div>
+{%  endif %}
+{% endif %}
+        <div class="tbx-label">Summary of changes</div>
+        <div class="tbx-field">
+            A brief explanation of what was changed, for the site log
+            <br />
+            <input type="text" name="summary" size="70" maxlength="100" />
+        </div>
+        <div class="tbx-label"></div>
+        <div class="tbx-field">
+            <input type="hidden" name="action" value="tgroup-edit" />
             <input type="hidden" name="auth" value="{{ viewer.auth }}" />
             <input type="hidden" name="groupid" value="{{ tgroup.id }}" />
-            <table cellpadding="3" cellspacing="1" border="0" class="layout border" width="100%">
-                <tr>
-                    <td colspan="2" class="center">This is for editing the information related to the <strong>Original Release</strong> only.</td>
-                </tr>
-                <tr>
-                    <td class="label">Year</td>
-                    <td>
-                        <input type="text" name="year" size="10" value="{{ tgroup.year }}" />
-                    </td>
-                </tr>
-                <tr>
-                    <td class="label">Record label</td>
-                    <td>
-                        <input type="text" name="record_label" size="40" value="{{ tgroup.recordLabel }}" />
-                    </td>
-                </tr>
-                <tr>
-                    <td class="label">Catalogue number</td>
-                    <td>
-                        <input type="text" name="catalogue_number" size="40" value="{{ tgroup.catalogueNumber }}" />
-                    </td>
-                </tr>
-    {% if viewer.permitted('torrents_freeleech') %}
-                <tr>
-                    <td class="label">Leech status</td>
-                    <td>
-                        <b>Note:</b> this affects all uploads in the group (but subsequent uploads will not inherit the value).
-                        <br />
-                        <br />
-                        {{ freeleech(size, unit, leech_type, leech_reason) }}
-                    </td>
-                </tr>
-    {% endif %}
-            </table>
-            <div style="text-align: center;">
-                <input type="submit" value="Edit" />
-            </div>
-        </form>
+            <input type="submit" value="Update" />
+        </div>
     </div>
-{% endif %}
+    </form>
 
-{% if viewer.permitted('torrents_edit') %}
-    <h3>Rename (will not merge)</h3>
-    <div class="box pad">
-        <form class="rename_form" name="torrent_group" action="torrents.php" method="post">
-            <div>
-                <input type="hidden" name="action" value="rename" />
-                <input type="hidden" name="auth" value="{{ viewer.auth }}" />
-                <input type="hidden" name="groupid" value="{{ tgroup.id }}" />
-                <input type="text" name="name" size="92" value="{{ tgroup.name }}" />
-                <div style="text-align: center;">
-                    <input type="submit" value="Rename" />
-                </div>
-            </div>
-        </form>
+{% if tgroup.categoryName == 'Music' and viewer.permitted('torrents_edit') %}
+    <hr class="tbx" />
+
+    <h4>Merge with another group</h4>
+    <form class="merge_form" name="torrent_group" action="torrents.php" method="post">
+    <div class="tbx tgroup-merge">
+        <div class="tbx-label">Target ID</div>
+        <div class="tbx-field">
+            <input type="text" name="targetgroupid" size="6" /> example, the <b>nnn</b> in <tt>{{
+                constant('SITE_URL') }}/torrents.php?id=<b>nnn</b></tt>
+            <p>If this torrent group was created by mistake and a prior group
+            exists, this group may be merged into that one. Note: there may be
+            some duplicates or trumps that need to be reported as a result.</p>
+        </div>
+
+        <div class="tbx-label"></div>
+        <div class="tbx-field">
+            <input type="hidden" name="action" value="tgroup-merge" />
+            <input type="hidden" name="auth" value="{{ viewer.auth }}" />
+            <input type="hidden" name="groupid" value="{{ tgroup.id }}" />
+            <input type="submit" value="Merge" />
+        </div>
     </div>
-    <h3>Merge with another group</h3>
-    <div class="box pad">
-        <form class="merge_form" name="torrent_group" action="torrents.php" method="post">
-            <div>
-                <input type="hidden" name="action" value="merge" />
-                <input type="hidden" name="auth" value="{{ viewer.auth }}" />
-                <input type="hidden" name="groupid" value="{{ tgroup.id }}" />
-                <h3>Target torrent group ID:
-                    <input type="text" name="targetgroupid" size="10" />
-                </h3>
-                <div style="text-align: center;">
-                    <input type="submit" value="Merge" />
-                </div>
-            </div>
-        </form>
+    </form>
     </div>
 {% endif %}
 </div>

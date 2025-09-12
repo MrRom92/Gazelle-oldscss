@@ -158,8 +158,8 @@ class TGroup extends \Gazelle\BaseManager {
         \Gazelle\TGroup $old,
         \Gazelle\TGroup $new,
         \Gazelle\User $user,
-        \Gazelle\Manager\User $userManager,
-        \Gazelle\Manager\Vote $voteManager,
+        User $userManager = new User(),
+        Vote $voteManager = new Vote(),
     ): bool {
         // GroupIDs
         self::$db->prepared_query("SELECT ID FROM torrents WHERE GroupID = ?", $old->id);

@@ -923,6 +923,20 @@ input[type="search"] {
   max-width: 800px;
 }
 
+.tbx {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 12px 8px;
+}
+.tbx-label {
+  font-weight: 800;
+  margin-top: 2px;
+  text-align: right;
+}
+hr.tbx {
+  margin: 15px 6px 10px 6px;
+}
+
 .pager-link {
   margin: 0 2px;
   padding: 1px 3px;

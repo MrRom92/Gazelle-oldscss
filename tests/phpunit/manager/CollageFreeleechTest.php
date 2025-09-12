@@ -76,12 +76,10 @@ class CollageFreeleechTest extends TestCase {
         $this->assertEquals(
             4,
             $this->collage->setFreeleech(
-                torMan:    $torMan,
-                tracker:   new Tracker(),
-                user:      $this->user,
                 leechType: LeechType::Free,
                 reason:    LeechReason::Permanent,
                 threshold: 12_000_000,
+                user:      $this->user,
             ),
             'collfree-free'
         );

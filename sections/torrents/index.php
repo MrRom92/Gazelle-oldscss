@@ -19,7 +19,7 @@ if (!empty($_REQUEST['action'])) {
             include_once 'edit_group.php';
             break;
         case 'revert':
-        case 'takegroupedit':
+        case 'tgroup-edit':
             include_once 'edit_group_handle.php';
             break;
         case 'editgroupid':
@@ -77,13 +77,10 @@ if (!empty($_REQUEST['action'])) {
         case 'redownload':
             include_once 'redownload.php';
             break;
-        case 'nonwikiedit':
-            include_once 'nonwikiedit.php';
-            break;
         case 'rename':
             include_once 'rename.php';
             break;
-        case 'merge':
+        case 'tgroup-merge':
             include_once 'merge.php';
             break;
         case 'add_alias':

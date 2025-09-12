@@ -46,12 +46,10 @@ class TorrentFreeleechTest extends TestCase {
         $this->assertEquals(
             4,
             $this->torrentList[0]->group()->setFreeleech(
-                torMan:    new Manager\Torrent(),
-                tracker:   new Tracker(),
-                user:      $this->torrentList[0]->uploader(),
                 leechType: LeechType::Free,
                 reason:    LeechReason::StaffPick,
                 threshold: 22_000_000,
+                user:      $this->torrentList[0]->uploader(),
             ),
             'fl-free-staffpick-22M'
         );
@@ -65,11 +63,9 @@ class TorrentFreeleechTest extends TestCase {
         $this->assertEquals(
             4,
             $this->torrentList[0]->group()->setFreeleech(
-                torMan:    new Manager\Torrent(),
-                tracker:   new Tracker(),
-                user:      $this->torrentList[0]->uploader(),
                 leechType: LeechType::Normal,
                 reason:    LeechReason::Normal,
+                user:      $this->torrentList[0]->uploader(),
             ),
             'fl-normal'
         );
@@ -85,12 +81,10 @@ class TorrentFreeleechTest extends TestCase {
         $this->assertEquals(
             5,
             $this->torrentList[0]->group()->setFreeleech(
-                torMan:    new Manager\Torrent(),
-                tracker:   new Tracker(),
-                user:      $this->torrentList[0]->uploader(),
+                all:       true,
                 leechType: LeechType::Free,
                 reason:    LeechReason::StaffPick,
-                all:       true,
+                user:      $this->torrentList[0]->uploader(),
             ),
             'fl-free-all'
         );

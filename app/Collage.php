@@ -380,13 +380,13 @@ class Collage extends BaseAttrObject implements Bookmarked {
     }
 
     public function setFreeleech(
-        Manager\Torrent $torMan,
-        Tracker         $tracker,
         User            $user,
         LeechType       $leechType,
         LeechReason     $reason,
-        int             $threshold = 0,
         bool            $all       = false,
+        int             $threshold = 0,
+        Manager\Torrent $torMan    = new Manager\Torrent(),
+        Tracker         $tracker   = new Tracker(),
     ): int {
         $regular = [];
         $large   = [];

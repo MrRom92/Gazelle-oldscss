@@ -6,92 +6,68 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
+use Gazelle\Enum\LeechType;
+use Gazelle\Enum\LeechReason;
+
 authorize();
 
-if (!$Viewer->permitted('site_edit_wiki')) {
-    Error403::error();
+if (!$Viewer->permitted('torrents_edit')) {
+    Error403::error("You are not allowed to edit torrents");
 }
-if (!$Viewer->permitted('torrents_edit_vanityhouse') && isset($_POST['vanity_house'])) {
-    Error403::error();
-}
+
 $tgroup = new Manager\TGroup()->findById((int)$_REQUEST['groupid']);
 if (is_null($tgroup)) {
     Error404::error();
 }
 
-$logInfo = [];
 if (($_GET['action'] ?? '') == 'revert') {
     // we're reverting to a previous revision
     $revisionId = (int)$_GET['revisionid'];
     if (!$revisionId) {
         Error400::error('No revision specified to revert');
     }
-    if (empty($_GET['confirm'])) {
+    if (!isset($_GET['confirm'])) {
         echo $Twig->render('tgroup/confirm-revert.twig', [
-            'group_id'    => $tgroup->id(),
             'revision_id' => $revisionId,
+            'tgroup'      => $tgroup,
             'viewer'      => $Viewer,
         ]);
         exit;
     }
-    $revert = $tgroup->revertRevision($Viewer->id(), $revisionId);
-    if (is_null($revert)) {
-        Error404::error();
+    [$body, $image] = $tgroup->revertRevision($Viewer->id, $revisionId);
+    if (is_null($body)) {
+        Error404::error("Unable to find revision {$revisionId}");
     }
-    [$Body, $Image] = $revert;
-} else {
-    if ($tgroup->categoryName() === 'Music') {
-        // edit, variables are passed via POST
-        $ReleaseType = (int)$_POST['releasetype'];
-        $rt = new ReleaseType();
-        $newReleaseTypeName = $rt->findNameById($ReleaseType);
-        if (!$newReleaseTypeName) {
-            Error400::error();
-        }
-        if ($ReleaseType != $tgroup->releaseType()) {
-            $tgroup->setField('ReleaseType', $ReleaseType);
-            $logInfo[] = "Release type changed from "
-                . $rt->findNameById($tgroup->releaseType())
-                . " to $newReleaseTypeName";
-        }
+    $tgroup->setField('WikiImage', $image)
+        ->setField('WikiBody', $body)
+        ->modify();
+    $tgroup->refresh();
+    $tgroup->imageFlush();
+    header("Location: {$tgroup->location()}");
+    exit;
+}
 
-        if ($Viewer->permitted('torrents_edit_vanityhouse')) {
-            $showcase = isset($_POST['vanity_house']) ? 1 : 0;
-            if ($tgroup->isShowcase() != $showcase) {
-                $tgroup->setField('VanityHouse', $showcase);
-                $logInfo[] = 'Vanity House status changed to ' . ($showcase ? 'true' : 'false');
-            }
-        }
-    }
+$logInfo = [];
+if ($_POST['name'] !== $tgroup->name()) {
+    $name = trim($_POST['name']);
+    $tgroup->setField('Name', $name);
+    $logInfo[] = "Renamed \"{$tgroup->name()}\" → \"$name\"";
+}
 
-    if (empty($_POST['image'])) {
-        $Image = '';
-    } else {
-        $Image = $_POST['image'];
-        if (!preg_match(IMAGE_REGEXP, $Image)) {
-            Error400::error(html_escape($Image) . " does not look like a valid image url");
+$newRevision = false;
+$image = trim($_POST['image']);
+if ($image !== $tgroup->image()) {
+    if ($image !== '') {
+        if (!preg_match(IMAGE_REGEXP, $image)) {
+            Error400::error(html_escape($image) . " does not look like a valid image url");
         }
-        $banned = new Util\ImageProxy($Viewer)->badHost($Image);
+        $banned = new Util\ImageProxy($Viewer)->badHost($image);
         if ($banned) {
             Error400::error("Please rehost images from $banned elsewhere.");
         }
     }
-
-    $Body = trim($_POST['body']);
-    if ($_POST['summary']) {
-        $logInfo[] = "summary: " . trim($_POST['summary']);
-    }
-    $revisionId = $tgroup->createRevision($Body, $Image, $_POST['summary']);
-}
-
-$imageFlush = ($Image != $tgroup->showFallbackImage(false)->image());
-
-$tgroup->setField('WikiBody', $Body)
-    ->setField('WikiImage', $Image)
-    ->modify();
-
-if ($imageFlush) {
-    $tgroup->imageFlush();
+    $tgroup->setField('WikiImage', $image);
+    $newRevision = true;
 }
 
 $noCoverArt = isset($_POST['no_cover_art']);
@@ -99,8 +75,87 @@ if ($noCoverArt != $tgroup->hasNoCoverArt()) {
     $tgroup->toggleNoCoverArt($noCoverArt);
     $logInfo[] = "No cover art exception " . ($noCoverArt ? 'added' : 'removed');
 }
-if ($logInfo) {
-    $tgroup->logger()->group($tgroup, $Viewer, implode(', ', $logInfo));
+
+$body = trim($_POST['body']);
+if ($body !== $tgroup->description()) {
+    $tgroup->setField('WikiBody', $body);
+    $newRevision = true;
 }
 
-header('Location: ' . $tgroup->location());
+$year = (int)trim($_POST['year']);
+if ($tgroup->year() !== $year) {
+    $future = (int)date('Y') + 1;
+    if ($year > $future && !$Viewer->permitted('users_mod')) {
+        json_error(
+            "You may not specify a year that far in the future. Instead, set it to $future and report the upload afterwards to have the year set as appropriate by staff."
+        );
+    }
+    $tgroup->setField('Year', $year);
+    $log[] = "year {$tgroup->year()} → $year";
+}
+
+if ($tgroup->categoryName() === 'Music') {
+    $releaseType = (int)$_POST['releasetype'];
+    $rt = new ReleaseType();
+    $newReleaseTypeName = $rt->findNameById($releaseType);
+    if (!$newReleaseTypeName) {
+        Error400::error("Bad release type");
+    }
+    if ($releaseType != $tgroup->releaseType()) {
+        $tgroup->setField('ReleaseType', $releaseType);
+        $logInfo[] = "Release type {$rt->findNameById($tgroup->releaseType())} → $newReleaseTypeName";
+    }
+
+    $recordLabel = trim($_POST['record_label'] ?? '');
+    if ($tgroup->recordLabel() !== $recordLabel) {
+        $tgroup->setField('RecordLabel', $recordLabel);
+        $log[] = "record label \"{$tgroup->recordLabel()}\" → \"$recordLabel\"";
+    }
+
+    $catNumber = trim($_POST['catalogue_number'] ?? '');
+    if ($tgroup->catalogueNumber() !== $catNumber) {
+        $tgroup->setField('CatalogueNumber', $catNumber);
+        $log[] = "cat number \"{$tgroup->catalogueNumber()}\" → \"$catNumber\"";
+    }
+
+    $showcase = isset($_POST['vanity_house']);
+    if ($tgroup->isShowcase() != $showcase) {
+        if (!$Viewer->permitted('torrents_edit_vanityhouse')) {
+            Error403::error('You are not allowed to edit the Showcase status');
+        }
+        $tgroup->setField('VanityHouse', $showcase ? 1 : 0);
+        $logInfo[] = 'Showcase status changed to ' . ($showcase ? 'true' : 'false');
+    }
+}
+
+$summary = trim($_POST['summary'] ?? '');
+if ($summary) {
+    $logInfo[] = "summary: $summary";
+}
+if ($newRevision) {
+    $tgroup->createRevision($body, $image, $summary);
+}
+
+if ($Viewer->permitted('torrents_freeleech')) {
+    $torMan    = new Manager\Torrent();
+    $leechType = $torMan->lookupLeechType($_POST['leech_type'] ?? LeechType::Normal->value);
+    $reason    = $torMan->lookupLeechReason($_POST['leech_reason'] ?? LeechReason::Normal->value);
+    $tgroup->setFreeleech(
+        all:       $_POST['all'] == 'all',
+        leechType: $leechType,
+        reason:    $reason,
+        user:      $Viewer,
+    );
+    $logInfo[] = "freeleech type={$leechType->label()} reason={$reason->label()}";
+}
+
+if ($tgroup->dirty()) {
+    $tgroup->modify();
+    $tgroup->refresh();
+    $tgroup->imageFlush();
+    if ($logInfo) {
+        $tgroup->logger()->group($tgroup, $Viewer, implode(', ', $logInfo));
+    }
+}
+
+header("Location: {$tgroup->location()}");

@@ -3,13 +3,13 @@
     <div class="header">
         <h2>{{ tgroup.link | raw }}</h2>
         <div class="linkbox">
-{% if viewer.permitted('site_edit_wiki') %}
-            <a href="{{ tgroup.url|raw }}&amp;action=editgroup" class="brackets">Edit description</a>
+{% if viewer.permitted('torrents_edit') %}
+            <a href="{{ tgroup.url|raw }}&amp;action=editgroup" class="brackets">Edit group details</a>
+{%   if revision_id %}
+            <a href="{{ tgroup.url|raw }}&amp;action=revert&amp;revisionid={{ revision_id }}&amp;auth={{ viewer.auth }}" class="brackets">Revert to this revision</a>
+{%   endif %}
 {% endif %}
             <a href="{{ tgroup.url|raw }}&amp;action=editrequest" class="brackets">Request an Edit</a>
-{% if revsion_id and viewer.permitted('site_edit_wiki') %}
-            <a href="{{ tgroup.url|raw }}&amp;action=revert&amp;revisionid={{ revision_id }}&amp;auth={{ viewer.auth }}" class="brackets">Revert to this revision</a>
-{% endif %}
 {%- include 'bookmark/action.twig' with {'class': 'torrent', 'id': tgroup.id, 'is_bookmarked': is_bookmarked} only %}
             <a href="#" id="subscribelink_torrents{{ tgroup.id }}" class="brackets" onclick="SubscribeComments('torrents', {{ tgroup.id }}); return false;">{%-
                 if is_subscribed %}Unsubscribe{% else %}Subscribe{% endif %}</a>
@@ -26,41 +26,41 @@
 
     <div class="sidebar">
 {% if tgroup.cover or (tgroup.coverArt and viewer.option('CoverArt')) %}
-    {% set extra_cover = tgroup.coverArt|length %}
+{%  set extra_cover = tgroup.coverArt|length %}
         <div class="box box_image box_image_albumart box_albumart">
             <div class="head">
                 <strong>{% if extra_cover > 0 %}Covers ({{ 1 + extra_cover }}){% else %}Cover {% endif %}</strong>
-    {% if not viewer.option('ShowExtraCovers') %}
-        {% for cover in tgroup.coverArt %}
-            {% if loop.first %}
+{%  if not viewer.option('ShowExtraCovers') %}
+{%      for cover in tgroup.coverArt %}
+{%          if loop.first %}
         <span id="cover_controls_0">
             <span class="brackets">Prev</span>
             <a class="brackets show_all_covers" href="#">Show all</a>
             <a class="brackets next_cover" data-gazelle-next-cover="1" href="#">Next</a>
         </span>
-            {% endif %}
+{%          endif %}
         <span id="cover_controls_{{ loop.index }}" style="display: none;">
             <a class="brackets prev_cover" data-gazelle-prev-cover="{{ loop.index0 }}" href="#">Prev</a>
             <a class="brackets show_all_covers" href="#">Show all</a>
-            {% if loop.last %}
+{%          if loop.last %}
             <span class="brackets">Next</span>
-            {% else %}
+{%          else %}
             <a class="brackets next_cover" data-gazelle-next-cover="{{ loop.index + 1 }}" href="#">Next</a>
-            {% endif %}
+{%          endif %}
         </span>
-        {% endfor %}
-    {% endif %}
+{%      endfor %}
+{%  endif %}
             </div>
 <div id="covers">
 <div id="cover_div_0" class="pad">
             <p align="center"><img width="100%" src="{{ tgroup.cover|image_cache }}" alt="cover image" onclick="lightbox.init('{{ tgroup.cover|image_cache }}', 220);" data-origin-src="{{ tgroup.cover }}" /></p>
 </div>
-    {% for cover in tgroup.coverArt %}
-            {% if viewer.option('ShowExtraCovers') %}<hr />{% endif %}
+{%  for cover in tgroup.coverArt %}
+{%      if viewer.option('ShowExtraCovers') %}<hr />{% endif %}
             <div id="cover_div_{{ loop.index }}" class="pad"{% if not viewer.option('ShowExtraCovers') %} style="display: none;"{% endif %}>
                 <p align="center">
                     <img id="cover_{{ loop.index }}" width="100%"
-                    {% if viewer.option('ShowExtraCovers') %}src="{{ cover.image|image_cache }}"{% else %}src="" data-gazelle-temp-src="{{ cover.image|image_cache }}"{% endif %}
+            {% if viewer.option('ShowExtraCovers') %}src="{{ cover.image|image_cache }}"{% else %}src="" data-gazelle-temp-src="{{ cover.image|image_cache }}"{% endif %}
                     alt="{{ cover.summary }}" onclick="lightbox.init('{{ cover.image|image_cache }}', 220);" data-origin-src="{{ cover.image }}" />
                 </p>
                 <ul class="stats nobullet">
@@ -70,10 +70,10 @@
                     </li>
                 </ul>
             </div>
-    {% endfor %}
+{%  endfor %}
 </div>
 
-    {% if viewer.permitted('site_edit_wiki') and tgroup.image != '' %}
+{%  if viewer.permitted('torrents_edit') and tgroup.image != '' %}
     <hr />
     <div id="add_cover_div">
         <div style="padding: 10px;">
@@ -91,6 +91,6 @@
             </form>
         </div>
     </div>
-    {% endif %}
+{%  endif %}
 </div>
 {% endif %}

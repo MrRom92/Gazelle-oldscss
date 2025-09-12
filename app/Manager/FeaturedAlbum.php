@@ -40,11 +40,11 @@ class FeaturedAlbum extends \Gazelle\BaseManager {
         );
         foreach (self::$db->collect(0) as $tgroupId) {
             $tgMan->findById($tgroupId)?->setFreeleech(
-                torMan:    $torMan,
-                tracker:   $tracker,
-                user:      $user,
                 leechType: LeechType::Normal,
                 reason:    LeechReason::Normal,
+                user:      $user,
+                torMan:    $torMan,
+                tracker:   $tracker,
             );
         }
         self::$db->prepared_query("
@@ -75,12 +75,10 @@ class FeaturedAlbum extends \Gazelle\BaseManager {
             ", $tgroup->id, $forum->lastThreadId(), $featureType->value
         );
         $tgroup->setFreeleech(
-            tracker:   $tracker,
-            torMan:    $torMan,
-            user:      $user,
             leechType: $leechType,
             reason:    $featureType->leechReason(),
             threshold: $threshold,
+            user:      $user,
         );
 
         self::$db->commit();

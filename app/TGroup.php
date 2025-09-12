@@ -346,7 +346,7 @@ class TGroup extends BaseAttrObject implements Bookmarked, CategoryHasArtist, Co
     }
 
     public function cover(): string {
-        return is_null($this->image())
+        return $this->image() === ''
             ? (STATIC_SERVER . '/common/noartwork/' . CATEGORY_ICON[$this->categoryId() - 1])
             : $this->image();
     }
@@ -359,7 +359,7 @@ class TGroup extends BaseAttrObject implements Bookmarked, CategoryHasArtist, Co
         return $this->info()['noCoverArt'] ?? false;
     }
 
-    public function image(): ?string {
+    public function image(): string {
         return $this->info()['Image'];
     }
 
@@ -831,13 +831,13 @@ class TGroup extends BaseAttrObject implements Bookmarked, CategoryHasArtist, Co
     }
 
     public function setFreeleech(
-        Manager\Torrent $torMan,
-        Tracker         $tracker,
         User            $user,
-        LeechType                $leechType,
-        LeechReason              $reason,
-        int                      $threshold = 0,
-        bool                     $all       = false,
+        LeechType       $leechType,
+        LeechReason     $reason,
+        bool            $all       = false,
+        int             $threshold = 0,
+        Manager\Torrent $torMan    = new Manager\Torrent(),
+        Tracker         $tracker   = new Tracker(),
     ): int {
         $regular = [];
         $large   = [];

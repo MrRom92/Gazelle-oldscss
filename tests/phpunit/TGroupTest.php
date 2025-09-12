@@ -95,7 +95,7 @@ class TGroupTest extends TestCase {
         $this->assertEquals($this->catalogueNumber, $this->tgroup->catalogueNumber(), 'tgroup-create-catalogue-number');
         $this->assertEquals(0, $this->tgroup->unresolvedReportsTotal(), 'tgroup-create-unresolved-reports');
         $this->assertEquals($this->tgroup->name(), $this->tgroup->flush()->name(), 'tgroup-create-flush');
-        $this->assertStringStartsWith('https://example.com/', (string)$this->tgroup->image(), 'tgroup-create-image');
+        $this->assertStringStartsWith('https://example.com/', $this->tgroup->image(), 'tgroup-create-image');
         $this->assertStringStartsWith('https://example.com/', $this->tgroup->cover(), 'tgroup-create-cover');
 
         $this->assertTrue($this->tgroup->isOwner($this->userList['user']), 'tgroup-user-is-owner');

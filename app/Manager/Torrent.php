@@ -475,7 +475,7 @@ class Torrent extends \Gazelle\BaseManager {
             // reinstantiate the list as Torrent objects
             $list = array_filter(
                 array_map(fn($id) => $this->findById($id), $latest),
-                fn($t) => $t instanceof \Gazelle\Torrent && !is_null($t->group()->image())
+                fn($t) => $t instanceof \Gazelle\Torrent && $t->group()->image() !== ''
             );
             if (count($list) == count($latest)) {
                 return $list;
