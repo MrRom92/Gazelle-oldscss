@@ -103,9 +103,6 @@ if ($Viewer) {
         header('Location: login.php');
         exit;
     }
-    if ($Viewer->hasAttr('admin-error-reporting')) {
-        error_reporting(E_ALL);
-    }
     if ($Viewer->permitted('site_disable_ip_history')) {
         $Viewer->requestContext()->anonymize();
     }
@@ -177,6 +174,8 @@ try {
 } finally {
     $Debug->mark('send to user');
     if (!is_null($Viewer)) {
-        $Debug->profile($Viewer, $module);
+        $Debug->profile($Viewer, isset($_REQUEST['profile']));
     }
+    $Debug->storeMemory(memory_get_usage(true));
+    $Debug->storeDuration($Debug->duration() * 1000000);
 }

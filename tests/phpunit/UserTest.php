@@ -562,4 +562,14 @@ class UserTest extends TestCase {
         );
         $second->remove();
     }
+
+    public function testDebugProfile(): void {
+        global $Debug;
+        $Debug->flush(); // clear out the accumulated errors
+        $case = $Debug->profile($this->user, false);
+        $this->assertNull($case, 'user-debug-profile-no-reason');
+        $case = $Debug->profile($this->user, true);
+        $this->assertInstanceOf(ErrorLog::class, $case, 'user-debug-profile-a-reason');
+        $case->remove();
+    }
 }

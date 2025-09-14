@@ -1,4 +1,5 @@
 <?php
+/** @phpstan-var \Gazelle\Debug $Debug */
 
 declare(strict_types=1);
 
@@ -7,6 +8,9 @@ namespace Gazelle;
 abstract class Error extends Base {
     public static function error(string $message = ''): never {
         echo static::payload($message);
+        global $Debug;
+        $Debug->storeMemory(memory_get_usage(true));
+        $Debug->storeDuration($Debug->duration() * 1000000);
         exit;
     }
 

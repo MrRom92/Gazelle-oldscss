@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use GazelleUnitTest\Helper;
 
 class DebugTest extends TestCase {
@@ -13,6 +14,71 @@ class DebugTest extends TestCase {
         $this->assertGreaterThan(0, $Debug->epochStart(), 'debug-epoch-start');
         $this->assertGreaterThan(350, count($Debug->includeList()), 'debug-include-list');
         $this->assertTrue(Helper::recentDate(date('Y-m-d H:i:s', (int)$Debug->epochStart()), 180), 'debug-recent-start');
+
+        $this->assertCount(70, $Debug->durationHistogramKeyList(), 'debug-duration-histo-key-list');
+        $this->assertTrue($Debug->initDurationHistogram(), 'debug-duration-init');
+        $initial = $Debug->durationHistogram();
+        $this->assertCount(70, $initial, 'debug-duration-histo-initial');
+        $this->assertEquals(60000, $Debug->storeDuration(59999999.0), 'debug-duration-store');
+        $after = $Debug->durationHistogram();
+        $this->assertEquals($initial['60s'] + 1, $after['60s'], 'debug-duration-inc');
+
+        $this->assertCount(128, $Debug->memoryHistogramKeyList(), 'debug-memory-histo-key-list');
+        $this->assertTrue($Debug->initMemoryHistogram(), 'debug-memory-init');
+        $initial = $Debug->memoryHistogram();
+        $this->assertCount(128, $initial, 'debug-memory-histo-initial');
+        $this->assertEquals(128, $Debug->storeMemory(134217728), 'debug-memory-store');
+        $after = $Debug->memoryHistogram();
+        $this->assertEquals($initial['128MiB'] + 1, $after['128MiB'], 'debug-memory-inc');
+    }
+
+    public static function providerDurationRound(): array {
+        return [
+            ['debug-neg-dur',         50,       -1.0],
+            ['debug-0-dur',           50,        0.0],
+            ['debug-0.1-dur',         50,        0.1],
+            ['debug-1-dur',           50,        1.0],
+            ['debug-10-dur',          50,       10.0],
+            ['debug-100-dur',         50,      100.0],
+            ['debug-1000-dur',        50,     1000.0],
+            ['debug-10000-dur',       50,    10000.0],
+            ['debug-49999-dur',       50,    49999.99999999],
+            ['debug-50000-dur',       50,    50000.0],
+            ['debug-50001-dur',      100,    50000.00000000001],
+            ['debug-99999-dur',      100,    99999.99999999999],
+            ['debug-100000-dur',     100,   100000.0],
+            ['debug-100001-dur',     200,   100000.00000000001],
+            ['debug-899999-dur',     900,   899999.99999999999],
+            ['debug-999999-dur',    1000,   999999.99999999999],
+            ['debug-1000000-dur',   1000,  1000000.00000000000],
+            ['debug-1000001-dur',   2000,  1000000.0000000001],
+            ['debug-1999999-dur',   2000,  1999999.9999999999],
+            ['debug-19999999-dur', 20000, 19999999.9999999999],
+        ];
+    }
+
+    #[DataProvider('providerDurationRound')]
+    public function testDebugDurationRound(string $name, int $rounded, float $input): void {
+        global $Debug;
+        $this->assertEquals($rounded, $Debug->durationRound($input), $name);
+    }
+
+    public static function providerMemoryRound(): array {
+        return [
+            ['debug-0-mem',     0,        0],
+            ['debug-1M--mem',   0,  1048575],
+            ['debug-1M-mem',    1,  1048576],
+            ['debug-1M+-mem',   1,  1048577],
+            ['debug-64M--mem', 63, 67108863],
+            ['debug-64M-mem',  64, 67108864],
+            ['debug-64M+-mem', 64, 67108865],
+        ];
+    }
+
+    #[DataProvider('providerMemoryRound')]
+    public function testDebugMemoryRound(string $name, int $rounded, float $input): void {
+        global $Debug;
+        $this->assertEquals($rounded, $Debug->memoryRound($input), $name);
     }
 
     public function testCreate(): void {
@@ -46,7 +112,7 @@ class DebugTest extends TestCase {
         $this->assertEquals(1, $case->remove(), 'errorlog-remove');
     }
 
-    public function testCase(): void {
+    public function testDebugCase(): void {
         global $Cache;
         $key = 'phpunit_' . randomString();
         $Cache->cache_value($key, 'phpunit', 60);
@@ -82,6 +148,21 @@ class DebugTest extends TestCase {
             'debug-case-location',
         );
         $case->remove();
+    }
+
+    public function testDebugError(): void {
+        $this->expectException(\DivisionByZeroError::class);
+        try {
+            $fail = 1 / 0; /** @phpstan-ignore-line binaryOp.invalid */
+        } catch (\DivisionByZeroError $e) {
+            global $Debug;
+            $case = $Debug->saveError($e);
+            $this->assertEquals('cli', $case->uri(), 'debug-error-case-uri');
+            $this->assertEquals('Division by zero', $case->trace()[0], 'debug-error-case-trace');
+            $case->remove();
+            // keep phpunit happy
+            throw $e;
+        }
     }
 
     public function testMark(): void {

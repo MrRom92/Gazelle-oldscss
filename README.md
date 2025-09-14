@@ -7,11 +7,11 @@ uses Mysql and Sphinx, but work is under way to replace those with
 Postgresql.
 
 ## Gazelle Runtime Dependencies
-* [PHP 8.2.13+](https://www.php.net/) (required)
+* [PHP 8.4.6+](https://www.php.net/) (required)
 * [nginx](http://wiki.nginx.org/Main) (required)
 * [nodeJS 20+](https://nodejs.org/en/) (required)
 * [memcached](http://memcached.org/) (required)
-* [sphinx 2.1.1 or newer](http://sphinxsearch.com/) (required)
+* [sphinx 2.2.1 or newer](http://sphinxsearch.com/) (required)
 * [ocelot](https://github.com/OPSnet/Ocelot) (optional)
 
 ## Logchecker

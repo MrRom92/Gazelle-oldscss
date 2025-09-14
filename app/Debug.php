@@ -5,10 +5,6 @@ namespace Gazelle;
 use Gazelle\Util\{Irc, Time};
 
 class Debug {
-    protected const MAX_TIME = 20000;
-    protected const MAX_ERRORS = 0; //Maxmimum errors, warnings, notices we will allow in a page
-    protected const MAX_MEMORY = 80 * 1024 * 1024; //Maximum memory used per pageload
-
     protected static int $caseCount = 0;
     protected static array $Errors = [];
     protected static array $markList = [];
@@ -21,8 +17,13 @@ class Debug {
     ) {
         $this->epochStart = microtime(true);
         $this->cpuStart = $this->cpuElapsed();
-        error_reporting(E_WARNING | E_ERROR | E_PARSE);
         set_error_handler($this->errorHandler(...));
+    }
+
+    public function flush(): int {
+        $cleared = count(self::$Errors);
+        self::$Errors = [];
+        return $cleared;
     }
 
     public function epochStart(): float {
@@ -33,42 +34,27 @@ class Debug {
         return microtime(true) - $this->epochStart();
     }
 
-    public function profile(User $user, string $document, string $Automatic = ''): bool {
-        $Reason = [];
-
-        if (!empty($Automatic)) {
-            $Reason[] = $Automatic;
-        }
-
-        $Micro = $this->duration() * 1000;
-        if ($Micro > self::MAX_TIME && !in_array($document, IGNORE_PAGE_MAX_TIME)) {
-            $Reason[] = number_format($Micro, 3) . ' ms';
-        }
+    public function profile(User $user, bool $profile): ErrorLog|null {
+        $reason = [];
 
         $errorTotal = count($this->errorList());
-        if ($errorTotal > self::MAX_ERRORS) {
-            $Reason[] = "$errorTotal PHP errors";
-        }
-        $Ram = memory_get_usage(true);
-        if ($Ram > self::MAX_MEMORY && !in_array($document, IGNORE_PAGE_MAX_MEMORY)) {
-            $Reason[] = byte_format($Ram) . ' RAM used';
+        if ($errorTotal > 0) {
+            $reason[] = "$errorTotal PHP errors";
         }
 
         $this->db->loadPreviousWarning(); // see comment in MYSQL::query
 
-        if (isset($_REQUEST['profile'])) {
-            $Reason[] = 'Requested by ' . $user->username();
+        if ($profile) {
+            $reason[] = "Requested by {$user->username()}";
         }
 
-        if (isset($Reason[0])) {
-            $this->analysis(
+        if ($reason !== []) {
+            return $this->analysis(
                 $user->requestContext()->module(),
-                implode(', ', $Reason)
+                implode(', ', $reason)
             );
-            return true;
         }
-
-        return false;
+        return null;
     }
 
     public function saveCase(
@@ -122,14 +108,14 @@ class Debug {
         return $errorLog;
     }
 
-    public function analysis(string $module, string $message, string $report = ''): void {
+    public function analysis(string $module, string $message, string $report = ''): ErrorLog|null {
         $uri = empty($_SERVER['REQUEST_URI']) ? '' : substr($_SERVER['REQUEST_URI'], 1);
         if (
-            PHP_SAPI === 'cli'
+            (PHP_SAPI === 'cli' && !str_ends_with($_SERVER["SCRIPT_NAME"], "vendor/bin/phpunit"))
             || in_array($uri, ['tools.php?action=db_sandbox'])
         ) {
             // Don't spam IRC from Boris or these pages
-            return;
+            return null;
         }
         if (empty($report)) {
             $report = $message;
@@ -139,6 +125,7 @@ class Debug {
             . SITE_URL . "/tools.php?action=analysis&case={$case->id} "
             . SITE_URL . "/{$uri}"
         );
+        return $case;
     }
 
     public function saveError(\Error|\Exception $e): ErrorLog {
@@ -285,5 +272,104 @@ class Debug {
             'Script start'      => Time::sqlTime($this->epochStart()),
             'Script end'        => Time::sqlTime(microtime(true)),
         ];
+    }
+
+    /* A list of keys to represent durations (50ms, 100ms, 200ms ... 1000ms and then 1s increments up to 60s) */
+    public function durationHistogramKeyList(): array {
+        return array_map(
+            fn ($t) => sprintf('exec_d_%05d', $t),
+            [
+                50,
+                ...array_map(
+                    fn ($t) => $t * 100,
+                    range(1, 10),
+                ),
+                ...array_map(
+                    fn ($t) => $t * 1000,
+                    range(2, 60),
+                )
+            ]
+        );
+    }
+
+    /* A list of keys to represent memory sizes in 1MiB increments */
+    public function memoryHistogramKeyList(): array {
+        return array_map(
+            fn ($t) => sprintf('exec_m_%03d', $t),
+            range(1, 128),
+        );
+    }
+
+    /* initialise the duration histogram */
+    public function initDurationHistogram(): bool {
+        return $this->cache->setMulti(
+            array_fill_keys($this->durationHistogramKeyList(), 0),
+            0
+        );
+    }
+
+    /* initialise the memory histogram */
+    public function initMemoryHistogram(): bool {
+        return $this->cache->setMulti(
+            array_fill_keys($this->memoryHistogramKeyList(), 0),
+            0,
+        );
+    }
+
+    public function durationRound(float $duration): int {
+        return match (true) {
+            $duration <=  50000 => 50,
+            $duration < 1000000 => (int)ceil($duration /   100_000) *  100,
+            default             => (int)ceil($duration / 1_000_000) * 1000,
+        };
+    }
+
+    public function memoryRound(float $size): int {
+        return (int)($size / (1024 * 1024));
+    }
+
+    /* increment the appropriate bucket for the given duration */
+    public function storeDuration(float $duration): int {
+        $rounded = $this->durationRound($duration);
+        return $this->cache->increment(sprintf('exec_d_%05d', $rounded)) === false
+            ? 0
+            : $rounded;
+    }
+
+    /* increment the appropriate bucket for the given duration */
+    public function storeMemory(float $memory): int {
+        $rounded = $this->memoryRound($memory);
+        return $this->cache->increment(sprintf('exec_m_%03d', $rounded)) === false
+            ? 0
+            : $rounded;
+    }
+
+    /* the duration histogram, an assocative array of msec => count pairs */
+    public function durationHistogram(): array {
+        $histogram = $this->cache->getMulti($this->durationHistogramKeyList());
+        if ($histogram === false) {
+            return [];
+        }
+        $result = [];
+        foreach ($histogram as $key => $value) {
+            $key = (string)$key;
+            $duration = (int)substr($key, (int)strrpos($key, '_') + 1);
+            $result[$duration < 1000 ? "{$duration}ms" : ($duration / 1000) . "s"] = $value;
+        }
+        return $result;
+    }
+
+    /* the duration histogram, an assocative array of msec => count pairs */
+    public function memoryHistogram(): array {
+        $histogram = $this->cache->getMulti($this->memoryHistogramKeyList());
+        if ($histogram === false) {
+            return [];
+        }
+        $result = [];
+        foreach ($histogram as $key => $value) {
+            $key = (string)$key;
+            $result[((int)substr($key, (int)strrpos($key, '_') + 1)) . "MiB"] = $value;
+        }
+        return $result;
     }
 }

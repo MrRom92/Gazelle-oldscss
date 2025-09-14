@@ -1,5 +1,11 @@
 {{ header('PHP Processes') }}
 <div class="thin">
+    <div class="header">
+        <h3>PHP processes</h3>
+        <div class="linkbox">
+            <a href="?action=process_info&amp;view=histogram" class="brackets">Performance histograms</a>
+        </div>
+    </div>
     <table class="process_info">
         <colgroup>
             <col class="process_info_pid" />
@@ -7,7 +13,7 @@
         </colgroup>
         <tr class="colhead_dark">
             <td colspan="2">
-                {{ proc|length }} process{{ proc|length|plural('es') }} as of {{ now }}
+                {{ proc|length }} process{{ proc|length|plural('es') }} as of {{ 'now'|date("Y-m-d H:i:s") }}
             </td>
         </tr>
 {% for pid, info in proc %}
@@ -20,4 +26,5 @@
 {% endfor %}
     </table>
 </div>
+<br />
 {{ footer() }}

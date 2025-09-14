@@ -216,6 +216,11 @@ class Twig {
             }
         ));
 
+        $twig->addFilter(new \Twig\TwigFilter(
+            'values',
+            fn ($list) => array_values($list)
+        ));
+
         $twig->addFunction(new \Twig\TwigFunction('header', fn ($title, $options = []) => new \Twig\Markup(
             View::header($title, $options),
             'UTF-8'

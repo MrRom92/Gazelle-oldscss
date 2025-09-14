@@ -11,6 +11,15 @@ if (!$Viewer->permitted('admin_site_debug')) {
     Error403::error();
 }
 
+if (($_GET['view'] ?? '') === 'histogram') {
+    global $Debug;
+    echo $Twig->render('admin/process-histogram.twig', [
+        'duration' => $Debug->durationHistogram(),
+        'memory'   => $Debug->memoryHistogram(),
+    ]);
+    exit;
+}
+
 $proc = [];
 if (preg_match('/.*\/(.*)/', PHP_BINARY, $match, PREG_UNMATCHED_AS_NULL)) {
     $binary = $match[1];
