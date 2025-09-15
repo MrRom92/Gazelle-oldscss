@@ -62,7 +62,7 @@ class LoginWatch extends Base {
                 capture = ?
             WHERE ID = ?
             ', $seen ? 60 : LOGIN_ATTEMPT_BACKOFF[min($this->nrAttempts(), count(LOGIN_ATTEMPT_BACKOFF) - 1)],
-                $this->userId, substr($username, 0, 20), $this->id
+                $this->userId, substr(urlencode($username), 0, 80), $this->id
         );
         return self::$db->affected_rows();
     }

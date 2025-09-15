@@ -3,6 +3,7 @@
 namespace Gazelle;
 
 use PHPUnit\Framework\TestCase;
+use GazelleUnitTest\Helper;
 
 class UserCreateTest extends TestCase {
     protected User $user;
@@ -60,6 +61,11 @@ class UserCreateTest extends TestCase {
         $login = new Login();
         $watch = new LoginWatch($login->requestContext()->remoteAddr());
         $watch->clearAttempts();
+        $this->assertEquals(
+            $login->requestContext()->remoteAddr(),
+            $watch->ipaddr(),
+            'user-login-watch-ipaddr'
+        );
 
         $this->assertNull(
             $login->login($this->user->username(), 'not-the-password!', $watch),
@@ -82,6 +88,9 @@ class UserCreateTest extends TestCase {
         );
 
         $this->assertEquals(2, $watch->nrAttempts(), 'user-create-two-login-attempts');
+        $this->assertEquals(60, (int)$watch->bannedEpoch() - time(), 'user-login-ban-epoch');
+        $this->assertTrue(Helper::futureDate($watch->bannedUntil(), 70), 'user-login-temporary-ban');
+        $this->assertEquals(0, $watch->clearPriorBan(), 'user-login-clear-ban');
         $this->user->setField('Enabled', Enum\UserStatus::enabled->value)->modify();
 
         $enabledUser = $login->login($this->user->username(), 'password', $watch);
@@ -89,6 +98,8 @@ class UserCreateTest extends TestCase {
         $this->assertEquals(0, $watch->nrAttempts(), 'user-create-two-login-cleared');
         // check the table if this fails
         $this->assertEquals(0, $watch->nrBans(), 'user-create-two-login-banned');
+        $this->assertEquals($this->user->username(), $watch->capture(), 'user-login-capture');
+        $this->assertGreaterThanOrEqual(0, $watch->activeTotal(), 'user-login-watch-total-sql');
 
         $relogin = new Login();
         $watch->clearAttempts();
@@ -103,6 +114,11 @@ class UserCreateTest extends TestCase {
             'Too many login attempts on your account',
             $warning->subject(),
             'user-login-pm-subject'
+        );
+        $this->assertEquals(
+            0,
+            $watch->setClear([], $this->user),
+            'user-login-watch-no-clear',
         );
         $this->assertEquals(
             1,

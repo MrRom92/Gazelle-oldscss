@@ -334,6 +334,18 @@ class Helper {
         return time() - $epoch < $tolerance;
     }
 
+    /**
+     * Test whether a timestamp (YYYY-MM-DD HH:MM:SS) in the future is close enough to now.
+     * The default tolerance is 20 seconds.
+     */
+    public static function futureDate(string $date, int $tolerance = 20): bool {
+        $epoch = strtotime($date);
+        if ($epoch === false) {
+            return false;
+        }
+        return $epoch - time() < $tolerance;
+    }
+
     /* payments and donations can interfere with each other */
     public static function flushDonationMonth(int $month): void {
         global $Cache;
