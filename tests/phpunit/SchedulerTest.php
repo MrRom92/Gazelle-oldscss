@@ -45,6 +45,11 @@ class SchedulerTest extends TestCase {
         $scheduler = new TaskScheduler();
         $this->assertEquals(
             -1,
+            $scheduler->runTask(-666),
+            "sched-task-no-such-task-id"
+        );
+        $this->assertEquals(
+            -1,
             $scheduler->runClass("NoSuchClassname"),
             "sched-task-no-such-class"
         );
@@ -202,6 +207,11 @@ class SchedulerTest extends TestCase {
             $scheduler->clear($taskId),
             'task-clear',
         );
+        $this->assertEquals(
+            1,
+            $scheduler->runNow($taskId),
+            'task-run-now',
+        );
     }
 
     public function testTaskStats(): void {
@@ -219,12 +229,52 @@ class SchedulerTest extends TestCase {
     }
 
     public function testGlobalStats(): void {
-        $scheduler = new TaskScheduler();
-        $stats     = $scheduler->runtimeStats();
+        $stats = new TaskScheduler()->runtimeStats();
         $this->assertEquals(
             ['hourly', 'daily', 'tasks', 'totals'],
             array_keys($stats),
             'task-stats-global',
+        );
+    }
+
+    public function testTaskUpdate(): void {
+        $this->assertEquals(
+            0,
+            new TaskScheduler()->updateTask(
+                taskId:      1,
+                name:        'Test',
+                class:       'Bonkers',
+                description: 'Scheduler functionality test ' . randomString(),
+                period:      60,
+                isEnabled:   false,
+                isSane:      true,
+                isDebug:     false,
+            ),
+            'task-update-bad-class',
+        );
+        $this->assertEquals(
+            1,
+            new TaskScheduler()->updateTask(
+                taskId:      1,
+                name:        'Test',
+                class:       'Test',
+                description: 'Scheduler functionality test ' . randomString(),
+                period:      60,
+                isEnabled:   false,
+                isSane:      true,
+                isDebug:     false,
+            ),
+            'task-update-test',
+        );
+        new TaskScheduler()->updateTask(
+            taskId:      1,
+            name:        'Test',
+            class:       'Test',
+            description: 'Scheduler functionality test',
+            period:      60,
+            isEnabled:   false,
+            isSane:      true,
+            isDebug:     false,
         );
     }
 }

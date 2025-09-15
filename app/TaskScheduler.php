@@ -108,6 +108,7 @@ class TaskScheduler extends Base {
     public function enqueue(int $taskId): int {
         self::$db->prepared_query("
             UPDATE periodic_task SET
+                is_sane = true,
                 run_now = true
             WHERE periodic_task_id = ?
             ", $taskId
