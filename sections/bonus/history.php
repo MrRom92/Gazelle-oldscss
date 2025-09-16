@@ -24,7 +24,8 @@ $poolSummary = $bonus->poolHistory();
 $paginator   = new Util\Paginator(TORRENTS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($summary['nr']);
 
-echo $Twig->render('user/bonus-history.twig', [
+echo $Twig->render('bonus/history.twig', [
+    'exchange'     => $bonus->tokenExchange(),
     'history'      => $bonus->history($paginator->limit(), $paginator->offset()),
     'item'         => $bonus->purchaseHistory(),
     'summary'      => $summary,

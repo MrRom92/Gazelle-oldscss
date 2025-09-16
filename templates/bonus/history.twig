@@ -38,6 +38,19 @@
 {%      elseif total > 10000000 %} exceptionally
 {%      endif %} well done!</p>
 {%  endif %}
+{%  if exchange.received > 0 or exchange.sent > 0 %}
+        <p>
+{%-     if exchange.received > 0  %}
+            You have received {{ exchange.received|number_format }} token{{ exchange.received|plural }}
+{%-         if exchange.sent > 0 %} and sent {{
+                exchange.sent|number_format }} token{{ exchange.sent|plural }}.
+{%-         else -%}.
+{%-         endif -%}
+{%-     else -%}
+            You have sent {{ exchange.sent|number_format }} token{{ exchange.sent|plural }}.
+{%-     endif -%}
+        <p>
+{%  endif %}
     </div>
 {% endif %}
 
