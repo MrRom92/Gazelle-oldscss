@@ -31,7 +31,6 @@
     ['Reports V1',                   'reports.php',                          viewer.permittedAny('admin_reports', 'site_moderate_forums')],
     ['Staff page group manager',     'tools.php?action=staff_groups',        viewer.permitted('admin_manage_permissions')],
     ['Torrent report configuration', 'tools.php?action=torrent_report_view', viewer.permitted('users_mod')],
-    ['Userclass manager',            'tools.php?action=userclass',           viewer.permitted('admin_manage_permissions')],
 ]) }}
 
 {{ _self.category('Announcements', [
@@ -46,6 +45,13 @@
     ['Manage bonus points',         'tools.php?action=bonus_points',       viewer.permitted('admin_bp_history')],
     ['Manage freeleech tokens',     'tools.php?action=tokens',             viewer.permitted('admin_freeleech')],
 
+]) }}
+
+{{ _self.category('Tags', [
+    ['Batch tag editor',      'tools.php?action=tags',          true],
+    ['Tag aliases',           'tools.php?action=tags_aliases',  true],
+    ['Official tags manager', 'tools.php?action=tags_official', true],
+    ['Rejected tags manager', 'tools.php?action=tag-reject',    true],
 ]) }}
 
 </div><div class="toolbox_container">
@@ -65,6 +71,7 @@
     ['Registration log',     'tools.php?action=registration_log',  viewer.permitted('users_view_email')],
     ['Send custom PM',       'tools.php?action=custom_pm',         viewer.permitted('admin_site_debug')],
     ['User flow',            'tools.php?action=user_flow',         viewer.permitted('site_view_flow')],
+    ['Userclass manager',    'tools.php?action=userclass',         viewer.permitted('admin_manage_permissions')],
 ]) }}
 
 {{ _self.category('Community', [
@@ -74,12 +81,6 @@
     ['Forum transitions',       'tools.php?action=forum_transitions', viewer.permitted('admin_manage_forums')],
     ['Navigation link manager', 'tools.php?action=navigation',        viewer.permitted('admin_manage_navigation')],
     ['Stylesheet usage',        'tools.php?action=stylesheets',       viewer.permitted('admin_manage_stylesheets')],
-]) }}
-
-{{ _self.category('Tags', [
-    ['Batch tag editor',      'tools.php?action=tags',          true],
-    ['Tag aliases',           'tools.php?action=tags_aliases',  true],
-    ['Official tags manager', 'tools.php?action=tags_official', true],
 ]) }}
 
 </div><div class="toolbox_container">

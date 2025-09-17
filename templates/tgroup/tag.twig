@@ -15,29 +15,29 @@
 {% endif %}
     </div>
 {% for tag in tgroup.tagList %}
-    {% if loop.first %}
+{%  if loop.first %}
 <ul class="stats nobullet">
-{% endif %}
+{%  endif %}
     <li>
         <a href="torrents.php?taglist={{ tag.name }}" style="float: left; display: block;">{{ tag.name }}</a>
         <div style="float: right; display: block; letter-spacing: -1px;" class="edit_tags_votes">
         <a href="torrents.php?action=vote_tag&amp;way=up&amp;groupid={{ tgroup_id }}&amp;tagid={{ tag.id }}&amp;auth={{ viewer.auth }}" title="Vote this tag up" class="tooltip vote_tag_up">&#x25b2;</a>
         {{ tag.score }}
         <a href="torrents.php?action=vote_tag&amp;way=down&amp;groupid={{ tgroup_id }}&amp;tagid={{ tag.id }}&amp;auth={{ viewer.auth }}" title="Vote this tag down" class="tooltip vote_tag_down">&#x25bc;</a>
-    {% if viewer.permitted('users_warn') %}
+{%  if viewer.permitted('users_warn') %}
         <a href="user.php?id={{ tag.userId }}" title="View the profile of the user that added this tag" class="brackets tooltip view_tag_user">U</a>
-    {% endif %}
-    {% if not viewer.disableTagging and viewer.permitted('site_delete_tag') %}
+{%  endif %}
+{%  if not viewer.disableTagging and viewer.permitted('site_delete_tag') %}
         <span class="remove remove_tag">
             <a href="ajax.php?action=delete_tag&amp;groupid={{ tgroup_id }}&amp;tagid={{ tag.id }}&amp;auth={{ viewer.auth }}" class="brackets tooltip" title="Remove tag">X</a>
         </span>
-    {% endif %}
+{%  endif %}
             </div>
             <br style="clear: both;" />
         </li>
-    {% if loop.last %}
+{%  if loop.last %}
     </ul>
-    {% endif %}
+{%  endif %}
 {% else %}
     <ul><li>There are no tags to display.</li></ul>
 {% endfor %}
@@ -47,7 +47,7 @@
 <div class="box box_addtag">
     <div class="head"><strong>Add tag</strong></div>
     <div class="body">
-        <form class="add_form" name="tags" action="ajax.php" method="post">
+        <form class="add_form" name="tags" action="torrents.php" method="post">
             <input type="hidden" name="action" value="add_tag" />
             <input type="hidden" name="auth" value="{{ viewer.auth }}" />
             <input type="hidden" name="groupid" value="{{ tgroup_id }}>" />

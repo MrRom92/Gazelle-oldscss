@@ -1,0 +1,57 @@
+{{ header('Rejected Tags Manager') }}
+<div class="header">
+    <div class="linkbox">
+        <a href="?action=tags" class="brackets">Batch Tag Editor</a>
+        <a href="?action=tags_aliases" class="brackets">Tag Aliases</a>
+        <a href="?action=tags_official" class="brackets">Official Tags</a>
+    </div>
+    <h2>Rejected Tags Manager</h2>
+</div>
+<div class="thin box">
+{% for m in message %}
+{%  if loop.first %}
+<ul class="nobullet">
+{%  endif %}
+<li>{{ m }}</li>
+{%  if loop.last %}
+</ul>
+<br />
+{%  endif %}
+{% endfor %}
+<form name="tag-reject" method="post">
+{% for tag in list %}
+{%  if loop.first %}
+<div class="tbx-tag-reject">
+{%  endif %}
+    <div class="tbx-field">
+        <span title="Created by {{ tag.creator }} on {{
+            tag.created|date('Y-m-d H:i:s') }}">{{ tag.name }}</span>
+        <div style="float: right">
+            <label><small>❌</small>
+            <input type="checkbox" name="remove[]" value="{{ tag.id }}" />
+            </label>
+        </div>
+    </div>
+{%  if loop.last %}
+    <div>Check any <small>❌</small> to remove</div>
+</div>
+{%  endif %}
+{% else %}
+<div class="pad"><b>No rejected tags have been defined.</b></div>
+{% endfor %}
+
+<div class="tbx tbx-tag-reject-edit">
+    <div class="tbx-label">Create new entry</div>
+    <div class="tbx-field">
+        <input type="text" name="create" size="20" value="" placeholder="tag name" />
+    </div>
+    <div class="tbx-label"></div>
+    <div class="tbx-field">
+        <input type="hidden" name="action" value="tag-reject" />
+        <input type="hidden" name="auth" value="{{ viewer.auth }}" />
+        <input type="submit" value="Update" />
+    </div>
+</div>
+</form>
+
+{{ footer() }}

@@ -47,6 +47,7 @@ class TagTest extends TestCase {
 
     public function testNormalize(): void {
         $manager = new Manager\Tag();
+        $this->assertEquals('', $manager->normalize('              '), 'tag-normalize-space');
         $this->assertEquals('dub', $manager->normalize('Dub dub  DUB! '), 'tag-normalize-dup');
         $this->assertEquals('neo.folk', $manager->normalize('neo...folk neo-folk'), 'tag-normalize-more');
         $this->assertEquals('pop rock', $manager->normalize(' pop rock rock pop Rock'), 'tag-normalize-two');
@@ -143,6 +144,13 @@ class TagTest extends TestCase {
             ],
             ),
             'tag-replace-alias'
+        );
+        $found = $manager->listAlias(false);
+        $this->assertGreaterThan(0, count($found), 'tag-alias-total');
+        $this->assertEquals(
+            ['id' => $aliasId, 'bad' => $bad->name(), 'alias' => $good->name()],
+            $found[$aliasId],
+            'tag-alias-list',
         );
         $tagList = [
             'include' => [$good->name()],
@@ -396,6 +404,10 @@ class TagTest extends TestCase {
     }
 
     public function testTop10(): void {
+        global $Cache;
+        $Cache->delete_multi([
+            "toptaguse_1", "toptagreq_1", "toptagvote_1",
+        ]);
         $manager = new Manager\Tag();
         $this->assertGreaterThanOrEqual(0, count($manager->topTGroupList(1)), 'tag-top10-tgroup');
         $this->assertGreaterThanOrEqual(0, count($manager->topRequestList(1)), 'tag-top10-request');
@@ -413,5 +425,27 @@ class TagTest extends TestCase {
         $this->assertEquals('v', $payload[2]['tag'], 'tag-top10-payload-v');
 
         $this->assertCount(0, new Json\Top10\Tag('bogus', 1, $manager)->payload(), 'tag-top10-bogus-payload');
+    }
+
+    public function testTagRejection(): void {
+        $this->user = Helper::makeUser('tag.' . randomString(6), 'tag');
+        $manager    = new Manager\Tag();
+        $name       = 'reject.' . randomString(16);
+
+        $id = $manager->createRejected($name, $this->user);
+        $this->assertGreaterThan(0, $id, 'tag-reject-create');
+        $this->assertEquals(
+            0,
+            $manager->createRejected($name, $this->user),
+            'tag-reject-duplicate',
+        );
+        $list = array_filter($manager->rejectedList(), fn ($t) => $t['name'] === $name);
+        $this->assertCount(1, $list, 'tag-reject-list-count');
+        $this->assertEquals($name, $list[0]['name'], 'tag-reject-list-name');
+        $this->assertEquals(
+            1,
+            $manager->removeRejectedList([$id]),
+            'tag-reject-remove',
+        );
     }
 }

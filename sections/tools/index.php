@@ -201,6 +201,9 @@ switch ($_REQUEST['action'] ?? '') {
     case 'tags_official':
         include_once 'managers/tags_official.php';
         break;
+    case 'tag-reject':
+        include_once 'managers/tag-reject.php';
+        break;
     case 'tokens':
         include_once 'managers/tokens.php';
         break;

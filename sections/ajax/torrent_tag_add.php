@@ -22,19 +22,18 @@ if (is_null($tgroup)) {
 
 //Delete cached tag used for undos
 if (isset($_REQUEST['undo'])) {
-    $Cache->delete_value("deleted_tags_{$tgroup->id()}_{$Viewer->id()}");
+    $Cache->delete_value("deleted_tags_{$tgroup->id}_{$Viewer->id}");
 }
 
 $added    = [];
 $rejected = [];
-$tagMan   = new \Gazelle\Manager\Tag();
-$Tags     = array_unique(explode(',', $_REQUEST['tagname']));
+$tagMan   = new Manager\Tag();
 
-foreach ($Tags as $tagName) {
+foreach (array_unique(explode(',', $_REQUEST['tagname'])) as $tagName) {
     $tagName = $tagMan->sanitize($tagName);
     $resolved = $tagMan->resolve($tagName);
 
-    if (empty($resolved)) {
+    if (is_null($resolved)) {
         $rejected[] = $tagName;
     } else {
         $tag = $tagMan->softCreate($resolved, $Viewer);
@@ -44,6 +43,7 @@ foreach ($Tags as $tagName) {
                 json_error('This tag is not allowed');
             } else {
                 header('Location: ' . $tgroup->location());
+                exit;
             }
         }
         if ($tag->hasVoteTGroup($tgroup, $Viewer)) {
@@ -52,8 +52,8 @@ foreach ($Tags as $tagName) {
                 json_error('you have already voted on this tag');
             } else {
                 header('Location: ' . $tgroup->location());
+                exit;
             }
-            exit;
         }
         $tag->addTGroup($tgroup, $Viewer, 3);
         $tag->voteTGroup($tgroup, $Viewer, 'up');
@@ -64,7 +64,7 @@ foreach ($Tags as $tagName) {
 }
 
 $tgroup->refresh();
-if (AJAX) {
+if (defined('AJAX')) {
     json_print('success', [
         'added'    => $added,
         'rejected' => $rejected,

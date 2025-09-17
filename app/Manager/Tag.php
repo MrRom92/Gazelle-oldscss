@@ -62,14 +62,54 @@ class Tag extends \Gazelle\BaseManager {
 
     /**
      * Check whether this name is allowed. Some tags we never want to see again.
-     * TODO: implement
      */
-    // phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass
     public function validName(string $name): bool {
-        return true;
+        return !$this->pg()->scalar("
+            select 1 from tag_reject where name = ?
+            ", $name
+        );
     }
 
-    // phpcs:enable Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass
+    /**
+     * Add a rejected tag that will not be accepted on entry
+     * Returns the table id or 0 on failure
+     */
+    public function createRejected(string $name, \Gazelle\User $user): int {
+        try {
+            $id = $this->pg()->insert("
+                insert into tag_reject
+                       (name, id_user)
+                values (?,    ?)
+                ", $this->sanitize($name), $user->id
+            );
+            return $id;
+        } catch (\PDOException) {
+            // most likely a duplicate key due to a name that already exists
+            return 0;
+        }
+    }
+
+    public function rejectedList(): array {
+        return $this->pg()->all(<<<END_SQL
+            select tr.id_tag_reject as id,
+                tr.id_user,
+                um."Username" as creator,
+                tr.created,
+                tr.name
+            from tag_reject tr
+            inner join relay.users_main um on (um."ID" = tr.id_user)
+            order by tr.name
+            END_SQL
+        );
+    }
+
+    public function removeRejectedList(array $idList): int {
+        return $this->pg()->prepared_query("
+            delete from tag_reject
+            where id_tag_reject in (" . placeholders($idList) . ")",
+            ...$idList
+        );
+    }
 
     /**
      * Get a tag ready for database input and display.

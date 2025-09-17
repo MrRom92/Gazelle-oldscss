@@ -14,7 +14,7 @@ if (!$Viewer->permitted('users_mod')) {
 echo $Twig->render('admin/toolbox.twig', [
     'applicant_viewer' => (bool)array_filter(
         new Manager\ApplicantRole()->publishedList(),
-        fn($r) => $r->isStaffViewer($Viewer)
+        fn ($r) => $r->isStaffViewer($Viewer)
     ),
     'viewer' => $Viewer,
 ]);

@@ -6,6 +6,15 @@ namespace Gazelle;
 
 if (!empty($_REQUEST['action'])) {
     switch ($_REQUEST['action']) {
+        case 'add_alias':
+            include_once 'add_alias.php';
+            break;
+        case 'add_tag':
+            include_once __DIR__ . '/../ajax/torrent_tag_add.php';
+            break;
+        case 'delete_alias':
+            include_once 'delete_alias.php';
+            break;
         case 'edit':
             include_once 'edit.php';
             break;
@@ -83,12 +92,6 @@ if (!empty($_REQUEST['action'])) {
         case 'tgroup-merge':
             include_once 'merge.php';
             break;
-        case 'add_alias':
-            include_once 'add_alias.php';
-            break;
-        case 'delete_alias':
-            include_once 'delete_alias.php';
-            break;
         case 'delete':
             include_once 'delete.php';
             break;
@@ -158,7 +161,7 @@ if (!empty($_REQUEST['action'])) {
         $torrentId = (int)$_GET['torrentid'];
         $tgroup = $manager->findByTorrentId($torrentId);
         if ($tgroup) {
-            header("Location: torrents.php?id={$tgroup->id()}&torrentid={$torrentId}#torrent{$torrentId}");
+            header("Location: torrents.php?id={$tgroup->id}&torrentid={$torrentId}#torrent{$torrentId}");
         } else {
             header("Location: log.php?search=Torrent+$torrentId");
         }

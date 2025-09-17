@@ -937,6 +937,18 @@ hr.tbx {
   margin: 15px 6px 10px 6px;
 }
 
+div.tbx-tag-reject {
+  display: grid;
+  gap: 6px 2px;
+  grid-template-columns: repeat(7, 1fr);
+  padding-bottom: 24px;
+}
+div.tbx-tag-reject div.tbx-field {
+  border: 1px solid #808080;
+  width: 120px;
+  padding: 3px;
+}
+
 .pager-link {
   margin: 0 2px;
   padding: 1px 3px;
