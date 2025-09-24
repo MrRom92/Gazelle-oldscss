@@ -598,12 +598,18 @@ input[type="password"],
 input[type="text"],
 input[type="search"],
 input[type="date"],
-select,
-textarea {
+select {
   background: variables.$color-background-input;
   border: 1px solid variables.$color-accent-border-input;
   color: variables.$color-text-input;
   height: 32px;
+  padding: 0 8px;
+}
+
+textarea {
+  background: variables.$color-background-input;
+  border: 1px solid variables.$color-accent-border-input;
+  color: variables.$color-text-input;
   padding: 0 8px;
 }
 
@@ -620,7 +626,6 @@ textarea:focus {
 }
 
 textarea {
-  min-height: 96px;
   padding-top: 6px;
   width: 100%;
 }
