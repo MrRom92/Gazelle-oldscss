@@ -96,6 +96,7 @@ class UsersTest extends TestCase {
     public function testNewUsersAllowed(): void {
         $stats = new Stats\Users();
         $this->userList[] = Helper::makeUser('stats.' . randomString(6), 'user', enable: true);
+        $this->assertFalse($stats->overUsercap(), 'user-stats-over-usercap');
         $this->assertTrue($stats->newUsersAllowed($this->userList[0]), 'user-stats-new-users');
     }
 

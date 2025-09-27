@@ -328,15 +328,17 @@ class Users extends \Gazelle\Base {
         return $this->info['enabled'];
     }
 
+    public function overUsercap(): bool {
+        return USER_LIMIT > 0
+            && $this->enabledUserTotal() > USER_LIMIT;
+    }
+
     /**
      * Can new members be invited at this time?
      */
     public function newUsersAllowed(\Gazelle\User $user): bool {
-        return (
-               USER_LIMIT == 0
-            || $this->enabledUserTotal() < USER_LIMIT
-            || $user->permitted('site_can_invite_always')
-        );
+        return !$this->overUsercap()
+            || $user->permitted('site_can_invite_always');
     }
 
     public function activityStat(): array {

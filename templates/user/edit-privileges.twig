@@ -96,6 +96,9 @@
                 </optgroup>
 {%  endif %}
             </select>
+{%  if user.isDisabled and viewer.permitted('users_disable_any') and over_usercap %}
+            <i>Note:</i> the site is currently over capacity ({{ constant('USER_LIMIT')|number_format }} users).
+{%  endif %}
         </td>
     </tr>
 {% endif %}

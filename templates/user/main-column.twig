@@ -128,13 +128,14 @@
 {%  if viewer.permittedAny('users_disable_posts', 'users_disable_any') %}
 {%      include 'user/edit-privileges.twig' with {
             'asn'     : asn,
-            'history' : history,
-            'user'    : user,
-            'viewer'  : viewer,
             'forum'   : {
                 'restricted_names' : forum_man.nameList(user.forbiddenForums),
                 'permitted_names'  : forum_man.nameList(user.permittedForums),
-            }
+            },
+            'history'      : history,
+            'over_usercap' : over_usercap,
+            'user'         : user,
+            'viewer'       : viewer,
         } only %}
 {%  endif %}
 

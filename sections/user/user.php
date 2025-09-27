@@ -413,10 +413,11 @@ if ($Viewer->permitted('users_warn')) {
 }
 
 if ($Viewer->permitted('users_auto_reports')) {
-    $raTypeMan = new \Gazelle\Manager\ReportAutoType();
-    $raSearch = new Search\ReportAuto(new \Gazelle\Manager\ReportAuto($raTypeMan), $raTypeMan);
+    $raTypeMan   = new \Gazelle\Manager\ReportAutoType();
+    $raSearch    = new Search\ReportAuto(new \Gazelle\Manager\ReportAuto($raTypeMan), $raTypeMan);
     $openReports = $raSearch->setUser($user)->setState(Enum\ReportAutoState::open)->userTotalList($userMan);
-    if ($openReports && $openReports[0][1]) { ?>
+    if ($openReports && $openReports[0][1]) {
+?>
 <div class="box">
     <div class="head">
         <a href="report_auto.php?userid=<?=$user->id?>"><?=$openReports[0][1]?> open automated report<?=plural($openReports[0][1])?></a>
@@ -434,6 +435,7 @@ echo $Twig->render('user/main-column.twig', [
     'history'       => $history,
     'invite_source' => new Manager\InviteSource()->inviterConfiguration($user),
     'is_traced'     => $Viewer->permitted('admin_tracker') && new Tracker()->isTraced($user),
+    'over_usercap'  => new Stats\Users()->overUsercap(),
     'prl'           => $limiter,
     'user'          => $user,
     'viewer'        => $Viewer,
