@@ -60,6 +60,9 @@ class BonusTest extends TestCase {
         );
 
         $manager = new Manager\Bonus();
+        // Here is as good a place as any
+        $this->assertEquals(0, $manager->discount(), 'bonus-discount');
+
         $manager->flush();
         $this->assertCount(13, $manager->itemList(), 'bonus-item-list');
         $this->assertNull($manager->findBonusItemByLabel('nope'), 'bonus-item-null');
@@ -127,49 +130,6 @@ class BonusTest extends TestCase {
             'bonus-item-purchase-token-50',
         );
 
-        $other1  = $manager->findBonusItemByLabel('other-1');
-        $this->assertTrue($other1->needsPreparation(), 'bonus-token-other-prepare');
-        $other50 = $manager->findBonusItemByLabel('other-3');
-        $giver->addPoints(
-            (float)($other1->price() + $other50->price())
-        );
-        $this->assertEquals(
-            BonusItemPurchaseStatus::incomplete,
-            $other50->purchase(
-                $user,
-                $other50->price(),
-            ),
-            'bonus-item-purchase-incomplete-other-50',
-        );
-        $this->userList['receiver']->toggleAttr('no-fl-gifts', true);
-        $this->assertEquals(
-            BonusItemPurchaseStatus::declined,
-            $other50->purchase(
-                $user,
-                $other50->price(),
-                [
-                    'message'  => 'phpunit gift',
-                    'receiver' => $this->userList['receiver'],
-                ],
-            ),
-            'bonus-item-purchase-declined-other-50',
-        );
-        $this->userList['receiver']->toggleAttr('no-fl-gifts', false);
-        $this->assertEquals(
-            BonusItemPurchaseStatus::success,
-            $other50->purchase(
-                $user,
-                $other50->price(),
-                [
-                    'message'  => 'phpunit gift',
-                    'receiver' => $this->userList['receiver'],
-                ],
-            ),
-            'bonus-item-purchase-other-50',
-        );
-        $offer = $manager->offerTokenOther($user);
-        $this->assertEquals('other-1', $offer[0]->label(), 'bonus-item-all-I-can-give');
-
         // buy file count feature
         $fileCount = $manager->findBonusItemByLabel('file-count');
         $giver->addPoints((float)$fileCount->price());
@@ -187,32 +147,11 @@ class BonusTest extends TestCase {
 
         $this->assertEquals(
             $flt->price()
-                + $other50->price()
                 + $seedbox->price()
                 + $fileCount->price(),
             $giver->pointsSpent(),
             'bonus-points-spent',
         );
-
-        $this->assertEquals(
-            BonusItemPurchaseStatus::success,
-            $other1->purchase(
-                $this->userList['receiver'],
-                0,
-                ['receiver' => $user],
-            ),
-            'bonus-item-receiver-give'
-        );
-        $this->assertEquals(
-            [
-                "received" => 50,
-                "sent"     =>  1,
-            ],
-            (new User\Bonus($this->userList['receiver'])->tokenExchange()),
-            'bonus-token-exchange',
-        );
-        $latest = $giver->otherLatest($this->userList['receiver']);
-        $this->assertEquals('50 Freeleech Tokens to Other', $latest['title'], 'bonus-item-given');
 
         $bbn = $manager->findBonusItemByLabel('title-bb-n');
         $giver->addPoints($bbn->price());
@@ -267,13 +206,12 @@ class BonusTest extends TestCase {
         );
 
         $history = $giver->history(10, 0);
-        $this->assertCount(8, $history, 'bonus-history-final');
+        $this->assertCount(7, $history, 'bonus-history-final');
 
         $this->assertEquals(
             [
-                'nr' => 8,
+                'nr' => 7,
                 'total' => $flt->price()
-                    + $other50->price()
                     + $seedbox->price()
                     + $fileCount->price()
                     + $collage->price()
@@ -284,8 +222,16 @@ class BonusTest extends TestCase {
             $giver->summary(),
             'bonus-summary-initial'
         );
-        $this->assertTrue($giver->removePoints(1.125), 'bonus-taketh-away');
 
+        $history = $giver->purchaseHistory();
+        $this->assertCount(7, $history, 'bonus-history-count');
+        $this->assertEquals(
+            ['id', 'title', 'total', 'cost'],
+            array_keys(current($history)),
+            'bonus-history-shape',
+        );
+
+        $this->assertTrue($giver->removePoints(1.125), 'bonus-taketh-away');
         $this->assertEquals(
             BonusItemPurchaseStatus::insufficientFunds,
             $bby->purchase($user, $bby->price(), ['title' => 'whatever']),
@@ -304,18 +250,157 @@ class BonusTest extends TestCase {
             'bonus-item-free-title-yes-bb',
         );
 
-        $history = $giver->purchaseHistory();
-        $this->assertCount(8, $history, 'bonus-history-count');
-        $this->assertEquals(
-            ['id', 'title', 'total', 'cost'],
-            array_keys(current($history)),
-            'bonus-history-shape',
-        );
         $this->assertCount(0, $giver->seedList(5, 0), 'bonus-history-seedlist');
         $this->assertCount(0, $giver->poolHistory(), 'bonus-history-pool');
+    }
 
-        // Here is as good a place as any
-        $this->assertEquals(0, $manager->discount(), 'bonus-discount');
+    public function testBonusPurchaseOther(): void {
+        $this->userList['giver']    = Helper::makeUser('bonusg.' . randomString(6), 'bonus', true);
+        $this->userList['receiver'] = Helper::makeUser('bonusr.' . randomString(6), 'bonus', true);
+
+        $manager  = new Manager\Bonus();
+        $other1   = $manager->findBonusItemByLabel('other-1');
+        $other50  = $manager->findBonusItemByLabel('other-3');
+        $user     = $this->userList['giver'];
+        $receiver = $this->userList['receiver'];
+        $giver    = new User\Bonus($user);
+
+        $this->assertTrue($other1->needsPreparation(), 'bonus-token-other-prepare');
+        $this->assertEquals(
+            BonusItemPurchaseStatus::incomplete,
+            $other50->purchase(
+                $user,
+                $other50->price(),
+            ),
+            'bonus-item-purchase-incomplete-other-50',
+        );
+
+        $giver->addPoints((float)$other50->price());
+        $receiver->toggleAttr('no-fl-gifts', true);
+        $this->assertEquals(
+            BonusItemPurchaseStatus::declined,
+            $other50->purchase(
+                $user,
+                $other50->price(),
+                [
+                    'message'  => 'phpunit gift',
+                    'receiver' => $receiver,
+                ],
+            ),
+            'bonus-item-purchase-declined-other-50',
+        );
+        $receiver->toggleAttr('no-fl-gifts', false);
+        $this->assertEquals(
+            BonusItemPurchaseStatus::success,
+            $other50->purchase(
+                $user,
+                $other50->price(),
+                [
+                    'message'  => 'phpunit gift',
+                    'receiver' => $receiver,
+                ],
+            ),
+            'bonus-item-purchase-other-50',
+        );
+
+        $this->assertEquals(
+            BonusItemPurchaseStatus::insufficientFunds,
+            $manager->purchaseTokenOther(
+                $user,
+                $receiver,
+                'other-1',
+                '',
+            ),
+            'bonus-purchase-token-other-no-money',
+        );
+        $this->assertCount(0,
+            $manager->offerTokenOther($user),
+            'bonus-offer-other-none',
+        );
+
+        $giver->addPoints((float)$other1->price());
+        $offer = $manager->offerTokenOther($user);
+        $this->assertEquals('other-1', $offer[0]->label(), 'bonus-item-all-I-can-give');
+
+        $this->assertEquals(
+            BonusItemPurchaseStatus::incomplete,
+            $manager->purchaseTokenOther(
+                $user,
+                $receiver,
+                'bad-label',
+                '',
+            ),
+            'bonus-purchase-token-other-fail',
+        );
+
+        $this->assertEquals(
+            BonusItemPurchaseStatus::success,
+            $manager->purchaseTokenOther(
+                $user,
+                $receiver,
+                'other-1',
+                '',
+            ),
+            'bonus-purchase-token-other-success',
+        );
+
+        $this->assertEquals(
+            BonusItemPurchaseStatus::success,
+            $other1->purchase(
+                $receiver,
+                0,
+                ['receiver' => $user],
+            ),
+            'bonus-item-receiver-give'
+        );
+        $this->assertEquals(
+            [
+                "received" => 51,
+                "sent"     =>  1,
+            ],
+            (new User\Bonus($receiver)->tokenExchange()),
+            'bonus-token-exchange',
+        );
+        $latest = $giver->otherLatest($receiver);
+        $this->assertEquals(
+            '50 Freeleech Tokens to Other',
+            $latest['title'],
+            'bonus-item-given'
+        );
+
+        $giver->addPoints((float)$other50->price() * 2);
+        $this->assertCount(
+            3,
+            $manager->offerTokenOther($user),
+            'bonus-offer-other-all',
+        );
+
+        $this->assertFalse(
+            $manager->findBonusItemByLabel('invite')
+                ->priceForTokenOther($user, $receiver),
+            'bonus-price-other-false',
+        );
+        $basePrice = $other50->priceForTokenOther($user, $receiver);
+        $this->assertNotFalse($basePrice, 'bonus-price-token-other-valid');
+        $other50->purchase(
+            $user,
+            $other50->price(),
+            [
+                'message'  => 'phpunit gift 2',
+                'receiver' => $receiver,
+            ],
+        );
+        $this->assertEquals(
+            $basePrice * (1 + BONUS_OTHER_TOKEN_SCALE / 100),
+            $other50->priceForTokenOther($user, $receiver),
+            'bonus-price-other-increase',
+        );
+        $receiver->setField('inviter_user_id', $user->id)->modify();
+        $this->assertEquals(
+            $basePrice,
+            $other50->priceForTokenOther($user, $receiver),
+            'bonus-price-other-inviter',
+        );
     }
 
     public static function providerBonusItem(): array {
@@ -342,7 +427,11 @@ class BonusTest extends TestCase {
             $this->userList[] = Helper::makeUser('bonusg.' . randomString(6), 'bonus', true);
             $this->assertEquals(
                 BonusItemPurchaseStatus::insufficientFunds,
-                $item->purchase($this->userList[0], $item->price(), ['receiver' => $this->userList[1]]),
+                $item->purchase(
+                    $this->userList[0],
+                    $item->price(),
+                    ['receiver' => $this->userList[1]]
+                ),
                 "bonus-item-broke-$label",
             );
         } else {
@@ -354,61 +443,12 @@ class BonusTest extends TestCase {
         }
     }
 
-    public function testBonusPurchaseOther(): void {
-        $this->userList['giver']    = Helper::makeUser('bonusg.' . randomString(6), 'bonus', true);
-        $this->userList['receiver'] = Helper::makeUser('bonusr.' . randomString(6), 'bonus', true);
-        $manager = new Manager\Bonus();
-
-        $this->assertEquals(
-            BonusItemPurchaseStatus::incomplete,
-            $manager->purchaseTokenOther(
-                $this->userList['giver'],
-                $this->userList['receiver'],
-                'bad-label',
-                '',
-            ),
-            'bonus-purchase-token-other-fail',
-        );
-        $this->assertEquals(
-            BonusItemPurchaseStatus::insufficientFunds,
-            $manager->purchaseTokenOther(
-                $this->userList['giver'],
-                $this->userList['receiver'],
-                'other-1',
-                '',
-            ),
-            'bonus-purchase-token-other-no-money',
-        );
-
-        $this->assertCount(0,
-            $manager->offerTokenOther($this->userList['giver']),
-            'bonus-offer-other-none',
-        );
-        new User\Bonus($this->userList['giver'])->addPoints(2000000);
-        $this->assertCount(
-            3,
-            $manager->offerTokenOther($this->userList['giver']),
-            'bonus-offer-other-all',
-        );
-        $this->assertEquals(
-            BonusItemPurchaseStatus::success,
-            $manager->purchaseTokenOther(
-                $this->userList['giver'],
-                $this->userList['receiver'],
-                'other-1',
-                '',
-            ),
-            'bonus-purchase-token-other-success',
-        );
-    }
-
     public function testBonusPool(): void {
         global $Cache;
         $Cache->delete_value("bonus_pool");
-        $manager = new Manager\Bonus();
         $this->assertEquals(
             [],
-            $manager->openPoolList(),
+            new Manager\Bonus()->openPoolList(),
             'bonus-open-pool',
         );
     }
@@ -453,50 +493,58 @@ class BonusTest extends TestCase {
     }
 
     public function testBonusUserOther(): void {
-        $user = Helper::makeUser('bonusother.' . randomString(6), 'bonus', enable: false);
-        $this->userList = [$user];
+        $giver = Helper::makeUser('bonusother.' . randomString(6), 'bonus', enable: false);
+        $receiver = Helper::makeUser('bonusother.' . randomString(6), 'bonus', enable: false);
+        $this->userList = [$giver, $receiver];
+        $token = new Manager\Bonus()->findBonusItemByLabel('other-1');
 
         $this->assertEquals(
             [
                 'found'    => false,
                 'username' => '#nope',
             ],
-            new Json\BonusUserOther('#nope')->payload(),
+            new Json\BonusUserOther($giver, $token, '#nope')->payload(),
             'bonus-user-other-404',
         );
-        $this->assertEquals(
+        $this->assertEqualsCanonicalizing(
             [
-                'found'    => true,
                 'accept'   => true,
                 'enabled'  => false,
-                'id'       => $user->id,
-                'username' => $user->username(),
+                'found'    => true,
+                'id'       => $receiver->id,
+                'percent5' => 0,
+                'price'    => 2500,
+                'username' => $receiver->username(),
             ],
-            new Json\BonusUserOther($user->username())->payload(),
+            new Json\BonusUserOther($giver, $token, $receiver->username())->payload(),
             'bonus-user-other-not-enabled',
         );
-        $user->setField('Enabled', UserStatus::enabled->value)->modify();
-        $this->assertEquals(
+        $receiver->setField('Enabled', UserStatus::enabled->value)->modify();
+        $this->assertEqualsCanonicalizing(
             [
-                'found'    => true,
                 'accept'   => true,
                 'enabled'  => true,
-                'id'       => $user->id,
-                'username' => $user->username(),
+                'found'    => true,
+                'id'       => $receiver->id,
+                'percent5' => 0,
+                'price'    => 2500,
+                'username' => $receiver->username(),
             ],
-            new Json\BonusUserOther($user->username())->payload(),
+            new Json\BonusUserOther($giver, $token, $receiver->username())->payload(),
             'bonus-user-other-accept',
         );
-        $user->toggleAttr('no-fl-gifts', true);
-        $this->assertEquals(
+        $receiver->toggleAttr('no-fl-gifts', true);
+        $this->assertEqualsCanonicalizing(
             [
-                'found'    => true,
                 'accept'   => false,
                 'enabled'  => true,
-                'id'       => $user->id,
-                'username' => $user->username(),
+                'found'    => true,
+                'id'       => $receiver->id,
+                'percent5' => 0,
+                'price'    => 2500,
+                'username' => $receiver->username(),
             ],
-            new Json\BonusUserOther($user->username())->payload(),
+            new Json\BonusUserOther($giver, $token, $receiver->username())->payload(),
             'bonus-user-other-no-fl',
         );
     }

@@ -30,6 +30,7 @@ async function validateBonusUsername() {
     const form = new FormData();
     form.append('auth', document.body.dataset.auth);
     form.append('bonus-user-other', username);
+    form.append('label', document.forms['bonus-other'].elements['label'].value);
     const response = await fetch(
         '?action=prepare', {
             'method': 'POST',
@@ -41,18 +42,21 @@ async function validateBonusUsername() {
     if (data.status !== 'success') {
         message = status;
     } else {
-        const user = data.response;
-        if (!user.found) {
+        const info = data.response;
+        if (!info.found) {
             message = '⛔️ ' + 'user not found';
-        } else if (user.id == document.body.dataset.id) {
+        } else if (info.id == document.body.dataset.id) {
             message = '⛔️ You cannot gift tokens to yourself';
-        } else if (!user.enabled) {
-            message = '⛔️ ' + user.username + ' is currently not enabled';
-        } else if (!user.accept) {
-            message = '🚫 ' + user.username + ' does not wish to receive tokens';
+        } else if (!info.enabled) {
+            message = '⛔️ ' + info.username + ' is currently not enabled';
+        } else if (!info.accept) {
+            message = '🚫 ' + info.username + ' does not wish to receive tokens';
         } else {
-            message = '✅';
-            document.forms['bonus-other'].elements['user'].value = user.username;
+            message = '✅ This will cost ' + info.price + ' bonus points';
+            if (info.percent5 > 0) {
+                message = message + ' (which is more than ' + info.percent5 + '% of your balance)';
+            }
+            document.forms['bonus-other'].elements['user'].value = info.username;
             purchase.disabled = false;
         }
     }

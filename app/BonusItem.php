@@ -77,6 +77,28 @@ class BonusItem extends \Gazelle\BaseObject {
         return $this->info()['price'];
     }
 
+    public function priceForTokenOther(User $giver, User $receiver): int|false {
+        if (!str_starts_with($this->label(), 'other-')) {
+            return false;
+        }
+        // Inviters send tokens at a flat rate.
+        if ($receiver->inviterId() === $giver->id) {
+            return $this->price();
+        }
+        $exchange = new User\Bonus($receiver)->tokenExchange();
+        // For every BONUS_OTHER_TOKEN_INTERVAL received,
+        // scale the price up by BONUS_OTHER_TOKEN_SCALE percent.
+        return (int)ceil(
+            $this->price()
+            * pow(
+                1 + (BONUS_OTHER_TOKEN_SCALE / 100),
+                floor(max(0, $exchange['received'] - $exchange['sent'])
+                    / BONUS_OTHER_TOKEN_INTERVAL
+                )
+            )
+        );
+    }
+
     public function priceForUser(User $user): int {
         return match ($this->label()) {
             'collage-1' => $this->price() * 2 ** min(6, $user->paidPersonalCollages()),

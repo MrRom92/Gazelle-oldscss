@@ -734,6 +734,11 @@ defined('BONUS_POOL_TAX_ELITE') or define('BONUS_POOL_TAX_ELITE', 0.8);
 defined('BONUS_POOL_TAX_TM')    or define('BONUS_POOL_TAX_TM', 0.7);
 defined('BONUS_POOL_TAX_STAFF') or define('BONUS_POOL_TAX_STAFF', 0.5);
 
+// Pricing of tokens to other scales up at every interval of tokens received.
+defined('BONUS_OTHER_TOKEN_INTERVAL') or define('BONUS_OTHER_TOKEN_INTERVAL', 100);
+// At each interval, prices are raised by SCALE percent. Set to 0 to disable scaling.
+defined('BONUS_OTHER_TOKEN_SCALE') or define('BONUS_OTHER_TOKEN_SCALE', 20);
+
 // ------------------------------------------------------------------------
 // Pagination
 
