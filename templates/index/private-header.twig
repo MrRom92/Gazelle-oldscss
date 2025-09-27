@@ -38,13 +38,16 @@
 {%     endfor %}
 {% endif -%}
 {{ scss('global.css') }}
+{% if viewer.permitted('users_mod') %}
+{{  scss('admin.css') }}
+{% endif %}
 {{ scss('tooltipster/style.css') }}
 {% for sheet in scss_style %}
-{{ scss(sheet) }}
+{{  scss(sheet) }}
 {% endfor %}
 {{ css('katex/katex-0.16.10.min.css') }}
 {% if viewer.option('UseOpenDyslexic') %}
-{{ scss('opendyslexic/style.css') }}
+{{  scss('opendyslexic/style.css') }}
 {% endif %}
 <link rel="stylesheet" type="text/css" media="screen" href="{{ stylesheet.cssUrl }}" title="{{ stylesheet.name }}" />
 <script type="text/javascript" src="{{ constant('STATIC_SERVER') }}/vendor/jquery.js?v={{ mtime('vendor/jquery.js') }}"></script>
@@ -63,10 +66,10 @@
 {% endif %}
 <script type="text/javascript" src="{{ constant('STATIC_SERVER') }}/functions/global.js?v={{ mtime('functions/global.js') }}"></script>
 {% for js in script %}
-{{ script(js) }}
+{{  script(js) }}
 {% endfor %}
 {% if use_noty %}
-{{ script('user_notifications.js') }}
+{{  script('user_notifications.js') }}
 {% endif %}
 <script type="text/javascript">
 var authkey="{{ viewer.auth }}";var userid={{ viewer.id }};

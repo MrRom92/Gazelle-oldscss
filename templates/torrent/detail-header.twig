@@ -1,4 +1,8 @@
-{{ header(tgroup.text, {'js': 'browse,comments,torrent,bbcode,cover_art,subscriptions,voting'}) }}
+{{ header(tgroup.text, {
+    'js': 'browse,comments,torrent,bbcode,cover_art,subscriptions,voting',
+    'css': 'logchecker',
+    })
+}}
 <div class="thin">
     <div class="header">
         <h2>{{ tgroup.link | raw }}</h2>
