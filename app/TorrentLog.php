@@ -53,7 +53,7 @@ class TorrentLog extends BaseObject {
                 AND LogID = ?
             ", $this->torrent->id(), $this->id
         );
-        $info['detail_list'] = explode("\r\n", $info['Details'] ?? "\r\n");
+        $info['detail_list'] = trim($info['Details'] ?? '') ? explode("\r\n", $info['Details']) : [];
         $info['adjustment_list'] = $info['AdjustmentDetails'] ? unserialize($info['AdjustmentDetails']) : [];
         $this->info = $info;
         return $this->info;

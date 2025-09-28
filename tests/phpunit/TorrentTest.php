@@ -367,6 +367,31 @@ class TorrentTest extends TestCase {
         );
     }
 
+    public function testLogfileList(): void {
+        $logfileSummary = new LogfileSummary([
+                'error'    => [UPLOAD_ERR_OK],
+                'name'     => ['valid_log_eac.log'],
+                'tmp_name' => [__DIR__ . '/../fixture/valid_log_eac.log'],
+            ]);
+            $torrentLogManager = new Manager\TorrentLog();
+            $checkerVersion = Logchecker::getLogcheckerVersion();
+            foreach ($logfileSummary->all() as $logfile) {
+                $torrentLogManager->create($this->torrent, $logfile, $checkerVersion);
+            }
+            $expected = [
+                'has_riplog' => false,
+                'adjustment_details' => [],
+                'adjusted' => false,
+                'adjusted_checksum' => false,
+                'checksum' => true,
+                'details' => [],
+            ];
+            $logfileList = $this->torrent->logfileList();
+            $this->assertCount(1, $logfileList);
+            $this->assertArrayIsEqualToArrayOnlyConsideringListOfKeys($expected, $logfileList[0], array_keys($expected));
+            $this->assertNotEmpty($logfileList[0]['html_log']);
+    }
+
     public function testLogfileHashList(): void {
         try {
             $logfileSummary = new LogfileSummary([

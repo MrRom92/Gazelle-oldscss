@@ -507,7 +507,7 @@ abstract class TorrentAbstract extends BaseAttrObject {
             $log['adjusted']           = ($log['Adjusted'] === '1');
             $log['adjusted_checksum']  = ($log['AdjustedChecksum'] === '1');
             $log['checksum']           = ($log['Checksum'] === '1');
-            $log['details']            = explode("\r\n", trim($log['Details'] ?? ''));
+            $log['details']            = trim($log['Details'] ?? '') ? explode("\r\n", trim($log['Details'])) : [];
             if ($log['adjusted'] && $log['checksum'] !== $log['adjusted_checksum']) {
                 $log['details'][] = 'Bad/No Checksum(s)';
             }
