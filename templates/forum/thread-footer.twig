@@ -39,10 +39,24 @@
                 <input type="checkbox" id="sticky_thread_checkbox" onclick="$('#ranking_row').gtoggle();" name="sticky"{{ checked(thread.isPinned) }} tabindex="4" />
             </td>
         </tr>
-        <tr id="ranking_row"{{ class_hidden(thread.isPinned) }}>
+        <tr id="ranking_row"{{ class_hidden(not thread.isPinned) }}>
             <td class="label"><label for="thread_ranking_textbox">Ranking</label></td>
             <td>
-                <input type="text" id="thread_ranking_textbox" name="ranking" value="{{ thread.pinnedRanking }}" tabindex="5" />
+                <input type="text" id="thread_ranking_textbox" name="ranking" size="6" value="{{ thread.pinnedRanking }}" tabindex="5" />
+{% for t in thread.forum.pinnedThreadList %}
+{%  if loop.first %}
+                <details>
+                    <summary>Pinned threads in {{ thread.forum.link|raw }}</summary>
+                    <ol>
+{%  endif %}
+                        <li value="{{ t.ranking }}">{{ t.thread.link|raw }}</li>
+{%  if loop.last %}
+                    </ol>
+                </details>
+{%  endif %}
+{% else %}
+                <br />No other threads are pinned in {{ thread.forum.link|raw }}
+{% endfor %}
             </td>
         </tr>
         <tr>

@@ -6,21 +6,21 @@ class Forum extends \Gazelle\Json {
     public function __construct(
         protected \Gazelle\Forum               $forum,
         protected \Gazelle\User                $user,
-        protected \Gazelle\Manager\ForumThread $threadMan,
-        protected \Gazelle\Manager\User        $userMan,
         protected int                          $perPage,
         protected int                          $page,
+        protected \Gazelle\Manager\ForumThread $threadMan = new \Gazelle\Manager\ForumThread(),
+        protected \Gazelle\Manager\User        $userMan   = new \Gazelle\Manager\User(),
     ) {}
 
     public function payload(): array {
         $lastRead  = $this->user->forumLastReadList($this->perPage, $this->forum);
         $list      = [];
         $userCache = [];
-        foreach ($this->forum->threadPage($this->threadMan, $this->page) as $thread) {
+        foreach ($this->forum->threadPage($this->page, $this->threadMan) as $thread) {
             // handle read/unread posts - the reason we can't cache the whole page
             $unread = (!$thread->isLocked() || $thread->isPinned)
                 && (
-                    (empty($lastRead[$thread->id()]) || $lastRead[$thread->id()]['post_id'] < $thread->lastPostId())
+                    (empty($lastRead[$thread->id]) || $lastRead[$thread->id]['post_id'] < $thread->lastPostId())
                     && strtotime($thread->lastPostTime()) > $this->user->forumCatchupEpoch()
                 );
 
@@ -34,7 +34,7 @@ class Forum extends \Gazelle\Json {
             $lastAuthor = $userCache[$thread->lastAuthorId()];
 
             $list[] = [
-                'topicId'        => $thread->id(),
+                'topicId'        => $thread->id,
                 'title'          => $thread->title(),
                 'authorId'       => $thread->authorId(),
                 'authorName'     => $author?->username() ?? 'System',
@@ -45,8 +45,8 @@ class Forum extends \Gazelle\Json {
                 'lastTime'       => $thread->lastPostTime(),
                 'lastAuthorId'   => $thread->lastAuthorId(),
                 'lastAuthorName' => $lastAuthor?->username() ?? 'System',
-                'lastReadPage'   => $lastRead[$thread->id()]['page'] ?? 0,
-                'lastReadPostId' => $lastRead[$thread->id()]['post_id'] ?? 0,
+                'lastReadPage'   => $lastRead[$thread->id]['page'] ?? 0,
+                'lastReadPostId' => $lastRead[$thread->id]['post_id'] ?? 0,
                 'read'           => !$unread,
             ];
         }

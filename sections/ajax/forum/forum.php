@@ -16,8 +16,6 @@ if (!$Viewer->readAccess($forum)) {
 echo new Json\Forum(
     $forum,
     $Viewer,
-    new Manager\ForumThread(),
-    new Manager\User(),
     isset($_GET['pp']) ? (int)$_GET['pp'] : $Viewer->postsPerPage(),
     (int)($_GET['page'] ?? 1),
 )

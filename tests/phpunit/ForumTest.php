@@ -371,8 +371,6 @@ class ForumTest extends TestCase {
         $json = (new Json\Forum(
             $this->forum,
             $this->userList['user'],
-            new Manager\ForumThread(),
-            new Manager\User(),
             1,
             1,
         ));
@@ -642,6 +640,19 @@ class ForumTest extends TestCase {
         $this->assertEquals(1, $locked->editThread($locked->forum(), false, 0, true, $locked->title()), 'fthread-edit-lock');
         $this->assertTrue($locked->isLocked(), 'fthread-is-locked');
         $this->assertTrue($pinned->isPinned(), 'fthread-is-pinned');
+        $pinnedList = $this->forum->pinnedThreadList();
+        $this->assertCount(1, $pinnedList, 'fthread-pin-list');
+        $this->assertEquals(
+            [
+                'ranking'   => 10,
+                'thread_id' => $pinned->id,
+            ],
+            [
+                'ranking'   => $pinnedList[0]['ranking'],
+                'thread_id' => $pinnedList[0]['thread']->id,
+            ],
+            'fthread-pin-details'
+        );
 
         $this->extra = Helper::makeForum(
             user:           $admin,

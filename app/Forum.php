@@ -8,7 +8,7 @@ class Forum extends BaseObject {
     final public const CACHE_THREAD_INFO = 'thread_%d_info';
     final public const CACHE_CATALOG     = 'thread_%d_catalogue_%d';
 
-    final protected const CACHE_TOC_FORUM   = 'forum_tocv2_%d';
+    final protected const CACHE_TOC_FORUM   = 'ftoc3_%d';
     final protected const CACHE_TOCV2_FORUM = 'ftoc_%d';
 
     public function location(): string {
@@ -237,20 +237,23 @@ class Forum extends BaseObject {
      * A page's worth of threads of a forum.
      * The subsequent pages are regenerated on each pageview.
      */
-    public function threadPage(Manager\ForumThread $manager, int $page = 1): array {
-        $key = sprintf(self::CACHE_TOCV2_FORUM, $this->id);
-        $idList = $page == 1 ? self::$cache->get_value($key) : false;
+    public function threadPage(
+        int $page,
+        Manager\ForumThread $manager = new Manager\ForumThread(),
+    ): array {
+        $key    = sprintf(self::CACHE_TOCV2_FORUM, $this->id);
+        $idList = $page === 1 ? self::$cache->get_value($key) : false;
         if ($idList === false) {
             self::$db->prepared_query("
                 SELECT ft.ID
                 FROM forums_topics ft
                 WHERE ft.ForumID = ?
-                ORDER BY ft.Ranking DESC, ft.IsSticky DESC, ft.LastPostTime DESC
-                LIMIT ?, ?
-                ", $this->id, ($page - 1) * TOPICS_PER_PAGE, TOPICS_PER_PAGE
+                ORDER BY ft.IsSticky DESC, ft.Ranking DESC, ft.LastPostTime DESC
+                LIMIT ? OFFSET ?
+                ", $this->id, TOPICS_PER_PAGE, ($page - 1) * TOPICS_PER_PAGE
             );
             $idList = self::$db->collect(0);
-            if ($page == 1) {
+            if ($page === 1) {
                 self::$cache->cache_value($key, $idList, 86400 * 10);
             }
         }
@@ -274,21 +277,23 @@ class Forum extends BaseObject {
      *    - timestamp 'LastPostTime' Date of most recent post
      *    - int 'LastPostAuthorID' User id of author of most recent post
      *    - has_poll Whether the thread has a poll '0'/'1'
+     *    - Ranking (if > 0, where the thread appears in the list of pinned threads)
      */
     public function tableOfContentsForum(int $page = 1): array {
         $key = sprintf(self::CACHE_TOC_FORUM, $this->id);
         $forumToc = null;
-        if ($page > 1 || ($page == 1 && !$forumToc = self::$cache->get_value($key))) {
+        if ($page > 1 || ($page == 1 && (($forumToc = self::$cache->get_value($key)) === false))) {
             self::$db->prepared_query("
                 SELECT ft.ID, ft.Title, ft.AuthorID, ft.IsLocked, ft.IsSticky,
                     ft.NumPosts, ft.LastPostID, ft.LastPostTime, ft.LastPostAuthorID,
-                    (fp.TopicID IS NOT NULL AND fp.Closed = '0')  AS has_poll
+                    (fp.TopicID IS NOT NULL AND fp.Closed = '0') AS has_poll,
+                    ft.Ranking
                 FROM forums_topics ft
                 LEFT JOIN forums_polls fp ON (fp.TopicID = ft.ID)
                 WHERE ft.ForumID = ?
                 ORDER BY ft.Ranking DESC, ft.IsSticky DESC, ft.LastPostTime DESC
-                LIMIT ?, ?
-                ", $this->id, ($page - 1) * TOPICS_PER_PAGE, TOPICS_PER_PAGE
+                LIMIT ? OFFSET ?
+                ", $this->id, TOPICS_PER_PAGE, ($page - 1) * TOPICS_PER_PAGE
             );
             $forumToc = self::$db->to_array('ID', MYSQLI_ASSOC);
             if ($page == 1) {
@@ -428,5 +433,30 @@ class Forum extends BaseObject {
                 ", $this->id, $user->id
             );
         }
+    }
+
+    /**
+     * the list of threads pinned in this forum by order of importance
+     */
+    public function pinnedThreadList(
+        Manager\ForumThread $manager = new Manager\ForumThread()
+    ): array {
+        self::$db->prepared_query("
+            SELECT ft.ID   AS thread_id,
+                ft.Ranking AS ranking
+            FROM forums_topics ft
+            WHERE ft.Ranking > 0
+                AND ft.ForumID = ?
+            ORDER BY ft.Ranking DESC, ft.LastPostTime DESC
+            ", $this->id
+        );
+        $result = [];
+        foreach (self::$db->to_array(false, MYSQLI_ASSOC) as $t) {
+            $result[] = [
+                'ranking' => (int)$t['ranking'],
+                'thread'  => $manager->findById($t['thread_id']),
+            ];
+        }
+        return $result;
     }
 }
