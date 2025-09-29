@@ -1,0 +1,104 @@
+#! /usr/bin/env php
+<?php
+
+/**
+ * Script to clean broken uploads
+ *
+ * Usage: rescore-logs [--dry-run] [--limit <n>] [--offset <n>]
+ */
+
+namespace Gazelle;
+
+use OrpheusNET\Logchecker\Logchecker;
+
+require_once(__DIR__ . '/../lib/bootstrap.php');
+
+$dryRun = in_array('--dry-run', $argv);
+
+$limitKey = array_find_key($argv, fn ($val) => $val === '--limit');
+if ($limitKey !== null) {
+    if (!isset($argv[$limitKey + 1]) || !is_numeric($argv[$limitKey + 1])) {
+        die("If you specify --limit, you must also provide a numeric limit\n");
+    }
+    $limit = (int)$argv[$limitKey + 1];
+} else {
+    $limit = PHP_INT_MAX;
+}
+
+$offsetKey = array_find_key($argv, fn ($val) => $val === '--offset');
+if ($offsetKey !== null) {
+    if (!isset($argv[$offsetKey + 1]) || !is_numeric($argv[$offsetKey + 1])) {
+        die("If you specify --offset, you must also provide a numeric offset\n");
+    }
+    $offset = (int)$argv[$offsetKey + 1];
+} else {
+    $offset = 0;
+}
+
+$logcheckerVersion = Logchecker::getLogcheckerVersion();
+[$major, $minor, $patch] = explode('.', $logcheckerVersion);
+
+$db = DB::DB();
+
+$db->prepared_query("
+    SELECT TorrentID, LogID, Score
+    FROM torrents_logs
+    WHERE
+        LogcheckerVersion = ''
+        OR CAST(SUBSTRING_INDEX(LogcheckerVersion, '.', 1) AS UNSIGNED) < ?
+        OR (
+            CAST(SUBSTRING_INDEX(LogcheckerVersion, '.', 1) AS UNSIGNED) = ? AND
+            CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(LogcheckerVersion, '.', 2), '.', -1) AS UNSIGNED) < ?
+        )
+        OR (
+            CAST(SUBSTRING_INDEX(LogcheckerVersion, '.', 1) AS UNSIGNED) = ? AND
+            CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(LogcheckerVersion, '.', 2), '.', -1) AS UNSIGNED) = ? AND
+            CAST(SUBSTRING_INDEX(LogcheckerVersion, '.', -1) AS UNSIGNED) < ?
+        )
+    ORDER BY LogID, TorrentID
+    LIMIT ? OFFSET ?
+", $major, $major, $minor, $major, $minor, $patch, $limit, $offset);
+
+$i = 0;
+/** @var Torrent|null */
+$torrent = null;
+
+while (true) {
+    $row = $db->next_row(MYSQLI_NUM);
+    if (!$row) {
+        if (!$dryRun) {
+            $torrent?->modifyLogscore();
+        }
+        break;
+    }
+
+    [$torrentId, $logId, $score] = $row;
+
+    if (!$torrent || $torrent->id() !== $torrentId) {
+        if (!$dryRun) {
+            $torrent?->modifyLogscore();
+        }
+        $torrent = new Torrent($torrentId);
+        $rescore = false;
+    }
+
+    $logpath = new File\RipLog($torrent->id, $logId)->path();
+    $logfile = new Logfile($logpath, basename($logpath));
+
+    echo sprintf(
+        "%d: torrent %d - log %d (%s): %d -> %d\n",
+        $i,
+        $torrent->id(),
+        $logId,
+        $logpath,
+        $score,
+        $logfile->score()
+    );
+
+    if (!$dryRun) {
+        new File\RipLogHTML($torrent->id, $logId)->put($logfile->text());
+        $torrent->rescoreLog($logId, $logfile, Logchecker::getLogcheckerVersion(), false);
+    }
+
+    $i++;
+}

@@ -186,7 +186,7 @@ class Torrent extends TorrentAbstract {
         return $affected;
     }
 
-    public function rescoreLog(int $logId, Logfile $logfile, string $version): int {
+    public function rescoreLog(int $logId, Logfile $logfile, string $version, bool $modifyLogscore = true): int {
         self::$db->prepared_query("
             UPDATE torrents_logs SET
                 Score = ?, `Checksum` = ?, ChecksumState = ?, Ripper = ?, RipperVersion = ?,
@@ -197,7 +197,7 @@ class Torrent extends TorrentAbstract {
                 $logfile->language(), $logfile->detailsAsString(), $version,
                 $this->id, $logId
         );
-        if (self::$db->affected_rows() > 0) {
+        if ($modifyLogscore && self::$db->affected_rows() > 0) {
             return $this->modifyLogscore();
         }
         return 0;
