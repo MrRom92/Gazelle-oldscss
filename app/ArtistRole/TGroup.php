@@ -44,11 +44,13 @@ class TGroup extends \Gazelle\ArtistRole {
             $this->idList[$roleId][] = [
                 'id'      => $artist['artist_id'],
                 'aliasid' => $artist['alias_id'],
+                'artist'  => $this->manager->findByAliasId($artist['alias_id']),
                 'name'    => $artist['name'],
             ];
             $this->roleList[self::MAP[$roleId]][] = [
                 'id'      => $artist['artist_id'],
                 'aliasid' => $artist['alias_id'],
+                'artist'  => $this->manager->findByAliasId($artist['alias_id']),
                 'name'    => $artist['name'],
             ];
         }

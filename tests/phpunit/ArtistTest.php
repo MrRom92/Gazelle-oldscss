@@ -296,9 +296,17 @@ class ArtistTest extends TestCase {
         foreach ($this->tgroupList as $tgroup) {
             ++$n;
             $artistRole = $tgroup->flush()->artistRole();
+            // cannot use flush() as the aliasId is wiped, replace the object by its id
+            $actual = $artistRole->idList()[ARTIST_MAIN][0];
+            $actual['artist'] = $actual['artist']->id;
             $this->assertEquals(
-                [ARTIST_MAIN => [['id' => $new->id, 'name' => $oldName, 'aliasid' => $oldAliasId]]],
-                $artistRole->idList(),
+                [
+                    'id'      => $new->id,
+                    'aliasid' => $oldAliasId,
+                    'artist'  => $new->id,
+                    'name'    => $oldName,
+                ],
+                $actual,
                 "art-merge-ar-$n"
             );
         }

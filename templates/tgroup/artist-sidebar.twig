@@ -1,0 +1,52 @@
+{% from 'macro/form.twig' import autocomplete %}
+        <div class="box box_artists">
+            <div class="head"><strong>Artists</strong>
+{% if viewer.permitted('torrents_edit')  %}
+            <span style="float: right;" class="edit_artists"><a onclick="ArtistManager(); return false;" href="#" class="brackets">Edit</a></span>
+{% endif %}
+            </div>
+            <ul class="stats nobullet" id="artist_list">
+{% for s in section %}
+{%  for info in role[s.name] %}
+{%      if loop.first %}
+                <li class="{{ s.class }}"><strong class="artists_label">{{ s.title }}</strong></li>
+{%      endif %}
+{%      set artist = info.artist %}
+{%      if artist %}
+                <li class="{{ s.class }} artist_entry" data-aliasid="{{ artist.aliasId }}">
+                    <span dir="ltr">{{ artist.link|raw }}</span>
+{%          if viewer.permitted('torrents_edit') %}
+                    (<span class="tooltip" title="Artist alias ID">{{ artist.aliasId
+                        }}</span>)&nbsp;<span class="remove remove_artist"><a href="javascript:void(0);" onclick="ajax.get('torrents.php?action=delete_alias&amp;auth={{
+                        viewer.auth }}&amp;groupid={{ tgroup.id }}&amp;aliasid={{
+                        artist.aliasId }}&amp;importance={{
+                        s.id }}'); this.parentNode.parentNode.style.display = 'none';" class="brackets tooltip" title="Remove {{
+                        s.role }}>">X</a></span>
+{%          endif %}
+                </li>
+{%      endif %}
+{%  endfor %}
+{% endfor %}
+            </ul>
+        </div>
+{% if viewer.permitted('torrents_add_artist') %}
+        <div class="box box_addartists">
+            <div class="head"><strong>Add artist</strong><span style="float: right;" class="additional_add_artist"><a onclick="AddArtistField(); return false;" href="#" class="brackets">+</a></span></div>
+            <div class="body">
+                <form class="add_form" name="artists" action="torrents.php" method="post">
+                    <div id="AddArtists">
+                        <input type="hidden" name="action" value="add_alias" />
+                        <input type="hidden" name="auth" value="{{ viewer.auth }}" />
+                        <input type="hidden" name="groupid" value="{{ tgroup.id }}" />
+                        <input type="text" id="artist" name="aliasname[]" size="17"{{ autocomplete(viewer, 'other') }} />
+                        <select name="importance[]">
+{%  for s in section %}
+                            <option value="{{ s.id }}">{% if s.role == 'Artist' %}Main{% else %}{{ s.role }}{% endif %}</option>
+{%  endfor %}
+                        </select>
+                    </div>
+                    <input type="submit" value="Add" />
+                </form>
+            </div>
+        </div>
+{% endif %}

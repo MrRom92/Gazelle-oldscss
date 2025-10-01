@@ -18,39 +18,25 @@ $tgroup = $tgMan->findById((int)($_GET['id'] ?? 0));
 if (is_null($tgroup)) {
     Error404::error();
 }
-$tgroupId = $tgroup->id;
-$RevisionID = (int)($_GET['revisionid'] ?? 0);
 
 // Comments (must be loaded before View::show_header so that subscriptions and quote notifications are handled properly)
-$commentPage = new Comment\Torrent($tgroupId, (int)($_GET['page'] ?? 0), (int)($_GET['postid'] ?? 0));
+$commentPage = new Comment\Torrent($tgroup->id, (int)($_GET['page'] ?? 0), (int)($_GET['postid'] ?? 0));
 $commentPage->load()->handleSubscription($Viewer);
 
 $paginator = new Util\Paginator(TORRENT_COMMENTS_PER_PAGE, $commentPage->pageNum());
 $paginator->setAnchor('comments')->setTotal($commentPage->total())->removeParam('postid');
 
-$artistMan     = new Manager\Artist();
-$collageMan    = new Manager\Collage();
-$torMan        = new Manager\Torrent();
-$reportMan     = new Manager\Torrent\Report($torMan);
-$requestMan    = new Manager\Request();
-$userMan       = new Manager\User();
-$vote          = new User\Vote($Viewer);
-$snatcher      = $Viewer->snatch();
-
-$isSubscribed  = new User\Subscription($Viewer)->isSubscribedComments('torrents', $tgroupId);
-$releaseTypes  = new ReleaseType()->list();
-$urlStem       = new User\Stylesheet($Viewer)->imagePath();
-
-$categoryId    = $tgroup->categoryId();
-$musicRelease  = $tgroup->categoryName() == 'Music';
-$year          = $tgroup->year();
-$torrentList   = $tgroup->torrentIdList();
-$removed       = $torrentList ? [] : $tgroup->deletedMasteringList();
+$collageMan   = new Manager\Collage();
+$torMan       = new Manager\Torrent();
+$isSubscribed = new User\Subscription($Viewer)->isSubscribedComments('torrents', $tgroup->id);
+$urlStem      = new User\Stylesheet($Viewer)->imagePath();
+$torrentList  = $tgroup->torrentIdList();
+$roleList     = $tgroup->artistRole()?->roleList();
 
 $section = [
     ['id' => ARTIST_COMPOSER,  'name' => 'composer',  'class' => 'artists_composers',  'role' => 'Composer',      'title' => 'Composers:'],
     ['id' => ARTIST_DJ,        'name' => 'dj',        'class' => 'artists_dj',         'role' => 'DJ / Compiler', 'title' => 'DJ / Compiler:'],
-    ['id' => ARTIST_MAIN,      'name' => 'main',      'class' => 'artists_main',       'role' => 'Artist',        'title' => empty($role['conductor']) ? 'Artists:' : 'Performers:'],
+    ['id' => ARTIST_MAIN,      'name' => 'main',      'class' => 'artists_main',       'role' => 'Artist',        'title' => isset($roleList['conductor']) ? 'Performers:' : 'Artists:'],
     ['id' => ARTIST_GUEST,     'name' => 'guest',     'class' => 'artists_guest',      'role' => 'Guest',         'title' => 'With:'],
     ['id' => ARTIST_CONDUCTOR, 'name' => 'conductor', 'class' => 'artists_conductors', 'role' => 'Conductor',     'title' => 'Conducted by:'],
     ['id' => ARTIST_REMIXER,   'name' => 'remixer',   'class' => 'artists_remix',      'role' => 'Remixer',       'title' => 'Remixed by:'],
@@ -61,87 +47,27 @@ $section = [
 echo $Twig->render('torrent/detail-header.twig', [
     'is_bookmarked' => new User\Bookmark($Viewer)->isBookmarked($tgroup),
     'is_subscribed' => $isSubscribed,
-    'revision_id'   => $RevisionID,
+    'revision_id'   => (int)($_GET['revisionid'] ?? 0),
     'tgroup'        => $tgroup,
     'viewer'        => $Viewer,
 ]);
-?>
 
-<?php
-if ($musicRelease) {
-    $role = $tgroup->artistRole()->roleList();
-?>
-        <div class="box box_artists">
-            <div class="head"><strong>Artists</strong>
-<?php if ($Viewer->permitted('torrents_edit')) { ?>
-            <span style="float: right;" class="edit_artists"><a onclick="ArtistManager(); return false;" href="#" class="brackets">Edit</a></span>
-<?php } ?>
-            </div>
-            <ul class="stats nobullet" id="artist_list">
-<?php
-    foreach ($section as $s) {
-        if ($role[$s['name']]) {
-?>
-                <li class="<?= $s['class'] ?>"><strong class="artists_label"><?= $s['title'] ?></strong></li>
-<?php
-            foreach ($role[$s['name']] as $artistInfo) {
-                $artist = $artistMan->findByAliasId($artistInfo['aliasid']);
-                if (is_null($artist)) {
-                    continue;
-                }
-?>
-                <li class="<?= $s['class'] ?> artist_entry" data-aliasid="<?= $artist->aliasId() ?>">
-                    <span dir="ltr"><?= $artist->link() ?></span>
-<?php           if ($Viewer->permitted('torrents_edit')) { ?>
-                    (<span class="tooltip" title="Artist alias ID"><?= $artist->aliasId()
-                        ?></span>)&nbsp;<span class="remove remove_artist"><a href="javascript:void(0);" onclick="ajax.get('torrents.php?action=delete_alias&amp;auth='+authkey+'&amp;groupid=<?=
-                        $tgroupId ?>&amp;aliasid=<?= $artist->aliasId() ?>&amp;importance=<?=
-                        $s['id'] ?>'); this.parentNode.parentNode.style.display = 'none';" class="brackets tooltip" title="Remove <?=
-                        $s['role'] ?>">X</a></span>
-<?php           } ?>
-                </li>
-<?php
-            }
-        }
-    } /* foreach section */
-?>
-            </ul>
-        </div>
-<?php
-    if ($Viewer->permitted('torrents_add_artist')) {
-        usort($section, fn ($x, $y) => $x['id'] <=> $y['id']);
-?>
-        <div class="box box_addartists">
-            <div class="head"><strong>Add artist</strong><span style="float: right;" class="additional_add_artist"><a onclick="AddArtistField(); return false;" href="#" class="brackets">+</a></span></div>
-            <div class="body">
-                <form class="add_form" name="artists" action="torrents.php" method="post">
-                    <div id="AddArtists">
-                        <input type="hidden" name="action" value="add_alias" />
-                        <input type="hidden" name="auth" value="<?=$Viewer->auth() ?>" />
-                        <input type="hidden" name="groupid" value="<?=$tgroupId?>" />
-                        <input type="text" id="artist" name="aliasname[]" size="17"<?=
-                            $Viewer->hasAutocomplete('other') ? ' data-gazelle-autocomplete="true"' : '' ?> />
-                        <select name="importance[]">
-<?php       foreach ($section as $s) { ?>
-                            <option value="<?= $s['id'] ?>"><?= $s['role'] === 'Artist' ? 'Main' : $s['role'] ?></option>
-<?php       } ?>
-                        </select>
-                    </div>
-                    <input type="submit" value="Add" />
-                </form>
-            </div>
-        </div>
-<?php
-    }
+if ($tgroup->categoryName() == 'Music') {
+    echo $Twig->render('tgroup/artist-sidebar.twig', [
+        'role'    => $roleList,
+        'section' => $section,
+        'tgroup'  => $tgroup,
+        'viewer'  => $Viewer,
+    ]);
 }
 
 echo $Twig->render('tgroup/stats.twig', [
     'collage_list' => $collageMan->addToCollageDefault($tgroup, $Viewer),
-    'featured'     => new Manager\FeaturedAlbum()->findById($tgroupId),
-    'tag_undo'     => $Cache->get_value("deleted_tags_{$tgroupId}_{$Viewer->id}"),
+    'featured'     => new Manager\FeaturedAlbum()->findById($tgroup->id),
+    'tag_undo'     => $Cache->get_value("deleted_tags_{$tgroup->id}_{$Viewer->id}"),
     'tgroup'       => $tgroup,
     'viewer'       => $Viewer,
-    'vote'         => $vote,
+    'vote'         => new User\Vote($Viewer),
 ]);
 ?>
     </div>
@@ -173,10 +99,10 @@ echo $Twig->render('collage/summary.twig', [
 <?php
 if (!$torrentList) {
     // if there are no live torrents left in this group, retrieve info about deleted masterings
-    foreach ($removed as $info) {
+    foreach ($tgroup->deletedMasteringList() as $info) {
         $mastering = implode('/', [$info['year'], $info['title'], $info['record_label'], $info['catalogue_number'], $info['media']]);
 ?>
-            <tr class="releases_<?= $tgroup->releaseType() ?> groupid_<?=$tgroupId?> edition group_torrent">
+            <tr class="releases_<?= $tgroup->releaseType() ?> groupid_<?= $tgroup->id ?> edition group_torrent">
                 <td colspan="<?= $Viewer->ordinal()->value('file-count-display') ? 6 : 5 ?>" class="edition_info"><strong>[<?= html_escape($mastering) ?>]</strong></td>
             </tr>
             <tr>
@@ -191,10 +117,10 @@ if (!$torrentList) {
 } else {
         echo $Twig->render('torrent/detail-torrentgroup.twig', [
             'is_snatched_grp' => $tgroup->isSnatched(),
-            'report_man'      => $reportMan,
+            'report_man'      => new Manager\Torrent\Report($torMan),
             'show_extended'   => true,
             'show_id'         => ($_GET['torrentid'] ?? ''),
-            'snatcher'        => $snatcher,
+            'snatcher'        => $Viewer->snatch(),
             'tgroup'          => $tgroup,
             'torrent_list'    => object_generator($torMan, $torrentList),
             'tor_man'         => $torMan,
@@ -203,11 +129,10 @@ if (!$torrentList) {
 } ?>
         </table>
 <?php
-
 if (!$Viewer->disableRequests()) {
     echo $Twig->render('request/torrent.twig', [
         'bounty' => $Viewer->ordinal()->value('request-bounty-vote'),
-        'list'   => $requestMan->findByTGroup($tgroup),
+        'list'   => new Manager\Request()->findByTGroup($tgroup),
         'viewer' => $Viewer,
     ]);
 }
@@ -235,7 +160,7 @@ echo $Twig->render('tgroup/similar.twig', [
     'textarea'  => new Util\Textarea('quickpost', '')->setPreviewManual(true),
     'url'       => $_SERVER['REQUEST_URI'],
     'url_stem'  => 'comments.php?page=torrents',
-    'userMan'   => $userMan,
+    'userMan'   => new Manager\User(),
     'viewer'    => $Viewer,
 ]) ?>
     </div>

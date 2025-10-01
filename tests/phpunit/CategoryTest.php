@@ -65,7 +65,8 @@ class CategoryTest extends TestCase {
                 ARTIST_MAIN => [[
                     'id'      => $artist->id,
                     'name'    => $artist->name(),
-                    'aliasid' => $artist->aliasId()
+                    'aliasid' => $artist->aliasId(),
+                    'artist'  => $artist->flush(),
                 ]],
             ],
             $new->artistRole()?->idList(),
