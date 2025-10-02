@@ -251,7 +251,7 @@ class TorrentReportManagerTest extends TestCase {
     public function testTorrentReportType(): void {
         $manager = new Manager\Torrent\ReportType();
         $this->assertCount(
-            51,
+            53,
             $manager->list(),
             'trep-type-count'
         );
