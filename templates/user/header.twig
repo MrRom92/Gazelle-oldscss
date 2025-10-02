@@ -156,28 +156,28 @@ None
     </li>
 {% endif %}
 
-{% set visible = user.propertyVisible(preview_user, 'uploaded') %}
+{%- set visible = user.propertyVisible(preview_user, 'uploaded') %}
 {% if visible %}
         <li class="tooltip{{ override(visible) }}" title="{{ user.uploadedSize|octet_size(5) }}">Uploaded: {{ user.uploadedSize|octet_size }}</li>
 {% endif %}
 
-{% set visible = user.propertyVisible(preview_user, 'downloaded') %}
+{%- set visible = user.propertyVisible(preview_user, 'downloaded') %}
 {% if visible %}
         <li class="tooltip{{ override(visible) }}" title="{{ user.downloadedSize|octet_size(5) }}">Downloaded: {{ user.downloadedSize|octet_size }}</li>
 {% endif %}
 
-{% set visible = min(user.propertyVisible(preview_user, 'downloaded'), user.propertyVisible(preview_user, 'uploaded')) %}
+{%- set visible = min(user.propertyVisible(preview_user, 'downloaded'), user.propertyVisible(preview_user, 'uploaded')) %}
 {% if visible %}
 {%  set buffer = user.buffer[1] %}
         <li class="tooltip{{ override(visible) }}" title="{{ buffer|octet_size(5) }}">Buffer: {{ buffer|octet_size }}</li>
 {% endif %}
 
-{% set visible = user.propertyVisible(preview_user, 'ratio') %}
+{%- set visible = user.propertyVisible(preview_user, 'ratio') %}
 {% if visible %}
         <li{{ class_override(visible) }}>Ratio: {{ ratio(user.uploadedSize, user.downloadedSize) }} </li>
 {% endif %}
 
-{% if own_profile or viewer.permitted('users_mod') %}
+{%- if own_profile or viewer.permitted('users_mod') %}
 {%  set recovered = user.recoveryFinalSize %}
 {%  if recovered %}
         <li class="tooltip" title="Recovered from previous site: {{ recovered|octet_size(5) }}">Recovered: {{ recovered|octet_size }}</li>
@@ -186,24 +186,34 @@ None
 {%  endif %}
 {% endif %}
 
-{% set visible = user.propertyVisible(preview_user, 'requiredratio') %}
+{%- set visible = user.propertyVisible(preview_user, 'requiredratio') %}
 {% if visible %}
 {%  set required = user.buffer[0] %}
         <li{{ class_override(visible) }}>Required Ratio: <span class="tooltip" title="{{ user.requiredRatio|number_format(5) }}">{{ user.requiredRatio|number_format(2) }}</span></li>
         <li{{ class_override(visible) }}>Required Class Ratio: <span class="tooltip" title="{{ required|number_format(5) }}">{{ required|number_format(2) }}</span></li>
 {% endif %}
 
-{% set visible = user.propertyVisible(preview_user, 'requiredratio') %}
+{%- set visible = user.propertyVisible(preview_user, 'requiredratio') %}
 {% if visible %}
 {%  set size = user.seedingSize %}
         <li class="tooltip{{ override(visible) }}" title="{{ size|number_format }}">Seeding Size: {{ size|octet_size }}</li>
 {% endif %}
 
-{% set visible = user.propertyVisible(preview_user, 'bonuspoints') %}
+{%- set visible = user.propertyVisible(preview_user, 'bonuspoints') %}
 {% if visible %}
 {%  if viewer.permitted('admin_bp_history') %}
         <li{{ class_override(visible) }}>Bonus Points: {{ user.bonusPointsTotal|number_format }}
             <a href="bonus.php?action=history&amp;userid={{ user_id }}" class="brackets">History</a></li>
+{%      if constant('BONUS_UPLOAD_BOOST_ACTIVE') %}
+{%          set boost = user.ordinal.value('bonus-upload-boost') %}
+{%          set total = 0 %}
+{%          if boost %}
+{%              for n in range(1, boost) %}
+{%                  set total = total + constant('BONUS_UPLOAD_BOOST')[n - 1] %}
+{%              endfor %}
+{%          endif %}
+        <li>Upload boosts: {{ boost }}{% if total %} ({{ total|number_format }} points){% endif %}</li>
+{%      endif %}
         <li{{ class_override(visible) }}><a href="bonus.php?action=bprates&amp;userid={{ user_id }}">Points Per Hour</a>: {{ bonus.hourlyRate|number_format(2) }}
 {%  elseif own_profile %}
         <li{{ class_override(visible) }}>Bonus Points: {{ user.bonusPointsTotal|number_format }}
@@ -215,12 +225,12 @@ None
 {%  endif %}
 {% endif %}
 
-{% if own_profile or viewer.permitted('users_mod') %}
+{%- if own_profile or viewer.permitted('users_mod') %}
         <li{{ class_override(viewer.permitted('users_mod') ? constant('PARANOIA_OVERRIDDEN') : constant('PARANOIA_ALLOWED'))
             }}><a href="userhistory.php?action=token_history&amp;userid={{ user_id }}">Tokens</a>: {{ user.tokenCount|number_format }}</li>
 {% endif %}
 
-{% if user.isWarned and (own_profile or viewer.permitted('users_mod')) %}
+{%- if user.isWarned and (own_profile or viewer.permitted('users_mod')) %}
         <li{{ class_override(viewer.permitted('users_mod') ? constant('PARANOIA_OVERRIDDEN') : constant('PARANOIA_ALLOWED'))
             }}>Warning expires in: {{ user.warningExpiry|time_diff }}</li>
 {% endif %}

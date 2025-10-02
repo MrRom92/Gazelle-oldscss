@@ -616,7 +616,10 @@ $Debug->mark('upload: database committed');
 
 $tracker      = new Tracker();
 $uploadReward = new BonusUploadReward();
-$bonusTotal   = 0;
+$bonusTotal   = $uploadReward->boost($Viewer);
+if ($bonusTotal > 0) {
+    $Viewer->addStaffNote("$bonusTotal points boost for {$torrent->publicLocation()}")->modify();
+}
 $folderCheck  = [];
 foreach ($upload['new'] as $t) {
     $t->flush()->unlockUpload();

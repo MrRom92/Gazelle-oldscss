@@ -13,7 +13,7 @@ namespace Gazelle\User;
  */
 
 class Ordinal extends \Gazelle\BaseUser {
-    final protected const CACHE_KEY = 'u_ord_%s';
+    final protected const CACHE_KEY = 'u_ord2_%s';
 
     protected array $info;
 

@@ -3,27 +3,26 @@
     <ul class="stats nobullet">
         <li>Class: <strong>{{ user.userclassName }}</strong></li>
 {% for id, name in user.privilege.secondaryClassList %}
-    {% if loop.first %}
+{%  if loop.first %}
         <li>
             <ul class="stats">
-    {% endif %}
-    {% if id != constant('DONOR') or user.propertyVisible(viewer, 'hide_donor_heart') %}
+{%  endif %}
+{%  if id != constant('DONOR') or user.propertyVisible(viewer, 'hide_donor_heart') %}
                 <li>{{ name }}</li>
-    {% endif %}
-    {% if loop.last %}
+{%  endif %}
+{%  if loop.last %}
             </ul>
         </li>
-    {% endif %}
+{%  endif %}
 {% endfor %}
 
-{% set own_profile = user.id == viewer.id %}
+{%- set own_profile = user.id == viewer.id %}
     <li>Paranoia level: {{ user.paranoiaLabel }}</li>
-
-{%- if own_profile or viewer.permitted('users_view_email') %}
+{% if own_profile or viewer.permitted('users_view_email') %}
     <li>Email: <a href="mailto:{{ user.email }}">{{ user.email }}</a>
-    {% if viewer.permitted('users_view_email') %}
+{%  if viewer.permitted('users_view_email') %}
     <a href="user.php?action=search&amp;email_history=on&amp;email={{ user.email }}" title="Search" class="brackets tooltip">S</a>
-    {%- endif -%}
+{%  endif %}
     </li>
 {% endif %}
 
@@ -35,7 +34,7 @@
     <li>Passkey: <a href="#" id="passkey" data-key="{{ user.announceKey }}" class="brackets">View</a></li>
 {% endif %}
 
-{% if viewer.permitted('users_view_invites') %}
+{%- if viewer.permitted('users_view_invites') %}
     <li>Invited by:
 {%  if user.referral %}
         self from {{ user.referral }}.
@@ -61,9 +60,9 @@
 {%- if viewer.permitted('users_view_invites') or (own_profile and user.canPurchaseInvite) %}
     <li>Invites: {% if user.disableInvites %}<span title="Invites are disabled">X</span>{% else %}{{ user.unusedInviteTotal|number_format }}{% endif %}
     ({{ user.invite.pendingTotal|number_format }} in use)</li>
-    {% set total = user.stats.invitedTotal %}
+{%  set total = user.stats.invitedTotal %}
     <li>Invited: {{ total|number_format }}
-    {% if total %} <a class="brackets" href="user.php?id={{ user.id }}&amp;action=invite">View</a>{% endif %}
+{%  if total %} <a class="brackets" href="user.php?id={{ user.id }}&amp;action=invite">View</a>{% endif -%}
     </li>
 {% endif %}
 

@@ -71,6 +71,7 @@ parameters:
         - AJAX
         - BITCOIN_DONATION_XYZPUB
         - BLOCK_TOR
+        - BONUS_UPLOAD_BOOST_ACTIVE
         - DISABLE_IRC
         - DISABLE_TRACKER
         - DEBUG

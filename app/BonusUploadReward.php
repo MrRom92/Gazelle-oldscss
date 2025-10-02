@@ -5,6 +5,23 @@ declare(strict_types=1);
 namespace Gazelle;
 
 class BonusUploadReward extends Base {
+    public function boost(User $user): int {
+        if (
+            !BONUS_UPLOAD_BOOST_ACTIVE
+            ||
+            $user->classLevel() > BONUS_UPLOAD_BOOST_MAX_LEVEL
+        ) {
+            return 0;
+        }
+        $index = $user->ordinal()->value('bonus-upload-boost');
+        if (!isset(BONUS_UPLOAD_BOOST[$index])) {
+            return 0;
+        }
+        $boost = BONUS_UPLOAD_BOOST[$index];
+        $user->ordinal()->set('bonus-upload-boost', $index + 1);
+        return $boost;
+    }
+
     public function reward(Torrent $torrent): int {
         $categoryId = $torrent->group()->categoryId();
         if ($torrent->isPerfectFlac()) {

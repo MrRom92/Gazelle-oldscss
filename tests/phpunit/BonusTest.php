@@ -699,6 +699,21 @@ class BonusTest extends TestCase {
         );
     }
 
+    public function testUploadBoost(): void {
+        $this->userList[] = $user = Helper::makeUser('bonusboost.' . randomString(6), 'bonus');
+        $reward = new BonusUploadReward();
+
+        $user->setField('PermissionID', ELITE)->modify();
+        $this->assertEquals(0, $reward->boost($user), 'bonus-boost-elite');
+        $user->setField('PermissionID', MEMBER)->modify();
+        $this->assertEquals(BONUS_UPLOAD_BOOST[0], $reward->boost($user), 'bonus-boost-01');
+        $this->assertEquals(BONUS_UPLOAD_BOOST[1], $reward->boost($user), 'bonus-boost-02');
+        $this->assertEquals(BONUS_UPLOAD_BOOST[2], $reward->boost($user), 'bonus-boost-03');
+        $this->assertEquals(BONUS_UPLOAD_BOOST[3], $reward->boost($user), 'bonus-boost-04');
+        $this->assertEquals(BONUS_UPLOAD_BOOST[4], $reward->boost($user), 'bonus-boost-05');
+        $this->assertEquals(0,                     $reward->boost($user), 'bonus-boost-06');
+    }
+
     public function testStats(): void {
         $eco = new Stats\Economic();
         $eco->flush();

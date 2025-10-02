@@ -736,8 +736,18 @@ defined('BONUS_POOL_TAX_STAFF') or define('BONUS_POOL_TAX_STAFF', 0.5);
 
 // Pricing of tokens to other scales up at every interval of tokens received.
 defined('BONUS_OTHER_TOKEN_INTERVAL') or define('BONUS_OTHER_TOKEN_INTERVAL', 100);
-// At each interval, prices are raised by SCALE percent. Set to 0 to disable scaling.
+
+// At each interval, prices are raised by SCALE percent. Set to 0 to enable flat pricing.
 defined('BONUS_OTHER_TOKEN_SCALE') or define('BONUS_OTHER_TOKEN_SCALE', 20);
+
+// Do initial uploads get a boost?
+defined('BONUS_UPLOAD_BOOST_ACTIVE') or define('BONUS_UPLOAD_BOOST_ACTIVE', true);
+
+// What are the (and how many) rewards for upload boosts
+defined('BONUS_UPLOAD_BOOST') or define('BONUS_UPLOAD_BOOST', [5000, 4000, 3000, 2000, 1000]);
+
+// What is the highest userclass level that benefits from boosts? (200 == Power User)
+defined('BONUS_UPLOAD_BOOST_MAX_LEVEL') or define('BONUS_UPLOAD_BOOST_MAX_LEVEL', 200);
 
 // ------------------------------------------------------------------------
 // Pagination
