@@ -129,7 +129,7 @@ class StaffPM extends \Gazelle\BaseManager {
             SELECT count(*) FROM staff_pm_conversations
             WHERE (Level <= ? OR AssignedToUser = ?)
                 AND Status IN (" . placeholders($status) . ")
-            ", $viewer->privilege()->effectiveClassLevel(), $viewer->id(), ...$status
+            ", $viewer->privilege()->effectiveClassLevel(), $viewer->id, ...$status
         );
     }
 
@@ -138,7 +138,7 @@ class StaffPM extends \Gazelle\BaseManager {
             SELECT count(*) FROM staff_pm_conversations
             WHERE (Level = ? OR AssignedToUser = ?)
                 AND Status IN (" . placeholders($status) . ")
-            ", $viewer->privilege()->effectiveClassLevel(), $viewer->id(), ...$status
+            ", $viewer->privilege()->effectiveClassLevel(), $viewer->id, ...$status
         );
     }
 

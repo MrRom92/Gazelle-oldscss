@@ -219,7 +219,7 @@ class SiteLog extends \Gazelle\Base {
     protected function usernameLookup(string $username): int|false {
         if (!isset($this->usernames[$username])) {
             $user = $this->userMan->findByUsername($username);
-            $this->usernames[$username] = $user?->id() ?? false;
+            $this->usernames[$username] = is_null($user) ? false : $user->id;
         }
         return $this->usernames[$username];
     }

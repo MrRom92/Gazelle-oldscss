@@ -135,7 +135,7 @@ class Collage extends \Gazelle\BaseManager {
 
     public function tgroupCover(\Gazelle\TGroup $tgroup): string {
         return self::$twig->render('collage/row.twig', [
-            'group_id'   => $tgroup->id(),
+            'group_id'   => $tgroup->id,
             'image'      => image_cache_encode($tgroup->image(), height: 150, width: 150),
             'name'       => $tgroup->text(),
             'tags'       => implode(', ', array_map(fn($n) => "#{$n}", $tgroup->tagNameList())),
@@ -433,7 +433,7 @@ class Collage extends \Gazelle\BaseManager {
      * @return array [total results, array above, array below]
      */
     public function tgroupGeneralSummary(\Gazelle\TGroup $tgroup): array {
-        $key = sprintf(self::TGROUP_GENERAL_KEY, $tgroup->id());
+        $key = sprintf(self::TGROUP_GENERAL_KEY, $tgroup->id);
         $list = self::$cache->get_value($key);
         if ($list === false) {
             self::$db->prepared_query("
@@ -446,7 +446,7 @@ class Collage extends \Gazelle\BaseManager {
                     AND CategoryID != ?
                     AND ct.GroupID = ?
                 ORDER BY c.updated DESC
-                ", CollageType::personal->value, $tgroup->id()
+                ", CollageType::personal->value, $tgroup->id
             );
             $list = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value($key, $list, 3600 * 6);
@@ -462,7 +462,7 @@ class Collage extends \Gazelle\BaseManager {
      * @return array [total results, array above, array below]
      */
     public function tgroupPersonalSummary(\Gazelle\TGroup $tgroup): array {
-        $key = sprintf(self::TGROUP_PERSONAL_KEY, $tgroup->id());
+        $key = sprintf(self::TGROUP_PERSONAL_KEY, $tgroup->id);
         $list = self::$cache->get_value($key);
         if ($list === false) {
             self::$db->prepared_query("
@@ -475,7 +475,7 @@ class Collage extends \Gazelle\BaseManager {
                     AND CategoryID = ?
                     AND ct.GroupID = ?
                 ORDER BY c.updated DESC
-                ", CollageType::personal->value, $tgroup->id()
+                ", CollageType::personal->value, $tgroup->id
             );
             $list = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value($key, $list, 3600 * 6);
@@ -490,7 +490,7 @@ class Collage extends \Gazelle\BaseManager {
      * @return array [total results, array above, array below]
      */
     public function artistSummary(\Gazelle\Artist $artist): array {
-        $key = sprintf(self::ARTIST_KEY, $artist->id());
+        $key = sprintf(self::ARTIST_KEY, $artist->id);
         $list = self::$cache->get_value($key);
         if ($list === false) {
             self::$db->prepared_query("
@@ -503,7 +503,7 @@ class Collage extends \Gazelle\BaseManager {
                     AND CategoryID = ?
                     AND ca.ArtistID = ?
                 ORDER BY c.updated DESC
-                ", CollageType::artist->value, $artist->id()
+                ", CollageType::artist->value, $artist->id
             );
             $list = self::$db->to_array(false, MYSQLI_ASSOC);
             self::$cache->cache_value($key, $list, 3600 * 6);

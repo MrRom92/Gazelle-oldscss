@@ -85,7 +85,7 @@ class Blog extends \Gazelle\BaseManager {
      */
     public function latestId(): int {
         $latest = $this->latest();
-        return $latest ? $latest->id() : 0;
+        return $latest ? $latest->id : 0;
     }
 
     /**

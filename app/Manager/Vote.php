@@ -16,14 +16,14 @@ class Vote extends \Gazelle\Base {
             WHERE (v1.Type = 'Up' OR v2.Type = 'Up')
                 AND (v1.GroupId     IN (?, ?))
                 AND (v2.GroupId NOT IN (?, ?))
-            ", $old->id(), $new->id(), $old->id(), $new->id()
+            ", $old->id, $new->id, $old->id, $new->id
         );
         self::$cache->delete_multi(self::$db->collect(0));
 
         // 2. Get a list of everybody who voted on the old group and clear their cache keys
         self::$db->prepared_query("
             SELECT UserID FROM users_votes WHERE GroupID = ?
-            ", $old->id()
+            ", $old->id
         );
         $affected = self::$db->affected_rows();
         foreach (self::$db->collect(0) as $userId) {
@@ -41,11 +41,11 @@ class Vote extends \Gazelle\Base {
             UPDATE IGNORE users_votes SET
                 GroupID = ?
             WHERE GroupID = ?
-            ", $new->id(), $old->id()
+            ", $new->id, $old->id
         );
         self::$db->prepared_query("
             DELETE FROM users_votes WHERE GroupID = ?
-            ", $old->id()
+            ", $old->id
         );
         self::$db->prepared_query("
             INSERT INTO torrents_votes (GroupId, Ups, Total, Score)
@@ -61,13 +61,13 @@ class Vote extends \Gazelle\Base {
             ON DUPLICATE KEY UPDATE
                 Ups = a.Ups,
                 Total = a.Total
-            ", $new->id(), $old->id()
+            ", $new->id, $old->id
         );
         self::$db->prepared_query("
             UPDATE torrents_votes SET
                 Score = IFNULL(binomial_ci(Ups, Total), 0)
             WHERE GroupID = ?
-            ", $new->id()
+            ", $new->id
         );
         return $affected;
     }
