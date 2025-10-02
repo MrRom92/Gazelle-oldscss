@@ -1,25 +1,22 @@
 {% macro user(list, index) %}
-    {% if list[index] is defined %}{{ list[index].user_id|user_url }}{% else %}&nbsp;{% endif %}
+{%  if list[index] is defined %}{{ list[index].user_id|user_url }}{% else %}&nbsp;{% endif %}
 {% endmacro %}
-
 {% macro total(list, index) %}
-    {% if list[index] is defined %}{{ list[index].total|number_format }}{% else %}&nbsp;{% endif %}
+{%  if list[index] is defined %}{{ list[index].total|number_format }}{% else %}&nbsp;{% endif %}
 {% endmacro %}
-
 {% macro accrual(d) %}
-    {% if d is defined %}{{ d.total|number_format }}{% else %}&mdash;{% endif %}
+{%  if d is defined %}{{ d.total|number_format }}{% else %}—{% endif %}
 {% endmacro %}
-
 {% macro delta(interval, n) %}
-    {% set p = n - 1 %}
-    {% if interval[n] is defined and interval[p] is defined %}{{ (interval[p].total - interval[n].total)|number_format }}
-    {% elseif interval[n] is defined %}{{  interval[n].total|number_format }}
-    {% elseif interval[p] is defined %}{{ -interval[p].total|number_format }}
-    {% else %}&mdash;{% endif %}
+{%  set p = n - 1 %}
+{%  if interval[n] is defined and interval[p] is defined %}{{ (interval[p].total - interval[n].total)|number_format -}}
+{%  elseif interval[n] is defined %}{{ interval[n].total|number_format -}}
+{%  elseif interval[p] is defined %}{{ (-interval[p].total)|number_format -}}
+{%  else %}—{% endif %}
 {% endmacro %}
-
 {% set max = 6 %}
-{{ header('Bonus Points Statistics') }}
+
+{{- header('Bonus Points Statistics') }}
 <div class="pad box">
     <h2>Accrual</h2>
     <table>
@@ -27,7 +24,7 @@
             <td>Interval</td>
             <td>Current</td>
 {% for n in range(1, max) %}
-            <td>&Delta; n-{{ n }}</td>
+            <td>Δ n-{{ n }}</td>
 {% endfor %}
         </tr>
         <tr class="rowa">
