@@ -107,7 +107,6 @@ echo $Twig->render('user/header.twig', [
     'friend'       => new User\Friend($Viewer),
     'preview_user' => $previewer,
     'user'         => $user,
-    'userMan'      => $userMan,
     'viewer'       => $Viewer,
 ]);
 
@@ -235,11 +234,11 @@ if (check_paranoia_here('snatched')) {
 }
 
 echo $Twig->render('user/sidebar-stats.twig', [
-    'prl'            => $limiter,
-    'upload_total'   => $Uploads,
-    'user'           => $user,
-    'viewer'         => $Viewer,
-    'visible'        => [
+    'prl'          => $limiter,
+    'upload_total' => $Uploads,
+    'user'         => $user,
+    'viewer'       => $Viewer,
+    'visible'      => [
         'collages+'             => check_paranoia_here('collages+'),
         'collages'              => check_paranoia_here('collages'),
         'collagescontrib+'      => check_paranoia_here('collagecontribs+'),
@@ -343,89 +342,42 @@ echo $Twig->render('user/collage-list.twig', [
     'manager' => $tgMan,
 ]);
 
-// Linked accounts
-if ($Viewer->permitted('users_linked_users')) {
-    echo $Twig->render('user/linked.twig', [
-        'hash'      => signature($comments ?? '', USER_EDIT_SALT),
-        'user_link' => new User\UserLink($user)->info(),
-        'user'      => $user,
-        'viewer'    => $Viewer,
-    ]);
-}
+echo $Twig->render('user/information.twig', [
+    'hash'          => signature($comments ?? '', USER_EDIT_SALT),
+    'previewer'     => $previewer,
+    'user'          => $user,
+    'viewer'        => $Viewer,
 
-if ($Viewer->permitted('users_view_invites')) {
-    $tree = new User\InviteTree($user);
-    if ($tree->hasInvitees()) {
-?>
-        <div class="box" id="invitetree_box">
-            <div class="head">
-                Invite Tree <a href="#" data-id="<?= $user->id ?>" class="user-invite-tree brackets">View</a>
-            </div>
-            <div id="invitetree" class="hidden">
-            </div>
-        </div>
-<?php
-    }
-}
+    // optional (possibly expensive) elements requiring additional privileges
+    'donor_history' => $Viewer->permitted('users_give_donor')
+        ? $donor->historyList() : [],
 
-if ($Viewer->permitted('users_give_donor')) {
-    echo $Twig->render('donation/history.twig', [
-        'history' => $donor->historyList(),
-    ]);
-}
+    'has_invitees' => $Viewer->permitted('users_view_invites')
+        ? new User\InviteTree($user)->hasInvitees() : [],
 
-if (!$Viewer->disableRequests() && $user->propertyVisible($previewer, 'requestsvoted_list')) {
-    echo $Twig->render('request/user-unfilled.twig', [
-        'bounty' => $Viewer->ordinal()->value('request-bounty-vote'),
-        'list'   => new Manager\Request()->findUnfilledByUser($user, 100),
-        'viewer' => $Viewer,
-    ]);
-}
+    'report_list' => $Viewer->permitted('admin_reports')
+        ? new Manager\Report($userMan)->findByReportedUser($user) : [],
 
-if ($Viewer->permitted('users_mod') || $Viewer->isStaffPMReader()) {
-    echo $Twig->render('admin/staffpm-list.twig', [
-        'list' => new Staff($Viewer)->userStaffPmList($user),
-    ]);
-}
+    'user_link' => $Viewer->permitted('users_linked_users')
+        ? new User\UserLink($user)->info() : [],
 
-if ($Viewer->permitted('admin_reports')) {
-    $reports = new Manager\Report($userMan)->findByReportedUser($user);
-    if ($reports) {
-        echo $Twig->render('admin/user-reports-list.twig', [
-            'list' => $reports
-        ]);
-    }
-}
+    'request_list' => !$Viewer->disableRequests() && $user->propertyVisible($previewer, 'requestsvoted_list')
+        ? new Manager\Request()->findUnfilledByUser($user, 100) : [],
 
-// Displays a table of forum warnings viewable only to Forum Moderators
-if ($Viewer->permitted('users_warn')) {
-    $ForumWarnings = $user->forumWarning();
-    if ($ForumWarnings) {
-?>
-<div class="box">
-    <div class="head">Forum warnings</div>
-    <div class="pad">
-        <div id="forumwarningslinks" class="AdminComment" style="width: 98%;"><?=\Text::full_format($ForumWarnings)?></div>
-    </div>
-</div>
-<?php
-    }
-}
+    'staffpm_list' => $Viewer->permitted('users_mod') || $Viewer->isStaffPMReader()
+        ? new Staff($Viewer)->userStaffPmList($user) : [],
 
-if ($Viewer->permitted('users_auto_reports')) {
-    $raTypeMan   = new \Gazelle\Manager\ReportAutoType();
-    $raSearch    = new Search\ReportAuto(new \Gazelle\Manager\ReportAuto($raTypeMan), $raTypeMan);
-    $openReports = $raSearch->setUser($user)->setState(Enum\ReportAutoState::open)->userTotalList($userMan);
-    if ($openReports && $openReports[0][1]) {
-?>
-<div class="box">
-    <div class="head">
-        <a href="report_auto.php?userid=<?=$user->id?>"><?=$openReports[0][1]?> open automated report<?=plural($openReports[0][1])?></a>
-    </div>
-</div>
-<?php
-    }
-}
+    'warning_list' => $Viewer->permitted('users_warn')
+        ? $user->forumWarning() : [],
+
+    'auto_list' => $Viewer->permitted('users_auto_reports')
+        ? (function ($u) {
+            $raTypeMan = new \Gazelle\Manager\ReportAutoType();
+            $raSearch  = new Search\ReportAuto(new \Gazelle\Manager\ReportAuto($raTypeMan), $raTypeMan);
+            return $raSearch->setUser($u)->setState(Enum\ReportAutoState::open)->userTotalList(0);
+        })($user)
+        : [],
+]);
 
 echo $Twig->render('user/main-column.twig', [
     'asn'           => new Search\ASN(),

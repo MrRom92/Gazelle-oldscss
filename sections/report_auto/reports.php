@@ -65,5 +65,5 @@ echo $Twig->render('report_auto/index.twig', [
     'type_id'      => $type?->id(),
     'base_uri'     => $baseUri,
     'type_count'   => $search->typeTotalList(),
-    'user_count'   => $search->userTotalList($userMan, 20),
+    'user_count'   => $search->userTotalList(20),
 ]);

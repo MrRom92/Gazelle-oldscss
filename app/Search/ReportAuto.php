@@ -92,9 +92,12 @@ class ReportAuto {
     /**
      * returns array of [\Gazelle\User, reports count] ordered by count
      */
-    public function userTotalList(\Gazelle\Manager\User $userMan, int $limit = 0): array {
+    public function userTotalList(
+        int $limit = 0,
+        \Gazelle\Manager\User $userMan = new \Gazelle\Manager\User(),
+    ): array {
         return array_map(
-            fn($row) => [$userMan->findById($row['key']), $row['total']],
+            fn ($row) => [$userMan->findById($row['key']), $row['total']],
             $this->totalList('id_user', $limit)
         );
     }

@@ -1,0 +1,63 @@
+{%- if viewer.permitted('users_view_invites') %}
+{%  include 'user/linked.twig' with {
+        'hash'      : hash,
+        'user_link' : user_link,
+        'user'      : user,
+        'viewer'    : viewer,
+    } only
+%}
+{% endif %}
+
+{%- if has_invitees and viewer.permitted('users_view_invites') %}
+        <div class="box" id="invitetree_box">
+            <div class="head">
+                Invite Tree <a href="#" data-id="{{ user.id }}" class="user-invite-tree brackets">View</a>
+            </div>
+            <div id="invitetree" class="hidden">
+            </div>
+        </div>
+{% endif %}
+
+{%- if viewer.permitted('users_give_donor') %}
+{%  include 'donation/history.twig' with {'history': donor_history} only %}
+{% endif %}
+
+{%- if not viewer.disableRequests and user.propertyVisible(previewer, 'requestsvoted_list') %}
+{%  include 'request/user-unfilled.twig' with {
+        'list'   : request_list,
+        'viewer' : viewer,
+    } only
+%}
+{% endif %}
+
+{%- if viewer.permitted('users_mod') or viewer.isStaffPMReader %}
+{%  include 'admin/staffpm-list.twig' with {
+        'list' : staffpm_list,
+    } only
+%}
+{% endif %}
+
+{%- if report_list and viewer.permitted('admin_reports') %}
+{%  include 'admin/user-reports-list.twig' with {
+        'list'   : report_list,
+    } only
+%}
+{% endif %}
+
+{%- if viewer.permitted('users_warn') and warning_list %}
+        <div class="box">
+            <div class="head">Forum warnings</div>
+            <div class="pad">
+                <div id="forumwarningslinks" class="AdminComment" style="width: 98%;">{{ warning_list|bb_format }}</div>
+            </div>
+        </div>
+{% endif %}
+
+{%- if viewer.permitted('users_auto_reports') and auto_list %}
+{%  set n = auto_list[0][1] %}
+        <div class="box">
+            <div class="head">
+                <a href="report_auto.php?userid={{ user.id }}">{{ n }} open automated report{{ n|plural }}</a>
+            </div>
+        </div>
+{% endif %}

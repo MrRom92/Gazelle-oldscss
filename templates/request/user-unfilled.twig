@@ -1,4 +1,5 @@
 {% from 'macro/form.twig' import hidden %}
+{% set bounty = viewer.ordinal.value('request-bounty-vote') %}
 {% for request in list %}
 {%  if loop.first %}
 <div class="hidden">

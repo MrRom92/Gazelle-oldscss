@@ -7,7 +7,6 @@ use GazelleUnitTest\Helper;
 use Gazelle\Enum\ReportAutoState;
 
 class SearchReportAutoTest extends TestCase {
-    protected static Manager\User $userMan;
     protected static Manager\ReportAutoType $ratMan;
     protected static Manager\ReportAuto $raMan;
     protected static User $user1;
@@ -27,7 +26,6 @@ class SearchReportAutoTest extends TestCase {
     }
 
     public static function setUpBeforeClass(): void {
-        self::$userMan = new Manager\User();
         self::$ratMan = new Manager\ReportAutoType();
         self::$raMan = new Manager\ReportAuto(self::$ratMan);
         self::$user1 = Helper::makeUser('user.' . randomString(10), 'reportautosearch', enable: true, clearInbox: true);
@@ -70,7 +68,7 @@ class SearchReportAutoTest extends TestCase {
             };
         }
 
-        foreach ($search->userTotalList(self::$userMan) as $userList) {
+        foreach ($search->userTotalList() as $userList) {
             match ($userList[0]) {
                 self::$user1 => $this->assertEquals(3 + 7, $userList[1], 'rasearch-all-4'),
                 self::$user2 => $this->assertEquals(5 + 11, $userList[1], 'rasearch-all-5'),
@@ -122,7 +120,7 @@ class SearchReportAutoTest extends TestCase {
         $search->setState(Enum\ReportAutoState::closed);
         $search->setOwner(self::$user1);
 
-        $this->matchThingList($search->userTotalList(self::$userMan), self::$user2, 2, 'closed-1');
+        $this->matchThingList($search->userTotalList(), self::$user2, 2, 'closed-1');
     }
 
     public function testClosed2(): void {
@@ -130,7 +128,7 @@ class SearchReportAutoTest extends TestCase {
         $search->setState(Enum\ReportAutoState::closed);
         $search->setOwner(self::$user2);
 
-        foreach ($search->userTotalList(self::$userMan) as $userList) {
+        foreach ($search->userTotalList() as $userList) {
             match ($userList[0]->id()) {
                 self::$user1->id() => $this->assertEquals(2, $userList[1], 'rasearch-closed-2-1'),
                 self::$user2->id() => $this->assertEquals(2, $userList[1], 'rasearch-closed-2-2'),
@@ -144,7 +142,7 @@ class SearchReportAutoTest extends TestCase {
         $search->setState(Enum\ReportAutoState::in_progress);
         $search->setOwner(self::$user2);
 
-        foreach ($search->userTotalList(self::$userMan) as $userList) {
+        foreach ($search->userTotalList() as $userList) {
             match ($userList[0]->id()) {
                 self::$user1->id() => $this->assertEquals(2, $userList[1], 'rasearch-claimed-1-1'),
                 self::$user2->id() => $this->assertEquals(1, $userList[1], 'rasearch-claimed-1-2'),
@@ -167,7 +165,7 @@ class SearchReportAutoTest extends TestCase {
         $search->setState(Enum\ReportAutoState::open);
         $search->setUser(self::$user1);
 
-        $this->matchThingList($search->userTotalList(self::$userMan), self::$user1, 3 + 7 - 2, 'user-open');
+        $this->matchThingList($search->userTotalList(), self::$user1, 3 + 7 - 2, 'user-open');
     }
 
     public function testId(): void {
