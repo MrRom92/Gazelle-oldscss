@@ -4,7 +4,7 @@
 {%      if loop.first %}
 <h4>List of Peers</h4>
 {%          set linkbox %}
-<div class="linkbox">{{ pager('show_seeders', torrent_id, paginator.page, paginator.pages)|raw }}</div>
+<div class="linkbox">{{ pager('show_seeders', torrent, paginator)|raw }}</div>
 {%          endset %}
 {{ linkbox|raw }}
 <table>
@@ -23,7 +23,7 @@
     </tr>
 {%      endif %}
     <tr>
-{%      if is_admin or peer.user_id == user_id %}
+{%      if is_admin or peer.user_id == viewer.id %}
         <td>{{ peer.user_id|user_url }}</td>
 {%      else %}
         <td>Peer</td>
@@ -32,7 +32,7 @@
         <td class="number_column">{{ peer.uploaded|octet_size }}</td>
         <td class="number_column">{{ peer.downloaded|octet_size }}</td>
         <td class="number_column">{{ ((peer.size - peer.remaining) / peer.size * 100)|number_format(2) }}</td>
-{%      if peer.user_id == user_id %}
+{%      if peer.user_id == viewer.id %}
 {%          if peer.seedbox %}
         <td title="IP: {{ peer.ipv4addr }}, Useragent: {{ peer.useragent }}" colspan="2">Seedbox: <b>{{ peer.seedbox }}</b></td>
 {%          else %}

@@ -9,11 +9,11 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!isset($_GET['userid'])) {
-    header("Location: torrents.php?type={$_GET['type']}&userid=" . $Viewer->id());
+    header("Location: torrents.php?type={$_GET['type']}&userid={$Viewer->id}");
     exit;
 }
 if ($_GET['userid'] == 'me') {
-    $_GET['userid'] = $Viewer->id();
+    $_GET['userid'] = $Viewer->id;
 }
 $user = new Manager\User()->findById((int)($_GET['userid'] ?? 0));
 if (is_null($user)) {
@@ -222,7 +222,7 @@ switch ($_GET['type']) {
         $userField = 't.UserID';
         break;
     case 'downloaded':
-        if (!($userId === $Viewer->id() || $Viewer->permitted('site_view_torrent_snatchlist'))) {
+        if (!($userId === $Viewer->id || $Viewer->permitted('site_view_torrent_snatchlist'))) {
             Error403::error();
         }
         $join = "INNER JOIN users_downloads AS ud ON (ud.TorrentID = t.ID)";

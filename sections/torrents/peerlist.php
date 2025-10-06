@@ -15,10 +15,10 @@ $paginator = new Util\Paginator(PEERS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($torrent->seederTotal());
 
 echo $Twig->render('torrent/seederlist.twig', [
-    'is_admin'   => $Viewer->permitted('users_mod'),
-    'list'       => $torrent->seederList($Viewer, $paginator->limit(), $paginator->offset()),
-    'paginator'  => $paginator,
-    'torrent_id' => $torrent->id(),
-    'url_stem'   => new User\Stylesheet($Viewer)->imagePath(),
-    'user_id'    => $Viewer->id(),
+    'is_admin'  => $Viewer->permitted('users_mod'),
+    'list'      => $torrent->seederList($Viewer, $paginator->limit(), $paginator->offset()),
+    'paginator' => $paginator,
+    'torrent'   => $torrent,
+    'url_stem'  => new User\Stylesheet($Viewer)->imagePath(),
+    'viewer'    => $Viewer,
 ]);

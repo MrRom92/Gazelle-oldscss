@@ -13,7 +13,7 @@ if (is_null($torrent)) {
     Error404::error();
 }
 
-if (($Viewer->id() != $torrent->uploaderId() && !$Viewer->permitted('torrents_edit')) || $Viewer->disableWiki()) {
+if (($Viewer->id != $torrent->uploaderId() && !$Viewer->permitted('torrents_edit')) || $Viewer->disableWiki()) {
     Error403::error();
 }
 
@@ -40,7 +40,7 @@ if ($Viewer->permitted('torrents_edit') && ($Viewer->permitted('users_mod') || $
 
 if (!($torrent->isRemastered() && !$torrent->remasterYear()) || $Viewer->permitted('edit_unknowns')) {
     $torrentInfo = [
-        'ID'                      => $torrent->id(),
+        'ID'                      => $torrent->id,
         'Media'                   => $torrent->media(),
         'Format'                  => $torrent->format(),
         'Bitrate'                 => $torrent->encoding(),
@@ -57,7 +57,7 @@ if (!($torrent->isRemastered() && !$torrent->remasterYear()) || $Viewer->permitt
         'Title'                   => $tgroup->name(),
         'Year'                    => $tgroup->year(),
         'VanityHouse'             => $tgroup->isShowcase(),
-        'GroupID'                 => $tgroup->id(),
+        'GroupID'                 => $tgroup->id,
         'UploaderID'              => $torrent->uploaderId(),
         'HasLog'                  => $torrent->hasLog(),
         'HasCue'                  => $torrent->hasCue(),

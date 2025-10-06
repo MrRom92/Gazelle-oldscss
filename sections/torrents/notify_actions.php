@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Gazelle;
 
 authorize();
-$notifier = new Notification\Torrent($Viewer->id());
+$notifier = new Notification\Torrent($Viewer);
 
 switch ($_GET['action']) {
     case 'notify_catchup':

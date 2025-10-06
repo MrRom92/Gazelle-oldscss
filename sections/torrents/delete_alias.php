@@ -25,7 +25,7 @@ if (is_null($artist)) {
 }
 
 // save data in case removeArtist() deletes the artist
-$artistId = $artist->id();
+$artistId = $artist->id;
 $artistName = $artist->name();
 
 if ($tgroup->removeArtist($artist, $role)) {

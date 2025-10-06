@@ -18,9 +18,8 @@ $paginator = new Util\Paginator(PEERS_PER_PAGE, (int)($_GET['page'] ?? 1));
 $paginator->setTotal($torrent->downloadTotal());
 
 echo $Twig->render('torrent/downloadlist.twig', [
-    'list'       => $torrent->downloadList($Viewer, $paginator->limit(), $paginator->offset()),
-    'paginator'  => $paginator,
-    'torrent_id' => $torrent->id(),
-    'url_stem'   => new User\Stylesheet($Viewer)->imagePath(),
-    'viewer_id'  => $Viewer->id(),
+    'list'      => $torrent->downloadList($Viewer, $paginator->limit(), $paginator->offset()),
+    'paginator' => $paginator,
+    'torrent'   => $torrent,
+    'url_stem'  => new User\Stylesheet($Viewer)->imagePath(),
 ]);

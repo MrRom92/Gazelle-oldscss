@@ -19,7 +19,7 @@ $new = $tgMan->findById((int)($_POST['targetgroupid'] ?? 0));
 if (is_null($new)) {
     Error400::error('Target group does not exist.');
 }
-if ($new->id() === $old->id()) {
+if ($new->id === $old->id) {
     Error400::error('Old group ID is the same as new group ID!');
 }
 if ($old->categoryName() !== 'Music') {

@@ -271,7 +271,7 @@ class NotificationUploadTest extends TestCase {
         $this->assertEquals(0, $this->userList['release']->removeNotificationFilter($filter['tag']), 'user-remove-other-filter');
 
         // look for an unread user notification
-        $notifier = new Notification\Torrent($this->userList['artist']->id);
+        $notifier = new Notification\Torrent($this->userList['artist']);
         $this->assertEquals(1, $notifier->total(), 'notifier-artist-total');
         $unreadList = $notifier->unreadList(1, 0);
         $this->assertCount(1, $unreadList, 'notifier-artist-unread-list');
@@ -279,13 +279,13 @@ class NotificationUploadTest extends TestCase {
 
         // catch notifications
         unset($notifier);
-        $notifier = new Notification\Torrent($this->userList['enc.med']->id);
+        $notifier = new Notification\Torrent($this->userList['enc.med']);
         $this->assertEquals(1, $notifier->catchup(), 'notifier-encmed-catchup');
         $this->assertCount(1, $notifier->unreadList(1, 0), 'notifier-encmed-unread'); // FIXME: it's actually read+unread
 
         // clear unread user notifications
         unset($notifier);
-        $notifier = new Notification\Torrent($this->userList['tag']->id);
+        $notifier = new Notification\Torrent($this->userList['tag']);
         $this->assertEquals(1, $notifier->catchupFilter($filter['tag']), 'notifier-tag-catchup-filter');
         $this->assertCount(1, $notifier->unreadList(1, 0), 'notifier-tag-catchup-unread');
         $this->assertEquals(1, $notifier->clearFilter($filter['tag']), 'notifier-tag-clear-filter');
@@ -400,7 +400,7 @@ class NotificationUploadTest extends TestCase {
         $manager = new Manager\Notification();
         $manager->handleTicket($ticket, $this->torMan);
 
-        $notifier = new Notification\Torrent($this->userList['new.grp']->id);
+        $notifier = new Notification\Torrent($this->userList['new.grp']);
         $this->assertEquals(1, $notifier->total(), 'notifier-new-group-1-total');
         $this->assertEquals(1, $notifier->catchupFilter($filter), 'notifier-new-group-catchup');
         $this->assertEquals(1, $notifier->clearFilter($filter), 'notifier-new-group-clear');
@@ -429,7 +429,7 @@ class NotificationUploadTest extends TestCase {
         Helper::generateTorrentSeed($newTorrent, $newTorrent->uploader());
         $manager->handleTicket($ticket, $this->torMan);
 
-        $notifier = new Notification\Torrent($this->userList['new.grp']->id);
+        $notifier = new Notification\Torrent($this->userList['new.grp']);
         $this->assertEquals(0, $notifier->total(), 'notifier-no-new-group-2-total');
 
         $stats = $manager->ticketStats();

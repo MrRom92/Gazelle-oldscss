@@ -38,7 +38,7 @@ if ($status == DownloadStatus::ok) {
 }
 
 if ($status == DownloadStatus::flood) {
-    $key = "ratelimit_flood_" . $Viewer->id();
+    $key = "ratelimit_flood_" . $Viewer->id;
     if ($Cache->get_value($key) === false) {
         $Cache->cache_value($key, true, 3600);
         Irc::sendMessage(

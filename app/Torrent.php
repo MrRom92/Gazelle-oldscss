@@ -120,15 +120,15 @@ class Torrent extends TorrentAbstract {
         bool   $adjusted,
         int    $adjScore,
         bool   $adjChecksum,
-        int    $adjBy,
         string $adjReason,
         array  $adjDetails,
+        User   $adjBy,
     ): int {
         self::$db->prepared_query("
             UPDATE torrents_logs SET
                 Adjusted = ?, AdjustedScore = ?, AdjustedChecksum = ?, AdjustedBy = ?, AdjustmentReason = ?, AdjustmentDetails = ?
             WHERE TorrentID = ? AND LogID = ?
-            ", $adjusted ? '1' : '0', $adjScore, $adjChecksum ? '1' : '0', $adjBy, $adjReason, serialize($adjDetails),
+            ", $adjusted ? '1' : '0', $adjScore, $adjChecksum ? '1' : '0', $adjBy->id, $adjReason, serialize($adjDetails),
                 $this->id, $logId
         );
         if (self::$db->affected_rows() > 0) {

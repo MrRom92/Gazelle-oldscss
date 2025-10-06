@@ -17,7 +17,7 @@ $thread = new Manager\ForumThread()->create(
     user:  new User(SYSTEM_USER_ID),
     title: "Editing request \xE2\x80\x93 Torrent Group: " . $tgroup->name(),
     body:  $Twig->render('forum/edit-request-body.twig', [
-        'link'    => '[torrent]' . $tgroup->id() . '[/torrent]',
+        'link'    => "[torrent]{$tgroup->id}[/torrent]",
         'details' => trim($_POST['edit_details']),
         'viewer'  => $Viewer,
     ]),

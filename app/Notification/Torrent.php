@@ -7,14 +7,14 @@ class Torrent extends \Gazelle\Base {
     protected array $args;
 
     public function __construct(
-        protected readonly int $userId,
+        protected readonly \Gazelle\User $user,
     ) {
         $this->cond = ['unt.UserID = ?'];
-        $this->args = [$userId];
+        $this->args = [$user->id];
     }
 
     public function flush(): static {
-        self::$cache->delete_value('user_notify_upload_' . $this->userId);
+        self::$cache->delete_value('user_notify_upload_' . $this->user->id);
         return $this;
     }
 
@@ -57,7 +57,7 @@ class Torrent extends \Gazelle\Base {
             UPDATE users_notify_torrents SET
                 UnRead = ?
             WHERE UserID = ?
-            ', 0, $this->userId
+            ', 0, $this->user->id
         );
         $this->flush();
         return $list;
@@ -68,7 +68,7 @@ class Torrent extends \Gazelle\Base {
             UPDATE users_notify_torrents SET
                 UnRead = 0
             WHERE UnRead = 1 AND UserID = ?
-            ", $this->userId
+            ", $this->user->id
         );
         if (self::$db->affected_rows()) {
             $this->flush();
@@ -81,7 +81,7 @@ class Torrent extends \Gazelle\Base {
             UPDATE users_notify_torrents SET
                 UnRead = 0
             WHERE UnRead = 1 AND UserID = ? AND FilterID = ?
-            ", $this->userId, $filterId
+            ", $this->user->id, $filterId
         );
         if (self::$db->affected_rows()) {
             $this->flush();
@@ -92,7 +92,7 @@ class Torrent extends \Gazelle\Base {
     public function clearFilter(int $filterId): int {
         self::$db->prepared_query("
             DELETE FROM users_notify_torrents WHERE UnRead = 0 AND UserID = ? AND FilterID = ?
-            ", $this->userId, $filterId
+            ", $this->user->id, $filterId
         );
         $this->flush();
         return self::$db->affected_rows();
@@ -101,7 +101,7 @@ class Torrent extends \Gazelle\Base {
     public function clearRead(): int {
         self::$db->prepared_query("
             DELETE FROM users_notify_torrents WHERE UnRead = 0 AND UserID = ?
-            ", $this->userId
+            ", $this->user->id
         );
         $this->flush();
         return self::$db->affected_rows();
@@ -113,7 +113,7 @@ class Torrent extends \Gazelle\Base {
         }
         self::$db->prepared_query("
             DELETE FROM users_notify_torrents WHERE UserID = ? AND TorrentID IN (" . placeholders($torrentIds) . ")
-            ", $this->userId, ...$torrentIds
+            ", $this->user->id, ...$torrentIds
         );
         $this->flush();
         return self::$db->affected_rows();

@@ -9,8 +9,8 @@ if (!$Viewer->permitted('users_mod')) {
     Error403::error();
 }
 
-$LogID = (int)($_POST['logid'] ?? 0);
-if (!$LogID) {
+$logId = (int)($_POST['logid'] ?? 0);
+if (!$logId) {
     Error404::error();
 }
 $torrent = new Manager\Torrent()->findById((int)($_POST['torrentid'] ?? 0));
@@ -74,6 +74,6 @@ foreach ($TrackDeductions as [$tag, $deduction, $label]) {
     }
 }
 
-$torrent->adjustLogscore($LogID, $adjusted, max(0, $adjustedScore), $adjustedChecksum, $Viewer->id(), $adjustmentReason, $adjustmentDetails);
+$torrent->adjustLogscore($logId, $adjusted, max(0, $adjustedScore), $adjustedChecksum, $adjustmentReason, $adjustmentDetails, $Viewer);
 
 header('Location: ' . $torrent->location());

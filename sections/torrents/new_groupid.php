@@ -26,7 +26,7 @@ if ($new->categoryName() !== 'Music') {
     Error400::error('Destination torrent group must be in the "Music" category.');
 }
 
-if ($torrent->groupId() === $new->id()) {
+if ($torrent->groupId() === $new->id) {
     header("Location: " . redirectUrl("torrents.php?action=edit&id=" . $torrent->groupId()));
     exit;
 }
