@@ -11,6 +11,21 @@ use Gazelle\Util\Time;
 require_once __DIR__ . '/lib/bootstrap.php';
 global $Cache, $Debug, $Twig;
 
+register_shutdown_function(
+    function () {
+        if (preg_match(DEBUG_URI, $_SERVER['REQUEST_URI'])) {
+            include DEBUG_TRACE; /** @phpstan-ignore-line */
+        }
+        $error = error_get_last();
+        global $Debug;
+        if ($error['type'] == E_ERROR) {
+            $Debug->saveCase(str_replace(SERVER_ROOT . '/', '', $error['message']));
+        }
+        $Debug->storeMemory(memory_get_usage(true));
+        $Debug->storeDuration($Debug->duration() * 1000000);
+    }
+);
+
 // Get the user's actual IP address if they're proxied.
 if (
     !empty($_SERVER['HTTP_X_FORWARDED_FOR'])
@@ -135,19 +150,6 @@ $Cache->cache_value('php_' . getmypid(), [
     )
 ], 600);
 
-register_shutdown_function(
-    function () {
-        if (preg_match(DEBUG_URI, $_SERVER['REQUEST_URI'])) {
-            include DEBUG_TRACE; /** @phpstan-ignore-line */
-        }
-        $error = error_get_last();
-        if ($error['type'] == E_ERROR) {
-            global $Debug;
-            $Debug->saveCase(str_replace(SERVER_ROOT . '/', '', $error['message']));
-        }
-    }
-);
-
 // 4. Display the page
 
 header('Cache-Control: no-cache, must-revalidate, post-check=0, pre-check=0');
@@ -176,6 +178,4 @@ try {
     if (!is_null($Viewer)) {
         $Debug->profile($Viewer, isset($_REQUEST['profile']));
     }
-    $Debug->storeMemory(memory_get_usage(true));
-    $Debug->storeDuration($Debug->duration() * 1000000);
 }
