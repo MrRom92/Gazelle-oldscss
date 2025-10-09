@@ -34,8 +34,8 @@ class Similar extends \Gazelle\Base {
 
     public function flush(): static {
         self::$cache->delete_multi([
-            sprintf(self::CACHE_KEY, $this->id()),
-            sprintf(self::POSITION_KEY, $this->id()),
+            sprintf(self::CACHE_KEY, $this->artist->id),
+            sprintf(self::POSITION_KEY, $this->artist->id),
         ]);
         unset($this->info);
         return $this;
@@ -46,14 +46,14 @@ class Similar extends \Gazelle\Base {
     }
 
     public function id(): int {
-        return $this->artist->id();
+        return $this->artist->id;
     }
 
     public function info(): array {
         if (isset($this->info)) {
             return $this->info;
         }
-        $key = sprintf(self::CACHE_KEY, $this->id());
+        $key = sprintf(self::CACHE_KEY, $this->artist->id);
         $info = self::$cache->get_value($key);
         if ($info === false) {
             self::$db->prepared_query("
@@ -69,7 +69,7 @@ class Similar extends \Gazelle\Base {
                 WHERE s1.ArtistID = ?
                 ORDER BY ass.Score DESC, aa.Name
                 LIMIT 30
-                ", $this->id()
+                ", $this->artist->id
             );
             $info = self::$db->to_array(false, MYSQLI_ASSOC);
         }
@@ -78,13 +78,13 @@ class Similar extends \Gazelle\Base {
     }
 
     public function findSimilarId(\Gazelle\Artist $other): int {
-        $artist = array_values(array_filter($this->info(), fn($s) => $s['artist_id'] == $other->id()));
+        $artist = array_values(array_filter($this->info(), fn($s) => $s['artist_id'] == $other->id));
         return $artist[0]['similar_id'] ?? 0;
     }
 
     public function addSimilar(\Gazelle\Artist $other, \Gazelle\User $user): int {
-        $thisId = $this->id();
-        $otherId = $other->id();
+        $thisId = $this->artist->id;
+        $otherId = $other->id;
         self::$db->begin_transaction();
         $findId = $this->findSimilarId($other);
         if ($findId) {
@@ -237,7 +237,7 @@ class Similar extends \Gazelle\Base {
             ORDER BY score DESC,
                 votes DESC
             LIMIT 30
-            ", $this->id()
+            ", $this->artist->id
         );
         $artistIds = self::$db->collect('artist_id') ?: [0];
         $similar   = self::$db->to_array('artist_id', MYSQLI_ASSOC);
@@ -284,7 +284,7 @@ class Similar extends \Gazelle\Base {
         // at the beginning and end of the array (as long as we alternate
         // between shifting and popping the array).
         $layout = [];
-        $angle = fmod($this->id(), 2 * M_PI);
+        $angle = fmod($this->artist->id, 2 * M_PI);
         $golden = M_PI * (3 - sqrt(5));
         foreach (range(0, $nrSimilar - 1) as $r) {
             $layout[] = $angle;

@@ -76,10 +76,10 @@ if ($Viewer->permitted('site_collages_manage') || $Viewer->activePersonalCollage
         <div class="box box_info box_metadata_artist">
             <div class="head"><strong>Metadata</strong></div>
             <ul class="stats nobullet">
-<?php if (!$artist->discogs()->id()) { ?>
+<?php if (!$artist->discogs()->id) { ?>
                 <li>Discogs ID: <i>not set</i></li>
 <?php } else { ?>
-                <li>Discogs ID: <?= $artist->discogs()->id() ?></li>
+                <li>Discogs ID: <?= $artist->discogs()->id ?></li>
                 <li>Name: <?= html_escape($artist->discogs()->name()) ?><?= $artist->discogsIsPreferred()
                     ? '<span title="This artist does not need to display a sequence number for disambiguation">' . " \xE2\x98\x85</span>" : '' ?></li>
                 <li><span title="Artists having the same name">Synonyms: <?= $artist->homonymCount() - 1 ?></span></li>

@@ -33,7 +33,7 @@ $artist->similar()->addSimilar($other, $Viewer);
 
 if (defined('AJAX')) {
     json_print('success', [
-        'artist'  => $artist->id(),
+        'artist'  => $artist->id,
         'similar' => $artist->similar()->findSimilarId($other),
     ]);
 } else {

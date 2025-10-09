@@ -38,4 +38,4 @@ if ($tgroupList) {
 
 $artist->removeAlias($aliasId);
 
-header("Location: " . redirectUrl("artist.php?action=edit&artistid={$artist->id()}"));
+header("Location: " . redirectUrl("artist.php?action=edit&artistid={$artist->id}"));

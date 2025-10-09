@@ -16,4 +16,4 @@ if (is_null($artist)) {
 }
 $Viewer->removeArtistNotification($artist);
 
-header("Location: " . redirectUrl("artist.php?id=" . $artist->id()));
+header("Location: " . redirectUrl("artist.php?id=" . $artist->id));
