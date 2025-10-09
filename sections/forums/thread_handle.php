@@ -93,7 +93,7 @@ if ($thread->isPinned() != $newPinned) {
 if ($thread->pinnedRanking() != $newRank) {
     $notes[] = "Ranking changed from {$thread->pinnedRanking()} to $newRank";
 }
-if ($newForum?->id() != $forum->id()) {
+if ($newForum?->id != $forum->id) {
     $note = "Moved from [url={$forum->url()}]{$forum->name()}[/url] to [url={$newForum->url()}]{$newForum->name()}[/url]";
     if (isset($transition)) {
         $note .= " ({$transition->label()}) transition)";

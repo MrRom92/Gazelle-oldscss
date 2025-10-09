@@ -133,7 +133,7 @@ class ForumPost extends BaseObject {
             UPDATE forums_topics SET
                 StickyPostID = ?
             WHERE ID = ?
-            ", $set ? $this->id : 0, $this->thread()->id()
+            ", $set ? $this->id : 0, $this->thread()->id
         );
         $affected = self::$db->affected_rows();
         $this->thread()->flushCatalogue();
@@ -153,7 +153,7 @@ class ForumPost extends BaseObject {
                 WHERE TopicID = ?
             )
             SELECT catalogue FROM list WHERE ID = ?
-            ", THREAD_CATALOGUE, $this->thread()->id(), $this->id
+            ", THREAD_CATALOGUE, $this->thread()->id, $this->id
         );
     }
 

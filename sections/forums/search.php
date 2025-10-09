@@ -139,7 +139,6 @@ echo "class='hidden'"; } ?>>
         if (!$Viewer->readAccess($forum)) {
             continue;
         }
-        $forumId = $forum->id();
         $Columns++;
 
         if ($forum->categoryId() != $LastCategoryID) {
@@ -168,8 +167,8 @@ echo "class='hidden'"; } ?>>
             <tr>
 <?php   } ?>
                 <td>
-                    <input type="checkbox" name="forums[]" value="<?= $forumId ?>" data-category="forum_category_<?=$i?>" id="forum_<?= $forumId ?>"<?= in_array( $forumId, ($_GET['forums'] ?? [])) ? ' checked="checked"' : '' ?> />
-                    <label for="forum_<?= $forumId ?>"><?=htmlspecialchars($forum->name())?></label>
+                    <input type="checkbox" name="forums[]" value="<?= $forum->id ?>" data-category="forum_category_<?=$i?>" id="forum_<?= $forum->id ?>"<?= in_array( $forum->id, ($_GET['forums'] ?? [])) ? ' checked="checked"' : '' ?> />
+                    <label for="forum_<?= $forum->id ?>"><?=htmlspecialchars($forum->name())?></label>
                 </td>
 <?php
     }

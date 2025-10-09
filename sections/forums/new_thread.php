@@ -15,8 +15,7 @@ if (!$Viewer->writeAccess($forum) || !$Viewer->createAccess($forum)) {
 }
 
 echo $Twig->render('forum/new-thread.twig', [
-    'id'        => $forum->id(),
-    'name'      => $forum->name(),
+    'forum'     => $forum,
     'textarea'  => new Util\Textarea('body', '', 90, 8),
     'viewer'    => $Viewer,
 ]);

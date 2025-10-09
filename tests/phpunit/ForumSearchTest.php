@@ -55,9 +55,9 @@ class ForumSearchTest extends TestCase {
         $resultList = $search->results(new Util\Paginator(25, 1));
         $this->assertCount(1, $resultList, 'forum-search-body-result');
         $result = current($resultList);
-        $this->assertEquals($this->thread->id(), $result[0], 'forum-search-body-thread-id');
+        $this->assertEquals($this->thread->id, $result[0], 'forum-search-body-thread-id');
         $this->assertEquals($this->thread->title(), $result[1], 'forum-search-body-thread-title');
-        $this->assertEquals($this->forum->id(), $result[2], 'forum-search-body-thread-forum-id');
+        $this->assertEquals($this->forum->id, $result[2], 'forum-search-body-thread-forum-id');
         $this->assertEquals($this->forum->name(), $result[3], 'forum-search-body-thread-forum-name');
         // 4 is post created
         // 5 is post id

@@ -19,7 +19,6 @@ $forum = new Manager\Forum()->findById((int)$_GET['forumid']);
 if (!$forum) {
     Error404::error();
 }
-$forumId = $forum->id();
 if (!$Viewer->readAccess($forum)) {
     Error403::error();
 }
@@ -73,7 +72,7 @@ foreach ($forumToc as &$thread) {
 
 echo $Twig->render('forum/forum.twig', [
     'dept_list'   => $forum->departmentList($Viewer),
-    'donor_forum' => $forumId == DONOR_FORUM,
+    'donor_forum' => $forum->id == DONOR_FORUM,
     'forum'       => $forum,
     'toc'         => $forumToc,
     'paginator'   => $paginator,

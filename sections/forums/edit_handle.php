@@ -22,7 +22,7 @@ if (!$Viewer->writeAccess($thread->forum())) {
 if ($thread->isLocked() && !$Viewer->permitted('site_moderate_forums')) {
     Error403::error("You cannot edit a post in a locked thread.");
 }
-if ($Viewer->id() != $post->userId()) {
+if ($Viewer->id != $post->userId()) {
     if (!$Viewer->permitted('site_moderate_forums')) {
         Error403::error("You cannot edit someone else's post");
     }
@@ -32,7 +32,7 @@ if ($Viewer->id() != $post->userId()) {
             Error404::error('Author of post not found');
         }
         $user->inbox()->createSystem(
-            "Your post #{$post->id()} has been edited",
+            "Your post #{$post->id} has been edited",
             "One of your posts has been edited by [url={$Viewer->url()}]{$Viewer->username()}[/url]: [url]{$post->url()}[/url]"
         );
     }

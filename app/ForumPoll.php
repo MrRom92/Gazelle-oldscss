@@ -8,7 +8,7 @@ class ForumPoll extends BaseObject {
     final protected const CACHE_KEY = 'forum_poll_%d';
 
     public function __construct(ForumThread $thread) {
-        parent::__construct($thread->id());
+        parent::__construct($thread->id);
     }
 
     public function flush(): static {

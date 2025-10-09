@@ -31,7 +31,6 @@ if (isset($_GET['postid'])) {
 } else {
     Error404::error();
 }
-$threadId = $thread->id();
 $forum = $thread->forum();
 
 if (!$Viewer->readAccess($forum)) {
@@ -39,9 +38,9 @@ if (!$Viewer->readAccess($forum)) {
 }
 
 //Escape strings for later display
-$ForumName = display_str($forum->name());
-$IsDonorForum = ($forum->id() == DONOR_FORUM);
-$PerPage = $Viewer->postsPerPage();
+$ForumName    = display_str($forum->name());
+$IsDonorForum = ($forum->id == DONOR_FORUM);
+$PerPage      = $Viewer->postsPerPage();
 
 //Post links utilize the catalogue & key params to prevent issues with custom posts per page
 $PostNum = match (true) {
@@ -76,7 +75,7 @@ if ($lastRead < $lastOnPage) {
 
 $isSubscribed = new User\Subscription($Viewer)->isSubscribed($thread);
 if ($isSubscribed) {
-    $Cache->delete_value('subscriptions_user_new_' . $Viewer->id());
+    $Cache->delete_value('subscriptions_user_new_' . $Viewer->id);
 }
 
 $userMan = new Manager\User();
@@ -150,7 +149,7 @@ foreach ($slice as $Key => $Post) {
     </colgroup>
     <tr class="colhead_dark">
         <td class="forum-post-head" colspan="<?= $Viewer->showAvatars() ? 2 : 1 ?>">
-            <span style="float: left;"><a class="post_id" href="forums.php?action=viewthread&amp;threadid=<?=$threadId?>&amp;postid=<?=$PostID?>#post<?=$PostID?>">#<?=$PostID?></a>
+            <span style="float: left;"><a class="post_id" href="forums.php?action=viewthread&amp;threadid=<?=$thread->id ?>&amp;postid=<?=$PostID?>#post<?=$PostID?>">#<?=$PostID?></a>
                 <?= $userMan->displayUsername($AuthorID, $Viewer, showFull: true, isDonorForum: $IsDonorForum) ?>
 <?php
 $userTitle = $author->title();
@@ -164,7 +163,7 @@ if (!empty($userTitle)) {
                 - <a href="#quickpost" class="brackets quotable" id="quote_<?=$PostID?>" data-id="<?=$PostID?>" data-author="<?= $author->username() ?>" title="Select text to quote">Quote</a>
 <?php
     }
-    if ((!$thread->isLocked() && $Viewer->writeAccess($forum) && $AuthorID == $Viewer->id()) && !$Viewer->disablePosting() || $Viewer->permitted('site_moderate_forums')) {
+    if ((!$thread->isLocked() && $Viewer->writeAccess($forum) && $AuthorID == $Viewer->id) && !$Viewer->disablePosting() || $Viewer->permitted('site_moderate_forums')) {
 ?>
                 - <a href="#post<?= $PostID ?>" id="edit-<?= $PostID ?>" data-author="<?= $AuthorID ?>" data-key="<?= $Key ?>" class="edit-post brackets">Edit</a>
 <?php } ?>
@@ -175,13 +174,13 @@ if (!empty($userTitle)) {
     if ($PostID == $thread->pinnedPostId()) { ?>
                 <strong><span class="sticky_post_label" class="brackets">Pinned</span></strong>
 <?php   if ($Viewer->permitted('site_moderate_forums')) { ?>
-                - <a href="forums.php?action=sticky_post&amp;threadid=<?=$threadId?>&amp;postid=<?=$PostID?>&amp;remove=true&amp;auth=<?=$auth?>" title="Unpin this post" class="brackets tooltip">X</a>
+                - <a href="forums.php?action=sticky_post&amp;threadid=<?=$thread->id ?>&amp;postid=<?=$PostID?>&amp;remove=true&amp;auth=<?=$auth?>" title="Unpin this post" class="brackets tooltip">X</a>
 <?php
         }
     } else {
         if ($Viewer->permitted('site_moderate_forums')) {
 ?>
-                - <a href="forums.php?action=sticky_post&amp;threadid=<?=$threadId?>&amp;postid=<?=$PostID?>&amp;auth=<?=$auth?>" title="Pin this post" class="tooltip" style="font-size: 1.4em">&#X1f4cc;</a>
+                - <a href="forums.php?action=sticky_post&amp;threadid=<?=$thread->id ?>&amp;postid=<?=$PostID?>&amp;auth=<?=$auth?>" title="Pin this post" class="tooltip" style="font-size: 1.4em">&#X1f4cc;</a>
 <?php
         }
     }
@@ -192,7 +191,7 @@ if (!empty($userTitle)) {
                 <a href="reports.php?action=report&amp;type=post&amp;id=<?=$PostID?>" class="brackets">Report</a>
 <?php
     $author = new User($AuthorID);
-    if ($Viewer->permitted('users_warn') && $Viewer->id() != $AuthorID && $Viewer->classLevel() >= $author->classLevel()) {
+    if ($Viewer->permitted('users_warn') && $Viewer->id != $AuthorID && $Viewer->classLevel() >= $author->classLevel()) {
 ?>
                 <form class="manage_form hidden" name="user" id="warn<?=$PostID?>" action="" method="post">
                     <input type="hidden" name="action" value="warn" />
@@ -244,7 +243,7 @@ if ($Viewer->permitted('site_moderate_forums') || ($Viewer->writeAccess($forum) 
     $lastPost = end($slice);
     echo $Twig->render('reply.twig', [
         'object'   => $thread,
-        'merge'    => strtotime($lastPost['AddedTime']) > time() - 3600 && $lastPost['AuthorID'] == $Viewer->id(),
+        'merge'    => strtotime($lastPost['AddedTime']) > time() - 3600 && $lastPost['AuthorID'] == $Viewer->id,
         'subbed'   => $isSubscribed,
         'textarea' => new Util\Textarea('quickpost', '', 90, 8)->setPreviewManual(true),
         'viewer'   => $Viewer,

@@ -230,7 +230,7 @@ class ForumThread extends BaseObject {
         $post = new Manager\ForumPost()->create($this, $user, $body);
         $this->info();
         $this->info['post_total_summary']++;
-        $this->info['last_post_id']        = $post->id();
+        $this->info['last_post_id']        = $post->id;
         $this->info['last_post_author_id'] = $post->userId();
 
         $this->updateThread($post, 1);
@@ -249,7 +249,7 @@ class ForumThread extends BaseObject {
                 Body = CONCAT(Body, '\n\n', ?),
                 EditedTime = now()
             WHERE ID = ?
-            ", $user->id, $body, $post->id()
+            ", $user->id, $body, $post->id
         );
         $affected = self::$db->affected_rows();
 
@@ -258,7 +258,7 @@ class ForumThread extends BaseObject {
             INSERT INTO comments_edits
                    (EditUser, PostID, Body, Page)
             VALUES (?,        ?,      ?,   'forums')
-            ", $user->id, $post->id(), $oldBody
+            ", $user->id, $post->id, $oldBody
         );
         self::$db->commit();
 
@@ -276,7 +276,7 @@ class ForumThread extends BaseObject {
                 IsLocked = ?,
                 Title    = ?
             WHERE ID = ?
-            ", $forum->id(), $pinned ? '1' : '0', $rank, $locked ? '1' : '0', trim($title),
+            ", $forum->id, $pinned ? '1' : '0', $rank, $locked ? '1' : '0', trim($title),
             $this->id
         );
         $affected = self::$db->affected_rows();
@@ -297,9 +297,9 @@ class ForumThread extends BaseObject {
             $this->forum()->adjust();
             $this->flushCatalogue();
             $this->flush();
-            if ($this->forumId != $forum->id()) {
+            if ($this->forumId != $forum->id) {
                 $forum->adjust();
-                $this->forumId = $forum->id();
+                $this->forumId = $forum->id;
             }
         }
         return $affected;
@@ -310,7 +310,7 @@ class ForumThread extends BaseObject {
             INSERT INTO forums_topic_notes
                    (TopicID, AuthorID, Body)
             VALUES (?,       ?,        ?)
-            ", $this->id, (int)($user?->id()), $notes
+            ", $this->id, (int)($user?->id), $notes
         );
         return self::$db->inserted_id();
     }
@@ -341,10 +341,10 @@ class ForumThread extends BaseObject {
                 LastPostTime     = ?,
                 NumPosts         = NumPosts + ?
             WHERE ID = ?
-            ", $post->id(), $post->userId(), $post->created(), $increment, $this->id
+            ", $post->id, $post->userId(), $post->created(), $increment, $this->id
         );
         $affected = self::$db->affected_rows();
-        $this->updateRoot($post->userId(), $post->id());
+        $this->updateRoot($post->userId(), $post->id);
         new Manager\Forum()->flushToc();
         $this->forum()->flush();
         $this->flushPostCatalogue($post);

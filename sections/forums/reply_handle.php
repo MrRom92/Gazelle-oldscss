@@ -27,10 +27,10 @@ if ($body === '') {
     exit;
 }
 
-if ($thread->lastAuthorId() == $Viewer->id() && isset($_POST['merge'])) {
+if ($thread->lastAuthorId() == $Viewer->id && isset($_POST['merge'])) {
     $post = new Manager\ForumPost()->findById($thread->lastPostId());
     if (is_null($post)) {
-        Error404::error("cannot find post #{$thread->lastPostId()} in thread {$thread->id()}");
+        Error404::error("cannot find post #{$thread->lastPostId()} in thread {$thread->id}");
     }
     $thread->mergePost($post, $Viewer, $body);
 } else {
@@ -38,7 +38,7 @@ if ($thread->lastAuthorId() == $Viewer->id() && isset($_POST['merge'])) {
 }
 
 new User\Notification\Quote($Viewer)->create(
-    'forums', $thread->id(), $post->id(), $body
+    'forums', $thread->id, $post->id, $body
 );
 $subscription = new User\Subscription($Viewer);
 if (isset($_POST['subscribe']) && !$subscription->isSubscribed($thread)) {

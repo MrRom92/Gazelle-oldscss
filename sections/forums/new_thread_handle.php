@@ -67,7 +67,7 @@ if (empty($_POST['question']) || empty($_POST['answers']) || !$Viewer->permitted
 $thread = new Manager\ForumThread()->create($forum, $Viewer, $title, $body);
 if ($needPoll) {
     new Manager\ForumPoll()->create($thread, $question, $answerList);
-    if ($forum->id() == STAFF_FORUM_ID) {
+    if ($forum->id == STAFF_FORUM_ID) {
         Irc::sendMessage(
             IRC_CHAN_STAFF,
             "Poll created by {$Viewer->username()}: \"$question\" " . $thread->publicLocation()
