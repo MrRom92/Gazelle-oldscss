@@ -12,7 +12,7 @@ class Artist extends \Gazelle\BaseObject {
     }
 
     public function link(): string {
-        return sprintf('<a href="%s">artist %d</a>', $this->url(), $this->id());
+        return "<a href=\"{$this->url()}\">artist {$this->id}</a>";
     }
 
     public function location(): string {
@@ -38,7 +38,7 @@ class Artist extends \Gazelle\BaseObject {
                 INNER JOIN torrents             t   ON (t.GroupID = tg.ID)
                 INNER JOIN torrents_leech_stats tls ON (tls.TorrentID = t.ID)
                 WHERE aa.ArtistID = ?
-                ", $this->id()
+                ", $this->id
             );
             self::$cache->cache_value($key, $info, 3600);
         }

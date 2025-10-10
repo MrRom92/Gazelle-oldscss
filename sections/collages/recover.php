@@ -7,28 +7,25 @@ declare(strict_types=1);
 namespace Gazelle;
 
 if (!$Viewer->permitted('site_collages_recover')) {
-    Error403::error();
+    Error403::error("You are not allowed to recover collages");
 }
 
-$_POST['id'] = (int)($_POST['id'] ?? 0);
-$_POST['name'] = trim($_POST['name'] ?? '');
+$id   = (int)($_POST['id'] ?? 0);
+$name = trim($_POST['name'] ?? '');
 
-if (!empty($_POST['id']) || $_POST['name'] !== '') {
+if ($id || $name !== '') {
     authorize();
-    $collageMan = new Manager\Collage();
     $collage = null;
-
-    if (!empty($_POST['id'])) {
-        $collage = $collageMan->recoverById($_POST['id']);
+    if ($id) {
+        $collage = (new Manager\Collage())->recoverById($id);
     }
-    if (!$collage && $_POST['name'] !== '') {
-        $collage = $collageMan->recoverByName($_POST['name']);
+    if (!$collage && $name !== '') {
+        $collage = (new Manager\Collage())->recoverByName($name);
     }
     if (!$collage) {
         Error404::error('Collage is completely deleted');
     } else {
-        $collageId = $collage->flush()->id();
-        $collage->logger()->general("Collage $collageId was recovered by " . $Viewer->username());
+        $collage->logger()->general("Collage {$collage->flush()->id} was recovered by {$Viewer->username()}");
         header('Location: ' . $collage->location());
         exit;
     }

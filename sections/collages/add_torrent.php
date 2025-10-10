@@ -37,7 +37,7 @@ if (!$Viewer->permitted('site_collages_delete')) {
     if ($collage->isPersonal() && !$collage->isOwner($Viewer)) {
         Error400::error('You cannot edit someone else\'s personal collage.');
     }
-    if ($collage->maxGroups() > 0 && $collage->numEntries() >= $collage->maxGroups()) {
+    if ($collage->maxGroups() > 0 && $collage->total() >= $collage->maxGroups()) {
         Error400::error('This collage already holds its maximum allowed number of entries.');
     }
 }
@@ -87,7 +87,7 @@ if (!$Viewer->permitted('site_collages_delete')) {
     }
 
     $maxGroups = $collage->maxGroups();
-    if ($maxGroups > 0 && ($collage->numEntries() + count($list) > $maxGroups)) {
+    if ($maxGroups > 0 && ($collage->total() + count($list) > $maxGroups)) {
         $entry = $maxGroupsPerUser === 1 ? 'entry' : 'entries';
         Error400::error("This collage can hold only $maxGroups $entry.");
     }

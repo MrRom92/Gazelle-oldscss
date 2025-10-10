@@ -23,7 +23,7 @@ abstract class AbstractCollage extends \Gazelle\Base {
     abstract protected function flushTarget(CollageEntry $target): void;
 
     public function __construct(protected \Gazelle\Collage $holder) {
-        $this->id = $holder->id();
+        $this->id = $holder->id;
     }
 
     public function artistList(): array {

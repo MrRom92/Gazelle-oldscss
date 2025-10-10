@@ -31,7 +31,7 @@ if (!$collage->isPersonal()) {
 if (isset($_POST['name'])) {
     $name = trim($_POST['name']);
     $check = $collageMan->findByName($name);
-    if ($check && $check->id() !== $collage->id()) {
+    if ($check && $check->id !== $collage->id) {
         if ($check->isDeleted()) {
             $Err = 'A collage with that name already exists but needs to be recovered, please <a href="staffpm.php">contact</a> the staff team!';
         } else {

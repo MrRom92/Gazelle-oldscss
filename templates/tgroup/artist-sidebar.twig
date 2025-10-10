@@ -40,7 +40,7 @@
                         <input type="hidden" name="groupid" value="{{ tgroup.id }}" />
                         <input type="text" id="artist" name="aliasname[]" size="17"{{ autocomplete(viewer, 'other') }} />
                         <select name="importance[]">
-{%  for s in section %}
+{%  for s in section|sort((a, b) => a.id <=> b.id) %}
                             <option value="{{ s.id }}">{% if s.role == 'Artist' %}Main{% else %}{{ s.role }}{% endif %}</option>
 {%  endfor %}
                         </select>

@@ -25,7 +25,7 @@ class CollageAdd extends \Gazelle\Json {
             if ($this->collage->isPersonal() && !$this->collage->isOwner($this->user)) {
                 return $this->setFailure('personal');
             }
-            if ($this->collage->maxGroups() > 0 && $this->collage->numEntries() >= $this->collage->maxGroups()) {
+            if ($this->collage->maxGroups() > 0 && $this->collage->total() >= $this->collage->maxGroups()) {
                 return $this->setFailure('max entries reached');
             }
             $maxGroupsPerUser = $this->collage->maxGroupsPerUser();

@@ -20,7 +20,7 @@ if (!$Viewer->permitted('site_collages_delete') && !$collage->isOwner($Viewer)) 
     Error403::error();
 }
 
-$collageId = $collage->id();
+$collageId = $collage->id;
 $name = $collage->name();
 $collage->remove();
 

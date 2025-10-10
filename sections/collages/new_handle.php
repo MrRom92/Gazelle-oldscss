@@ -43,7 +43,7 @@ if (!$Err) {
         if ($check->isDeleted()) {
             $Err = 'That collage already exists but needs to be recovered; please <a href="staffpm.php">contact</a> the staff team!';
         } else {
-            $checkId = $check->id();
+            $checkId = $check->id;
             $Err = "That collage already exists: {$check->link()}.";
         }
     }
@@ -72,7 +72,7 @@ $collage = $collageMan->create(
 
 if ($Viewer->option('AutoSubscribe')) {
     $collage->toggleSubscription($Viewer);
-    new User\Subscription($Viewer)->subscribeComments('collages', $collage->id());
+    new User\Subscription($Viewer)->subscribeComments('collages', $collage->id);
 }
 
 header('Location: ' . $collage->location());

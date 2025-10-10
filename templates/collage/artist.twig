@@ -1,0 +1,50 @@
+</div>
+<div class="main_column">
+<div class="box2">
+<div class="collage-artist">
+{% for id, entry in collage.artistList %}
+{%  set artist = entry.artist %}
+    <div class="collage-artist-entry {{ cycle(['rowa', 'rowb'], loop.index0) }}">
+        <div class="cae-img">
+{%- if entry.artist.image -%}
+        <img loading="lazy" class="tooltip" src="{{ artist.image|image_cache(width = 150)
+            }}" alt="{{ artist.name }}" title="{{ artist.name
+            }}" width="150"  data-origin-src="{{ artist.image
+            }}" />
+{%- endif -%}
+        </div>
+        <div class="cae-name">{{ artist.link|raw }}</div>
+        <div class="cae-tag tags">
+            {{- artist.tagLeaderboard(5)
+                |map(a => "<a href=\"torrents.php?taglist=" ~ a.name ~ "\">" ~ a.name ~ '</a>')
+                |join(' ')
+                |raw
+            -}}
+        </div>
+        <div class="cae-l-grp">Groups:</div>
+        <div class="cae-v-grp">{{ artist.stats.tgroupTotal|number_format }}</div>
+        <div class="cae-l-sna">Snatches:</div>
+        <div class="cae-v-sna">{{ artist.stats.snatchTotal|number_format }}</div>
+        <div class="cae-l-dcg">
+{%- if artist.discogs.id %}
+            <a target="_blank" href="https://www.discogs.com/artist/{{ artist.discogs.id }}">Discogs</a>
+{%- else -%}
+            <span class="tooltip" title="Discogs ID not set">Discogs?</span>
+{%- endif -%}
+        </div>
+        <div class="cae-v-dcg"></div>
+        <div class="cae-l-see">Seeds:</div>
+        <div class="cae-v-see">{{ artist.stats.seederTotal|number_format }}</div>
+        <div class="cae-bio">
+            <div class="cae-bio-content">
+            {{- artist.body|default('Bio to be completed')|bb_format -}}
+            </div>
+        </div>
+    </div>
+{% else %}
+<h4>There are no artists here</h4>
+{% endfor %}
+</div>
+</div>
+</div>
+</div>

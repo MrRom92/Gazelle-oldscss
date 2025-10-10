@@ -478,13 +478,13 @@ table {
 }
 
 // WATCH: check for spurious borders
-table .rowa,
-table .rowb {
+.rowa,
+.rowb {
   border-top: 2px solid variables.$color-accent-border-tablerows;
 }
 
-table .rowa:nth-child(even),
-table .rowb:nth-child(even),
+.rowa:nth-child(even),
+.rowb:nth-child(even),
 #upload tr:nth-child(even) {
   background-color: variables.$color-background-table-row-even;
 }
@@ -495,8 +495,8 @@ table {
   width: 100%;
 }
 
-table .rowa:nth-child(odd),
-table .rowb:nth-child(odd),
+.rowa:nth-child(odd),
+.rowb:nth-child(odd),
 #upload tr:nth-child(odd) {
   background-color: variables.$color-background-table-row-odd;
 }
@@ -2280,6 +2280,7 @@ body#collage .cats_music {
 /* ### 2.2.1 Full clickable appearance
    Applies to Torrent Pages, collage-listing pages, collage-discog pages. */
 .collage_table .td_info .tags :not(:empty),
+.collage-artist-entry .tags :not(:empty),
 #torrent_table .group .tags :not(:empty),
 #discog_table .group .tags :not(:empty),
 #taglist td a,

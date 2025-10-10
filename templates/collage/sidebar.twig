@@ -8,6 +8,8 @@ collage by {{ collage.ownerId|user_url }}
 {% endif %}
     </div>
 </div>
+{% set object %}{% if collage.isArtist %}artist{% else %}torrent{% endif %}{% endset %}
+{% set object_name %}{% if collage.isArtist %}artist{% else %}torrent group{% endif %}{% endset %}
 <div class="box box_description">
     <div class="head"><strong>Description</strong></div>
     <div class="pad">{{ collage.description|bb_format }}</div>
@@ -15,37 +17,36 @@ collage by {{ collage.ownerId|user_url }}
 <div class="box box_info box_statistics_collage_{{ object }}s">
     <div class="head"><strong>Statistics</strong></div>
     <ul class="stats nobullet">
-        <li>Entries: {{ entries|number_format }}</li>
-{% if artists %}
-        <li>Artists: {{ artists|number_format }}</li>
+        <li>Entries: {{ collage.total|number_format }}</li>
+{% if not collage.isArtist %}
+        <li>Artists: {{ collage.numArtists|number_format }}</li>
 {% endif %}
         <li>Subscribers: {{ collage.numSubscribers|number_format }}</li>
         <li>Built by {{ collage.numContributors|number_format }} member{{ collage.numContributors|plural }}</li>
         <li>Last updated: {{ collage.updated|time_diff }}</li>
     </ul>
 </div>
-{% if top_tags is defined %}
+{% if not collage.isArtist %}
 <div class="box box_tags">
     <div class="head"><strong>Top Tags</strong></div>
     <div class="pad">
-{%   if top_tags is empty %}
+{%  set top_tags    = collage.topTags(5) %}
+{%  if top_tags is empty %}
         <i>None yet</i>
-{%   else %}
+{%  else %}
         <ol style="padding-left: 5px;">
-{% for t in top_tags %}
+{%      for t in top_tags %}
             <li><a href="collages.php?action=search&amp;tags={{ t.tag }}">{{ t.tag }}</a> ({{ t.count }})</li>
-{% endfor %}
+{%      endfor %}
         </ol>
-{%     endif %}
+{%  endif %}
     </div>
 </div>
-{% endif %}
-{% if artists %}
 <div class="box box_artists">
     <div class="head"><strong>Top Artists</strong></div>
     <div class="pad">
         <ol style="padding-left: 5px;">
-{% for artist in top_artists %}
+{% for artist in collage.topArtists(10) %}
             <li><a href="artist.php?id={{ artist.id }} ">{{ artist.name }}</a> ({{ artist.count|number_format }})</li>
 {% endfor %}
         </ol>
@@ -97,20 +98,26 @@ collage by {{ collage.ownerId|user_url }}
     </div>
 </div>
 {% endif %}
-<div class="head"><strong>Comments</strong></div>
-{% for comment in comments %}
 <div class="box comment">
-    <div class="pad head">
-        {{ comment.author_id|user_url }} {{ comment.added|time_diff }}
+    <div class="head"><strong>Comments</strong></div>
+{% for comment in comments %}
+    <div class="head">
         <span style="float: right"> 
             <a href="reports.php?action=report&amp;type=collages_comment&amp;id={{ comment.id }}" class="brackets">Report</a>
         </span>
+        {{ comment.author_id|user_url }} {{ comment.added|time_diff }}
     </div>
     <div class="pad">{{ comment.body|bb_format }}</div>
-</div>
+{%  if loop.last %}
+    <div class="pad">
+      <div class="box pad">
+        <a href="collages.php?action=comments&amp;collageid={{ collage.id }}" class="brackets">View all comments</a>
+      </div>
+    </div>
+{%  endif %}
+{% else %}
+    <div class="pad">None yet</div>
 {% endfor %}
-<div class="box pad">
-    <a href="collages.php?action=comments&amp;collageid={{ collage.id }}" class="brackets">View all comments</a>
 </div>
 {% if not viewer.disablePosting %}
 <div class="box box_addcomment">

@@ -506,8 +506,12 @@ tr {
   background-color: #EEE;
 }
 
-tr.rowa {
+.rowa {
   background-color: #DDD;
+}
+
+.rowb {
+  background-color: #EEE;
 }
 
 td,
@@ -971,4 +975,9 @@ ol {
 
 .avatar_container {
   word-wrap: normal;
+}
+
+.collage-artist-entry {
+  border: 1px solid black;
+  margin-bottom: 10px;
 }

@@ -67,7 +67,6 @@ class Collage extends BaseAttrObject implements Bookmarked {
                     c.CategoryID       AS category_id,
                     c.Updated          AS updated,
                     c.Subscribers      AS subscriber_total,
-                    c.NumTorrents      AS torrent_total,
                     c.MaxGroups        AS group_max,
                     c.MaxGroupsPerUser AS group_max_per_user,
                     c.Locked           AS is_locked,
@@ -126,16 +125,20 @@ class Collage extends BaseAttrObject implements Bookmarked {
         return $this->info()['tag_list'];
     }
 
+    public function total(): int {
+        return count($this->collage->entryList());
+    }
+
     public function updated(): ?string {
         return $this->info()['updated'];
     }
 
-    public function numEntries(): int {
-        return $this->info()['torrent_total'];
-    }
-
     public function groupIds(): array {
         return $this->collage->groupIdList(); /** @phpstan-ignore-line */
+    }
+
+    public function isArtist(): bool {
+        return $this->categoryId() === CollageType::artist->value;
     }
 
     public function isDeleted(): bool {
@@ -156,10 +159,6 @@ class Collage extends BaseAttrObject implements Bookmarked {
 
     public function isPersonal(): bool {
         return $this->info()['category_id'] === CollageType::personal->value;
-    }
-
-    public function isArtist(): bool {
-        return $this->categoryId() === CollageType::artist->value;
     }
 
     public function contributors(): array {

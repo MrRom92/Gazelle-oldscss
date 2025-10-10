@@ -5,7 +5,6 @@
 {% else %}
 {{ header('Browse Collages', {'js': 'collage'}) }}
 {% endif %}
-  
 <div class="thin">
     <div class="header">
 {% if is_bookmark %}
@@ -131,8 +130,8 @@
     <tr class="colhead">
         <td class="m_th_left">Category</td>
         <td class="nobr">{{ search.header.emit('name')|raw }} / {{ search.header.emit('time')|raw }}</td>
-        <td class="m_th_right nobr">{{ search.header.emit('torrents')|raw }}</td>
-        <td class="m_th_right nobr">{{ search.header.emit('subscribers')|raw }}</td>
+        <td class="m_th_right number_column nobr">{{ search.header.emit('torrents')|raw }}</td>
+        <td class="m_th_right number_column nobr">{{ search.header.emit('subscribers')|raw }}</td>
         <td class="nobr">{{ search.header.emit('updated')|raw }}</td>
         <td>Author</td>
     </tr>

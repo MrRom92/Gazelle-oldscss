@@ -149,7 +149,7 @@ class CollageTest extends TestCase {
         $this->assertEquals($collage->id, $manager->findById($collage->id)?->id, 'collage-find-by-id');
         $this->assertEquals(0, $collage->maxGroups(), 'collage-max-group');
         $this->assertEquals(0, $collage->maxGroupsPerUser(), 'collage-max-per-user');
-        $this->assertEquals(0, $collage->numEntries(), 'collage-num-subcribers');
+        $this->assertEquals(0, $collage->total(), 'collage-num-subcribers');
         $this->assertEquals(1, $collage->categoryId(), 'collage-id');
         $this->assertEquals($description, $collage->description(), 'collage-description');
         $this->assertEquals($name, $collage->name(), 'collage-name');
@@ -407,7 +407,7 @@ class CollageTest extends TestCase {
         $collage->addEntry($this->tgroupList[1], $u3);
         $collage->addEntry($this->tgroupList[2], $u3);
         $collage->addEntry($this->tgroupList[3], $u3);
-        $this->assertEquals(4, $collage->numEntries(), 'collage-has-4');
+        $this->assertEquals(4, $collage->total(), 'collage-has-4');
         $this->assertCount(4, $collage->topArtists(), 'collage-has-4-artists');
         $this->assertEquals(2, $collage->numContributors(), 'collage-two-contributors');
         $this->assertEquals(
@@ -446,7 +446,7 @@ class CollageTest extends TestCase {
         $this->assertStringContainsString($this->tgroupList[0]->name(), $cover, 'collage-tgroup-cover-name');
 
         $this->assertEquals(1, $collage->removeEntry($this->tgroupList[1]), 'collage-remove-entry');
-        $this->assertEquals(3, $collage->numEntries(), 'collage-has-3');
+        $this->assertEquals(3, $collage->total(), 'collage-has-3');
         $this->assertEquals([$idList[3], $idList[0], $idList[2]], $collage->entryList(), 'collage-removed-entry-list');
 
         $this->assertTrue($collage->toggleAttr('sort-newest', true), 'collage-personal-sort-newest');
@@ -831,7 +831,7 @@ class CollageTest extends TestCase {
             'collage-user-entry-collageid',
         );
         $this->assertEquals(
-            $collage->numEntries(),
+            $collage->total(),
             $entry['nrEntries'],
             'collage-user-entry-nr-entry',
         );

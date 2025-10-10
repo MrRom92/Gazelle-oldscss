@@ -20,7 +20,7 @@ $vote          = new User\Vote($Viewer);
 $collage->setViewer($Viewer);
 $collageCovers = (int)($Viewer->option('CollageCovers') ?? 25) * (1 - (int)$Viewer->option('HideCollage'));
 $collagePages  = [];
-$NumGroups     = $collage->numEntries();
+$tgroupTotal     = $collage->total();
 $snatcher      = $Viewer->snatch();
 $entryList     = $collage->entryList();
 $groupsClosed  = (bool)$Viewer->option('TorrentGrouping');
@@ -28,20 +28,13 @@ $groupsClosed  = (bool)$Viewer->option('TorrentGrouping');
 echo $Twig->render('collage/header.twig', [
     'bookmarked' => $bookmark->isBookmarked($collage),
     'collage'    => $collage,
-    'object'     => 'torrent',
     'viewer'     => $Viewer,
 ]);
 
 echo$Twig->render('collage/sidebar.twig', [
-    'artists'      => $collage->numArtists(),
     'collage'      => $collage,
     'comments'     => new Manager\Comment()->collageSummary($collage),
     'contributors' => array_slice($collage->contributors(), 0, 5, true),
-    'entries'      => $collage->numEntries(),
-    'object'       => 'torrent',
-    'object_name'  => 'torrent group',
-    'top_artists'  => $collage->topArtists(10),
-    'top_tags'     => $collage->topTags(5),
     'viewer'       => $Viewer,
 ]);
 
@@ -121,7 +114,7 @@ echo ' selected="selected"'; } ?>>Prefer Bonus Tracks</option>
             <ul class="collage_images" id="collage_page0">
 <?php
     $Idx = 0;
-    $limit = min($NumGroups, $collageCovers);
+    $limit = min($tgroupTotal, $collageCovers);
     foreach ($entryList as $tgroupId) {
         $tgroup = $tgMan->findById($tgroupId);
         if ($tgroup) {
@@ -135,19 +128,19 @@ echo ' selected="selected"'; } ?>>Prefer Bonus Tracks</option>
 ?>
             </ul>
         </div>
-<?php if ($NumGroups > $collageCovers) { ?>
+<?php if ($tgroupTotal > $collageCovers) { ?>
         <div class="linkbox pager" style="clear: left;" id="pageslinksdiv">
             <span id="firstpage" class="invisible"><a href="#" class="pageslink" onclick="collageShow.page(0); return false;"><strong>&laquo; First</strong></a> | </span>
             <span id="prevpage" class="invisible"><a href="#" class="pageslink" onclick="collageShow.prevPage(); return false;"><strong>&lsaquo; Prev</strong></a> | </span>
-<?php   for ($i = 0; $i < $NumGroups / $collageCovers; $i++) { ?>
-            <span id="pagelink<?=$i?>" class="<?=(($i > 4) ? 'hidden' : '')?><?=(($i == 0) ? 'selected' : '')?>"><a href="#" class="pageslink" onclick="collageShow.page(<?=$i?>, this); return false;"><strong><?=$collageCovers * $i + 1?>-<?=min($NumGroups, $collageCovers * ($i + 1))?></strong></a><?=(($i != ceil($NumGroups / $collageCovers) - 1) ? ' | ' : '')?></span>
+<?php   for ($i = 0; $i < $tgroupTotal / $collageCovers; $i++) { ?>
+            <span id="pagelink<?=$i?>" class="<?=(($i > 4) ? 'hidden' : '')?><?=(($i == 0) ? 'selected' : '')?>"><a href="#" class="pageslink" onclick="collageShow.page(<?=$i?>, this); return false;"><strong><?=$collageCovers * $i + 1?>-<?=min($tgroupTotal, $collageCovers * ($i + 1))?></strong></a><?=(($i != ceil($tgroupTotal / $collageCovers) - 1) ? ' | ' : '')?></span>
 <?php   } ?>
-            <span id="nextbar" class="<?=($NumGroups / $collageCovers > 5) ? 'hidden' : ''?>"> | </span>
+            <span id="nextbar" class="<?=($tgroupTotal / $collageCovers > 5) ? 'hidden' : ''?>"> | </span>
             <span id="nextpage"><a href="#" class="pageslink" onclick="collageShow.nextPage(); return false;"><strong>Next</strong></a> ›</span>
-            <span id="lastpage" class="<?=(ceil($NumGroups / $collageCovers) == 2 ? 'invisible' : '')?>"> | <a href="#" class="pageslink" onclick="collageShow.page(<?=ceil($NumGroups / $collageCovers) - 1?>); return false;"><strong>Last &raquo;</strong></a></span>
+            <span id="lastpage" class="<?=(ceil($tgroupTotal / $collageCovers) == 2 ? 'invisible' : '')?>"> | <a href="#" class="pageslink" onclick="collageShow.page(<?=ceil($tgroupTotal / $collageCovers) - 1?>); return false;"><strong>Last &raquo;</strong></a></span>
         </div>
 <?php
-        for ($i = 0; $i < $NumGroups / $collageCovers; $i++) {
+        for ($i = 0; $i < $tgroupTotal / $collageCovers; $i++) {
             $chunk = array_slice($entryList, $i * $collageCovers, $collageCovers);
             if (!empty($chunk)) {
                 $collagePages[] = implode('',
@@ -160,8 +153,8 @@ echo ' selected="selected"'; } ?>>Prefer Bonus Tracks</option>
                 );
             }
         }
-        if ($NumGroups > $collageCovers) {
-            for ($i = $NumGroups + 1; $i <= ceil($NumGroups / $collageCovers) * $collageCovers; $i++) {
+        if ($tgroupTotal > $collageCovers) {
+            for ($i = $tgroupTotal + 1; $i <= ceil($tgroupTotal / $collageCovers) * $collageCovers; $i++) {
                 $collagePages[count($collagePages) - 1] .= '<li></li>';
             }
         }
@@ -300,3 +293,5 @@ foreach ($entryList as $tgroupId) {
         </table>
     </div>
 </div>
+<?php
+View::show_footer();

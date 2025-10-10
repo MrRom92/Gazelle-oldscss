@@ -1,4 +1,5 @@
 {{ header(collage.name, {'js': 'browse,collage,bbcode,voting'}) }}
+{% set object %}{% if collage.isArtist %}artist{% else %}torrent{% endif %}{% endset %}
 <div class="thin">
 <div class="header">
     <h2>{{ collage.name }}</h2>

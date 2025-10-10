@@ -12,7 +12,8 @@ class Artist extends BaseAttrObject implements Bookmarked, CollageEntry {
     final public const tableName            = 'artists_group';
     final public const CACHE_REQUEST_ARTIST = 'artists_requests_%d';
 
-    protected const CACHE_PREFIX    = 'artist_%d';
+    protected const CACHE_PREFIX = 'artist_%d';
+    protected const CACHE_TAG    = 'artist_tag_%d_%d';
 
     final protected const ObjectName   = 'artist';
     final protected const PkColumn     = 'artist_attr_id';
@@ -55,6 +56,8 @@ class Artist extends BaseAttrObject implements Bookmarked, CollageEntry {
         self::$cache->delete_multi([
             $this->cacheKey(),
             sprintf(self::CACHE_REQUEST_ARTIST, $this->id),
+            sprintf(self::CACHE_TAG, $this->id, 5),
+            sprintf(self::CACHE_TAG, $this->id, 10),
             ...self::$db->collect(0)
         ]);
         unset($this->info);
@@ -330,23 +333,29 @@ class Artist extends BaseAttrObject implements Bookmarked, CollageEntry {
         return self::$db->to_array(false, MYSQLI_ASSOC);
     }
 
-    public function tagLeaderboard(): array {
-        self::$db->prepared_query("
-            SELECT t.Name AS name,
-                count(*)  AS total
-            FROM torrents_artists ta
-            INNER JOIN torrents_group tg ON (tg.ID = ta.GroupID)
-            INNER JOIN torrents_tags tt USING (GroupID)
-            INNER JOIN tags t ON (t.ID = tt.TagID)
-            INNER JOIN artists_alias aa ON (ta.AliasID = aa.AliasID)
-            WHERE tg.CategoryID NOT IN (3, 7)
-                AND aa.ArtistID = ?
-            GROUP BY t.Name
-            ORDER By 2 desc, t.Name
-            LIMIT 10
-            ", $this->id
-        );
-        return self::$db->to_array(false, MYSQLI_ASSOC);
+    public function tagLeaderboard(int $limit = 10): array {
+        $key = sprintf(self::CACHE_TAG, $this->id, $limit);
+        $list = self::$cache->get_value($key);
+        if ($list === false) {
+            self::$db->prepared_query("
+                SELECT t.Name AS name,
+                    count(*)  AS total
+                FROM torrents_artists ta
+                INNER JOIN torrents_group tg ON (tg.ID = ta.GroupID)
+                INNER JOIN torrents_tags tt USING (GroupID)
+                INNER JOIN tags t ON (t.ID = tt.TagID)
+                INNER JOIN artists_alias aa ON (ta.AliasID = aa.AliasID)
+                WHERE tg.CategoryID NOT IN (3, 7)
+                    AND aa.ArtistID = ?
+                GROUP BY t.Name
+                ORDER By 2 desc, t.Name
+                LIMIT ?
+                ", $this->id, $limit
+            );
+            $list = self::$db->to_array(false, MYSQLI_ASSOC);
+            self::$cache->cache_value($key, $list, 86400 * 2);
+        }
+        return $list;
     }
 
     public function addAlias(string $name, ?int $redirect, User $user): int {
@@ -907,9 +916,19 @@ class Artist extends BaseAttrObject implements Bookmarked, CollageEntry {
     public function remove(): int {
         $id   = $this->id;
         $name = $this->name();
-        $db = new DB();
+        $db   = new DB();
 
         self::$db->begin_transaction();
+
+        $collMan = new Manager\Collage();
+        self::$db->prepared_query("
+            SELECT ca.CollageID FROM collages_artists AS ca WHERE ca.ArtistID = ?
+            ", $this->id
+        );
+        foreach (self::$db->collect(0) as $collageId) {
+            $collMan->findById($collageId)?->removeEntry($this);
+        }
+
         $db->relaxConstraints(true);
         self::$db->prepared_query("DELETE FROM artists_alias WHERE ArtistID = ?", $id);
         self::$db->prepared_query("DELETE FROM artists_group WHERE ArtistID = ?", $id);

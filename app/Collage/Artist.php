@@ -14,10 +14,9 @@ class Artist extends AbstractCollage {
     }
 
     public function load(): int {
+        $manager = new \Gazelle\Manager\Artist();
         self::$db->prepared_query("
             SELECT ca.ArtistID,
-                aa.Name,
-                coalesce(wa.Image, '') AS Image,
                 ca.UserID,
                 ca.Sort,
                 ca.AddedOn AS created
@@ -27,7 +26,7 @@ class Artist extends AbstractCollage {
             LEFT JOIN wiki_artists   AS wa USING (RevisionID)
             WHERE ca.CollageID = ?
             ORDER BY ca.Sort
-            ", $this->holder->id()
+            ", $this->holder->id
         );
         $artists = self::$db->to_array('ArtistID', MYSQLI_ASSOC);
         $total = count($artists);
@@ -40,9 +39,8 @@ class Artist extends AbstractCollage {
                 $this->created[$artist['ArtistID']] = $artist['created'];
                 $this->artists[$artist['ArtistID']] = [
                     'count'    => 0,
+                    'artist'   => $manager->findById($artist['ArtistID']),
                     'id'       => $artist['ArtistID'],
-                    'image'    => $artist['Image'],
-                    'name'     => $artist['Name'],
                     'sequence' => $artist['Sort'],
                     'user_id'  => $artist['UserID'],
                 ];

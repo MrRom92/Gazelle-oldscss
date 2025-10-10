@@ -169,4 +169,32 @@ document.addEventListener('DOMContentLoaded', () => {
             invertCollageCats();
         });
     }
+
+    const bioDivHeight = 145;
+
+    document.querySelectorAll('.cae-bio-content').forEach((content) => {
+        const originalHeight = content.scrollHeight;
+        if (originalHeight > bioDivHeight) {
+            const readMore          = document.createElement('button');
+            readMore.className      = 'read-more';
+            readMore.style.bottom   = '0px';
+            readMore.style.display  = 'block';
+            readMore.style.fontSize = '1.1em';
+            readMore.style.height   = '18px';
+            readMore.style.margin   = '1px';
+            readMore.style.right    = '4px';
+            readMore.textContent    = 'More ▾';
+            content.appendChild(readMore);
+            readMore.addEventListener('click', () => {
+                if (content.style.maxHeight === '' || content.style.maxHeight === bioDivHeight + 'px') {
+                    content.style.maxHeight = originalHeight + 20 + 'px';
+                    content.style.height = originalHeight + 20 + 'px';
+                    readMore.textContent    = 'Less ▴';
+                } else {
+                    content.style.maxHeight = bioDivHeight + 'px';
+                    readMore.textContent    = 'More ▾';
+                }
+            });
+        }
+    });
 });

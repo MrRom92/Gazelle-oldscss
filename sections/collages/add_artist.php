@@ -17,19 +17,21 @@ if (isset($_POST['collage_combo'])) {
     // From artist page
     $collage = $collageMan->findById((int)$_POST['collage_combo']);
 }
-if (is_null($collage) && isset($_POST['collage_ref'])) {
-    // From add artist widget
-    $ref = trim($_POST['collage_ref']);
-    $collage = $collageMan->findByName($ref);
-    if (is_null($collage) && preg_match('@' . SITE_URL . '/collages\.php.*?(?:id=)?(\d+)(?:&|\s*$)?@', $ref, $match)) {
-        $collage = $collageMan->findById((int)$match[1]);
+if (is_null($collage)) {
+    if (isset($_POST['collageid'])) {
+        // From collage page
+        $collage = $collageMan->findById((int)$_POST['collageid']);
+    } elseif (isset($_POST['collage_ref'])) {
+        // From add artist widget
+        $ref = trim($_POST['collage_ref']);
+        $collage = $collageMan->findByName($ref);
+        if (is_null($collage) && preg_match('@' . SITE_URL . '/collages\.php.*?(?:id=)?(\d+)(?:&|\s*$)?@', $ref, $match)) {
+            $collage = $collageMan->findById((int)$match[1]);
+        }
     }
-} else {
-    // From collage page
-    $collage = $collageMan->findById((int)$_POST['collageid']);
 }
 if (is_null($collage)) {
-    Error404::error();
+    Error404::error("Did not identify any artists");
 }
 
 if (!$Viewer->permitted('site_collages_delete')) {
@@ -39,7 +41,7 @@ if (!$Viewer->permitted('site_collages_delete')) {
     if ($collage->isPersonal() && !$collage->isOwner($Viewer)) {
         Error400::error("You cannot edit someone else's personal collage.");
     }
-    if ($collage->maxGroups() > 0 && $collage->numEntries() >= $collage->maxGroups()) {
+    if ($collage->maxGroups() > 0 && $collage->total() >= $collage->maxGroups()) {
         Error400::error('This collage already holds its maximum allowed number of entries.');
     }
 }
@@ -91,7 +93,7 @@ if (!$Viewer->permitted('site_collages_delete')) {
     }
 
     $maxGroups = $collage->maxGroups();
-    if ($maxGroups > 0 && ($collage->numEntries() + count($list) > $maxGroups)) {
+    if ($maxGroups > 0 && ($collage->total() + count($list) > $maxGroups)) {
         Error400::error("This collage can hold only $maxGroups entries.");
     }
 }
