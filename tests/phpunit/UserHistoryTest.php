@@ -58,7 +58,7 @@ class UserHistoryTest extends TestCase {
 
         $duplicate = $history->emailDuplicate(new Search\ASN());
         $this->assertCount(1, $duplicate, 'email-duplicate-count');
-        $this->assertEquals($this->userList[0]->id(), $duplicate[0]['user_id'], 'email-duplicate-user-id');
+        $this->assertEquals($this->userList[0]->id, $duplicate[0]['user_id'], 'email-duplicate-user-id');
     }
 
     public function testEmailReset(): void {

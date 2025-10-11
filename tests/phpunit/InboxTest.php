@@ -19,8 +19,8 @@ class InboxTest extends TestCase {
             'sender'   => Helper::makeUser('inbox.send.' . randomString(6), 'inbox', clearInbox: true),
             'receiver' => Helper::makeUser('inbox.recv.' . randomString(6), 'inbox', clearInbox: true),
         ];
-        $senderId = $this->userList['sender']->id();
-        $receiverId = $this->userList['receiver']->id();
+        $senderId = $this->userList['sender']->id;
+        $receiverId = $this->userList['receiver']->id;
 
         $senderInbox = $this->userList['sender']->inbox();
         $this->assertEquals('inbox.php?sort=latest', $senderInbox->folderLink('inbox', false), 'inbox-folder-latest');
@@ -66,7 +66,7 @@ class InboxTest extends TestCase {
         $this->assertCount(1, $recvList, 'inbox-pm-recv-post');
         $this->assertEquals($body, $recvList[0]['body'], 'inbox-pm-recv-body');
         $this->assertEquals(1, $receiverInbox->unreadTotal(), 'inbox-unread-count');
-        $this->assertEquals(1, $receiverInbox->massRead([$pmSent->id()]), 'inbox-mark-read');
+        $this->assertEquals(1, $receiverInbox->massRead([$pmSent->id]), 'inbox-mark-read');
         $this->assertEquals(0, $receiverInbox->unreadTotal(), 'inbox-none-unread');
 
         // sentbox
@@ -86,9 +86,9 @@ class InboxTest extends TestCase {
         // reply
         $userMan  = new Manager\User();
         $replyBody = 'reply two ' . randomString(10);
-        $replyId = $userMan->replyPM($senderId, $receiverId, $subject, 'reply one', $pmSent->id());
-        $replyId = $userMan->replyPM($senderId, $receiverId, $subject, $replyBody, $pmSent->id());
-        $this->assertEquals($replyId, $pmSent->id(), 'inbox-recv-reply');
+        $replyId = $userMan->replyPM($senderId, $receiverId, $subject, 'reply one', $pmSent->id);
+        $replyId = $userMan->replyPM($senderId, $receiverId, $subject, $replyBody, $pmSent->id);
+        $this->assertEquals($replyId, $pmSent->id, 'inbox-recv-reply');
         $senderList = $senderInbox->messageList($pmSenderManager, 2, 0);
         $this->assertCount(1, $senderList, 'inbox-sender-replylist');
         $msgList = $senderInbox->messageList($pmSenderManager, 2, 0);
@@ -104,12 +104,13 @@ class InboxTest extends TestCase {
         foreach ($bodyList as $body) {
             $pmList[] = $receiverInbox->create($senderInbox->user(), $subject, $body);
         }
-        $convList = array_map(fn($p) => $p->id(), $pmList);
+        $convList = array_map(fn($p) => $p->id, $pmList);
 
         $this->assertEquals(4, $receiverInbox->unreadTotal(), 'inbox-more-count');
         $this->assertEquals(5, $receiverInbox->messageTotal(), 'inbox-more-message-count');
         $rlist = $receiverInbox->messageList($pmReceiverManager, 6, 0);
-        $flaky = implode(", ", array_map(fn($m) => "id={$m->id()} sent={$m->sentDate()} unr=" . ($m->isUnread() ? 'y' : 'n'), $rlist));
+        $flaky = implode(", ", array_map(fn($m) => "id={$m->id} sent={$m->sentDate()} unr="
+            . ($m->isUnread() ? 'y' : 'n'), $rlist));
         $this->assertFalse($rlist[4]->isUnread(), "inbox-last-is-read $flaky");
         $this->assertTrue($rlist[3]->isUnread(), 'inbox-second-last-is-unread');
 
@@ -131,7 +132,7 @@ class InboxTest extends TestCase {
         $this->assertEquals(1, $receiverInbox->messageTotal(), 'inbox-search-body');
         $rlist = $receiverInbox->messageList($pmReceiverManager, 2, 0);
         $this->assertCount(1, $rlist, 'inbox-search-list-body');
-        $this->assertEquals($convList[1], $rlist[0]->id(), 'inbox-search-found');
+        $this->assertEquals($convList[1], $rlist[0]->id, 'inbox-search-found');
 
         // search user
         $receiverInbox->setSearchField('user')->setSearchTerm('nobody-here');
@@ -146,18 +147,18 @@ class InboxTest extends TestCase {
         $this->assertCount(4, $rlist, 'inbox-search-list-pm');
 
         // pin
-        $this->assertEquals(2, $receiverInbox->massTogglePinned([$rlist[1]->id(), $rlist[2]->id()]), 'inbox-pin-2');
+        $this->assertEquals(2, $receiverInbox->massTogglePinned([$rlist[1]->id, $rlist[2]->id]), 'inbox-pin-2');
         $receiverInbox->setSearchField('subject')->setSearchTerm('')->setUnreadFirst(false);
         $rlist = $receiverInbox->messageList($pmReceiverManager, 6, 0);
         $this->assertEquals(
-            [$convList[2], $convList[1], $convList[3], $convList[0], $pmSent->id()],
-            [$rlist[0]->id(), $rlist[1]->id(), $rlist[2]->id(), $rlist[3]->id(), $rlist[4]->id()],
+            [$convList[2], $convList[1], $convList[3], $convList[0], $pmSent->id],
+            [$rlist[0]->id, $rlist[1]->id, $rlist[2]->id, $rlist[3]->id, $rlist[4]->id],
             'inbox-pinned-order-regular'
         );
         $rlist = $receiverInbox->setUnreadFirst(true)->messageList($pmReceiverManager, 6, 0);
         $this->assertEquals(
-            [$convList[2], $convList[1], $convList[3], $convList[0], $pmSent->id()],
-            [$rlist[0]->id(), $rlist[1]->id(), $rlist[2]->id(), $rlist[3]->id(), $rlist[4]->id()],
+            [$convList[2], $convList[1], $convList[3], $convList[0], $pmSent->id],
+            [$rlist[0]->id, $rlist[1]->id, $rlist[2]->id, $rlist[3]->id, $rlist[4]->id],
             'inbox-pinned-order-unread'
         );
 
@@ -165,7 +166,7 @@ class InboxTest extends TestCase {
         $this->assertEquals(
             1, // $rlist[4] a.k.a $pmSent has been read
             $receiverInbox->massUnread([
-                $rlist[2]->id(), $rlist[3]->id(), $rlist[4]->id()
+                $rlist[2]->id, $rlist[3]->id, $rlist[4]->id
             ]),
             'inbox-toggle-unread'
         );
@@ -174,7 +175,7 @@ class InboxTest extends TestCase {
         $this->assertEquals(
             2, // $rlist[4] a.k.a $pmSent has been read
             $receiverInbox->massRemove([
-                $rlist[1]->id(), $rlist[3]->id()
+                $rlist[1]->id, $rlist[3]->id
             ]),
             'inbox-mass-remove'
         );

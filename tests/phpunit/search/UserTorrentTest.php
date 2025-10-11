@@ -49,7 +49,7 @@ class UserTorrentTest extends TestCase {
         $search = new Search\UserTorrent($this->user, UserTorrentSearch::seeding);
         $this->assertEquals('seeding', $search->label(), 'search-utor-label-seeding');
         $this->assertEquals(
-            [$this->torrentList[1]->id()],
+            [$this->torrentList[1]->id],
             $search->idList(),
             'search-utor-list-seeding'
         );
@@ -60,7 +60,7 @@ class UserTorrentTest extends TestCase {
         $search = new Search\UserTorrent($this->user, UserTorrentSearch::snatched);
         $this->assertEquals('snatched', $search->label(), 'search-utor-label-snatched');
         $this->assertEquals(
-            [$this->torrentList[0]->id()],
+            [$this->torrentList[0]->id],
             $search->idList(),
             'search-utor-list-snatched'
         );
@@ -70,7 +70,7 @@ class UserTorrentTest extends TestCase {
         $search = new Search\UserTorrent($this->user, UserTorrentSearch::uploaded);
         $this->assertEquals('uploaded', $search->label(), 'search-utor-label-uploaded');
         $this->assertEquals(
-            array_map(fn ($t) => $t->id(), $this->torrentList),
+            array_map(fn ($t) => $t->id, $this->torrentList),
             $search->idList(),
             'search-utor-list-uploaded'
         );

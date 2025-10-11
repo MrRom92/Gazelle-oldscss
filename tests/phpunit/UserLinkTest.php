@@ -68,12 +68,12 @@ class UserLinkTest extends TestCase {
         $this->assertEquals($comment, $info['comment'], 'user-link-info-comment');
         $this->assertCount(1, $info['list'], 'user-link-info-list');
         $this->assertEquals(
-            [$this->userList[1]->id() => $this->userList[1]->username()],
+            [$this->userList[1]->id => $this->userList[1]->username()],
             $info['list'],
             'user-link-info-user'
         );
         $this->assertEquals(
-            [$this->userList[0]->id() => $this->userList[0]->username()],
+            [$this->userList[0]->id => $this->userList[0]->username()],
             new User\UserLink($this->userList[1])->info()['list'],
             'user-link-info-other-user'
         );
@@ -130,18 +130,18 @@ class UserLinkTest extends TestCase {
         );
         $this->assertEquals(
             [
-                $this->userList[2]->id() => $this->userList[2]->username(),
-                $this->userList[3]->id() => $this->userList[3]->username(),
-                $this->userList[4]->id() => $this->userList[4]->username(),
+                $this->userList[2]->id => $this->userList[2]->username(),
+                $this->userList[3]->id => $this->userList[3]->username(),
+                $this->userList[4]->id => $this->userList[4]->username(),
             ],
             $linka->info()['list'],
             'user-link-merged-1'
         );
         $this->assertEquals(
             [
-                $this->userList[1]->id() => $this->userList[1]->username(),
-                $this->userList[2]->id() => $this->userList[2]->username(),
-                $this->userList[3]->id() => $this->userList[3]->username(),
+                $this->userList[1]->id => $this->userList[1]->username(),
+                $this->userList[2]->id => $this->userList[2]->username(),
+                $this->userList[3]->id => $this->userList[3]->username(),
             ],
             new User\UserLink($this->userList[4])->info()['list'],
             'user-link-merged-4'

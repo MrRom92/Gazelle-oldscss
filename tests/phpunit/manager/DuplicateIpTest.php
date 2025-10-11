@@ -28,12 +28,12 @@ class DuplicateIpTest extends TestCase {
                 (?, '$ip', now() - interval 10 day, now() - interval 1 day),
                 (?, '$ip', now() - interval 10 day, now() - interval 1 day),
                 (?, '$ip', now() - interval 10 day, now() - interval 1 day)
-            ", ...array_map(fn($u) => $u->id(), $this->userList)
+            ", ...array_map(fn($u) => $u->id, $this->userList)
         );
     }
 
     public function tearDown(): void {
-        $idList = array_map(fn($u) => $u->id(), $this->userList);
+        $idList = array_map(fn($u) => $u->id, $this->userList);
         DB::DB()->prepared_query("
             DELETE FROM users_history_ips WHERE UserID IN (" . placeholders($idList) . ")
             ", ...$idList

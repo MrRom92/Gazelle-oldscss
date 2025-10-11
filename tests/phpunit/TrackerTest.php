@@ -52,7 +52,7 @@ class TrackerTest extends TestCase {
         $this->assertTrue($tracker->addToken($this->torrent, $this->user), 'tracker-add-token');
         $report = $tracker->torrentReport($this->torrent);
         $this->assertCount(9, array_keys($report), 'tracker-tinfo-count');
-        $this->assertEquals($this->torrent->id(), $report['id'], 'tracker-tinfo-id');
+        $this->assertEquals($this->torrent->id, $report['id'], 'tracker-tinfo-id');
         $this->assertCount(0, $report['leecher_list'], 'tracker-tinfo-leecher');
         $this->assertCount(0, $report['seeder_list'], 'tracker-tinfo-seeder');
         $this->assertEquals([$this->user->id], $report['fltoken_list'], 'tracker-tinfo-fltoken');
@@ -175,8 +175,8 @@ class TrackerTest extends TestCase {
         $download = new Download($this->torrent, new User\UserclassRateLimit($downloader), true);
         $this->assertEquals(DownloadStatus::ok, $download->status(), 'tracker-downloader-enough-tokens');
 
-        $userId    = $downloader->id();
-        $torrentId = $this->torrent->id();
+        $userId    = $downloader->id;
+        $torrentId = $this->torrent->id;
         $fakeId    = $torrentId + 1;
 
         $this->assertEquals(1, $tracker->expireFreeleechTokens("$userId:$torrentId,$userId:$fakeId"), 'tracker-expire-tokens');

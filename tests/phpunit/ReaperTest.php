@@ -76,7 +76,7 @@ class ReaperTest extends TestCase {
             UPDATE torrents_leech_stats SET
                 last_action = now() - INTERVAL ? HOUR
             WHERE TorrentID = ?
-            ", $interval, $torrent->id()
+            ", $interval, $torrent->id
         );
     }
 
@@ -85,14 +85,14 @@ class ReaperTest extends TestCase {
             UPDATE torrent_unseeded SET
                 unseeded_date = ?
             WHERE torrent_id = ?
-            ", date('Y-m-d H:i:s', (int)strtotime("-{$hour} hours")), $torrent->id()
+            ", date('Y-m-d H:i:s', (int)strtotime("-{$hour} hours")), $torrent->id
         );
     }
 
     protected function removeUnseededAlert(array $list): void {
         DB::DB()->prepared_query("
             DELETE FROM torrent_unseeded WHERE torrent_id in (" . placeholders($list) . ")",
-            ...array_map(fn($t) => $t->id(), $list)
+            ...array_map(fn($t) => $t->id, $list)
         );
     }
 
@@ -113,7 +113,7 @@ class ReaperTest extends TestCase {
             INNER JOIN torrents_leech_stats tls ON (tls.TorrentID = t.ID)
             LEFT JOIN torrent_unseeded tu ON (tu.torrent_id = t.ID)
             WHERE t.ID IN (" . placeholders($torrentList) . ")",
-            ...array_map(fn($t) => $t->id(), $torrentList)
+            ...array_map(fn($t) => $t->id, $torrentList)
         );
         echo implode("\t", ['id', 'created', 'created<last?', 'last_action', 'unseeded', 'final', 'never_seeded']), "\n";
         echo implode("\n",
@@ -226,8 +226,8 @@ class ReaperTest extends TestCase {
         $body = $pm->postList(1, 0)[0]['body'];
         $this->assertEquals('You have 2 non-seeded new uploads to rescue', $pm->subject(), 'never-message-2');
         $this->assertStringContainsString("Dear {$this->userList[0]->username()}", $body, 'never-body-2-dear');
-        $this->assertStringContainsString("[pl]{$this->torrentList[0]->id()}[/pl]", $body, 'never-body-2-pl-0');
-        $this->assertStringContainsString("[pl]{$this->torrentList[1]->id()}[/pl]", $body, 'never-body-2-pl-1');
+        $this->assertStringContainsString("[pl]{$this->torrentList[0]->id}[/pl]", $body, 'never-body-2-pl-0');
+        $this->assertStringContainsString("[pl]{$this->torrentList[1]->id}[/pl]", $body, 'never-body-2-pl-1');
         $pm->remove();
 
         // reseed one of the torrents by the uploader
@@ -263,11 +263,11 @@ class ReaperTest extends TestCase {
         $body = $pm->postList(1, 0)[0]['body'];
         $this->assertEquals('You have a non-seeded new upload scheduled for deletion very soon', $pm->subject(), 'never-message-final-subject');
         $this->assertStringContainsString("Dear {$this->userList[0]->username()}", $body, 'never-body-3-dear');
-        $this->assertStringContainsString("[pl]{$this->torrentList[1]->id()}[/pl]", $body, 'never-body-3-pl-1');
+        $this->assertStringContainsString("[pl]{$this->torrentList[1]->id}[/pl]", $body, 'never-body-3-pl-1');
         $pm->remove();
 
         $this->modifyUnseededInterval($this->torrentList[1], REMOVE_NEVER_SEEDED_HOUR + 1);
-        $id = $this->torrentList[1]->id();
+        $id = $this->torrentList[1]->id;
         $list = $reaper->reaperList(
             state:    ReaperState::NEVER,
             interval: REMOVE_NEVER_SEEDED_HOUR,
@@ -279,7 +279,7 @@ class ReaperTest extends TestCase {
         $body = $pm->postList(1, 0)[0]['body'];
         $this->assertEquals('1 of your uploads has been deleted for inactivity (never seeded)', $pm->subject(), 'never-remove-message');
         $this->assertStringContainsString("Dear {$this->userList[0]->username()}", $body, 'never-remove-body-dear');
-        $this->assertStringContainsString("[url=torrents.php?id={$this->torrentList[1]->group()->id()}]", $body, 'never-remove-body-pl');
+        $this->assertStringContainsString("[url=torrents.php?id={$this->torrentList[1]->group()->id}]", $body, 'never-remove-body-pl');
         $pm->remove();
 
         $deleted = $torMan->findById($id);
@@ -339,8 +339,8 @@ class ReaperTest extends TestCase {
         $body = $pm->postList(1, 0)[0]['body'];
         $this->assertEquals('There are 2 unseeded uploads to rescue', $pm->subject(), 'unseeded-initial-0-rescue');
         $this->assertStringContainsString("You have 2 uploads that are not currently seeding by you (or anyone else)", $body, 'unseeded-initial-0-body');
-        $this->assertStringContainsString("[pl]{$this->torrentList[0]->id()}[/pl]", $body, 'unseeded-initial-0-body-pl-0');
-        $this->assertStringContainsString("[pl]{$this->torrentList[1]->id()}[/pl]", $body, 'unseeded-initial-0-body-pl-1');
+        $this->assertStringContainsString("[pl]{$this->torrentList[0]->id}[/pl]", $body, 'unseeded-initial-0-body-pl-0');
+        $this->assertStringContainsString("[pl]{$this->torrentList[1]->id}[/pl]", $body, 'unseeded-initial-0-body-pl-1');
         $pm->remove();
 
         $this->assertEquals(1, $inboxList[1]->messageTotal(), 'unseeded-initial-1-inbox');
@@ -348,8 +348,8 @@ class ReaperTest extends TestCase {
         $body = $pm->postList(1, 0)[0]['body'];
         $this->assertEquals('You have 2 unseeded snatches to save', $pm->subject(), 'unseeded-initial-1-rescue');
         $this->assertStringContainsString("In the past, you snatched 2 uploads that are no longer being seeded", $body, 'unseeded-initial-1-body');
-        $this->assertStringContainsString("[pl]{$this->torrentList[0]->id()}[/pl]", $body, 'unseeded-initial-1-body-pl-0');
-        $this->assertStringContainsString("[pl]{$this->torrentList[1]->id()}[/pl]", $body, 'unseeded-initial-1-body-pl-1');
+        $this->assertStringContainsString("[pl]{$this->torrentList[0]->id}[/pl]", $body, 'unseeded-initial-1-body-pl-0');
+        $this->assertStringContainsString("[pl]{$this->torrentList[1]->id}[/pl]", $body, 'unseeded-initial-1-body-pl-1');
         $pm->remove();
 
         $initialClaim = $reaper->claimStats();
@@ -366,15 +366,15 @@ class ReaperTest extends TestCase {
         $win   = $reaper->claim();
         $this->assertCount(1, $win, 'unseeded-claim-win-count');
         [$torrentId, $userId, $bp] = $win[0];
-        $this->assertEquals($this->torrentList[0]->id(), $torrentId, 'unseeded-claim-win-torrent');
-        $this->assertEquals($this->userList[1]->id(), $userId, 'unseeded-claim-win-user');
+        $this->assertEquals($this->torrentList[0]->id, $torrentId, 'unseeded-claim-win-torrent');
+        $this->assertEquals($this->userList[1]->id, $userId, 'unseeded-claim-win-user');
         $this->assertEquals($this->userList[1]->flush()->bonusPointsTotal(), $bonus + $bp, 'unseeded-claim-win-bp');
 
         // message
         $pm   = $inboxList[1]->messageList($pmMan[1], 1, 0)[0];
         $body = $pm->postList(1, 0)[0]['body'];
         $this->assertEquals("Thank you for reseeding {$this->torrentList[0]->group()->name()}!", $pm->subject(), 'unseeded-initial-1-thx');
-        $this->assertStringContainsString("[pl]{$this->torrentList[0]->id()}[/pl]", $body, 'unseeded-initial-1-body-pl-thx');
+        $this->assertStringContainsString("[pl]{$this->torrentList[0]->id}[/pl]", $body, 'unseeded-initial-1-body-pl-thx');
         $this->assertStringContainsString("$bp bonus points", $body, 'unseeded-initial-1-body-bp-thx');
         $pm->remove();
 
@@ -410,14 +410,14 @@ class ReaperTest extends TestCase {
         $body = $pm->postList(1, 0)[0]['body'];
         $this->assertEquals('There is an unseeded upload scheduled for deletion very soon', $pm->subject(), 'unseeded-final-0-rescue');
         $this->assertStringContainsString("You have an upload that is still not currently seeding by you (or anyone else)", $body, 'unseeded-final-0-body');
-        $this->assertStringContainsString("[pl]{$this->torrentList[1]->id()}[/pl]", $body, 'unseeded-final-0-body-pl-1');
+        $this->assertStringContainsString("[pl]{$this->torrentList[1]->id}[/pl]", $body, 'unseeded-final-0-body-pl-1');
         $pm->remove();
 
         $this->assertEquals(0, $inboxList[1]->messageTotal(), 'unseeded-final-no-snatcher-inbox');
 
         // too late
         $this->modifyUnseededInterval($this->torrentList[1], REMOVE_UNSEEDED_HOUR + 1);
-        $id = $this->torrentList[1]->id();
+        $id = $this->torrentList[1]->id;
         $list = $reaper->reaperList(
             state:    ReaperState::UNSEEDED,
             interval: REMOVE_UNSEEDED_HOUR,
@@ -429,14 +429,14 @@ class ReaperTest extends TestCase {
         $body = $pm->postList(1, 0)[0]['body'];
         $this->assertEquals('1 of your uploads has been deleted for inactivity (unseeded)', $pm->subject(), 'never-remove-message');
         $this->assertStringContainsString("Dear {$this->userList[0]->username()}", $body, 'never-remove-body-dear');
-        $this->assertStringContainsString("[url=torrents.php?id={$this->torrentList[1]->group()->id()}]", $body, 'never-remove-body-pl');
+        $this->assertStringContainsString("[url=torrents.php?id={$this->torrentList[1]->group()->id}]", $body, 'never-remove-body-pl');
         $pm->remove();
 
         $pm   = $inboxList[1]->messageList($pmMan[1], 1, 0)[0];
         $body = $pm->postList(1, 0)[0]['body'];
         $this->assertEquals('1 of your snatches was deleted for inactivity', $pm->subject(), 'never-remove-snatcher-message');
         $this->assertStringContainsString("Dear {$this->userList[1]->username()}", $body, 'never-remove-snatcher-body-dear');
-        $this->assertStringContainsString("[url=torrents.php?id={$this->torrentList[1]->group()->id()}]", $body, 'never-remove-snatcher-body-pl');
+        $this->assertStringContainsString("[url=torrents.php?id={$this->torrentList[1]->group()->id}]", $body, 'never-remove-snatcher-body-pl');
         $pm->remove();
 
         $deleted = $torMan->findById($id);
@@ -507,7 +507,7 @@ class ReaperTest extends TestCase {
         $reaper = new Torrent\Reaper(new Manager\Torrent(), new Manager\User());
         $reaper->process($reaper->initialUnseededList(), ReaperState::UNSEEDED, ReaperNotify::INITIAL);
 
-        $uploaderId = $this->userList[0]->id();
+        $uploaderId = $this->userList[0]->id;
         $initial = array_filter(
             $reaper->unseederList(),
             fn($user) => $user['user_id'] == $uploaderId

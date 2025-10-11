@@ -44,14 +44,14 @@ class ApplicantTest extends TestCase {
         $published = $this->roleList[]
             = $roleManager->create($title, 'this is a phpunit role', true, $this->userList['admin']);
         $this->assertInstanceOf(ApplicantRole::class, $published, 'applicant-role-instance');
-        $this->assertEquals('apply.php?action=view&id=' . $published->id(), $published->location(), 'applicant-role-location');
+        $this->assertEquals('apply.php?action=view&id=' . $published->id, $published->location(), 'applicant-role-location');
         $this->assertStringContainsString(html_escape($published->location()), $published->link(), 'applicant-role-link');
         $this->assertTrue(Helper::recentDate($published->created()), 'applicant-role-created');
         $this->assertEquals($published->created(), $published->modified(), 'applicant-role-modified');
         $this->assertEquals($title, $published->title(), 'applicant-role-title');
         $this->assertEquals('this is a phpunit role', $published->description(), 'applicant-role-description');
         $this->assertTrue($published->isPublished(), 'applicant-role-is-published');
-        $this->assertEquals($this->userList['admin']->id(), $published->userId(), 'applicant-role-creator');
+        $this->assertEquals($this->userList['admin']->id, $published->userId(), 'applicant-role-creator');
         $this->assertCount($totalPublished + 1, $roleManager->publishedList(), 'applicant-role-total-published');
         $this->assertCount($total + 1, $roleManager->list(), 'applicant-role-total-all');
 
@@ -62,11 +62,11 @@ class ApplicantTest extends TestCase {
         $this->assertInstanceOf(Applicant::class, $apply, 'applicant-instance');
         $this->assertInstanceOf(Thread::class, $apply->thread(), 'applicant-thread');
         $this->assertTrue($manager->userIsApplicant($this->userList['user']), 'applicant-user-applied');
-        $this->assertEquals('apply.php?action=view&id=' . $apply->id(), $apply->location(), 'applicant-location');
+        $this->assertEquals('apply.php?action=view&id=' . $apply->id, $apply->location(), 'applicant-location');
         $this->assertStringContainsString(html_escape($apply->location()), $apply->link(), 'applicant-link');
         $this->assertTrue(Helper::recentDate($apply->created()), 'applicant-role-created');
-        $this->assertEquals($this->userList['user']->id(), $apply->userId(), 'applicant-user-id');
-        $this->assertEquals($apply->threadId(), $apply->thread()->id(), 'applicant-thread-id');
+        $this->assertEquals($this->userList['user']->id, $apply->userId(), 'applicant-user-id');
+        $this->assertEquals($apply->threadId(), $apply->thread()->id, 'applicant-thread-id');
         $this->assertEquals($apply->role()->title(), $published->title(), 'applicant-title');
         $this->assertEquals('application message', $apply->body(), 'applicant-body');
         $this->assertFalse($apply->isResolved(), 'applicant-is-not-resolved');
@@ -123,7 +123,7 @@ class ApplicantTest extends TestCase {
             $roleManager->create('phpunit ' . randomString(6), 'this is a phpunit basic role', true, $this->userList['admin']);
         $basic->setField('viewer_list', '@' . $this->userList['mod']->username());
         $this->assertTrue($basic->modify(), 'applicant-role-add-viewer');
-        $this->assertEquals([$this->userList['mod']->id()], $basic->viewerList(), 'applicant-role-viewer-list');
+        $this->assertEquals([$this->userList['mod']->id], $basic->viewerList(), 'applicant-role-viewer-list');
 
         $this->roleList[] = $admin =
             $roleManager->create('phpunit ' . randomString(6), 'this is a phpunit admin role', true, $this->userList['admin']);

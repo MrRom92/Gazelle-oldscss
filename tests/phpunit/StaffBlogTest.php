@@ -29,11 +29,11 @@ class StaffBlogTest extends TestCase {
         $this->assertInstanceOf(StaffBlog::class, $blog, 'staff-blog-create');
         $this->assertEquals('phpunit staff blog', $blog->title(), 'staff-blog-title');
         $this->assertEquals('body text', $blog->body(), 'staff-blog-text');
-        $this->assertEquals($this->userList['admin']->id(), $blog->userId(), 'staff-blog-user-id');
+        $this->assertEquals($this->userList['admin']->id, $blog->userId(), 'staff-blog-user-id');
         $this->assertTrue(Helper::recentDate($blog->created()), 'staff-blog-created');
         $this->assertGreaterThan(time() - 10, $blog->epoch(), 'staff-blog-epoch');
 
-        $location = 'staffblog.php#blog' . $blog->id();
+        $location = 'staffblog.php#blog' . $blog->id;
         $this->assertEquals($location, $blog->location(), 'staff-blog-location');
         $this->assertEquals(SITE_URL . "/$location", $blog->publicLocation(), 'staff-blog-public-location');
         $this->assertEquals($location, $blog->url(), 'staff-blog-url');
@@ -60,7 +60,7 @@ class StaffBlogTest extends TestCase {
         $this->assertEquals($newBody, $blog->body(), 'staff-blog-new-body');
 
         $list = $manager->blogList();
-        $this->assertEquals($blog->id(), $list[0]->id(), 'staff-blog-latest');
+        $this->assertEquals($blog->id, $list[0]->id, 'staff-blog-latest');
 
         $this->assertEquals(1, $blog->remove(), 'staff-blog-removed');
     }

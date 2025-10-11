@@ -46,7 +46,7 @@ class BaseObjectTest extends TestCase {
         $this->objectList[] = Helper::makeUser('bo.' . randomString(6), 'base object');
         $this->objectList[] = Helper::makeUser('bo.' . randomString(6), 'base object');
 
-        $idList = array_map(fn($obj) => $obj->id(), $this->objectList);
+        $idList = array_map(fn($obj) => $obj->id, $this->objectList);
         $gen = object_generator(new Manager\User(), $idList);
         $n = 0;
         foreach ($gen as $user) {

@@ -366,7 +366,7 @@ class CollageTest extends TestCase {
         $_GET['collage_id'] = $this->collageList[0]->id;
         $this->assertEquals(
             [
-                'ID'         => $this->collageList[0]->id(),
+                'ID'         => $this->collageList[0]->id,
                 'Name'       => $this->collageList[0]->name(),
                 'CategoryID' => $this->collageList[0]->categoryId(),
                 'Category'   => null,

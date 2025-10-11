@@ -54,7 +54,7 @@ class UserSeedboxTest extends TestCase {
             INSERT INTO xbt_files_users
                    (fid, uid, useragent, peer_id, ip, active, remaining, timespent, mtime)
             VALUES (?,   ?,   ?,         ?,       ?,  1, 0, 1, unix_timestamp(now() - interval 1 hour))
-            ",  $torrent->id(), $this->user->id, $ua, $peerId, $ip
+            ",  $torrent->id, $this->user->id, $ua, $peerId, $ip
         );
     }
 
@@ -114,18 +114,26 @@ class UserSeedboxTest extends TestCase {
 
         // union (torrentList[1] in common)
         $seedbox->setSource($hostList[$key1]['id'])->setTarget($hostList[$key2]['id'])->setUnion(true);
-        $this->assertEquals([$this->torrentList[1]->id()], $seedbox->idList(), 'seedbox-both');
+        $this->assertEquals([$this->torrentList[1]->id], $seedbox->idList(), 'seedbox-both');
 
         // intersection (point of view sbox-1)
         $seedbox->setUnion(false);
-        $this->assertEquals([$this->torrentList[0]->id()], $seedbox->idList(), 'seedbox-1-not-2');
+        $this->assertEquals([$this->torrentList[0]->id], $seedbox->idList(), 'seedbox-1-not-2');
 
         // intersection (point of view sbox-2)
         $seedbox->setSource($hostList[$key2]['id'])->setTarget($hostList[$key1]['id']);
-        $this->assertEquals([$this->torrentList[2]->id(), $this->torrentList[3]->id()], $seedbox->idList(), 'seedbox-2-not-1');
+        $this->assertEquals(
+            [$this->torrentList[2]->id, $this->torrentList[3]->id],
+            $seedbox->idList(),
+            'seedbox-2-not-1'
+        );
 
         $list = $seedbox->torrentList(new Manager\Torrent(), 3, 0);
-        $this->assertEquals([$this->torrentList[2]->id(), $this->torrentList[3]->id()], array_map(fn($t) => $t['id'], $list), 'seedbox-list');
+        $this->assertEquals(
+            [$this->torrentList[2]->id, $this->torrentList[3]->id],
+            array_map(fn($t) => $t['id'], $list),
+            'seedbox-list',
+        );
     }
 
     public function testUserSeederList(): void {

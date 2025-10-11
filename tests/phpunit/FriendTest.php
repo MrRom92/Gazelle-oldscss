@@ -42,14 +42,14 @@ class FriendTest extends TestCase {
         // get a page
         $page = $this->friend[0]->page($manager, 10, 0);
         $this->assertCount(1, $page, 'friend-page');
-        $this->assertEquals(0, $page[$this->friend[1]->user()->id()]['mutual'], 'friend-not-mutual');
+        $this->assertEquals(0, $page[$this->friend[1]->user()->id]['mutual'], 'friend-not-mutual');
 
         // mutual
         $this->assertEquals(1, $this->friend[1]->add($this->friend[0]->user()), 'friend-0-add-back');
         $this->assertTrue($this->friend[0]->isMutual($this->friend[1]->user()), 'friend-1-is-mutual');
         $this->assertTrue($this->friend[1]->isMutual($this->friend[0]->user()), 'friend-reciprocal');
         $page = $this->friend[0]->page($manager, 10, 0);
-        $this->assertEquals(1, $page[$this->friend[1]->user()->id()]['mutual'], 'friend-the-feeling-is-mutual');
+        $this->assertEquals(1, $page[$this->friend[1]->user()->id]['mutual'], 'friend-the-feeling-is-mutual');
 
         // if (getenv('CI') === false) {
             // FIXME: figure out why causes Twig footer() to fail when running in CI

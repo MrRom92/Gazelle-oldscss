@@ -39,7 +39,7 @@ class TGroupManagerTest extends TestCase {
 
     public function testFindByTorrentId(): void {
         $manager = new Manager\TGroup();
-        $torrentId = $this->torrentList[0]->id();
+        $torrentId = $this->torrentList[0]->id;
         $this->assertInstanceOf(
             TGroup::class,
             $manager->findByTorrentId($torrentId),

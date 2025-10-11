@@ -91,7 +91,7 @@ class UserActivityTest extends TestCase {
         $this->assertEquals('You have a new message', $alertInbox->title(), 'alert-inbox-unread');
 
         // read it
-        $read = new Manager\PM($user)->findById($pm->id());
+        $read = new Manager\PM($user)->findById($pm->id);
         $this->assertInstanceOf(PM::class, $read, 'inbox-unread-pm');
         $this->assertEquals(1, $read->markRead(), 'alert-pm-read');
     }

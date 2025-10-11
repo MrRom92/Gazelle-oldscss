@@ -50,8 +50,8 @@ class SearchReportAutoTest extends TestCase {
 
     protected function matchThingList(array $thingList, User|ReportAuto\Type $matcher, int $n, string $msg): void {
         foreach ($thingList as $list) {
-            match ($list[0]->id()) {
-                $matcher->id() => $this->assertEquals($n, $list[1], "rasearch-$msg"),
+            match ($list[0]->id) {
+                $matcher->id => $this->assertEquals($n, $list[1], "rasearch-$msg"),
                 default => $this->fail("rasearch-$msg-fail")
             };
         }
@@ -129,9 +129,9 @@ class SearchReportAutoTest extends TestCase {
         $search->setOwner(self::$user2);
 
         foreach ($search->userTotalList() as $userList) {
-            match ($userList[0]->id()) {
-                self::$user1->id() => $this->assertEquals(2, $userList[1], 'rasearch-closed-2-1'),
-                self::$user2->id() => $this->assertEquals(2, $userList[1], 'rasearch-closed-2-2'),
+            match ($userList[0]->id) {
+                self::$user1->id => $this->assertEquals(2, $userList[1], 'rasearch-closed-2-1'),
+                self::$user2->id => $this->assertEquals(2, $userList[1], 'rasearch-closed-2-2'),
                 default => $this->fail('rasearch-closed-2-fail')
             };
         }
@@ -143,9 +143,9 @@ class SearchReportAutoTest extends TestCase {
         $search->setOwner(self::$user2);
 
         foreach ($search->userTotalList() as $userList) {
-            match ($userList[0]->id()) {
-                self::$user1->id() => $this->assertEquals(2, $userList[1], 'rasearch-claimed-1-1'),
-                self::$user2->id() => $this->assertEquals(1, $userList[1], 'rasearch-claimed-1-2'),
+            match ($userList[0]->id) {
+                self::$user1->id => $this->assertEquals(2, $userList[1], 'rasearch-claimed-1-1'),
+                self::$user2->id => $this->assertEquals(1, $userList[1], 'rasearch-claimed-1-2'),
                 default => $this->fail('rasearch-claimed-1-fail')
             };
         }
@@ -170,7 +170,7 @@ class SearchReportAutoTest extends TestCase {
 
     public function testId(): void {
         $search = new Search\ReportAuto(self::$raMan, self::$ratMan);
-        $search->setId(self::$report->id());
+        $search->setId(self::$report->id);
         $this->matchThingList(
             $search->typeTotalList(),
             self::$ratMan->findById(self::$report->typeId()),

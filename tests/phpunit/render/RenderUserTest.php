@@ -96,13 +96,13 @@ class RenderUserTest extends TestCase {
         $this->userReports = [
             $reportMan->create(
                 $this->userList['admin'],
-                $this->userList['user']->id(),
+                $this->userList['user']->id,
                 "user",
                 randomString(6),
             ),
             $reportMan->create(
                 $this->userList['admin'],
-                $this->userList['user']->id(),
+                $this->userList['user']->id,
                 "user",
                 randomString(500)
             ),

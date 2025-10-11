@@ -17,7 +17,7 @@ class PM extends Base {
     protected array $info;
 
     public function __construct(
-        protected int $id,
+        public readonly int $id,
         protected User $user
     ) {}
 

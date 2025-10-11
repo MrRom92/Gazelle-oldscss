@@ -36,9 +36,9 @@ class TorrentLogTest extends TestCase {
             foreach ($logfileSummary->all() as $logfile) {
                 $torrentLog = $torrentLogManager->create($torrent, $logfile, $checkerVersion);
             }
-            $torrentLog2 = $torrentLogManager->findById($torrent, $torrentLog->id());
+            $torrentLog2 = $torrentLogManager->findById($torrent, $torrentLog->id);
             $this->assertInstanceOf(TorrentLog::class, $torrentLog2);
-            $this->assertEquals($torrentLog->id(), $torrentLog2->id());
+            $this->assertEquals($torrentLog->id, $torrentLog2->id);
             $this->assertEquals($torrentLog->link(), $torrentLog2->link());
         } finally {
             if (isset($tgroup)) {
