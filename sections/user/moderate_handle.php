@@ -53,7 +53,7 @@ $visible           = isset($_POST['Visible']) ? '1' : '0';
 $unlimitedDownload = isset($_POST['unlimitedDownload']);
 $invites           = (int)$_POST['Invites'];
 $slogan            = trim($_POST['slogan']);
-$changePassword    = !empty($_POST['ChangePassword']);
+$changePassword    = isset($_POST['ChangePassword']);
 $uploaded          = 0;
 $downloaded        = 0;
 $bonusPoints       = null;
@@ -88,7 +88,7 @@ $resetPasskey         = isset($_POST['ResetPasskey']) ? 1 : 0;
 $resetAuthkey         = isset($_POST['ResetAuthkey']) ? 1 : 0;
 $logoutSession        = isset($_POST['Logout']) ? 1 : 0;
 $sendHackedMail       = isset($_POST['SendHackedMail']) ? 1 : 0;
-if ($sendHackedMail && !empty(trim($_POST['HackedEmail']))) {
+if ($sendHackedMail && isset($_POST['HackedEmail'])) {
     $hackedEmail = trim($_POST['HackedEmail']);
 } else {
     $sendHackedMail = false;
@@ -353,11 +353,11 @@ if ($Viewer->permittedAny('users_promote_below', 'users_promote_to')) {
     if ($currentClasses != $secondaryClasses) {
         $removedClasses = array_diff($currentClasses, $secondaryClasses);
         $addedClasses   = array_diff($secondaryClasses, $currentClasses);
-        if (!empty($removedClasses)) {
+        if ($removedClasses !== []) {
             $names = array_map(fn (int $c): string => $userMan->userclassName($c), $removedClasses);
             $editSummary[] = 'secondary classes dropped: ' . implode(', ', $names);
         }
-        if (!empty($addedClasses)) {
+        if ($addedClasses !== []) {
             $names = array_map(fn (int $c): string => $userMan->userclassName($c), $addedClasses);
             $editSummary[] = "secondary classes added: " . implode(', ', $names);
         }

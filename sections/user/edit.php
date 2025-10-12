@@ -8,17 +8,16 @@ namespace Gazelle;
 
 $userMan = new Manager\User();
 
-$user = $userMan->findById(($_REQUEST['id'] ?? '') === 'me' ? $Viewer->id() : (int)($_REQUEST['id'] ?? 0));
+$user = $userMan->findById(($_REQUEST['id'] ?? '') === 'me' ? $Viewer->id : (int)($_REQUEST['id'] ?? 0));
 if (is_null($user)) {
     Error404::error();
 }
-$UserID = $user->id;
-if ($UserID != $Viewer->id() && !$Viewer->permitted('users_edit_profiles')) {
+if ($user->id !== $Viewer->id && !$Viewer->permitted('users_edit_profiles')) {
     Error403::error();
 }
 
-$donor    = new User\Donor($user);
-$profile  = [
+$donor   = new User\Donor($user);
+$profile = [
     'title' => $user->profileTitle(),
     'info'  => new Util\Textarea('info', $user->profileInfo(), 42, 8),
 ];
@@ -30,17 +29,17 @@ foreach (range(1, 4) as $level) {
         ];
     }
 }
-$navList = new Manager\UserNavigation()->fullList();
-$pushToken = new User\Notification($user)->pushToken();
+$navList  = new Manager\UserNavigation()->fullList();
+$notifier = new User\Notification($user);
 
 echo $Twig->render('user/setting.twig', [
     'donor'           => $donor,
     'lastfm_username' => new Util\LastFM()->username($user),
     'nav_items'       => $navList,
     'nav_items_user'  => $user->navigationList(),
-    'notify_config'   => new User\Notification($user)->config(),
-    'push_topic'      => $pushToken,
+    'notify_config'   => $notifier->config(),
     'profile'         => $profile,
+    'push_topic'      => $notifier->pushToken(),
     'release_order'   => $user->releaseOrder(new ReleaseType()->extendedList()),
     'stylesheet'      => new User\Stylesheet($user),
     'stylesheets'     => new Manager\Stylesheet()->list(),

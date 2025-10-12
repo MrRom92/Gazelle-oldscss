@@ -21,7 +21,7 @@ if (!isset($_REQUEST['id'])) {
     if (is_null($user)) {
         Error404::error();
     }
-    $ownProfile = ($user->id === $Viewer->id());
+    $ownProfile = $user->id === $Viewer->id;
     if (!$ownProfile && !$Viewer->permitted('users_edit_profiles')) {
         $irc::sendMessage(IRC_CHAN_MOD, "User {$Viewer->label()} tried to edit {$user->publicLocation()}");
         Error403::error();
@@ -154,7 +154,7 @@ if ($avatar != $user->avatar()) {
 }
 
 $ResetPassword = false;
-if (!empty($_POST['password']) && !empty($_POST['new_pass_1']) && !empty($_POST['new_pass_2'])) {
+if (isset($_POST['password']) && isset($_POST['new_pass_1']) && isset($_POST['new_pass_2'])) {
     if (!$user->validatePassword($_POST['password'])) {
         Error400::error('You did not enter the correct password.');
     } elseif (!Util\PasswordCheck::checkPasswordStrength($_POST['password'], $user)) {
@@ -180,24 +180,25 @@ if (!empty($_POST['password']) && !empty($_POST['new_pass_1']) && !empty($_POST[
     }
 }
 
-$option['DisableGrouping2']    = (!empty($_POST['disablegrouping']) ? 0 : 1);
-$option['TorrentGrouping']     = (!empty($_POST['torrentgrouping']) ? 1 : 0);
+$option['AutoSubscribe']       = isset($_POST['autosubscribe'])         ? 1 : 0;
+$option['CoverArt']            = isset($_POST['coverart'])              ? 1 : 0;
+$option['DisableAutoSave']     = isset($_POST['disableautosave'])       ? 1 : 0;
+$option['DisableAvatars']      = isset($_POST['disableavatars'])        ? 1 : 0;
+$option['DisableGrouping2']    = isset($_POST['disablegrouping'])       ? 1 : 0;
+$option['DisablePMAvatars']    = isset($_POST['disablepmavatars'])      ? 1 : 0;
+$option['DisableSmileys']      = isset($_POST['disablesmileys'])        ? 1 : 0;
+$option['EnableMatureContent'] = isset($_POST['enablematurecontent'])   ? 1 : 0;
+$option['ListUnreadPMsFirst']  = isset($_POST['list_unread_pms_first']) ? 1 : 0;
+$option['NoVoteLinks']         = isset($_POST['novotelinks'])           ? 1 : 0;
+$option['ShowExtraCovers']     = isset($_POST['show_extra_covers'])     ? 1 : 0;
+$option['ShowSnatched']        = isset($_POST['showsnatched'])          ? 1 : 0;
+$option['ShowTorFilter']       = isset($_POST['showtfilter'])           ? 1 : 0;
+$option['TorrentGrouping']     = isset($_POST['torrentgrouping'])       ? 1 : 0;
+$option['UseOpenDyslexic']     = isset($_POST['useopendyslexic'])       ? 1 : 0;
+
 $option['PostsPerPage']        = (int)$_POST['postsperpage'];
 $option['CollageCovers']       = (int)$_POST['collagecovers'];
-$option['ShowTorFilter']       = (empty($_POST['showtfilter']) ? 0 : 1);
-$option['AutoSubscribe']       = (!empty($_POST['autosubscribe']) ? 1 : 0);
-$option['DisableSmileys']      = (int)isset($_POST['disablesmileys']);
-$option['EnableMatureContent'] = (!empty($_POST['enablematurecontent']) ? 1 : 0);
-$option['UseOpenDyslexic']     = (!empty($_POST['useopendyslexic']) ? 1 : 0);
-$option['DisableAvatars']      = (int)($_POST['disableavatars'] ?? 0);
 $option['Identicons']          = (int)($_POST['identicons'] ?? 0);
-$option['DisablePMAvatars']    = (!empty($_POST['disablepmavatars']) ? 1 : 0);
-$option['ListUnreadPMsFirst']  = (!empty($_POST['list_unread_pms_first']) ? 1 : 0);
-$option['ShowSnatched']        = (!empty($_POST['showsnatched']) ? 1 : 0);
-$option['DisableAutoSave']     = (!empty($_POST['disableautosave']) ? 1 : 0);
-$option['NoVoteLinks']         = (!empty($_POST['novotelinks']) ? 1 : 0);
-$option['CoverArt']            = (int)!empty($_POST['coverart']);
-$option['ShowExtraCovers']     = (int)!empty($_POST['show_extra_covers']);
 $option['AutoComplete']        = $_POST['autocomplete'];
 
 // user options
@@ -206,7 +207,7 @@ foreach (['DefaultSearch', 'DisableFreeTorrentTop10'] as $opt) {
         $option[$opt] = $user->option($opt);
     }
 }
-if (empty($_POST['sorthide'])) {
+if (!isset($_POST['sorthide'])) {
     $option['SortHide'] = [];
 } else {
     $JSON = json_decode($_POST['sorthide']);
@@ -216,7 +217,7 @@ if (empty($_POST['sorthide'])) {
     }
 }
 if ($Viewer->permitted('site_advanced_search')) {
-    $option['SearchType'] = (int)!empty($_POST['search_type_advanced']);
+    $option['SearchType'] = (int)isset($_POST['search_type_advanced']);
 } else {
     unset($option['SearchType']);
 }

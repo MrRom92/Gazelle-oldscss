@@ -9,12 +9,15 @@ $user = new Manager\User()->findById((int)$_GET['userid']);
 if (is_null($user)) {
     Error403::error();
 }
-if (!$Viewer->permitted('users_mod') && $user->id != $Viewer->id()) {
+if ($user->id !== $Viewer->id && !$Viewer->permitted('users_mod')) {
     Error403::error();
 }
 authorize();
 
-new Manager\Notification()->push([$user->id],
-    'Push!', 'You have been pushed by ' . $Viewer->username());
+new Manager\Notification()->push(
+    [$user->id],
+    'Push!',
+    "You have been pushed by {$Viewer->username()}",
+);
 
-header('Location: ' . $user->location() . '&action=edit');
+header("Location: {$user->location()}&action=edit");

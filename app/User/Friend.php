@@ -32,14 +32,14 @@ class Friend extends \Gazelle\BaseUser {
     }
 
     public function add(\Gazelle\User $friend): int {
-        if ($this->user->id === $friend->id()) {
+        if ($this->user->id === $friend->id) {
             return -1;
         }
         self::$db->prepared_query("
             INSERT IGNORE INTO friends
                    (UserID, FriendID)
             VALUES (?,      ?)
-            ", $this->user->id, $friend->id()
+            ", $this->user->id, $friend->id
         );
         return self::$db->affected_rows();
     }
@@ -50,7 +50,7 @@ class Friend extends \Gazelle\BaseUser {
                 Comment = ?
             WHERE UserID = ?
                 AND FriendID = ?
-            ", $comment, $this->user->id, $friend->id()
+            ", $comment, $this->user->id, $friend->id
         );
         return self::$db->affected_rows();
     }
@@ -60,7 +60,7 @@ class Friend extends \Gazelle\BaseUser {
             DELETE FROM friends
             WHERE UserID = ?
                 AND FriendID = ?
-            ", $this->user->id, $friend->id()
+            ", $this->user->id, $friend->id
         );
         return self::$db->affected_rows();
     }

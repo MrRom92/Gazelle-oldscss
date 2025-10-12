@@ -143,7 +143,7 @@ class Session extends \Gazelle\BaseUser {
         $info = $this->info();
         if (count($info) > 1) {
             foreach ($info as $id => $session) {
-                if ($id != $sessionKey) {
+                if ($id !== $sessionKey) {
                     return $session;
                 }
             }

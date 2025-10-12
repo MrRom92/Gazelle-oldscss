@@ -2,6 +2,8 @@
 
 namespace Gazelle\Search\Torrent;
 
+use Gazelle\User;
+
 class Report extends \Gazelle\Base {
     protected string $orderBy;
     protected string $title;
@@ -95,17 +97,19 @@ class Report extends \Gazelle\Base {
         }
     }
 
-    public function setReporterId(int $reporterId): void {
+    public function setReporter(User $reporter): static {
         $this->configure();
         $this->cond[] = "r.ReporterID = ?";
-        $this->args[] = $reporterId;
+        $this->args[] = $reporter->id;
+        return $this;
     }
 
-    public function setOrderBy(string $orderBy): void {
+    public function setOrderBy(string $orderBy): static {
         $this->orderBy = "ORDER BY $orderBy";
+        return $this;
     }
 
-    public function canUnclaim(\Gazelle\User $user): bool {
+    public function canUnclaim(User $user): bool {
         return $this->mode === 'staff' && $user->id === (int)$this->id;
     }
 

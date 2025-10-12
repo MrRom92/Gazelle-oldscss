@@ -296,7 +296,7 @@ if ($Viewer->permitted('users_mod') && $user->onRatioWatch()) {
 <?php
 foreach (range(1, 4) as $level) {
     $profileInfo = $donor->profileInfo($level);
-    if (!empty($profileInfo)) {
+    if (is_string($profileInfo)) {
 ?>
     <div class="box">
         <div class="head">

@@ -15,7 +15,7 @@ if (isset($_GET['search'])) {
     $_GET['search'] = trim($_GET['search']);
 }
 
-if (!empty($_GET['search'])) {
+if (isset($_GET['search'])) {
     if (preg_match(IP_REGEXP, $_GET['search'])) {
         $_GET['ip'] = $_GET['search'];
     } elseif (preg_match(EMAIL_REGEXP, $_GET['search'])) {
@@ -69,36 +69,35 @@ $orderBy = [
 $dir = ['Ascending' => 'ASC', 'Descending' => 'DESC'];
 
 // Arrays, regexps, and all that fun stuff we can use for validation, form generation, etc
-$orderByValue = ['inarray' => array_keys($orderBy)];
-$dirValue = ['inarray' => array_keys($dir)];
-
-$dateChoice = ['inarray' => ['on', 'before', 'after', 'between']];
+$orderByValue     = ['inarray' => array_keys($orderBy)];
+$dirValue         = ['inarray' => array_keys($dir)];
+$dateChoice       = ['inarray' => ['on', 'before', 'after', 'between']];
 $singledateChoice = ['inarray' => ['on', 'before', 'after']];
-$numberChoice = ['inarray' => ['equal', 'above', 'below', 'between', 'buffer']];
-$offNumberChoice = ['inarray' => ['equal', 'above', 'below', 'between', 'buffer', 'off']];
-$yesNo = ['inarray' => ['any', 'yes', 'no']];
-$nullable = ['inarray' => ['any', 'isnull', 'isnotnull']];
+$numberChoice     = ['inarray' => ['equal', 'above', 'below', 'between', 'buffer']];
+$offNumberChoice  = ['inarray' => ['equal', 'above', 'below', 'between', 'buffer', 'off']];
+$yesNo            = ['inarray' => ['any', 'yes', 'no']];
+$nullable         = ['inarray' => ['any', 'isnull', 'isnotnull']];
 
 $emailHistoryChecked = false;
-$ipHistoryChecked = false;
-$disabledIpChecked = false;
-$trackerLiveSource = true;
+$ipHistoryChecked    = false;
+$disabledIpChecked   = false;
+$trackerLiveSource   = true;
 
-$paginator = new Util\Paginator(USERS_PER_PAGE, (int)($_GET['page'] ?? 1));
-$stylesheet = new \Gazelle\Manager\Stylesheet()->list();
+$paginator  = new Util\Paginator(USERS_PER_PAGE, (int)($_GET['page'] ?? 1));
+$stylesheet = new Manager\Stylesheet()->list();
 
-$matchMode = ($_GET['matchtype'] ?? 'fuzzy');
-$searchDisabledInvites = (isset($_GET['disabled_invites']) && $_GET['disabled_invites'] != '');
-$searchDisabledUploads = (isset($_GET['disabled_uploads']) && $_GET['disabled_uploads'] != '');
-$searchLockedAccount = (($_GET['lockedaccount'] ?? '') == 'locked');
-$showInvited = (($_GET['invited'] ?? 'off') !== 'off');
+$matchMode             = $_GET['matchtype'] ?? 'fuzzy';
+$searchDisabledInvites = isset($_GET['disabled_invites']) && $_GET['disabled_invites'] != '';
+$searchDisabledUploads = isset($_GET['disabled_uploads']) && $_GET['disabled_uploads'] != '';
+$searchLockedAccount   = ($_GET['lockedaccount'] ?? '') === 'locked';
+$showInvited           = ($_GET['invited'] ?? 'off') !== 'off';
 
-if (empty($_GET)) {
+if ($_GET === []) {
     $result = [];
 } else {
-    $emailHistoryChecked = !empty($_GET['email_history']);
-    $disabledIpChecked   = !empty($_GET['disabled_ip']);
-    $ipHistoryChecked    = !empty($_GET['ip_history']);
+    $emailHistoryChecked = isset($_GET['email_history']);
+    $disabledIpChecked   = isset($_GET['disabled_ip']);
+    $ipHistoryChecked    = isset($_GET['ip_history']);
     $trackerLiveSource   = ($_GET['tracker-src'] ?? 'live') == 'live';
     $dateRegexp          = ['regexp' => '/\d{4}-\d{2}-\d{2}/'];
     $userclassList       = [];
@@ -178,12 +177,12 @@ if (empty($_GET)) {
     LEFT JOIN relay.user_last_access AS ula ON (ula.user_id = um1."ID")
     ';
 
-    if (!empty($_GET['username'])) {
+    if (strlen($_GET['username'] ?? '')) {
         $where[] = $m->matchField('um1."Username"');
         $args[] = $_GET['username'];
     }
 
-    if (!empty($_GET['email'])) {
+    if (strlen($_GET['email'] ?? '')) {
         if (isset($_GET['email_history'])) {
             $distinct = true;
             $join['he'] = 'INNER JOIN relay.users_history_emails AS he ON (he."UserID" = um1."ID")';
@@ -194,7 +193,7 @@ if (empty($_GET)) {
         $args[] = $_GET['email'];
     }
 
-    if (isset($_GET['email_opt']) && isset($_GET['email_cnt']) && strlen($_GET['email_cnt'])) {
+    if (strlen($_GET['email_opt'] ?? '') && strlen($_GET['email_cnt'] ?? '')) {
         $where[] = sprintf('um1."ID" IN (%s)',
             $m->op('
                 SELECT "UserID" FROM relay.users_history_emails GROUP BY "UserID" HAVING count(DISTINCT "Email")
@@ -204,7 +203,7 @@ if (empty($_GET)) {
         $args[] = (int)$_GET['email_cnt'];
     }
 
-    if (!empty($_GET['ip'])) {
+    if (strlen($_GET['ip'] ?? '')) {
         if ($ipHistoryChecked) {
             $distinct = true;
             $join['hi'] = 'INNER JOIN relay.users_history_ips AS hi ON (hi."UserID" = um1."ID")';
@@ -222,12 +221,12 @@ if (empty($_GET)) {
         $where[] = 'la."UserID" IS NULL';
     }
 
-    if (!empty($_GET['cc'])) {
+    if (strlen($_GET['cc'] ?? '')) {
         $where[] = $m->op('um1.ipcc', $_GET['cc_op']);
         $args[] = trim($_GET['cc']);
     }
 
-    if (!empty($_GET['tracker_ip'])) {
+    if (strlen($_GET['tracker_ip'] ?? '')) {
         $distinct = true;
         $join['xfu'] = $trackerLiveSource
             ? 'INNER JOIN relay.xbt_files_users AS xfu ON (um1."ID" = xfu.uid)'
@@ -236,27 +235,27 @@ if (empty($_GET)) {
         $args[] = trim($_GET['tracker_ip']);
     }
 
-    if (!empty($_GET['comment'])) {
+    if (strlen($_GET['comment'] ?? '')) {
         $distinct = true;
         $join['audit'] = 'inner join user_audit_trail uat on (uat.id_user = um1."ID")';
         $where[] = "note_ts @@ plainto_tsquery('simple', ?)";
         $args[] = $_GET['comment'];
     }
 
-    if (!empty($_GET['lastfm'])) {
+    if (strlen($_GET['lastfm'] ?? '')) {
         $distinct = true;
         $join['lfm'] = 'INNER JOIN relay.lastfm_users AS lfm ON (lfm."ID" = um1."ID")';
         $where[] = $m->matchField('lfm."Username"');
         $args[] = $_GET['lastfm'];
     }
 
-    if (isset($_GET['invites']) && !empty($_GET['invites']) && isset($_GET['invites1']) && strlen($_GET['invites1'])) {
+    if (strlen($_GET['invites'] ?? '') && strlen($_GET['invites1'] ?? '')) {
         $op = $_GET['invites'];
         $where[] = $m->op('um1."Invites"', $op);
         $args = array_merge($args, [$_GET['invites1']], ($op === 'between' ? [$_GET['invites2']] : []));
     }
 
-    if ($showInvited && isset($_GET['invited1']) && strlen($_GET['invited1'])) {
+    if ($showInvited && strlen($_GET['invited1'] ?? '')) {
         $op = $_GET['invited'];
         $where[] = 'um1.ID IN ('
             . $m->op('SELECT umi."ID"
@@ -290,7 +289,7 @@ if (empty($_GET)) {
         $args[] = 'disable-upload';
     }
 
-    if (isset($_GET['joined']) && !empty($_GET['joined']) && isset($_GET['join1']) && !empty($_GET['join1'])) {
+    if (strlen($_GET['joined'] ?? '') && strlen($_GET['join1'] ?? '')) {
         $op = $_GET['joined'];
         $where[] = $m->date('um1.created', $op);
         $args[] = $_GET['join1'];
@@ -301,7 +300,7 @@ if (empty($_GET)) {
         }
     }
 
-    if (isset($_GET['lastactive']) && !empty($_GET['lastactive']) && isset($_GET['lastactive1']) && !empty($_GET['lastactive1'])) {
+    if (strlen($_GET['lastactive'] ?? '') && strlen($_GET['lastactive1'] ?? '')) {
         $op = $_GET['lastactive'];
         $where[] = $m->date('ula.last_access', $op);
         $args[] = $_GET['lastactive1'];
@@ -312,7 +311,7 @@ if (empty($_GET)) {
         }
     }
 
-    if (isset($_GET['ratio']) && !empty($_GET['ratio']) && isset($_GET['ratio1']) && strlen($_GET['ratio1'])) {
+    if (strlen($_GET['ratio'] ?? '') && strlen($_GET['ratio1'] ?? '')) {
         $frac = explode('.', $_GET['ratio1']);
         $decimals = strlen(end($frac));
         if (!$decimals) {
@@ -323,19 +322,19 @@ if (empty($_GET)) {
         $args = array_merge($args, [$decimals, $_GET['ratio1']], ($op === 'between' ? [$_GET['ratio2']] : []));
     }
 
-    if (isset($_GET['bounty']) && !empty($_GET['bounty']) && $_GET['bounty'] !== 'off' && isset($_GET['bounty1']) && strlen($_GET['bounty1'])) {
+    if (strlen($_GET['bounty'] ?? '') && $_GET['bounty'] !== 'off' && strlen($_GET['bounty1'] ?? '')) {
         $op = $_GET['bounty'];
         $where[] = $m->op('(SELECT sum("Bounty") FROM relay.requests_votes rv WHERE rv."UserID" = um1."ID")', $op);
         $args = array_merge($args, [$_GET['bounty1'] * 1024 ** 3], ($op === 'between' ? [$_GET['bounty2'] * 1024 ** 3] : []));
     }
 
-    if (isset($_GET['downloads']) && !empty($_GET['downloads']) && $_GET['downloads'] !== 'off' && isset($_GET['downloads1']) && strlen($_GET['downloads1'])) {
+    if (strlen($_GET['downloads'] ?? '') && $_GET['downloads'] !== 'off' && strlen($_GET['downloads1'] ?? '')) {
         $op = $_GET['downloads'];
         $where[] = $m->op('(SELECT count(DISTINCT "TorrentID") FROM relay.users_downloads ud WHERE ud."UserID" = um1."ID")', $op);
         $args = array_merge($args, [$_GET['downloads1']], ($op === 'between' ? [$_GET['downloads2']] : []));
     }
 
-    if (isset($_GET['seeding']) && $_GET['seeding'] !== 'off' && isset($_GET['seeding1'])) {
+    if (strlen($_GET['seeding'] ?? '') && $_GET['seeding'] !== 'off' && strlen($_GET['seeding1'] ?? '')) {
         $op = $_GET['seeding'];
         $where[] = $m->op('(SELECT count(DISTINCT fid)
             FROM relay.xbt_files_users xfu
@@ -344,13 +343,13 @@ if (empty($_GET)) {
         $args = array_merge($args, [$_GET['seeding1']], ($op === 'between' ? [$_GET['seeding2']] : []));
     }
 
-    if (isset($_GET['snatched']) && $_GET['snatched'] !== 'off' && isset($_GET['snatched1'])) {
+    if (strlen($_GET['snatched'] ?? '') && $_GET['snatched'] !== 'off' && strlen($_GET['snatched1'] ?? '')) {
         $op = $_GET['snatched'];
         $where[] = $m->op('(SELECT count(DISTINCT fid) FROM relay.xbt_snatched AS xs WHERE xs.uid = um1."ID")', $op);
         $args = array_merge($args, [$_GET['snatched1']], ($op === 'between' ? [$_GET['snatched2']] : []));
     }
 
-    if (isset($_GET['uploaded']) && !empty($_GET['uploaded']) && isset($_GET['uploaded1']) && strlen($_GET['uploaded1'])) {
+    if (strlen($_GET['uploaded'] ?? '') && strlen($_GET['uploaded1'] ?? '')) {
         $op = $_GET['uploaded'];
         if ($op === 'buffer') {
             $where[] = 'uls1."Uploaded" - uls1."Downloaded" BETWEEN ? AND ?';
@@ -366,7 +365,7 @@ if (empty($_GET)) {
         }
     }
 
-    if (isset($_GET['downloaded']) && !empty($_GET['downloaded']) && isset($_GET['downloaded1']) && strlen($_GET['downloaded1'])) {
+    if (strlen($_GET['downloaded'] ?? '') && strlen($_GET['downloaded1'] ?? '')) {
         $op = $_GET['downloaded'];
         $where[] = $m->op('uls1."Downloaded"', $op);
         $args[] = $_GET['downloaded1'] * 1024 ** 3;
@@ -377,7 +376,7 @@ if (empty($_GET)) {
         }
     }
 
-    if (isset($_GET['enabled']) && $_GET['enabled'] != '') {
+    if (strlen($_GET['enabled'] ?? '')) {
         $where[] = 'um1."Enabled" = ?';
         $args[] = $_GET['enabled'];
     }
@@ -387,13 +386,13 @@ if (empty($_GET)) {
         $args = array_merge($args, $_GET['class']);
     }
 
-    if (isset($_GET['secclass']) && $_GET['secclass'] != '') {
+    if (strlen($_GET['secclass'] ?? '')) {
         $join['ul'] = 'INNER JOIN relay.users_levels AS ul ON (um1."ID" = ul."UserID")';
         $where[] = 'ul."PermissionID" = ?';
         $args[] = $_GET['secclass'];
     }
 
-    if (isset($_GET['warned']) && !empty($_GET['warned'])) {
+    if (isset($_GET['warned'])) {
         $where[] = $m->op('ui1."Warned"', $_GET['warned']);
     }
 
@@ -409,17 +408,17 @@ if (empty($_GET)) {
         }
     }
 
-    if (isset($_GET['passkey']) && !empty($_GET['passkey'])) {
+    if (strlen($_GET['passkey'] ?? '')) {
         $where[] = $m->matchField('um1.torrent_pass');
         $args[] = $_GET['passkey'];
     }
 
-    if (isset($_GET['avatar']) && !empty($_GET['avatar'])) {
+    if (strlen($_GET['avatar'] ?? '')) {
         $where[] = $m->matchField('um1.avatar');
         $args[] = $_GET['avatar'];
     }
 
-    if (isset($_GET['stylesheet']) && !empty($_GET['stylesheet'])) {
+    if (strlen($_GET['stylesheet'] ?? '')) {
         $where[] = $m->matchField('um1.stylesheet_id');
         $args[] = $_GET['stylesheet'];
     }

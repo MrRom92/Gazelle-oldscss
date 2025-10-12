@@ -16,8 +16,8 @@ if (is_null($user)) {
     Error404::error();
 }
 
-$ownProfile = $user->id === $Viewer->id();
-$showUnread = $ownProfile && (bool)($_GET['showunread'] ?? false);
+$ownProfile  = $user->id === $Viewer->id;
+$showUnread  = $ownProfile && (bool)($_GET['showunread'] ?? false);
 $showGrouped = $ownProfile && (bool)($_GET['group'] ?? false);
 
 if ($showGrouped) {

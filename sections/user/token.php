@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-$userId = (int)($_GET['user_id'] ?? $Viewer->id());
+$userId = (int)($_GET['user_id'] ?? $Viewer->id);
 $user = new User($userId);
 
 $tokenId = (int)($_GET['token_id'] ?? 0);
@@ -16,7 +16,7 @@ $tokenName = '';
 
 $_GET['do'] ??= '';
 
-if (!empty($_GET['do']) && $userId !== $Viewer->id() && !$Viewer->permitted('users_mod')) {
+if (strlen($_GET['do']) && $userId !== $Viewer->id && !$Viewer->permitted('users_mod')) {
     Error403::error();
 }
 
@@ -25,8 +25,8 @@ if ($_GET['do'] === 'revoke') {
     header("Location: {$user->location()}&action=edit");
     exit;
 } elseif ($_GET['do'] === 'generate') {
-    $tokenName = $_POST['token_name'] ?? '';
-    if (empty($tokenName)) {
+    $tokenName = trim($_POST['token_name'] ?? '');
+    if (!strlen($tokenName)) {
         $error = 'You must supply a name for the token.';
     } elseif ($user->hasApiTokenByName($tokenName)) {
         $error = 'You have already generated a token with that name.';
