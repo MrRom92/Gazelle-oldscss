@@ -1,4 +1,5 @@
 <?php
+/** @phpstan-var \Gazelle\User $user */
 /** @phpstan-var \Gazelle\User $Viewer */
 /** @phpstan-var \Twig\Environment $Twig */
 
@@ -6,27 +7,39 @@ declare(strict_types=1);
 
 namespace Gazelle;
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start(['read_and_close' => true]);
+if (!isset($user)) {
+    Error500::error();
+}
+$mfa = $user->MFA();
+if ($mfa->enabled()) {
+    Error400::error('MFA is already configured');
 }
 
-$mfa  = $Viewer->MFA();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 $valid = true;
-if (!empty($_SESSION['private_key'])) {
+if (isset($_SESSION['private_key'], $_POST['mfa'])) {
     $secret = $_SESSION['private_key'];
-    if (isset($_POST['mfa'])) {
-        if ($mfa->verifyCode($secret, trim($_POST['mfa']))) {
-            header("Location: user.php?action=mfa&do=complete&userid={$Viewer->id}");
-            exit;
+    if ($mfa->verifyCode($secret, trim($_POST['mfa']))) {
+        $recoveryKeys = $user->MFA()->create(new Manager\UserToken(), $_SESSION['private_key'], $Viewer);
+        if (!$recoveryKeys) {
+            Error400::error('failed to create MFA');
         }
-        $valid = false;
+        unset($_SESSION['private_key']);
+        session_write_close();
+
+        echo $Twig->render('user/mfa/complete.twig', [
+            'keys' => $recoveryKeys,
+        ]);
+        exit;
     }
+    session_abort();
+    $valid = false;
 } else {
-    $secret = $mfa->generateSessionSecret();
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-    $_SESSION['private_key'] = $secret;
+    authorize();
+    $_SESSION['private_key'] = $secret = $mfa->generateSessionSecret();
     session_write_close();
 }
 
@@ -34,5 +47,4 @@ echo $Twig->render('user/mfa/configure.twig', [
     'valid'  => $valid,
     'qrcode' => $mfa->generateQrCode(secret: $secret, logo: QRCODE_LOGO),
     'secret' => $secret,
-    'viewer' => $Viewer,
 ]);

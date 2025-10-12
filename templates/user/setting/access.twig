@@ -85,7 +85,7 @@
 {% set has_mfa = user.MFA.enabled %}
             Multi Factor authentication is currently <strong class="{{ has_mfa ? 'r99' : 'warning' }}">{{ has_mfa ? 'enabled' : 'disabled' }}</strong> for your account.
             <br><br>
-            <a href="user.php?action=mfa&amp;do={{ has_mfa ? 'remove' : 'configure' }}&amp;userid={{ user.id }}">Click here to {{ has_mfa ? 'remove' : 'configure' }}</a>
+            <a href="user.php?action=mfa&amp;do={{ has_mfa ? 'remove' : 'configure' }}&amp;userid={{ user.id }}&amp;auth={{ viewer.auth }}">Click here to {{ has_mfa ? 'remove' : 'configure' }}</a>
         </td>
     </tr>
 

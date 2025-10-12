@@ -1,27 +1,30 @@
 <?php
+/** @phpstan-var \Gazelle\User $user */
 /** @phpstan-var \Gazelle\User $Viewer */
+/** @phpstan-var \Twig\Environment $Twig */
 
 declare(strict_types=1);
 
 namespace Gazelle;
 
-// Remove MFA. Users have to enter their password, moderators skip this step.
-$user = new Manager\User()->findById((int)($_GET['userid'] ?? 0));
-if (is_null($user)) {
-    Error404::error();
+if (!isset($user)) {
+    Error500::error();
 }
 if (!$user->MFA()->enabled()) {
     Error400::error('No MFA configured');
 }
 
-if (!$Viewer->permitted('users_edit_password')) {
+// Remove MFA. Users have to enter their password, moderators skip this step.
+if ($Viewer->permitted('users_edit_password')) {
+    authorize();
+} else {
     if ($user->id !== $Viewer->id) {
         Error403::error();
-    } elseif (empty($_POST['password'])) {
-        include_once 'confirm.php';
+    } elseif (!isset($_POST['password'])) {
+        echo $Twig->render('user/mfa/remove.twig', ['bad' => false]);
         exit;
     } elseif (!$user->validatePassword($_POST['password'])) {
-        header("Location: user.php?action=mfa&do=remove&invalid=1&userid={$user->id}");
+        echo $Twig->render('user/mfa/remove.twig', ['bad' => true]);
         exit;
     }
 }

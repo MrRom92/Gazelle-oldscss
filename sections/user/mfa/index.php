@@ -7,28 +7,14 @@ namespace Gazelle;
 
 $user = new Manager\User()->findById((int)($_REQUEST['userid'] ?? 0));
 if (is_null($user)) {
-    Error404::error();
+    Error404::error('No such user');
 }
 if ($user->id != $Viewer->id && !$Viewer->permitted('users_mod')) {
     Error403::error();
 }
 
-switch ($_GET['do'] ?? '') {
-    case 'configure':
-        if ($user->MFA()->enabled()) {
-            Error400::error('MFA is already configured');
-        }
-        include_once __DIR__ . '/configure.php';
-        break;
-
-    case 'complete':
-        include_once __DIR__ . '/complete.php';
-        break;
-
-    case 'remove':
-        include_once __DIR__ . '/remove.php';
-        break;
-
-    default:
-        Error404::error();
-}
+require_once __DIR__ . '/' . match ($_GET['do'] ?? '') {
+    'configure' => 'configure.php',
+    'remove'    => 'remove.php',
+    default     => Error404::error(),
+};

@@ -6,17 +6,17 @@
 
     <p>We have generated a secure secret that only we should share. Please
     import it into your phone, either by scanning the QR key, or copying
-    in the Secret Text below it. We recommend using the Authy app which
-    you can find in the <a href="https://itunes.apple.com/gb/app/authy/id494168017?mt=8">App
+    in the Secret Text below it. We recommend using the 2FAS app which
+    you can find in the <a href="https://apps.apple.com/gb/app/2fa-authenticator-2fas/id1217793794">Apple App
 	Store</a> or
-    <a href="https://play.google.com/store/apps/details?id=com.authy.authy&hl=en_GB">Play
-	Store</a>. Other authenticator apps will work too.</p>
+    <a href="https://play.google.com/store/apps/details?id=com.twofasapp">Google Play
+	Store</a>. Other authenticator apps that support TOTP will work too.</p>
 </div>
 
 <div class="box box2">
     <div class="center pad">
 	<div>
-        <img src="{{ qrcode.getDataUri }}">
+        <img alt="MFA QR code" src="{{ qrcode.getDataUri }}">
         <div class="mfa_text">Secret Text: <span>{{ secret }}</span></div>
 {% if not valid %}
         <p class="warning">Please ensure you have imported the correct secret key
@@ -37,5 +37,6 @@
     <label for="mfa"><strong>Authentication Key</strong></label>
     &nbsp;&nbsp;&nbsp;<input type="text" size="8" name="mfa" id="mfa"/>
     &nbsp;&nbsp;&nbsp;<input type="submit" value="Authenticate!">
+    </form>
 </div>
 {{ footer() }}

@@ -120,7 +120,7 @@
 {%  endif %}
 
 {%  if viewer.permitted('users_edit_password') %}
-{%      include 'user/edit-password.twig' with {'user': user} only %}
+{%      include 'user/edit-password.twig' with {'user': user, 'viewer': viewer} only %}
 {%  endif %}
 
 </table>
