@@ -2,9 +2,9 @@
 <?php
 
 /**
- * Script to clean broken uploads
+ * Script to rescore logs that were scored with an older version of Logchecker.
  *
- * Usage: rescore-logs [--dry-run] [--limit <n>] [--offset <n>]
+ * Usage: rescore-logs [--dry-run] [--include-adjusted] [--limit <n>] [--offset <n>]
  */
 
 namespace Gazelle;
@@ -14,6 +14,7 @@ use OrpheusNET\Logchecker\Logchecker;
 require_once(__DIR__ . '/../lib/bootstrap.php');
 
 $dryRun = in_array('--dry-run', $argv);
+$includeAdjusted = in_array('--include-adjusted', $argv);
 
 $limitKey = array_find_key($argv, fn ($val) => $val === '--limit');
 if ($limitKey !== null) {
@@ -38,32 +39,48 @@ if ($offsetKey !== null) {
 $logcheckerVersion = Logchecker::getLogcheckerVersion();
 [$major, $minor, $patch] = explode('.', $logcheckerVersion);
 
+$extra = '';
+$args = [$major, $major, $minor, $major, $minor, $patch];
+
 $db = DB::DB();
 
+if (!$includeAdjusted) {
+    $extra = 'AND Adjusted = ?';
+    $args[] = '0';
+}
+
+$args[] = $limit;
+$args[] = $offset;
+
 $db->prepared_query("
-    SELECT TorrentID, LogID, Score
-    FROM torrents_logs
+    SELECT tl.TorrentID, tl.LogID, tl.Score
+    FROM torrents_logs AS tl
+    INNER JOIN torrents AS t ON (t.ID = tl.TorrentID)
     WHERE
-        LogcheckerVersion = ''
-        OR CAST(SUBSTRING_INDEX(LogcheckerVersion, '.', 1) AS UNSIGNED) < ?
-        OR (
-            CAST(SUBSTRING_INDEX(LogcheckerVersion, '.', 1) AS UNSIGNED) = ? AND
-            CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(LogcheckerVersion, '.', 2), '.', -1) AS UNSIGNED) < ?
+        (
+            LogcheckerVersion = ''
+            OR CAST(SUBSTRING_INDEX(LogcheckerVersion, '.', 1) AS UNSIGNED) < ?
+            OR (
+                CAST(SUBSTRING_INDEX(LogcheckerVersion, '.', 1) AS UNSIGNED) = ? AND
+                CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(LogcheckerVersion, '.', 2), '.', -1) AS UNSIGNED) < ?
+            )
+            OR (
+                CAST(SUBSTRING_INDEX(LogcheckerVersion, '.', 1) AS UNSIGNED) = ? AND
+                CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(LogcheckerVersion, '.', 2), '.', -1) AS UNSIGNED) = ? AND
+                CAST(SUBSTRING_INDEX(LogcheckerVersion, '.', -1) AS UNSIGNED) < ?
+            )
         )
-        OR (
-            CAST(SUBSTRING_INDEX(LogcheckerVersion, '.', 1) AS UNSIGNED) = ? AND
-            CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(LogcheckerVersion, '.', 2), '.', -1) AS UNSIGNED) = ? AND
-            CAST(SUBSTRING_INDEX(LogcheckerVersion, '.', -1) AS UNSIGNED) < ?
-        )
+        {$extra}
     ORDER BY LogID, TorrentID
     LIMIT ? OFFSET ?
-", $major, $major, $minor, $major, $minor, $patch, $limit, $offset);
+", ...$args);
 
 $i = 0;
 /** @var Torrent|null */
 $torrent = null;
 
 while (true) {
+    $db->set_query_id($queryId);
     $row = $db->next_row(MYSQLI_NUM);
     if (!$row) {
         if (!$dryRun) {
